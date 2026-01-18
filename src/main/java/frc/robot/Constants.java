@@ -26,18 +26,24 @@ public final class Constants {
   public static class railgunConstants {
         
     //Everything in metric pls
-    public static int lowerWheelId = 2;
+    public static int lowerId = 2;
     public static int upperId = 3;
+    public static int hoodId = 4;
     public static double g = 9.8;
     public static double tan75 = 3.73205;
     public static double cos75 = 0.258819;
     public static double height = 1.83;
     public static double radius = 0.0508;
-    public static double gearRatio = 1;
-
+    public static double gearRatioUpper = 1;
+    public static double gearRatioLower = 2;
+    public static double gearRatioHood = 3;
+    public static double upperAngle = 180;
+    public static double lowerAngle = 90;
+    public static double maxVelo = 10;
+    public static double velocityLow = 10;
 
   }
-  
+
   public static class SwerveDriveConstants {
 
     // Motor Constants (DRIVE)

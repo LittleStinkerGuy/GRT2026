@@ -75,8 +75,10 @@ public class RobotContainer {
       new RunCommand(
           () -> {
             boolean l1 = gamer.L1().getAsBoolean();
-            boolean r1 = gamer.R1().getAsBoolean();
-            gun.input(r1, l1); 
+            double r2 = gamer.getR2Axis();
+            int POV = gamer.getHID().getPOV();
+            boolean options = gamer.options().getAsBoolean();
+            gun.input(r2, l1, POV, options); 
           },
           gun));
       
