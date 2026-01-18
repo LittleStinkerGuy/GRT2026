@@ -122,7 +122,20 @@ public class railgun extends SubsystemBase {
 
         }else{
 
-            spinner.Velocity = velocity*railgunConstants.gearRatioUpper/(2*Math.PI*railgunConstants.radius);
+            velocity = calculateVel();
+
+            if(r > 0){
+                spinner.Velocity = velocity*railgunConstants.gearRatioUpper/(2*Math.PI*railgunConstants.radius);
+                low.Velocity = railgunConstants.velocityLow;
+             }
+
+             if(l){
+                //call for align swerve base
+             }
+
+             if(){
+                // find pose, adjust angle
+             }
         }
 
     }
