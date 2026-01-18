@@ -6,7 +6,7 @@ package frc.robot;
 
 // frc imports
 import frc.robot.controllers.PS5DriveController;
-
+import frc.robot.subsystems.shooter.railgun;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -34,6 +34,8 @@ public class RobotContainer {
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private railgun gun = new railgun();
+   private CommandPS5Controller gamer = new CommandPS5Controller(0);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -68,6 +70,15 @@ public class RobotContainer {
         swerveSubsystem
       )
     );
+
+    gun.setDefaultCommand(
+      new RunCommand(
+          () -> {
+            boolean l1 = gamer.L1().getAsBoolean();
+            boolean r1 = gamer.R1().getAsBoolean();
+            gun.input(r1, l1); 
+          },
+          gun));
       
     driveController.getRelativeMode().whileTrue(
       new RunCommand(

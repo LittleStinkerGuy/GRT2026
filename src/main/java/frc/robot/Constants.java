@@ -22,6 +22,22 @@ import frc.robot.util.AlignUtil;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static class railgunConstants {
+        
+    //Everything in metric pls
+    public static int lowerWheelId = 2;
+    public static int upperId = 3;
+    public static double g = 9.8;
+    public static double tan75 = 3.73205;
+    public static double cos75 = 0.258819;
+    public static double height = 1.83;
+    public static double radius = 0.0508;
+    public static double gearRatio = 1;
+
+
+  }
+  
   public static class SwerveDriveConstants {
 
     // Motor Constants (DRIVE)
