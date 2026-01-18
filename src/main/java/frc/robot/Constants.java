@@ -56,10 +56,10 @@ public final class Constants {
     public static final double[] DRIVE_V = new double[] {0.12, 0.12, 0.12, 0.12}; // Velocity feedforward
 
     // Swerve Steer PID values (Position Control)
-    public static final double[] STEER_P = new double[] {30, 30, 30, 30};
+    public static final double[] STEER_P = new double[] {100, 100, 100, 100};
     public static final double[] STEER_I = new double[] {0, 0, 0, 0};
-    public static final double[] STEER_D = new double[] {1, 1, 1, 1};
-    public static final double[] STEER_FF = new double[] {0.5, 0.5, 0.5, 0.5}; 
+    public static final double[] STEER_D = new double[] {0.1, 0.1, 0.1, 0.1};
+    public static final double[] STEER_FF = new double[] {0, 0, 0, 0}; 
 
     // Front Left Module
     public static final int    FL_DRIVE   = 0;
