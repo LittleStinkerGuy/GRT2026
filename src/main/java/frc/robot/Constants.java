@@ -25,40 +25,41 @@ public final class Constants {
   public static class SwerveDriveConstants {
 
     // Motor Constants (DRIVE)
-    public static final double DRIVE_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps, this number is in CTRE docs 
-    public static final double DRIVE_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle NEED TO TUNE
+    public static final double DRIVE_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps
+    public static final double DRIVE_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle
 
     // Physical Measurements (DRIVE)
-    public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4 * Math.PI); // Circumference of the drive wheel in Meters
-    public static final double DRIVE_GEAR_REDUCTION = 180. / 26.; // Gear reduction ratio  for Drive
+    public static final double DRIVE_WHEEL_RADIUS = 2.0; // Wheel radius in inches
+    public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS); // Circumference of the drive wheel in meters
+    public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // Gear reduction ratio for Drive (8.25)
 
 
   }
   public static class SwerveSteerConstants{
       // Motor Constants (STEER)
-      public static final double STEER_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps, this number is in CTRE docs 
-      public static final double STEER_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle NEED TO TUNE
-  
+      public static final double STEER_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps
+      public static final double STEER_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle
+
       // Physical Measurements (STEER)
-      public static final double STEER_GEAR_REDUCTION = 444/35.0; // Gear reduction ratio for steer
-  
+      public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // Gear reduction ratio for steer (22.857142...)
+
 
   }
 
   public static class SwerveConstants{
 
-    // Swerve Drive PID values
-    public static final double[] DRIVE_P = new double[] {9.5, 9.5, 9.5, 9.5}; 
+    // Swerve Drive PID values (Velocity Control)
+    public static final double[] DRIVE_P = new double[] {9.5, 9.5, 9.5, 9.5};
     public static final double[] DRIVE_I = new double[] {0, 0, 0, 0};
     public static final double[] DRIVE_D = new double[] {0.1, 0.1, 0.1, 0.1};
-    public static final double[] DRIVE_S = new double[] {5, 5, 5, 5};
-    public static final double[] DRIVE_V = new double[] {0.0, 0.0, 0.0, 0.0}; 
+    public static final double[] DRIVE_S = new double[] {0.5, 0.5, 0.5, 0.5}; // Static friction compensation
+    public static final double[] DRIVE_V = new double[] {0.12, 0.12, 0.12, 0.12}; // Velocity feedforward
 
-    // Swerve Steer PID values
-    public static final double[] STEER_P = new double[] {50, 50, 50, 50};
-    public static final double[] STEER_I = new double[] {1, 1, 1, 1};
+    // Swerve Steer PID values (Position Control)
+    public static final double[] STEER_P = new double[] {30, 30, 30, 30};
+    public static final double[] STEER_I = new double[] {0, 0, 0, 0};
     public static final double[] STEER_D = new double[] {1, 1, 1, 1};
-    public static final double[] STEER_FF = new double[] {2,2,2,2}; 
+    public static final double[] STEER_FF = new double[] {0.5, 0.5, 0.5, 0.5}; 
 
     // Front Left Module
     public static final int    FL_DRIVE   = 0;
@@ -85,16 +86,18 @@ public final class Constants {
     public static final double BR_OFFSET  = 0;
 
     // Module distance from center (in meters)
-    public static final double MODULE_X_DIST = Units.inchesToMeters(33 / 2.0);
-    public static final double MODULE_Y_DIST = Units.inchesToMeters(27 / 2.0);
+    // Square configuration: distance between adjacent modules (FL to FR, or FL to BL) is 25.450 inches
+    public static final double MODULE_SPACING = 25.450; // Distance between adjacent modules in inches
+    public static final double MODULE_DIST_FROM_CENTER = Units.inchesToMeters(MODULE_SPACING / 2.0); // Half the spacing = distance from center
 
-    // Module positions relative to robot center
-    public static final Translation2d FL_POS = new Translation2d( MODULE_X_DIST,  MODULE_Y_DIST);
-    public static final Translation2d FR_POS = new Translation2d( MODULE_X_DIST, -MODULE_Y_DIST);
-    public static final Translation2d BL_POS = new Translation2d(-MODULE_X_DIST,  MODULE_Y_DIST);
-    public static final Translation2d BR_POS = new Translation2d(-MODULE_X_DIST, -MODULE_Y_DIST);
+    // Module positions relative to robot center (square configuration)
+    public static final Translation2d FL_POS = new Translation2d( MODULE_DIST_FROM_CENTER,  MODULE_DIST_FROM_CENTER);
+    public static final Translation2d FR_POS = new Translation2d( MODULE_DIST_FROM_CENTER, -MODULE_DIST_FROM_CENTER);
+    public static final Translation2d BL_POS = new Translation2d(-MODULE_DIST_FROM_CENTER,  MODULE_DIST_FROM_CENTER);
+    public static final Translation2d BR_POS = new Translation2d(-MODULE_DIST_FROM_CENTER, -MODULE_DIST_FROM_CENTER);
 
-    public static final double MAX_VEL = 4800. / 6.923 / 60. * 2. * 2. * Math.PI * .0254; // Kraken speed / gear ratio / reduced to per second * circumference * convert to meters
+    // Maximum velocity calculation: Kraken max RPM / gear ratio / 60 (convert to per second) * wheel circumference
+    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0 * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
     public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
     
 

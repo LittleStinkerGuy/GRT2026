@@ -123,7 +123,7 @@ public class SteerMotor2 extends SubsystemBase{
         * Feedforward Control (kFF, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
         *      instead of waiting for an error to happen first.
         */
-        slot0Configs.kS = ff;
+        slot0Configs.kV = ff;
         
         motor.getConfigurator().apply(slot0Configs);
     }
