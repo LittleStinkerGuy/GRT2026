@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
@@ -167,5 +168,22 @@ public class PivotIntake extends SubsystemBase {
       setEncoderToMax();
     }
     previousTopLimitState = topLimit;
+
+    // SmartDashboard!
+    
+    // Position
+    SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
+    SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
+
+    // Limit switches 
+    SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
+    SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
+
+    // Motor status
+    SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
+    SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/Current", pivotMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/Voltage", pivotMotor.getMotorVoltage().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/MotorTemp", pivotMotor.getDeviceTemp().getValueAsDouble());
   }
 }
