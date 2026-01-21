@@ -9,6 +9,16 @@ import frc.robot.controllers.PS5DriveController;
 
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.Intake.RollerIntake;
+import frc.robot.subsystems.Intake.PivotIntake;
+import frc.robot.Constants.IntakeConstants;
+
+//comands
+ 
+import frc.robot.commands.intake.ManualIntakePivot;
+import frc.robot.commands.intake.SetIntakePivot;
+
+
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -34,6 +44,9 @@ public class RobotContainer {
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private RollerIntake intakeSubsystem = new RollerIntake();
+  private PivotIntake pivotIntake = new PivotIntake();
+
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -89,6 +102,53 @@ public class RobotContainer {
       },
       swerveSubsystem
     );
+
+    // Intake pivot controls
+
+     mechController.square().onTrue(
+      new SetIntakePivot(pivotIntake, IntakeConstants.STOWED_POS)
+    );
+
+    // Cross button -> Position 2
+    mechController.cross().onTrue(
+      new SetIntakePivot(pivotIntake, IntakeConstants.EXTENDED_POS)
+    );
+
+
+    /* Intake Controls - Hold button to run rollers */
+    // R2 - intake in
+    mechController.R2().whileTrue(
+      new RunCommand(
+        () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
+        intakeSubsystem
+      )
+    ).onFalse(
+      new RunCommand(
+        () -> intakeSubsystem.stop(),
+        intakeSubsystem
+      ).withTimeout(0.02)
+    );
+
+    // L2 - intake out
+    mechController.L2().whileTrue(
+      new RunCommand(
+        () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
+        intakeSubsystem
+      )
+    ).onFalse(
+      new RunCommand(
+        () -> intakeSubsystem.stop(),
+        intakeSubsystem
+      ).withTimeout(0.02)
+    );
+
+     // Pivot Configs: R2 for pivot up and L2 for pivot down
+    pivotIntake.setDefaultCommand(
+     new ManualIntakePivot(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
+     )
+   );
+
+
   }
 
   /**
