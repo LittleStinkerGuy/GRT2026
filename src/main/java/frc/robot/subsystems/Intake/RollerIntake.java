@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
@@ -34,8 +35,14 @@ public class RollerIntake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        
-        }
+        // Motor status
+        SmartDashboard.putNumber("Intake/Roller/DutyCycle", rollerMotor.get());
+        SmartDashboard.putNumber("Intake/Roller/Velocity", rollerMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/Current", rollerMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/Voltage", rollerMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/MotorTemp", rollerMotor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Intake/Roller/IsRunning", Math.abs(rollerMotor.get()) > 0.01);
+    }
 
     /**
      * Run intake rollers at specified duty cycle (percent output)
