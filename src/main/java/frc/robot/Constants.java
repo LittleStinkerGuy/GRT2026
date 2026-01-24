@@ -29,6 +29,7 @@ public final class Constants {
     public static int lowerId = 2;
     public static int upperId = 3;
     public static int hoodId = 4;
+    public static int limitId = 6;
     public static double g = 9.8;
     public static double tan75 = 3.73205;
     public static double cos75 = 0.258819;
@@ -41,6 +42,8 @@ public final class Constants {
     public static double lowerAngle = 90;
     public static double maxVelo = 10;
     public static double velocityLow = 10;
+    public static double initHoodAngle = 80;
+    
 
   }
 

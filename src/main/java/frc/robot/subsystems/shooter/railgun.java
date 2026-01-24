@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
+import com.ctre.phoenix6.hardware.CANdi;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
@@ -36,6 +37,7 @@ public class railgun extends SubsystemBase {
     private VelocityVoltage spinner = new VelocityVoltage(0);
     private VelocityVoltage low = new VelocityVoltage(0);
     private PositionTorqueCurrentFOC focThing = new PositionTorqueCurrentFOC(0);
+    private CANdi limit = new CANdi(railgunConstants.limitId);
     int motorTuning = 1;
     boolean manual = false;
     double hoodAngle = 75;
@@ -99,6 +101,10 @@ public class railgun extends SubsystemBase {
 
     boolean prevOptions = false;
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
+
+        if(limit.getS1Closed().refresh().getValue()){
+            hoodMotor.setPosition(railgunConstants.initHoodAngle);
+        }
 
         if(options && !prevOptions){
             manual = !manual;
