@@ -125,6 +125,10 @@ public class railgun extends SubsystemBase {
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
 
         if(limit.getS1Closed().refresh().getValue()){
+            CANcoderConfiguration cfg = new CANcoderConfiguration();
+            cfg.MagnetSensor.MagnetOffset = - hoodEncoder.getAbsolutePosition().getValue();
+        
+            hoodEncoder.getConfigurator().apply(cfg);
             hoodMotor.setPosition(railgunConstants.initHoodAngle);
         }
 
