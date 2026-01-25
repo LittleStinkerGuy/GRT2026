@@ -3,6 +3,11 @@ import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import java.util.EnumSet;
 
@@ -41,6 +46,8 @@ public class railgun extends SubsystemBase {
     int motorTuning = 1;
     boolean manual = false;
     double hoodAngle = 75;
+    private final CANcoder hoodEncoder =
+    new CANcoder(railgunConstants.hoodEncoderId, "can");
     
     
     public railgun(){
@@ -86,6 +93,21 @@ public class railgun extends SubsystemBase {
     private void configure(){
         //set gear ratios
         //set init positions
+        
+        CANcoderConfiguration cfg = new CANcoderConfiguration();
+        cfg.MagnetSensor.AbsoluteSensorRange =
+            AbsoluteSensorRangeValue.Signed_PlusMinusHalf; // [-0.5, 0.5)
+        cfg.MagnetSensor.MagnetOffset =
+            railgunConstants.hoodMagnetOffset; // radians or rotations
+        cfg.MagnetSensor.SensorDirection =
+            railgunConstants.hoodEncoderInverted;
+        hoodEncoder.getConfigurator().apply(cfg);
+
+        FeedbackConfigs fb = new FeedbackConfigs();
+        fb.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        fb.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
+        fb.SensorToMechanismRatio = railgunConstants.hoodGearRatio;
+        hoodMotor.getConfigurator().apply(fb);
     }
 
     private double calculateVel(){
@@ -132,7 +154,7 @@ public class railgun extends SubsystemBase {
 
             if(r > 0){
                 spinner.Velocity = velocity*railgunConstants.gearRatioUpper/(2*Math.PI*railgunConstants.radius);
-                low.Velocity = railgunConstants.velocityLow;
+                //low.Velocity = railgunConstants.velocityLow;
              }
 
              if(l){
@@ -158,7 +180,7 @@ public class railgun extends SubsystemBase {
 
 
          //just reset every 20 ms, simpler that way, and apparently this is how it was meant to be done
-         lowerMotor.setControl(new VelocityVoltage(low.Velocity));
+         //lowerMotor.setControl(new VelocityVoltage(low.Velocity));
          upperMotor.setControl(new VelocityVoltage(spinner.Velocity));
          hoodMotor.setControl(focThing.withPosition(hoodAngle));
         
