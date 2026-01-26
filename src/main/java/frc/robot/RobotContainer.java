@@ -17,11 +17,14 @@ import frc.robot.Constants.IntakeConstants;
  
 import frc.robot.commands.intake.ManualIntakePivot;
 import frc.robot.commands.intake.SetIntakePivot;
-
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -47,6 +50,9 @@ public class RobotContainer {
   private RollerIntake intakeSubsystem = new RollerIntake();
   private PivotIntake pivotIntake = new PivotIntake();
 
+  private final Field2d m_field = new Field2d();
+
+
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -54,6 +60,9 @@ public class RobotContainer {
     constructDriveController(); 
     constructMechController();
     configureBindings();
+
+    CameraServer.startAutomaticCapture(); // start driver cam
+    SmartDashboard.putData("Field", m_field);
   }
 
   /**
@@ -149,6 +158,12 @@ public class RobotContainer {
    );
 
 
+
+  }
+  public void updateField() {
+    // Get your robot's current pose from your drivetrain
+    Pose2d robotPose = swerveSubsystem.getRobotPosition();
+    m_field.setRobotPose(robotPose);
   }
 
   /**

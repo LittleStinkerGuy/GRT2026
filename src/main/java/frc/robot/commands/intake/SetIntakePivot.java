@@ -4,23 +4,45 @@
 
 package frc.robot.commands.intake;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake.PivotIntake;
 
 
-public class SetIntakePivot extends InstantCommand {
+public class SetIntakePivot extends Command {
+  private final PivotIntake pivotIntake;
+  private final double targetAngle;
+
   /**
    * Creates a new SetPivotPosition command.
    *
-   * @param PivotIntake The intake pivot subsystem
+   * @param pivotIntake The intake pivot subsystem
    * @param targetAngle Target angle in degrees
    */
   public SetIntakePivot(PivotIntake pivotIntake, double targetAngle) {
-    super(
-      () -> {
-        pivotIntake.setAngle(targetAngle);
-      },
-      pivotIntake
-    );
+    this.pivotIntake = pivotIntake;
+    this.targetAngle = targetAngle;
+    addRequirements(pivotIntake);
+  }
+
+  @Override
+  public void initialize() {
+    pivotIntake.setAngle(targetAngle);
+  }
+
+  @Override
+  public void execute() {
+    // Continuously hold the position
+    pivotIntake.setAngle(targetAngle);
+  }
+
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    // manual control will take over when interrupted
   }
 }
+

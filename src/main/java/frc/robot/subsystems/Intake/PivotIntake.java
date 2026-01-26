@@ -60,7 +60,7 @@ public class PivotIntake extends SubsystemBase {
   private void configMotors() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
-    // PID Config for position control 
+    // PID Config for position control
     // I know I'm just coding manual atm but like surely we'll have stowed / extended positions eventually
     config.Slot0.kP = IntakeConstants.PIVOT_P;
     config.Slot0.kI = IntakeConstants.PIVOT_I;
@@ -69,6 +69,9 @@ public class PivotIntake extends SubsystemBase {
 
     // Break mode!
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    // Apply configuration to motor
+    pivotMotor.getConfigurator().apply(config);
   }
 
   //  Config encoder
