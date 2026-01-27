@@ -6,7 +6,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -38,7 +38,7 @@ public class DriveMotor {
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // For fine control of velocity and torque using FOC (Field-Oriented Control)
-    private VelocityTorqueCurrentFOC torqueCurrentFOC = new VelocityTorqueCurrentFOC(0).withSlot(0);
+    private VelocityVoltage Voltage = new VelocityVoltage(0).withSlot(0);
 
     // Target speed in rotations per second
     private double targetRotationsPerSec = 0;
@@ -163,7 +163,7 @@ public class DriveMotor {
 
         targetRotationsPerSec = metersPerSec / DRIVE_WHEEL_CIRCUMFERENCE * DRIVE_GEAR_REDUCTION; //turns meters per sec into wheel rotation per sec
         //disabled set velocity for noise reduction
-        motor.setControl(torqueCurrentFOC.withVelocity(targetRotationsPerSec)); //apply this constant speed 
+        // motor.setControl(Voltage.withVelocity(targetRotationsPerSec)); //apply this constant speed 
         
     }
 

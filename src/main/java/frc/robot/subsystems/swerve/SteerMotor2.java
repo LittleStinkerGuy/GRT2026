@@ -7,14 +7,18 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_RAMP_RATE;
 import java.util.EnumSet;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -49,7 +53,8 @@ public class SteerMotor2 extends SubsystemBase{
     private CANcoder cancoder;
     private final boolean enableEncoder = true;
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    private PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0)
+    private final CANcoderConfiguration encoderConfig  = new CANcoderConfiguration();
+    private PositionVoltage positionRequest = new PositionVoltage(0)
                 .withSlot(0)
                 .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
@@ -64,7 +69,8 @@ public class SteerMotor2 extends SubsystemBase{
 
         // By Default Robot will not move
         motorConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // required if motor spins opposite 
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+         // required if motor spins opposite 
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
  
 
@@ -98,8 +104,9 @@ public class SteerMotor2 extends SubsystemBase{
         // Reset motor position to 0 for consistent starting point
         motor.setPosition(0);
     }
+    
 
-    public void configPID(double p, double i, double d, double ff) {
+    public void configPID(double p, double i, double d, double s) {
 
         Slot0Configs slot0Configs = new Slot0Configs(); //used to store and update PID values
         /*
@@ -120,10 +127,10 @@ public class SteerMotor2 extends SubsystemBase{
         slot0Configs.kD = d;
 
         /*
-        * Feedforward Control (kFF, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
+        * Feedforward Control (kS, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
         *      instead of waiting for an error to happen first.
         */
-        slot0Configs.kV = ff;
+        slot0Configs.kS = s;
         
         motor.getConfigurator().apply(slot0Configs);
     }

@@ -14,9 +14,10 @@ import static frc.robot.Constants.SwerveConstants.DRIVE_P;
 import static frc.robot.Constants.SwerveConstants.DRIVE_S;
 import static frc.robot.Constants.SwerveConstants.DRIVE_V;
 import static frc.robot.Constants.SwerveConstants.STEER_D;
-import static frc.robot.Constants.SwerveConstants.STEER_FF;
+import static frc.robot.Constants.SwerveConstants.STEER_S;
 import static frc.robot.Constants.SwerveConstants.STEER_I;
 import static frc.robot.Constants.SwerveConstants.STEER_P;
+import static frc.robot.Constants.SwerveConstants.STEER_S;
 
 public class KrakenSwerveModule {
 
@@ -44,7 +45,7 @@ public class KrakenSwerveModule {
         this.steerPort = steerPort;
 
         driveIndex = drivePort / 2;
-        steerIndex = (steerPort -1) / 2;
+        steerIndex = (steerPort - 1) / 2;
 
         // steerMotor = new SteerMotor(steerPort, canCoderPort);
         // steerMotor.configPID(
@@ -58,7 +59,7 @@ public class KrakenSwerveModule {
             STEER_P[steerIndex],
             STEER_I[steerIndex],
             STEER_D[steerIndex],
-            STEER_FF[steerIndex]
+            STEER_S[steerIndex]
         );
 
 
@@ -164,7 +165,7 @@ public class KrakenSwerveModule {
                     STEER_P[steerIndex],
                     STEER_I[steerIndex],
                     STEER_D[steerIndex],
-                    STEER_FF[steerIndex]
+                    STEER_S[steerIndex]
                 }
             );
         NetworkTableInstance.getDefault().getTable("steerDebug").addListener(
