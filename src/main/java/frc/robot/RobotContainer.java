@@ -19,6 +19,7 @@ import frc.robot.commands.intake.ManualIntakePivot;
 import frc.robot.commands.intake.SetIntakePivot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 
@@ -57,9 +58,10 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    constructDriveController(); 
+    constructDriveController();
     constructMechController();
     configureBindings();
+    configureAutoChooser();
 
     CameraServer.startAutomaticCapture(); // start driver cam
     SmartDashboard.putData("Field", m_field);
@@ -160,10 +162,87 @@ public class RobotContainer {
 
 
   }
-  public void updateField() {
-    // Get your robot's current pose from your drivetrain
+
+
+  public void updateDashboard() {
+    // Robot position
     Pose2d robotPose = swerveSubsystem.getRobotPosition();
     m_field.setRobotPose(robotPose);
+
+    // Match time
+    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+
+    // Intake 
+    SmartDashboard.putString("Status/Intake State", getIntakeState());
+    SmartDashboard.putNumber("Status/Intake Angle", pivotIntake.getAngleDegrees());
+    SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
+    SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
+    SmartDashboard.putBoolean("Status/At Bottom Limit", pivotIntake.isAtBottomLimit());
+
+    // Vision + Autoalign 
+    // VisionSubsystem is commented out rn because it's outdated
+    SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
+    SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
+    SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
+    SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
+  }
+
+  /**
+   * Returns state of intake pivot
+   */
+  private String getIntakeState() {
+    double angle = pivotIntake.getAngleDegrees();
+    double tolerance = 0.05;
+
+    if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
+      return "STOWED";
+    } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
+      return "EXTENDED";
+    } else {
+      return "MOVING";
+    }
+  }
+
+
+  private boolean isRollerActive() {
+    return intakeSubsystem.isRunning();
+  }
+
+  // TODO: Integrate w vision subsystem when its setup / enabled
+
+  /**
+   * Returns true if a target is detected by vision
+   */
+  private boolean hasTarget() {
+    // TODO: check if AprilTag/target is detected
+    // return visionSubsystem.hasTarget();
+    return false;
+  }
+
+  /**
+   * Returns true if target is locked (centered and stable)
+   */
+  private boolean isTargetLocked() {
+    // TODO: Implement target lock 
+    // Check if target is within tolerance and robot is aligned
+    // return visionSubsystem.isTargetLocked();
+    return false;
+  }
+
+
+  /**
+   * Returns distance to target in meters
+   */
+  private double getTargetDistance() {
+    // TODO: Get distance from vision subsystem
+    // return visionSubsystem.getTargetDistance();
+    return 0.0;
+  }
+
+
+  private boolean isAutoAlignActive() {
+    // TODO: Check if auto-align command is running
+    return false;
   }
 
   /**
@@ -182,5 +261,18 @@ public class RobotContainer {
     mechController = new CommandPS5Controller(1);
   }
 
+  /**
+   * Config the autonomous command chooser
+   */
+  private void configureAutoChooser() {
+    // Add auton here
+    autoChooser.setDefaultOption("Do Nothing", null);
+
+    SmartDashboard.putData("Auto Selector", autoChooser);
+  }
+
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
+  }
 
 }
