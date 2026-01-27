@@ -3,12 +3,12 @@ import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.units.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-
 import java.util.EnumSet;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -16,34 +16,23 @@ import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import com.ctre.phoenix6.hardware.CANdi;
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 public class railgun extends SubsystemBase {
 
     
     private double velocity = 0;
-    private TalonFX lowerMotor = new TalonFX(railgunConstants.lowerId, "can");
     private TalonFX upperMotor = new TalonFX(railgunConstants.upperId, "can");
     private TalonFX hoodMotor = new TalonFX(railgunConstants.hoodId, "can");
-    boolean readyToFire = false;
-    boolean rPrevPress = false;
-    private double potentialVel;
-    private Pose2d ready;
-    private Rotation2d wanted;
-    private double distance = 0;
-    private double height = 0;
     private VelocityVoltage spinner = new VelocityVoltage(0);
-    private VelocityVoltage low = new VelocityVoltage(0);
     private PositionTorqueCurrentFOC focThing = new PositionTorqueCurrentFOC(0);
     private CANdi limit = new CANdi(railgunConstants.limitId);
-    int motorTuning = 1;
+    private double distance = 0;
+    private double height = 0;
     boolean manual = false;
     double hoodAngle = 75;
     private final CANcoder hoodEncoder =
@@ -55,6 +44,7 @@ public class railgun extends SubsystemBase {
         configure();
     }
 
+    int motorTuning = 1;
     public void configPID(double p, double i, double d, double ff) {
 
         Slot0Configs slot0Configs = new Slot0Configs(); //used to store and update PID values
@@ -63,32 +53,34 @@ public class railgun extends SubsystemBase {
         slot0Configs.kD = d;
         slot0Configs.kV = ff;
         
-        if(motorTuning == 1){lowerMotor.getConfigurator().apply(slot0Configs);}
+        if(motorTuning == 1){/*lowerMotor.getConfigurator().apply(slot0Configs);*/}
         else if(motorTuning == 2){upperMotor.getConfigurator().apply(slot0Configs);}
         else if(motorTuning == 3){hoodMotor.getConfigurator().apply(slot0Configs);}
     }
 
 
-  private void configNT(){
-    NetworkTableInstance.getDefault().getTable("intakeDEBUG")
-            .getEntry("PIDF")
-            .setDoubleArray(
-                new double[] {
-                    45,
-                    15,
-                    0,
-                    0.0
+    private void configNT(){
+        NetworkTableInstance.getDefault().getTable("intakeDEBUG")
+                .getEntry("PIDF")
+                .setDoubleArray(
+                    new double[] {
+                        45,
+                        15,
+                        0,
+                        0.0
+                    }
+                );
+        NetworkTableInstance.getDefault().getTable("intakeDEBUG").addListener(
+                "PIDF",
+                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                (table, key, event) -> {
+                    double[] pidf = event.valueData.value.getDoubleArray();
+                    configPID(pidf[0], pidf[1], pidf[2], pidf[3]);
                 }
             );
-    NetworkTableInstance.getDefault().getTable("intakeDEBUG").addListener(
-             "PIDF",
-            EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-            (table, key, event) -> {
-                double[] pidf = event.valueData.value.getDoubleArray();
-                configPID(pidf[0], pidf[1], pidf[2], pidf[3]);
-            }
-        );
-  }
+    }
+
+  Angle hi = Degrees.of(3);
 
     private void configure(){
         //set gear ratios
@@ -114,12 +106,6 @@ public class railgun extends SubsystemBase {
         return Math.sqrt((railgunConstants.g*distance*distance)/(2*railgunConstants.cos75*railgunConstants.cos75*(distance*railgunConstants.tan75-(railgunConstants.height-height))));
     }
 
-    public int alignAndCalculate(){
-
-        //ready = po.position();
-        //wanted = po.bearing();
-        return 8;
-    }
 
     boolean prevOptions = false;
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
@@ -150,7 +136,6 @@ public class railgun extends SubsystemBase {
 
             //vel
             spinner.Velocity = railgunConstants.maxVelo * r;
-            if(spinner.Velocity >= 0){low.Velocity = railgunConstants.velocityLow;};
 
         }else{
 
@@ -158,12 +143,9 @@ public class railgun extends SubsystemBase {
 
             if(r > 0){
                 spinner.Velocity = velocity*railgunConstants.gearRatioUpper/(2*Math.PI*railgunConstants.radius);
-                //low.Velocity = railgunConstants.velocityLow;
-             }
-
-             if(l){
-                //call for align swerve base
-             }
+            }else{
+                spinner.Velocity = 0;
+            }
 
              if(){
                 // find pose, adjust angle
@@ -174,7 +156,6 @@ public class railgun extends SubsystemBase {
 
     public void periodic(){
          SmartDashboard.putNumber("Current Velocity", velocity);
-         SmartDashboard.putBoolean("Ready To Fire?", readyToFire);
          SmartDashboard.putNumber("X Distance", distance);
          SmartDashboard.putNumber("Height of Launcher", height);
          distance = SmartDashboard.getNumber("X Distance", distance);         // these guys
@@ -186,7 +167,7 @@ public class railgun extends SubsystemBase {
          //just reset every 20 ms, simpler that way, and apparently this is how it was meant to be done
          //lowerMotor.setControl(new VelocityVoltage(low.Velocity));
          upperMotor.setControl(new VelocityVoltage(spinner.Velocity));
-         hoodMotor.setControl(focThing.withPosition(hoodAngle));
+         hoodMotor.setControl(focThing.withPosition(hoodAngle)); 
         
     }
 
