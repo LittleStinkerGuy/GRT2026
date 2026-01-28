@@ -7,6 +7,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DebugConstants.*;
 import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
+
+import frc.robot.Constants.railgunConstants;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
 
@@ -62,6 +65,7 @@ public class SwerveSubsystem extends SubsystemBase {
     //     );
 
     public SwerveSubsystem() {
+        ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
         //initialize and reset the NavX gyro
         ahrs = new AHRS(NavXComType.kMXP_SPI);
         ahrs.reset();
@@ -92,6 +96,25 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         lockTimer = new Timer();
+    }
+
+    private final PIDController ROTATION_PID = new PIDController(4.0, 0.0, 0.2);
+
+    public void facePose() {
+        Pose2d currentPose = getRobotPosition();
+
+        double dx = railgunConstants.hubPos.getX() - currentPose.getX();
+        double dy = railgunConstants.hubPos.getY() - currentPose.getY();
+
+        Rotation2d targetHeading = new Rotation2d(Math.atan2(dy, dx));
+
+        Rotation2d headingError =
+            targetHeading.minus(currentPose.getRotation());
+
+        double omega =
+            ROTATION_PID.calculate(headingError.getRadians(), 0.0);
+
+        setDrivePowers(0.0, 0.0, omega);
     }
 
     @Override

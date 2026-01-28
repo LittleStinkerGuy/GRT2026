@@ -121,6 +121,7 @@ public class railgun extends SubsystemBase {
         upperConfig.Slot0.kI = 0.0;
         upperConfig.Slot0.kD = 0.0;
         upperConfig.Slot0.kG = 1.0;
+        upperConfig.Slot0.kV = 1.0;
         upperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         upperConfig.withCurrentLimits(currLim);
@@ -138,6 +139,7 @@ public class railgun extends SubsystemBase {
 
 
     boolean prevOptions = false;
+    boolean prevL = false;
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
 
         if(limit.getS1Closed().refresh().getValue()){
@@ -148,6 +150,15 @@ public class railgun extends SubsystemBase {
         if(options && !prevOptions){
             manual = !manual;
             prevOptions = true;
+        }
+
+        if(l && !prevL){
+            prevL = true;
+            swerve.facePose();
+        }
+
+        if(!l){
+            prevL = false;
         }
 
         if(!options){prevOptions = false;}
