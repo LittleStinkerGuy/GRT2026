@@ -200,19 +200,18 @@ public class railgun extends SubsystemBase {
     }
 
     public void periodic(){
-         SmartDashboard.putNumber("Current Velocity", velocity);
-         SmartDashboard.putNumber("X Distance", dist);
-         SmartDashboard.putNumber("Height of Launcher", height);
-         dist = SmartDashboard.getNumber("X Distance", dist);         // these guys
-         height = SmartDashboard.getNumber("Height of Launcher", height);     // just for testing
-         SmartDashboard.putNumber("Which Motor Tuning", motorTuning);
-         motorTuning = (int) SmartDashboard.getNumber("Which Motor Tuning", motorTuning);
+        SmartDashboard.putNumber("Current Velocity", velocity);
+        SmartDashboard.putNumber("X Distance", dist);
+        dist = SmartDashboard.getNumber("X Distance", dist);         // these guys
+        SmartDashboard.putBoolean("Mode", manual);
+        SmartDashboard.putNumber("Which Motor Tuning", motorTuning);   // just for testing
+        motorTuning = (int) SmartDashboard.getNumber("Which Motor Tuning", motorTuning);
 
 
          //just reset every 20 ms, simpler that way, and apparently this is how it was meant to be done
          //lowerMotor.setControl(new VelocityVoltage(low.Velocity));
-         upperMotor.setControl(new VelocityVoltage(spinner.Velocity));
-         hoodMotor.setControl(focThing.withPosition(hoodAngle)); 
+        upperMotor.setControl(new VelocityVoltage(spinner.Velocity));
+        hoodMotor.setControl(focThing.withPosition(hoodAngle)); 
         
     }
 
