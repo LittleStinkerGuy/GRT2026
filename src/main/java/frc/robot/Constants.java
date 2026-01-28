@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.List;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -282,5 +284,16 @@ public final class Constants {
 
 
     public static double distanceTolerance = .47; 
+  }
+
+public static final class ClimbConstants {
+    public static final int WINCH_MOTOR_CAN_ID = 0;
+    public static final int ARM_MOTOR_CAN_ID = 1;
+    public static final int TOF_CAN_ID = 2;
+
+    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+    public static final double ARM_GR = 1.0;
+    public static final double WINCH_GR = 1.0;
   }
 }

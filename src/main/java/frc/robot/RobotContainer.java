@@ -6,9 +6,11 @@ package frc.robot;
 
 // frc imports
 import frc.robot.controllers.PS5DriveController;
-
+import frc.robot.subsystems.climb.ClimbSubsystem;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+
+import com.ctre.phoenix6.CANBus;
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  private CANBus canivore = new CANBus("can");
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private boolean isCompetition = true;
@@ -35,6 +38,7 @@ public class RobotContainer {
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
+  private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -89,6 +93,11 @@ public class RobotContainer {
       },
       swerveSubsystem
     );
+
+    var crossTrigger = mechController.cross();
+    var triangleTrigger = mechController.triangle();
+    crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
+    triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
   }
 
   /**
