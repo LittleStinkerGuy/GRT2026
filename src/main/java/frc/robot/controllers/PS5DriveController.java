@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class PS5DriveController extends BaseDriveController{
 
-    private final CommandPS5Controller driveController = new CommandPS5Controller(0);
+    private final CommandPS5Controller driveController = new CommandPS5Controller(1);
     private Trigger L1 = new Trigger(driveController.L1());
     private Trigger R1 = new Trigger(driveController.R1());
     private Trigger cross = new Trigger(driveController.cross());

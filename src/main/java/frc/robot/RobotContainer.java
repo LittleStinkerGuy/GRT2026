@@ -34,15 +34,15 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private boolean isCompetition = true;
 
-  private PS5DriveController driveController;
+  // private PS5DriveController driveController;
   private CommandPS5Controller mechController;
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  // private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    constructDriveController(); 
+    // constructDriveController(); 
     constructMechController();
     configureBindings();
   }
@@ -61,38 +61,38 @@ public class RobotContainer {
       * the robot is controlled along its own axes, otherwise controls apply to the field axes by default. If the
       * swerve aim button is held down, the robot will rotate automatically to always face a target, and only
       * translation will be manually controllable. */
-    swerveSubsystem.setDefaultCommand(
-      new RunCommand(() -> {
-        swerveSubsystem.setDrivePowers(
-          driveController.getForwardPower(),
-          driveController.getLeftPower(),
-          driveController.getRotatePower()
-        );
-        }, 
-        swerveSubsystem
-      )
-    );
+    // swerveSubsystem.setDefaultCommand(
+    //   new RunCommand(() -> {
+    //     swerveSubsystem.setDrivePowers(
+    //       driveController.getForwardPower(),
+    //       driveController.getLeftPower(),
+    //       driveController.getRotatePower()
+    //     );
+    //     }, 
+    //     swerveSubsystem
+    //   )
+    // );
       
-    driveController.getRelativeMode().whileTrue(
-      new RunCommand(
-        () -> {
-          swerveSubsystem.setRobotRelativeDrivePowers(
-            driveController.getForwardPower(),
-            driveController.getLeftPower(),
-            driveController.getRotatePower()
-          );
-          driveController.getRotatePower();
-          }, swerveSubsystem)
-    );
+    // driveController.getRelativeMode().whileTrue(
+    //   new RunCommand(
+    //     () -> {
+    //       swerveSubsystem.setRobotRelativeDrivePowers(
+    //         driveController.getForwardPower(),
+    //         driveController.getLeftPower(),
+    //         driveController.getRotatePower()
+    //       );
+    //       driveController.getRotatePower();
+    //       }, swerveSubsystem)
+    // );
 
 
-    /* Pressing the button resets the field axes to the current robot axes. */
-    driveController.bindDriverHeadingReset(
-      () ->{
-        swerveSubsystem.resetDriverHeading();
-      },
-      swerveSubsystem
-    );
+    // /* Pressing the button resets the field axes to the current robot axes. */
+    // driveController.bindDriverHeadingReset(
+    //   () ->{
+    //     swerveSubsystem.resetDriverHeading();
+    //   },
+    //   swerveSubsystem
+    // );
 
     var crossTrigger = mechController.cross();
     var triangleTrigger = mechController.triangle();
@@ -104,16 +104,16 @@ public class RobotContainer {
    * Constructs the drive controller based on the name of the controller at port
    * 0
    */
-  private void constructDriveController(){
-    driveController = new PS5DriveController();
-    driveController.setDeadZone(0.05);
-  }
+  // private void constructDriveController(){
+  //   driveController = new PS5DriveController();
+  //   driveController.setDeadZone(0.05);
+  // }
 
   /**
    * Constructs mech controller
    */
   private void constructMechController(){
-    mechController = new CommandPS5Controller(1);
+    mechController = new CommandPS5Controller(0);
   }
 
 
