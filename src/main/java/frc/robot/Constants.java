@@ -291,9 +291,11 @@ public static final class ClimbConstants {
     public static final int ARM_MOTOR_CAN_ID = 1;
     public static final int TOF_CAN_ID = 2;
 
-    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
     public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
     public static final double ARM_GR = 1.0;
     public static final double WINCH_GR = 1.0;
+    public static final double ARM_MAX_SPEED = 0.05;
+    public static final double WINCH_MAX_SPEED = 0.5;
   }
 }

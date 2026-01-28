@@ -42,6 +42,7 @@ public class StabilizingArm extends SubsystemBase {
 
     public void setMotorSpeed(double speed) {
         speed = Math.max(-1.0, Math.min(speed, 1.0));
+        speed *= ClimbConstants.ARM_MAX_SPEED;
         dutyCycleControl.withOutput(speed);
         motor.setControl(dutyCycleControl);
     }
