@@ -17,6 +17,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import static frc.robot.Constants.LoggingConstants.SWERVE_TABLE;
@@ -38,7 +40,7 @@ public class DriveMotor {
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // For fine control of velocity and torque using FOC (Field-Oriented Control)
-    private VelocityVoltage Voltage = new VelocityVoltage(0).withSlot(0);
+    private VelocityTorqueCurrentFOC torqueCurrentFOC = new VelocityTorqueCurrentFOC(0).withSlot(0);
 
     // Target speed in rotations per second
     private double targetRotationsPerSec = 0;
@@ -163,7 +165,7 @@ public class DriveMotor {
 
         targetRotationsPerSec = metersPerSec / DRIVE_WHEEL_CIRCUMFERENCE * DRIVE_GEAR_REDUCTION; //turns meters per sec into wheel rotation per sec
         //disabled set velocity for noise reduction
-        // motor.setControl(Voltage.withVelocity(targetRotationsPerSec)); //apply this constant speed 
+        motor.setControl(torqueCurrentFOC.withVelocity(targetRotationsPerSec)); //apply this constant speed 
         
     }
 

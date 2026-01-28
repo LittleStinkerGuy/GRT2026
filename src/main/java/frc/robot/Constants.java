@@ -49,11 +49,11 @@ public final class Constants {
   public static class SwerveConstants{
 
     // Swerve Drive PID values (Velocity Control)
-    public static final double[] DRIVE_P = new double[] {2, 2, 2, 2};
+    public static final double[] DRIVE_P = new double[] {9.5, 9.5, 9.5, 9.5};
     public static final double[] DRIVE_I = new double[] {0, 0, 0, 0};
-    public static final double[] DRIVE_D = new double[] {0, 0, 0, 0};
-    public static final double[] DRIVE_S = new double[] {0.3, 0.3, 0.3, 0.3}; // Static friction compensation
-    public static final double[] DRIVE_V = new double[] {0.95, 0.95, 0.95, 0.95}; // Velocity feedforward
+    public static final double[] DRIVE_D = new double[] {0.1, 0.1, 0.1, 0.1};
+    public static final double[] DRIVE_S = new double[] {0.5, 0.5, 0.5, 0.5}; // Static friction compensation
+    public static final double[] DRIVE_V = new double[] {0.12, 0.12, 0.12, 0.12}; // Velocity feedforward
 
     // Swerve Steer PID values (Position Control)
     public static final double[] STEER_P = new double[] {35, 35, 35, 35};
@@ -86,15 +86,18 @@ public final class Constants {
     public static final double BR_OFFSET  = 0;
 
     // Module distance from center (in meters)
-    // Square configuration: distance between adjacent modules (FL to FR, or FL to BL) is 25.450 inches
-    public static final double MODULE_SPACING = 25.450; // Distance between adjacent modules in inches
-    public static final double MODULE_DIST_FROM_CENTER = Units.inchesToMeters(MODULE_SPACING / 2.0); // Half the spacing = distance from center
+    // Square configuration: distance between adjacent modules (FL to FR, or FL to BL) 
+    public static final double MODULE_FRONT_BACK_SPACING = 20.45; // Distance between front and back swerves
+    public static final double MODULE_LEFTRIGHT_SPACING = 25.45; // Distance between left and right swerves
+
+    // public static final double MODULE_DIST_FROM_CENTER = Units.inchesToMeters(MODULE_SPACING / 2.0); // Half the spacing = distance from center
 
     // Module positions relative to robot center (square configuration)
-    public static final Translation2d FL_POS = new Translation2d( MODULE_DIST_FROM_CENTER,  MODULE_DIST_FROM_CENTER);
-    public static final Translation2d FR_POS = new Translation2d( MODULE_DIST_FROM_CENTER, -MODULE_DIST_FROM_CENTER);
-    public static final Translation2d BL_POS = new Translation2d(-MODULE_DIST_FROM_CENTER,  MODULE_DIST_FROM_CENTER);
-    public static final Translation2d BR_POS = new Translation2d(-MODULE_DIST_FROM_CENTER, -MODULE_DIST_FROM_CENTER);
+    //FB   LR  
+    public static final Translation2d FL_POS = new Translation2d( MODULE_FRONT_BACK_SPACING/2.0,  MODULE_LEFTRIGHT_SPACING/2.0);
+    public static final Translation2d FR_POS = new Translation2d( MODULE_FRONT_BACK_SPACING/2.0, -MODULE_LEFTRIGHT_SPACING/2.0);
+    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING/2.0,  MODULE_LEFTRIGHT_SPACING/2.0);
+    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING/2.0, -MODULE_LEFTRIGHT_SPACING/2.0);
 
     // Maximum velocity calculation: Kraken max RPM / gear ratio / 60 (convert to per second) * wheel circumference
     public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0 * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
@@ -113,7 +116,7 @@ public final class Constants {
 
   public static class DebugConstants{
     public static final boolean MASTER_DEBUG = true;
-    public static final boolean DRIVE_DEBUG = false;
+    public static final boolean DRIVE_DEBUG = true;
     public static final boolean STEER_DEBUG = true;
     public static final boolean STATE_DEBUG = true;
   }
