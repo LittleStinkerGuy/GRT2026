@@ -58,4 +58,10 @@ public class RollerIntake extends SubsystemBase {
     public void stop() {
         rollerMotor.setControl(dutyCycleRequest.withOutput(0));
     }
+
+    //Check if the roller is currently running
+
+    public boolean isRunning() {
+        return Math.abs(rollerMotor.get()) > 0.01;
+    }
 }

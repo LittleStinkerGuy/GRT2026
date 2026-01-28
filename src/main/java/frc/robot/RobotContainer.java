@@ -11,16 +11,19 @@ import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Intake.RollerIntake;
 import frc.robot.subsystems.Intake.PivotIntake;
+import frc.robot.subsystems.hopper.HopperMotor;
 import frc.robot.Constants.IntakeConstants;
 
 //comands
- 
+
 import frc.robot.commands.intake.ManualIntakePivot;
 import frc.robot.commands.intake.SetIntakePivot;
+import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 
 
 // WPILib imports
@@ -42,14 +45,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-  private boolean isCompetition = true;
-
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();  
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   private RollerIntake intakeSubsystem = new RollerIntake();
   private PivotIntake pivotIntake = new PivotIntake();
+  private HopperMotor hopperMotor = new HopperMotor();
 
   private final Field2d m_field = new Field2d();
 
@@ -125,10 +127,27 @@ public class RobotContainer {
       new SetIntakePivot(pivotIntake, IntakeConstants.EXTENDED_POS)
     );
 
+  // circle for the manual hopper
+    mechController.circle().whileTrue(
+      new RunCommand(
+        () -> hopperMotor.setManualControl(0.5),
+        hopperMotor
+      )
+    ).onFalse(
+      new RunCommand(
+        () -> hopperMotor.stop(),
+        hopperMotor
+      ).withTimeout(0.02)
+    );
+
+    // Triangle button to run hopper at target RPM
+    mechController.triangle().whileTrue(
+      new HopperSetRPMCommand(hopperMotor)
+    );
 
     /* Intake Controls - Hold button to run rollers */
-    // R2 - intake in
-    mechController.R2().whileTrue(
+    // R1 - intake in
+    mechController.R1().whileTrue(
       new RunCommand(
         () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
         intakeSubsystem
@@ -140,8 +159,8 @@ public class RobotContainer {
       ).withTimeout(0.02)
     );
 
-    // L2 - intake out
-    mechController.L2().whileTrue(
+    // L1 - intake out
+    mechController.L1().whileTrue(
       new RunCommand(
         () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
         intakeSubsystem
@@ -154,8 +173,8 @@ public class RobotContainer {
     );
 
      // Pivot Configs: R2 for pivot up and L2 for pivot down
-    pivotIntake.setDefaultCommand(
-     new ManualIntakePivot(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
+        pivotIntake.setDefaultCommand(
+    new ManualIntakePivot(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
      )
    );
 

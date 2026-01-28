@@ -165,6 +165,12 @@ public final class Constants {
 
   }
 
+  public static class HopperConstants {
+    public static final int KRAKEN_CAN_ID = 1; 
+    public static final double TARGET_RPM = 0.0; 
+    public static final double HOPPER_SPEED = 2.0;
+  }
+
 
   public static class AlignConstants{
     public static String reefName = "reefAlignPath";
