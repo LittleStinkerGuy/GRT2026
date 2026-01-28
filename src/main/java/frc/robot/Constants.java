@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.util.AlignUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 
 
 /**
@@ -26,9 +27,9 @@ public final class Constants {
   public static class railgunConstants {
         
     //Everything in metric pls
-    public static int lowerId = 2;
     public static int upperId = 3;
     public static int hoodId = 4;
+    public static int hoodEncoderId = 3;
     public static int limitId = 6;
     public static double g = 9.8;
     public static double tan75 = 3.73205;
@@ -41,9 +42,9 @@ public final class Constants {
     public static double upperAngle = 180;
     public static double lowerAngle = 90;
     public static double maxVelo = 10;
-    public static double velocityLow = 10;
     public static double initHoodAngle = 80;
-    
+    public static double hoodMagnetOffset = 0.5;
+    public static Pose2d hubPos= new Pose2d(4.03479, 4.0288, null); //assuming the alliance area is 1st quadrant
 
   }
 

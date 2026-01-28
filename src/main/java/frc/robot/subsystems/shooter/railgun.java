@@ -5,13 +5,17 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.units.*;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.*;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import edu.wpi.first.math.geometry.Pose2d;
+
 import java.util.EnumSet;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -21,6 +25,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 public class railgun extends SubsystemBase {
 
@@ -28,20 +33,26 @@ public class railgun extends SubsystemBase {
     private double velocity = 0;
     private TalonFX upperMotor = new TalonFX(railgunConstants.upperId, "can");
     private TalonFX hoodMotor = new TalonFX(railgunConstants.hoodId, "can");
+    private CANdi limit = new CANdi(railgunConstants.limitId, "can");
+    private final CANcoder hoodEncoder = new CANcoder(railgunConstants.hoodEncoderId, "can");
+    TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
+    TalonFXConfiguration upperConfig = new TalonFXConfiguration();
+
     private VelocityVoltage spinner = new VelocityVoltage(0);
     private PositionTorqueCurrentFOC focThing = new PositionTorqueCurrentFOC(0);
-    private CANdi limit = new CANdi(railgunConstants.limitId);
-    private double distance = 0;
+    public SwerveSubsystem swerve;
+
+    private double dist = 0;
     private double height = 0;
-    boolean manual = false;
     double hoodAngle = 75;
-    private final CANcoder hoodEncoder =
-    new CANcoder(railgunConstants.hoodEncoderId, "can");
+
+    boolean manual = false;
     
     
-    public railgun(){
+    public railgun(SwerveSubsystem s){
         configNT();
         configure();
+        swerve = s;
     }
 
     int motorTuning = 1;
@@ -80,30 +91,49 @@ public class railgun extends SubsystemBase {
             );
     }
 
-  Angle hi = Degrees.of(3);
-
     private void configure(){
         //set gear ratios
         //set init positions
         
         CANcoderConfiguration cfg = new CANcoderConfiguration();
-        cfg.MagnetSensor.AbsoluteSensorRange =
-            AbsoluteSensorRangeValue.Signed_PlusMinusHalf; // [-0.5, 0.5)
-        cfg.MagnetSensor.MagnetOffset =
-            railgunConstants.hoodMagnetOffset; // radians or rotations
-        cfg.MagnetSensor.SensorDirection =
-            railgunConstants.hoodEncoderInverted;
+        cfg.MagnetSensor.MagnetOffset = railgunConstants.hoodMagnetOffset; 
+        cfg.MagnetSensor.withSensorDirection(SensorDirectionValue.Clockwise_Positive);
+        hoodEncoder.setPosition(railgunConstants.initHoodAngle);
         hoodEncoder.getConfigurator().apply(cfg);
 
         FeedbackConfigs fb = new FeedbackConfigs();
         fb.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         fb.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
-        fb.SensorToMechanismRatio = railgunConstants.hoodGearRatio;
+        fb.SensorToMechanismRatio = railgunConstants.gearRatioHood;
         hoodMotor.getConfigurator().apply(fb);
+
+        hoodConfig.Slot0.kP = 0.2;
+        hoodConfig.Slot0.kI = 0.0;
+        hoodConfig.Slot0.kD = 0.0;
+        hoodConfig.Slot0.kG = 1.0;
+        hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
+        hoodConfig.withCurrentLimits(currLim);
+        hoodConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
+        hoodMotor.getConfigurator().apply(hoodConfig);
+
+        upperConfig.Slot0.kP = 0.2;
+        upperConfig.Slot0.kI = 0.0;
+        upperConfig.Slot0.kD = 0.0;
+        upperConfig.Slot0.kG = 1.0;
+        upperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
+        upperConfig.withCurrentLimits(currLim);
+        upperConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
+        upperMotor.getConfigurator().apply(upperConfig);
     }
 
-    private double calculateVel(){
-        return Math.sqrt((railgunConstants.g*distance*distance)/(2*railgunConstants.cos75*railgunConstants.cos75*(distance*railgunConstants.tan75-(railgunConstants.height-height))));
+    private double calculateAngle(double dista){
+        return Math.toDegrees(Math.atan( (6/(dista))*(1+ Math.sqrt(1- (1.8288/3)) ) ));
+    }
+
+    private double calculateVel(double ang){
+        return Math.sqrt(6*9.8/ ((Math.toDegrees(Math.sin(ang)))*(Math.toDegrees(Math.sin(ang)))) );
     }
 
 
@@ -111,10 +141,7 @@ public class railgun extends SubsystemBase {
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
 
         if(limit.getS1Closed().refresh().getValue()){
-            CANcoderConfiguration cfg = new CANcoderConfiguration();
-            cfg.MagnetSensor.MagnetOffset = - hoodEncoder.getAbsolutePosition().getValue();
-        
-            hoodEncoder.getConfigurator().apply(cfg);
+            hoodEncoder.setPosition(railgunConstants.initHoodAngle);
             hoodMotor.setPosition(railgunConstants.initHoodAngle);
         }
 
@@ -139,7 +166,10 @@ public class railgun extends SubsystemBase {
 
         }else{
 
-            velocity = calculateVel();
+            dist = swerve.getRobotPosition().getTranslation().getDistance(railgunConstants.hubPos.getTranslation());
+
+            hoodAngle = calculateAngle(dist);
+            velocity = calculateVel(hoodAngle);
 
             if(r > 0){
                 spinner.Velocity = velocity*railgunConstants.gearRatioUpper/(2*Math.PI*railgunConstants.radius);
@@ -147,18 +177,15 @@ public class railgun extends SubsystemBase {
                 spinner.Velocity = 0;
             }
 
-             if(){
-                // find pose, adjust angle
-             }
         }
 
     }
 
     public void periodic(){
          SmartDashboard.putNumber("Current Velocity", velocity);
-         SmartDashboard.putNumber("X Distance", distance);
+         SmartDashboard.putNumber("X Distance", dist);
          SmartDashboard.putNumber("Height of Launcher", height);
-         distance = SmartDashboard.getNumber("X Distance", distance);         // these guys
+         dist = SmartDashboard.getNumber("X Distance", dist);         // these guys
          height = SmartDashboard.getNumber("Height of Launcher", height);     // just for testing
          SmartDashboard.putNumber("Which Motor Tuning", motorTuning);
          motorTuning = (int) SmartDashboard.getNumber("Which Motor Tuning", motorTuning);

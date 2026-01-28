@@ -34,7 +34,7 @@ public class RobotContainer {
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  private railgun gun = new railgun();
+  private railgun gun = new railgun(swerveSubsystem);
    private CommandPS5Controller gamer = new CommandPS5Controller(0);
 
 
