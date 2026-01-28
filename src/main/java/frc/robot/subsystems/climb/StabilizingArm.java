@@ -67,10 +67,10 @@ public class StabilizingArm extends SubsystemBase {
     }
 
     public Command deployArm(BooleanSupplier stopMotor) {
-        return moveArmWithStop(0.1, stopMotor);
+        return moveArmWithStop(1, stopMotor);
     }
 
     public Command retractArm(BooleanSupplier stopMotor) {
-        return moveArmWithStop(-0.1, stopMotor);
+        return moveArmWithStop(-1, stopMotor);
     }
 }
