@@ -39,13 +39,13 @@ public final class Constants {
     public static double gearRatioUpper = 1;
     public static double gearRatioLower = 2;
     public static double gearRatioHood = 3;
-    public static double upperAngle = 180;
-    public static double lowerAngle = 90;
+    public static double upperAngle = 0.5;
+    public static double lowerAngle = 0.25;
     public static double maxVelo = 10;
-    public static double initHoodAngle = 80;
+    public static double initHoodAngle = 0.208333;
     public static double hoodMagnetOffset = 0.5;
     public static Pose2d hubPos= new Pose2d(4.03479, 4.0288, null); //assuming the alliance area is 1st quadrant
-
+    public static int upperEncoderId = 7;
   }
 
   public static class SwerveDriveConstants {
