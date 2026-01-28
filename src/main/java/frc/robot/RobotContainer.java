@@ -40,7 +40,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    constructDriveController(); 
+    // constructDriveController(); 
     constructMechController();
     configureBindings();
   }
@@ -59,6 +59,8 @@ public class RobotContainer {
       * the robot is controlled along its own axes, otherwise controls apply to the field axes by default. If the
       * swerve aim button is held down, the robot will rotate automatically to always face a target, and only
       * translation will be manually controllable. */
+
+      /* 
     swerveSubsystem.setDefaultCommand(
       new RunCommand(() -> {
         swerveSubsystem.setDrivePowers(
@@ -70,6 +72,7 @@ public class RobotContainer {
         swerveSubsystem
       )
     );
+    */
 
     gun.setDefaultCommand(
       new RunCommand(
@@ -82,7 +85,7 @@ public class RobotContainer {
           },
           gun));
       
-    driveController.getRelativeMode().whileTrue(
+    /*driveController.getRelativeMode().whileTrue(
       new RunCommand(
         () -> {
           swerveSubsystem.setRobotRelativeDrivePowers(
@@ -93,16 +96,20 @@ public class RobotContainer {
           driveController.getRotatePower();
           }, swerveSubsystem)
     );
+    */
 
 
     /* Pressing the button resets the field axes to the current robot axes. */
+    /* 
     driveController.bindDriverHeadingReset(
       () ->{
         swerveSubsystem.resetDriverHeading();
       },
       swerveSubsystem
     );
+    */
   }
+    
 
   /**
    * Constructs the drive controller based on the name of the controller at port

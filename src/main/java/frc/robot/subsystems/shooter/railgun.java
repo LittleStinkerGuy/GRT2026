@@ -180,7 +180,7 @@ public class railgun extends SubsystemBase {
             }
 
             //vel
-            spinner.Velocity = railgunConstants.maxVelo * r;
+            spinner.Velocity = railgunConstants.maxVelo * (r+1)/2;
 
         }else{
 
@@ -189,7 +189,7 @@ public class railgun extends SubsystemBase {
             hoodAngle = calculateAngle(dist)/360;
             velocity = calculateVel(hoodAngle*360);
 
-            if(r > 0){
+            if(r+1 > 0){
                 spinner.Velocity = velocity*railgunConstants.gearRatioUpper/(2*Math.PI*railgunConstants.radius);
             }else{
                 spinner.Velocity = 0;
