@@ -134,7 +134,7 @@ public class railgun extends SubsystemBase {
     }
 
     private double calculateVel(double ang){
-        return Math.sqrt(6*9.8/ ((Math.toDegrees(Math.sin(ang)))*(Math.toDegrees(Math.sin(ang)))) );
+        return Math.sqrt(6*9.8/ ((Math.toDegrees(Math.sin(Math.toRadians(ang)))*(Math.toDegrees(Math.sin(ang)))) );
     }
 
 
