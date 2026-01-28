@@ -4,11 +4,14 @@
 
 package frc.robot;
 
+import frc.robot.Constants.VisionConstants;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.Vision.VisionSubsystem;
+import frc.robot.subsystems.Vision.CameraConfig;
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -35,9 +38,13 @@ public class RobotContainer {
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
-
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+    VisionConstants.cameraConfigs[0]
+  );
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+
     constructDriveController(); 
     constructMechController();
     configureBindings();
