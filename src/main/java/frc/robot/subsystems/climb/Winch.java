@@ -60,8 +60,10 @@ public class Winch extends SubsystemBase {
     private Command rotateWinchWithStop(double speed, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
+                    System.out.println("Move Winch Start");
                     setMotorSpeed(speed);
                 }, () -> {
+                    System.out.println("Move Winch End");
                     setMotorSpeed(0);
                 }).until(stopMotor);
     }

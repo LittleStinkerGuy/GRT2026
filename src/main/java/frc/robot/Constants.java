@@ -287,8 +287,8 @@ public final class Constants {
   }
 
 public static final class ClimbConstants {
-    public static final int WINCH_MOTOR_CAN_ID = 0;
-    public static final int ARM_MOTOR_CAN_ID = 1;
+    public static final int WINCH_MOTOR_CAN_ID = 1;
+    public static final int ARM_MOTOR_CAN_ID = 0;
     public static final int TOF_CAN_ID = 2;
 
     public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;

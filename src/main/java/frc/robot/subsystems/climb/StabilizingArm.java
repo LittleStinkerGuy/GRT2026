@@ -43,8 +43,9 @@ public class StabilizingArm extends SubsystemBase {
     public void setMotorSpeed(double speed) {
         speed = Math.max(-1.0, Math.min(speed, 1.0));
         speed *= ClimbConstants.ARM_MAX_SPEED;
-        dutyCycleControl.withOutput(speed);
-        motor.setControl(dutyCycleControl);
+        // dutyCycleControl.withOutput(speed);
+        // motor.setControl(dutyCycleControl);
+        motor.set(speed);
     }
 
     public double getDutyCycleSetpoint() {
@@ -60,8 +61,10 @@ public class StabilizingArm extends SubsystemBase {
     private Command moveArmWithStop(double speed, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
+                    System.out.println("Move Arm Start");
                     setMotorSpeed(speed);
                 }, () -> {
+                    System.out.println("Move Arm Stop");
                     setMotorSpeed(0);
                 }).until(stopMotor);
     }
