@@ -111,9 +111,7 @@ public class RobotContainer {
     var triangleTrigger = mechController.triangle();
     crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
     triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
-    mechController.povUp().onTrue(Commands.runOnce(() -> {
-      m_ClimbSubsystem.setArmSpeed(1);
-    }, m_ClimbSubsystem));
+
     m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
       var armSpeed = mechController.getR2Axis() - mechController.getL2Axis();
       double winchSpeed = 0;

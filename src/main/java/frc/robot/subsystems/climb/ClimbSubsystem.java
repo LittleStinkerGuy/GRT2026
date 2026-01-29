@@ -41,10 +41,12 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     public Command climbUp(BooleanSupplier step) {
-        return initiateClimb(step).andThen(waitForNextStep(step)).andThen(m_Winch.pullDownClaw(step));
+        return waitForButtonRelease(step)
+                .andThen(initiateClimb(step).andThen(waitForNextStep(step)).andThen(m_Winch.pullDownClaw(step)));
     }
 
     public Command climbDown(BooleanSupplier step) {
-        return m_Winch.pullUpClaw(step).andThen(waitForNextStep(step)).andThen(m_StabilizingArm.retractArm(step));
+        return waitForButtonRelease(step).andThen(
+                m_Winch.pullUpClaw(step).andThen(waitForNextStep(step)).andThen(m_StabilizingArm.retractArm(step)));
     }
 }
