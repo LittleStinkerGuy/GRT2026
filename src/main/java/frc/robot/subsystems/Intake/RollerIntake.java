@@ -29,7 +29,7 @@ public class RollerIntake extends SubsystemBase {
         );
 
     public RollerIntake() {
-        rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, IntakeConstants.ROLLER_CAN_BUS);
+        rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, "can");
         rollerMotor.getConfigurator().apply(rollerConfig);
     }
 

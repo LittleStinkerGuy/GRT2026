@@ -117,8 +117,7 @@ public final class Constants {
 
   public static class IntakeConstants {
     // Roller Motor
-    public static final int ROLLER_CAN_ID = 16;
-    public static final String ROLLER_CAN_BUS = "rio";
+    public static final int ROLLER_CAN_ID = 1;
 
     public static final double ROLLER_IN_SPEED = 0.5;
     public static final double ROLLER_OUT_SPEED = -0.5;
@@ -131,19 +130,19 @@ public final class Constants {
     public static final int PIVOT_MOTOR_ID = 11;
 
      // Limit switches
-    public static final int MIN_LIMIT_SWITCH_ID_DIO = 0;  //placeholder
-    public static final int MAX_LIMIT_SWITCH_ID_DIO = 1; //placeholder
-  
+    public static final int MIN_LIMIT_SWITCH_ID_DIO = 0; 
+    public static final int MAX_LIMIT_SWITCH_ID_DIO = 1;
 
-    //PID 
 
-    public static final double PIVOT_P = 0.01; 
-    public static final double PIVOT_I = 0.0; 
+    //PID
+
+    public static final double PIVOT_P = 0.01;
+    public static final double PIVOT_I = 0.0;
     public static final double PIVOT_D = 0.0;
     public static final double PIVOT_F = 0.0;
 
     public static final int ENCODER_ID = 0;
-    public static final int CANDLE_ID = 11;
+    public static final int CANDLE_ID = 13;  
     public static final double MANUAL_PIVOT_SPEED = 0.15;
     
     public static final double GEAR_RATIO = 14.0;
@@ -166,8 +165,9 @@ public final class Constants {
   }
 
   public static class HopperConstants {
-    public static final int KRAKEN_CAN_ID = 1; 
-    public static final double TARGET_RPM = 0.0; 
+    public static final int KRAKEN_CAN_ID = 12;
+    public static final String KRAKEN_CAN_BUS = "rio";
+    public static final double TARGET_RPM = 3000.0; // Changed from 0.0
     public static final double HOPPER_SPEED = 2.0;
   }
 

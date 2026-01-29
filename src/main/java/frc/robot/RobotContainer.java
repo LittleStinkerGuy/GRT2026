@@ -128,7 +128,7 @@ public class RobotContainer {
     );
 
   // circle for the manual hopper
-    mechController.circle().whileTrue(
+    mechController.circle().onTrue(
       new RunCommand(
         () -> hopperMotor.setManualControl(0.5),
         hopperMotor
@@ -140,8 +140,10 @@ public class RobotContainer {
       ).withTimeout(0.02)
     );
 
+    //command scheduler loop overrun error :()
+
     // Triangle button to run hopper at target RPM
-    mechController.triangle().whileTrue(
+    mechController.triangle().onTrue(
       new HopperSetRPMCommand(hopperMotor)
     );
 

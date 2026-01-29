@@ -5,6 +5,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.HopperConstants;
@@ -17,10 +18,10 @@ public class HopperMotor extends SubsystemBase {
     private final DutyCycleOut dutyCycleControl;
     
     public HopperMotor() {
-        krakenMotor = new TalonFX(HopperConstants.KRAKEN_CAN_ID);
+        krakenMotor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, "can");
         velocityControl = new VelocityVoltage(0);
         dutyCycleControl = new DutyCycleOut(0);
-        
+
         configureMotor();
     }
     
@@ -39,7 +40,7 @@ public class HopperMotor extends SubsystemBase {
     
 
     public void spinAtTargetRPM() {
-        // RPM to rotations per second (sorry for not using units library daniel! )
+        // sorry for not using units library daniel
         double rotationsPerSecond = HopperConstants.TARGET_RPM / 60.0;
         krakenMotor.setControl(velocityControl.withVelocity(rotationsPerSecond));
     }
@@ -71,5 +72,11 @@ public class HopperMotor extends SubsystemBase {
     
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Hopper/CurrentRPM", getCurrentRPM());
+        SmartDashboard.putNumber("Hopper/MotorOutput", getMotorOutput());
+        SmartDashboard.putNumber("Hopper/Velocity", krakenMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/Current", krakenMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/Voltage", krakenMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/Temp", krakenMotor.getDeviceTemp().getValueAsDouble());
     }
 }
