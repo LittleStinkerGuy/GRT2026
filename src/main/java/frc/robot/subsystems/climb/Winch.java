@@ -5,11 +5,14 @@ import static edu.wpi.first.units.Units.Amps;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -19,13 +22,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
 
 public class Winch extends SubsystemBase {
-
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
 
+    private CANdi hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID);
+    private CANdiConfiguration candiConfig = new CANdiConfiguration();
+
     public Winch(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.WINCH_MOTOR_CAN_ID, canBusObj);
+        configureCandi();
         configureMotor();
     }
 
@@ -36,8 +42,16 @@ public class Winch extends SubsystemBase {
                 .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(ClimbConstants.WINCH_MOTOR_INVERTED))
                 .withFeedback(new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(ClimbConstants.WINCH_GR));
+                        .withSensorToMechanismRatio(ClimbConstants.WINCH_GR))
+                .withHardwareLimitSwitch(new HardwareLimitSwitchConfigs().withReverseLimitEnable(true)
+                        .withReverseLimitRemoteCANdiS1(hardstopCANdi));
         motor.getConfigurator().apply(motorConfig);
+    }
+
+    private void configureCandi() {
+        candiConfig.withDigitalInputs(new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow));
+
+        hardstopCANdi.getConfigurator().apply(candiConfig);
     }
 
     public void setMotorSpeed(double speed) {
