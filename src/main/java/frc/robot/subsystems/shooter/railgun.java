@@ -46,9 +46,9 @@ public class railgun extends SubsystemBase {
     public SwerveSubsystem swerve;
 
     private double dist = 0;
-    double hoodAngle = 75/360;
+    double hoodAngle = railgunConstants.initHoodAngle;
 
-    boolean manual = false;
+    boolean manual = true;
     
     
     public railgun(SwerveSubsystem s){
@@ -113,7 +113,7 @@ public class railgun extends SubsystemBase {
         b.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         b.FeedbackRemoteSensorID = railgunConstants.upperEncoderId;
         b.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
-        upperMotor.getConfigurator().apply(b);
+        //upperMotor.getConfigurator().apply(b);
 
         hoodConfig.Slot0.kP = 2;
         hoodConfig.Slot0.kI = 0.0;
@@ -123,7 +123,7 @@ public class railgun extends SubsystemBase {
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         hoodConfig.withCurrentLimits(currLim);
         hoodConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
-        hoodMotor.getConfigurator().apply(hoodConfig);
+        //hoodMotor.getConfigurator().apply(hoodConfig);
 
         upperConfig.Slot0.kP = 0.0;
         upperConfig.Slot0.kI = 0.0;
@@ -134,7 +134,7 @@ public class railgun extends SubsystemBase {
         currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         upperConfig.withCurrentLimits(currLim);
         upperConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
-        upperMotor.getConfigurator().apply(upperConfig);
+        //upperMotor.getConfigurator().apply(upperConfig);
     }
 
     private double calculateAngle(double dista){
@@ -174,16 +174,21 @@ public class railgun extends SubsystemBase {
 
         if(manual){
 
+            hoodAngle = hoodMotor.getPosition().getValueAsDouble();
+
             //hood
             if(arrow == 0 && hoodAngle + 0.014 <= railgunConstants.upperAngle){
-                hoodAngle += 0.014;
+                //hoodAngle += 0.014;
+                hoodMotor.set(0.1);
             }else if(arrow == 180 && hoodAngle - 0.014 >= railgunConstants.lowerAngle){
-                hoodAngle -= 0.014;
+                //hoodAngle -= 0.014;
+                hoodMotor.set(-0.1);
             }
 
             //vel
-            velocity = railgunConstants.maxVelo * (r+1)/2;
-            spinner.Velocity = velocity;
+            //velocity = railgunConstants.maxVelo * (r+1)/2;
+            //spinner.Velocity = velocity;
+            upperMotor.set(railgunConstants.maxVelo * (r+1)/2);
 
         }else{
 
@@ -224,9 +229,9 @@ public class railgun extends SubsystemBase {
 
 
          //just reset every 20 ms, simpler that way, and apparently this is how it was meant to be done
-         //lowerMotor.setControl(new VelocityVoltage(low.Velocity));
-        upperMotor.setControl(new VelocityVoltage(spinner.Velocity));
-        hoodMotor.setControl(focThing.withPosition(hoodAngle)); 
+         
+        //upperMotor.setControl(new VelocityVoltage(spinner.Velocity));
+        //hoodMotor.setControl(focThing.withPosition(hoodAngle)); 
         
     }
 
