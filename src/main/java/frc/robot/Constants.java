@@ -27,8 +27,8 @@ public final class Constants {
   public static class railgunConstants {
         
     //Everything in metric pls
-    public static int upperId = 3;
-    public static int hoodId = 4;
+    public static int upperId = 1;
+    public static int hoodId = 0;
     public static int hoodEncoderId = 3;
     public static int limitId = 6;
     public static double g = 9.8;

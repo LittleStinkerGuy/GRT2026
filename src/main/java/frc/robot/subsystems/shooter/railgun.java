@@ -26,6 +26,8 @@ import edu.wpi.first.units.measure.Angle;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import org.littletonrobotics.junction.Logger;
+
 
 public class railgun extends SubsystemBase {
 
@@ -44,8 +46,7 @@ public class railgun extends SubsystemBase {
     public SwerveSubsystem swerve;
 
     private double dist = 0;
-    private double height = 0;
-    double hoodAngle = 75;
+    double hoodAngle = 75/360;
 
     boolean manual = false;
     
@@ -114,7 +115,7 @@ public class railgun extends SubsystemBase {
         b.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
         upperMotor.getConfigurator().apply(b);
 
-        hoodConfig.Slot0.kP = 0.2;
+        hoodConfig.Slot0.kP = 2;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
         hoodConfig.Slot0.kG = 1.0;
@@ -124,12 +125,12 @@ public class railgun extends SubsystemBase {
         hoodConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
         hoodMotor.getConfigurator().apply(hoodConfig);
 
-        upperConfig.Slot0.kP = 0.2;
+        upperConfig.Slot0.kP = 0.0;
         upperConfig.Slot0.kI = 0.0;
         upperConfig.Slot0.kD = 0.0;
-        upperConfig.Slot0.kG = 1.0;
-        upperConfig.Slot0.kV = 1.0;
-        upperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        upperConfig.Slot0.kG = 0.0;
+        upperConfig.Slot0.kV = 0.0;
+        upperConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         upperConfig.withCurrentLimits(currLim);
         upperConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
@@ -148,6 +149,7 @@ public class railgun extends SubsystemBase {
     boolean prevOptions = false;
     boolean prevL = false;
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
+        System.out.println("Input");
 
         if(limit.getS1Closed().refresh().getValue()){
             hoodEncoder.setPosition(railgunConstants.initHoodAngle);
@@ -180,7 +182,8 @@ public class railgun extends SubsystemBase {
             }
 
             //vel
-            spinner.Velocity = railgunConstants.maxVelo * (r+1)/2;
+            velocity = railgunConstants.maxVelo * (r+1)/2;
+            spinner.Velocity = velocity;
 
         }else{
 
@@ -200,12 +203,24 @@ public class railgun extends SubsystemBase {
     }
 
     public void periodic(){
-        SmartDashboard.putNumber("Current Velocity", velocity);
+        SmartDashboard.putNumber("Actual Velocity", spinner.Velocity);
+        Logger.recordOutput("Actual_Velocity", spinner.Velocity);
+
+        SmartDashboard.putNumber("Req", velocity/360);
+        Logger.recordOutput("Req_Velocity", velocity/360);
+
+        SmartDashboard.putNumber("Hood Rot", hoodAngle);
+        Logger.recordOutput("Hood_Pos", hoodAngle);
+
         SmartDashboard.putNumber("X Distance", dist);
-        dist = SmartDashboard.getNumber("X Distance", dist);         // these guys
+        //dist = SmartDashboard.getNumber("X Distance", dist);         // these guys
         SmartDashboard.putBoolean("Mode", manual);
+        Logger.recordOutput("Auto?", manual);
+
         SmartDashboard.putNumber("Which Motor Tuning", motorTuning);   // just for testing
         motorTuning = (int) SmartDashboard.getNumber("Which Motor Tuning", motorTuning);
+
+        SmartDashboard.putNumber("Hood Angle", hoodAngle*360);
 
 
          //just reset every 20 ms, simpler that way, and apparently this is how it was meant to be done

@@ -4,19 +4,34 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.junction.LoggedRobot;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
  * this project, you must also update the Main.java file in the project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+
+  public enum MODE {
+    REAL,
+    SIM,
+    REPLAY
+  }
+
+  private static final MODE currentMODE = RobotBase.isReal() ? MODE.REAL : MODE.SIM;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -35,6 +50,33 @@ public class Robot extends TimedRobot {
    * <p>This runs after the mode specific periodic functions, but before LiveWindow and
    * SmartDashboard integrated updating.
    */
+
+   @Override
+  public void robotInit() {
+
+    Logger.recordMetadata("IntakePivot", "MyRobot");
+    Logger.recordMetadata("BuildType", currentMODE.toString());
+
+    switch (currentMODE) {
+      case REAL:
+        Logger.addDataReceiver(new WPILOGWriter("/U/logs"));
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+
+      case SIM:
+        Logger.addDataReceiver(new WPILOGWriter("simlogs"));
+        break;
+
+      case REPLAY:
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(
+            new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
+        break;
+    }
+  }
+
+
   @Override
   public void robotPeriodic() {
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -42,6 +84,14 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    
+    Logger.recordOutput("Robot/Enabled", isEnabled());
+    Logger.recordOutput("Robot/Mode",
+      isAutonomous() ? "Auto" :
+      isTeleop() ? "Teleop" :
+      isDisabled() ? "Disabled" : "Other");
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
