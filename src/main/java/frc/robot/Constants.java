@@ -22,6 +22,8 @@ import frc.robot.util.AlignUtil;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final String CAN_BUS = "can";
+
   public static class SwerveDriveConstants {
 
     // Motor Constants (DRIVE)
@@ -118,57 +120,43 @@ public final class Constants {
   public static class IntakeConstants {
     // Roller Motor
     public static final int ROLLER_CAN_ID = 1;
-
     public static final double ROLLER_IN_SPEED = 0.5;
     public static final double ROLLER_OUT_SPEED = -0.5;
     public static final double ROLLER_CURRENT_LIMIT = 100.;
 
-    // Pivot positions (for manual)
-    public static final double STOWED_POS = 0.0;
-    public static final double EXTENDED_POS = 0.25;
-
-    public static final int PIVOT_MOTOR_ID = 11;
-
-     // Limit switches
-    public static final int MIN_LIMIT_SWITCH_ID_DIO = 0; 
-    public static final int MAX_LIMIT_SWITCH_ID_DIO = 1;
-
-
-    //PID
-
-    public static final double PIVOT_P = 0.01;
-    public static final double PIVOT_I = 0.0;
-    public static final double PIVOT_D = 0.0;
-    public static final double PIVOT_F = 0.0;
-
-    public static final int ENCODER_ID = 0;
-    public static final int CANDLE_ID = 13;  
+    // Pivot Motor
+    public static final int PIVOT_MOTOR_ID = 0;
     public static final double MANUAL_PIVOT_SPEED = 0.15;
-    
-    public static final double GEAR_RATIO = 14.0;
 
     // Limit switches
     public static final int TOP_LIMIT_SWITCH_DIO = 0;
     public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
 
-    // Current limits
+    // CANdle
+    public static final int CANDLE_ID = 13;
 
-    public static final double PIVOT_MAX_CURRENT = 40.0; 
-    public static final double PIVOT_CURRENT_LIMIT = 60.0; 
-    public static final double MANUAL_TORQUE_CURRENT = 0.0;
-    public static final double PIVOT_SUPPLY_CURRENT_LIMIT = 40.0; 
-
-    public static final double POSITION_TOLERANCE = 0.02;
-
-    
-
+    // --- Position control (commented out for now) ---
+    // public static final double STOWED_POS = 0.0;
+    // public static final double EXTENDED_POS = 0.25;
+    // public static final int ENCODER_ID = 0;
+    // public static final double GEAR_RATIO = 14.0;
+    // public static final double PIVOT_P = 0.01;
+    // public static final double PIVOT_I = 0.0;
+    // public static final double PIVOT_D = 0.0;
+    // public static final double PIVOT_F = 0.0;
+    // public static final double PIVOT_MAX_CURRENT = 40.0;
+    // public static final double PIVOT_CURRENT_LIMIT = 60.0;
+    // public static final double MANUAL_TORQUE_CURRENT = 0.0;
+    // public static final double PIVOT_SUPPLY_CURRENT_LIMIT = 40.0;
+    // public static final double POSITION_TOLERANCE = 0.02;
   }
 
   public static class HopperConstants {
-    public static final int KRAKEN_CAN_ID = 12;
-    public static final String KRAKEN_CAN_BUS = "rio";
-    public static final double TARGET_RPM = 3000.0; // Changed from 0.0
-    public static final double HOPPER_SPEED = 2.0;
+    public static final int KRAKEN_CAN_ID = 1;
+
+    // --- RPM control (commented out for now) ---
+    // public static final double TARGET_RPM = 3000.0;
+    // public static final double HOPPER_SPEED = 2.0;
   }
 
 

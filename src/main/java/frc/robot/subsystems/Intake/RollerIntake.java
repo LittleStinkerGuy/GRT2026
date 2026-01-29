@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 
 public class RollerIntake extends SubsystemBase {
@@ -29,7 +30,7 @@ public class RollerIntake extends SubsystemBase {
         );
 
     public RollerIntake() {
-        rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, "can");
+        rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, Constants.CAN_BUS);
         rollerMotor.getConfigurator().apply(rollerConfig);
     }
 
