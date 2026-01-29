@@ -35,7 +35,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private boolean isCompetition = true;
 
-  // private PS5DriveController driveController;
+  private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   // private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
@@ -45,7 +45,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // constructDriveController();
+    constructDriveController();
     constructMechController();
     configureBindings();
   }
@@ -130,16 +130,16 @@ public class RobotContainer {
    * Constructs the drive controller based on the name of the controller at port
    * 0
    */
-  // private void constructDriveController(){
-  // driveController = new PS5DriveController();
-  // driveController.setDeadZone(0.05);
-  // }
+  private void constructDriveController() {
+    driveController = new PS5DriveController();
+    driveController.setDeadZone(0.05);
+  }
 
   /**
    * Constructs mech controller
    */
   private void constructMechController() {
-    mechController = new CommandPS5Controller(0);
+    mechController = new CommandPS5Controller(1);
   }
 
 }
