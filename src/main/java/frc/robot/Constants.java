@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.List;
 
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -12,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.util.AlignUtil;
 
 /**
@@ -289,9 +292,16 @@ public final class Constants {
 
     public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
     public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+
     public static final double ARM_GR = 1.0;
     public static final double WINCH_GR = 1.0;
+
     public static final double ARM_MAX_SPEED = 0.05;
     public static final double WINCH_MAX_SPEED = 0.05;
+
+    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-3);
+    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(3);
+    public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(-3);
+    public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
   }
 }

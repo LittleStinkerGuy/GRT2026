@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANdi;
@@ -39,14 +40,23 @@ public class Winch extends SubsystemBase {
 
     private void configureMotor() {
         motorConfig.withCurrentLimits(
-                new CurrentLimitsConfigs().withStatorCurrentLimitEnable(true)
+                new CurrentLimitsConfigs()
+                        .withStatorCurrentLimitEnable(true)
                         .withStatorCurrentLimit(Amps.of(120)))
-                .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
+                .withMotorOutput(new MotorOutputConfigs()
+                        .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(ClimbConstants.WINCH_MOTOR_INVERTED))
-                .withFeedback(new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                .withFeedback(new FeedbackConfigs()
+                        .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
                         .withSensorToMechanismRatio(ClimbConstants.WINCH_GR))
-                .withHardwareLimitSwitch(new HardwareLimitSwitchConfigs().withReverseLimitEnable(true)
-                        .withReverseLimitRemoteCANdiS1(hardstopCANdi));
+                .withHardwareLimitSwitch(new HardwareLimitSwitchConfigs()
+                        .withReverseLimitEnable(true)
+                        .withReverseLimitRemoteCANdiS1(hardstopCANdi))
+                .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitEnable(true)
+                        .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
+                        .withReverseSoftLimitEnable(true)
+                        .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
         motor.getConfigurator().apply(motorConfig);
     }
 
