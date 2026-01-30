@@ -65,8 +65,9 @@
 | **Intake Roller**   | Kraken         | -        |  14  |
 | **Hopper**          | Kraken         | -        |  15  |
 | **Shooter**         | Kraken         | -        |  16  |
-| **Climb**           | Kraken         | Left     |  17  |
-|                     | Kraken         | Right    |  18  |
-| **Winch**           | Kraken         | -        |  19  |
-| **Doorknob**        | Kraken         | -        |  20  |
+|                     | Kraken         | -        |  17  |
+| **Climb**           | Kraken         | Left     |  18  |
+|                     | Kraken         | Right    |  19  |
+| **Winch**           | Kraken         | -        |  20  |
+| **Doorknob**        | Kraken         | -        |  21  |
 
