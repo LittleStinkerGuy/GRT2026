@@ -9,7 +9,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import java.util.function.DoubleSupplier;
 
-public class ManualIntakePivotCommandCommand extends Command {
+public class ManualIntakePivotCommand extends Command {
   private final PivotIntakeSubsystem pivotIntake;
   private final DoubleSupplier speedSupplier;
 
@@ -20,7 +20,7 @@ public class ManualIntakePivotCommandCommand extends Command {
    * @param speedSupplier A supplier returning the desired speed (-1.0 to 1.0), in this case its R2 and L2
    *
    */
-  public ManualIntakePivotCommandCommand(PivotIntakeSubsystem pivotIntake, DoubleSupplier speedSupplier) {
+  public ManualIntakePivotCommand(PivotIntakeSubsystem pivotIntake, DoubleSupplier speedSupplier) {
     this.pivotIntake = pivotIntake;
     this.speedSupplier = speedSupplier;
     addRequirements(pivotIntake);

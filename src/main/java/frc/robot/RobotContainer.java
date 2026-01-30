@@ -19,7 +19,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
-import frc.robot.commands.intake.ManualIntakePivotCommandCommand;
+import frc.robot.commands.intake.ManualIntakePivotCommand;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -52,10 +52,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();  
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+
+  private final CANBus canivore = new CANBus("can");
+  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
+  private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
+  private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
+  private final Field2d m_field = new Field2d();
 
   private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     VisionConstants.cameraConfigs[0]
@@ -175,7 +181,7 @@ public class RobotContainer {
 
      // Pivot Configs: R2 for pivot up and L2 for pivot down
         pivotIntake.setDefaultCommand(
-    new ManualIntakePivotCommandCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
+    new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
      )
    );
 
