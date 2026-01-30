@@ -85,7 +85,17 @@ public final class Constants {
       // Physical Measurements (STEER)
       public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // Gear reduction ratio for steer (22.857142...)
 
+      // Kraken X44 free speed: 7530 RPM
+      public static final double STEER_FREE_SPEED_RPM = 7530.0;
 
+      // Theoretical max output speed: 7530 / (160/7) / 60 = ~5.49 rot/sec (CANcoder space)
+      public static final double STEER_MAX_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0;
+      // Set very high so cruise velocity is the only constraint
+      public static final double STEER_MAX_ACCELERATION = STEER_MAX_VELOCITY * 10.0; // ~54.9 rot/sec^2
+
+      // MotionMagic settings (units are rotations/sec and rotations/sec^2, in CANcoder space)
+      public static final double STEER_CRUISE_VELOCITY = STEER_MAX_VELOCITY; // ~5.49 rot/sec
+      public static final double STEER_ACCELERATION = STEER_MAX_ACCELERATION; // ~54.9 rot/sec^2
   }
 
   public static class SwerveConstants{

@@ -16,6 +16,7 @@ import frc.robot.subsystems.Vision.CameraConfig;
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -96,6 +97,17 @@ public class RobotContainer {
       },
       swerveSubsystem
     );
+
+    // D-pad steer speed limiting (scales MotionMagic cruise velocity)
+    // Up = 100%, Right = 75%, Down = 50%, Left = 25%
+    new Trigger(() -> driveController.getPOV() == 0)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+    new Trigger(() -> driveController.getPOV() == 90)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+    new Trigger(() -> driveController.getPOV() == 180)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+    new Trigger(() -> driveController.getPOV() == 270)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
   }
 
   /**

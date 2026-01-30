@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DebugConstants.*;
 import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
 
@@ -300,6 +301,18 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(
             states, speeds,
             MAX_VEL, MAX_VEL, MAX_OMEGA);
+    }
+
+    /**
+     * Limits all steer motor speeds by scaling the MotionMagic cruise velocity.
+     * @param limit [0, 1] fraction of max cruise velocity. 1.0 = full speed, 0.25 = quarter speed.
+     */
+    public void setSteerSpeedLimit(double limit) {
+        double velocity = STEER_CRUISE_VELOCITY * limit;
+        frontLeftModule.setSteerCruiseVelocity(velocity);
+        frontRightModule.setSteerCruiseVelocity(velocity);
+        backLeftModule.setSteerCruiseVelocity(velocity);
+        backRightModule.setSteerCruiseVelocity(velocity);
     }
 
     private void initNT() {

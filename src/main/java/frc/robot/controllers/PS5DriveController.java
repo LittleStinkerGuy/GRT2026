@@ -88,6 +88,10 @@ public class PS5DriveController extends BaseDriveController{
         this.deadZone = deadZone;
     }
 
+    public int getPOV() {
+        return driveController.getHID().getPOV();
+    }
+
     @Override
     public Trigger getAlignToReef() {
         return cross;

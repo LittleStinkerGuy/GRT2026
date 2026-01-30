@@ -210,6 +210,14 @@ public class KrakenSwerveModule {
     }
 
     /**
+     * Sets the steer motor cruise velocity for MotionMagic.
+     * @param velocity cruise velocity in rotations per second
+     */
+    public void setSteerCruiseVelocity(double velocity) {
+        steerMotor.setCruiseVelocity(velocity);
+    }
+
+    /**
      * Publishes steer motor statistics to NetworkTables
      */
     public void publishSteerStats() {
