@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 
 import java.util.function.BooleanSupplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
@@ -52,6 +53,8 @@ public class Winch extends SubsystemBase {
         // Reset encoder when limit switch is pressed
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
         hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
+
+        BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
     private void configureMotor() {

@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.BooleanSupplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -39,6 +40,8 @@ public class StabilizingArm extends SubsystemBase {
         configureMotor();
 
         setEncoder(Rotations.of(0));
+
+        BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
     private void configureMotor() {
