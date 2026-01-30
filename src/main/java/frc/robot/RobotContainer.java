@@ -6,7 +6,8 @@ package frc.robot;
 
 // frc imports
 import frc.robot.controllers.PS5DriveController;
-import frc.robot.subsystems.shooter.railgun;
+import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.shooter.hood;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -36,8 +37,9 @@ public class RobotContainer {
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   CANBus c = new CANBus("can");
-  private railgun gun = new railgun(c);
-   private CommandPS5Controller gamer = new CommandPS5Controller(0);
+  private flywheel wheel = new flywheel(c);
+  private hood hooded = new hood(c);
+  private CommandPS5Controller gamer = new CommandPS5Controller(0);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -78,15 +80,28 @@ public class RobotContainer {
     );
     */
 
-    gun.setDefaultCommand(
+    wheel.setDefaultCommand(
       new RunCommand(
           () -> {
             double r2 = gamer.getR2Axis();
-            int POV = gamer.getHID().getPOV();
-            
-            
+            wheel.flySpeed((r2+1)/2);
           },
-          gun));
+          wheel));
+
+    hooded.setDefaultCommand(
+      new RunCommand(
+          () -> {
+             int POV = gamer.getHID().getPOV();
+              if()
+          },
+          hooded));
+
+    gamer.getHID().getPOV().g.onTrue(
+      hood.runOnce(() -> hood.hoodSpeed(0.5))
+    );
+
+   
+
       
     /*driveController.getRelativeMode().whileTrue(
       new RunCommand(
