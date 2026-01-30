@@ -96,8 +96,8 @@ public class RobotContainer {
           wheel));
 
     dpadUp.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
-    dpadDown.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
-    dpadNeutral.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
+    dpadDown.whileTrue(new RunCommand(() -> hooded.hoodSpeed(-0.2), hooded));
+    dpadNeutral.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.0), hooded));
           
    
 
