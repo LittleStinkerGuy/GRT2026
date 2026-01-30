@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
 public class hood extends SubsystemBase {
 
@@ -30,6 +31,8 @@ public class hood extends SubsystemBase {
     public void config(){
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
+        cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
     }
 
