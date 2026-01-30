@@ -17,14 +17,11 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import static frc.robot.Constants.LoggingConstants.SWERVE_TABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_CURRENT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
-import frc.robot.util.GRTUtil;
 
 
 
@@ -61,14 +58,6 @@ public class DriveMotor {
     private StatusSignal<Current> supplyCurrentSignal;
     private StatusSignal<Current> torqueCurrentSignal; //torqueCurrent is Pro
 
-    private DoubleLogEntry positionLogEntry;
-    private DoubleLogEntry veloErrorLogEntry;
-    private DoubleLogEntry veloLogEntry;
-    private DoubleLogEntry targetVeloEntry;
-    private DoubleLogEntry appliedVoltsLogEntry;
-    private DoubleLogEntry supplyCurrLogEntry;
-    private DoubleLogEntry torqueCurrLogEntry;
-    private DoubleLogEntry temperatureLogEntry;
     public DriveMotor(int motorID){
 
         // Set Motor and reset Encoder

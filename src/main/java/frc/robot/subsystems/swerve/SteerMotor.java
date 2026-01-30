@@ -9,8 +9,6 @@ import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -59,8 +57,6 @@ public class SteerMotor {
                 .withSlot(0)
                 .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
-    private PositionVoltage positionVoltageRequest = new PositionVoltage(0.0)
-                .withSlot(0);
     // For making positions wrap from 0-1 and resetting to not stack
     private final ClosedLoopGeneralConfigs closedLoopGeneralConfigs = new ClosedLoopGeneralConfigs();
 
@@ -89,7 +85,6 @@ public class SteerMotor {
     private DoublePublisher closedLoopReferencePublisher;
     private DoublePublisher gurtMotorPos1;
 
-    private NetworkTableEntry motorNewPos;
     private double gurtMotorPos = 0.0;
     private int gurtMotorCanID;
     // Phoenix 6 Status Signals
