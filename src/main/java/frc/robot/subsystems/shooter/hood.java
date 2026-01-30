@@ -10,7 +10,10 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 public class hood extends SubsystemBase {
 
@@ -31,20 +34,26 @@ public class hood extends SubsystemBase {
     public void config(){
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        cfg.sensorToMechanismRatio = 12;
+        //cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        FeedbackConfigs b = new FeedbackConfigs();
+        b.SensorToMechanismRatio = 12;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
+        hoodMotor.getConfigurator().apply(b);
     }
 
     public void hoodSpeed(double speed){
+        /* 
         if(hoodMotor.getPosition().getValueAsDouble() >= railgunConstants.initHoodAngle && speed >0){
             hoodMotor.setControl(dutyCycl.withOutput(0));
         }else if(hoodMotor.getPosition().getValueAsDouble() <= railgunConstants.lowerAngle && speed <0){
             hoodMotor.setControl(dutyCycl.withOutput(0));
         }else{
-        hoodMotor.setControl(dutyCycl.withOutput(speed));
+        
         }
+        */
+        hoodMotor.setControl(dutyCycl.withOutput(speed));
     }
 
     boolean prevPress = false;
@@ -58,6 +67,8 @@ public class hood extends SubsystemBase {
         if(!limit.getS1Closed().refresh().getValue()){
             prevPress = false;
         }
+
+        SmartDashboard.putNumber("Position", hoodMotor.getPosition().getValueAsDouble());
             
     }
 }

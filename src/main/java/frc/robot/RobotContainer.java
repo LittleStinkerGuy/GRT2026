@@ -35,11 +35,11 @@ public class RobotContainer {
 
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  // private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   CANBus c = new CANBus("can");
   private flywheel wheel = new flywheel(c);
   private hood hooded = new hood(c);
-  private CommandPS5Controller gamer = new CommandPS5Controller(0);
+  private CommandPS5Controller gamer = new CommandPS5Controller(1);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -95,8 +95,8 @@ public class RobotContainer {
           },
           wheel));
 
-    dpadUp.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
-    dpadDown.whileTrue(new RunCommand(() -> hooded.hoodSpeed(-0.2), hooded));
+    dpadUp.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.05), hooded));
+    dpadDown.whileTrue(new RunCommand(() -> hooded.hoodSpeed(-0.05), hooded));
     dpadNeutral.onTrue(new RunCommand(() -> hooded.hoodSpeed(0.0), hooded));
           
    
