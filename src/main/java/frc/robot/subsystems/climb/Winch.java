@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Amps;
 
 import java.util.function.BooleanSupplier;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -31,7 +30,6 @@ public class Winch extends SubsystemBase {
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-    private static final double LIMIT_STATUS_FREQ_HZ = 50.0;
 
     private final StatusSignal<Boolean> forwardLimitSignal;
     private final StatusSignal<Boolean> reverseLimitSignal;
@@ -47,9 +45,6 @@ public class Winch extends SubsystemBase {
         hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID, canBusObj);
         configureCandi();
         configureMotor();
-        BaseStatusSignal.setUpdateFrequencyForAll(
-                LIMIT_STATUS_FREQ_HZ, forwardLimitSignal, reverseLimitSignal);
-        motor.optimizeBusUtilization(0, 1.0);
 
         // Reset encoder when limit switch is pressed
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());

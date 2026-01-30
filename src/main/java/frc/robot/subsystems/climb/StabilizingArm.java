@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.BooleanSupplier;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -28,7 +27,6 @@ public class StabilizingArm extends SubsystemBase {
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-    private static final double LIMIT_STATUS_FREQ_HZ = 50.0;
 
     private final StatusSignal<Boolean> forwardLimitSignal;
     private final StatusSignal<Boolean> reverseLimitSignal;
@@ -38,9 +36,6 @@ public class StabilizingArm extends SubsystemBase {
         forwardLimitSignal = motor.getFault_ForwardSoftLimit();
         reverseLimitSignal = motor.getFault_ReverseSoftLimit();
         configureMotor();
-        BaseStatusSignal.setUpdateFrequencyForAll(
-                LIMIT_STATUS_FREQ_HZ, forwardLimitSignal, reverseLimitSignal);
-        motor.optimizeBusUtilization(0, 1.0);
 
         setEncoder(Rotations.of(0));
     }
