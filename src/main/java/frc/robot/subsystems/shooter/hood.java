@@ -46,10 +46,17 @@ public class hood extends SubsystemBase {
         }
     }
 
+    boolean prevPress = false;
     @Override
     public void periodic(){
-        if(limit.getS1Closed().refresh().getValue()){
+        if(limit.getS1Closed().refresh().getValue() && !prevPress){
             hoodMotor.setPosition(railgunConstants.initHoodAngle);
+            prevPress = true;
         }
+
+        if(!limit.getS1Closed().refresh().getValue()){
+            prevPress = false;
+        }
+            
     }
 }
