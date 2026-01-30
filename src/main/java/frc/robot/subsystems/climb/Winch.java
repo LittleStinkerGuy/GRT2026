@@ -47,6 +47,8 @@ public class Winch extends SubsystemBase {
         configureCandi();
         configureMotor();
 
+        zeroEncoder();
+
         // Reset encoder when limit switch is pressed
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
         hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
