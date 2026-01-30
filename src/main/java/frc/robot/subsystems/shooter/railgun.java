@@ -152,7 +152,7 @@ public class railgun extends SubsystemBase {
         System.out.println("Input");
 
         if(limit.getS1Closed().refresh().getValue()){
-            hoodEncoder.setPosition(railgunConstants.initHoodAngle);
+            //hoodEncoder.setPosition(railgunConstants.initHoodAngle);
             hoodMotor.setPosition(railgunConstants.initHoodAngle);
         }
 
