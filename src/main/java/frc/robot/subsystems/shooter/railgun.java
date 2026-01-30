@@ -4,16 +4,17 @@ import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix6.CANBus;
 
 public class railgun extends SubsystemBase {
 
     private final TalonFX upperMotor;
     private final TalonFX hoodMotor;
 
-    public railgun() {
+    public railgun(CANBus cn) {
         // Construct motors directly on the CAN bus
-        upperMotor = new TalonFX(railgunConstants.upperId, "can");
-        hoodMotor = new TalonFX(railgunConstants.hoodId, "can");
+        upperMotor = new TalonFX(railgunConstants.upperId, cn);
+        hoodMotor = new TalonFX(railgunConstants.hoodId, cn);
 
         // Initialize hood to starting angle
         hoodMotor.setPosition(railgunConstants.initHoodAngle);
@@ -27,14 +28,13 @@ public class railgun extends SubsystemBase {
     public void input(double r, int arrow) {
         // Hood control
         if (arrow == 0) {
-            hoodMotor.set(-0.1); // move up
+            hoodMotor.set(-0.2); // move up
         } else if (arrow == 180) {
-            hoodMotor.set(0.1);  // move down
+            hoodMotor.set(0.2);  // move down
         } else {
             hoodMotor.set(0);    // stop
         }
 
-        // Upper motor control (simple duty cycle)
         upperMotor.set((r + 1) / 2);
 
         // Optional debug
