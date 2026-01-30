@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 
-public class PivotIntake extends SubsystemBase {
+public class PivotIntakeSubsystem extends SubsystemBase {
   private final TalonFX pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, Constants.CAN_BUS);
 
   private final CANdle candle = new CANdle(IntakeConstants.CANDLE_ID);
@@ -37,7 +37,7 @@ public class PivotIntake extends SubsystemBase {
   // private boolean previousBottomLimitState = false;
   // private boolean previousTopLimitState = false;
 
-  public PivotIntake() {
+  public PivotIntakeSubsystem() {
     configCANdle();
     configMotors();
     // configEncoder();

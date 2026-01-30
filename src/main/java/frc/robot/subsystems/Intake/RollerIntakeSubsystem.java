@@ -17,13 +17,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 
-public class RollerIntake extends SubsystemBase {
+public class RollerIntakeSubsystem extends SubsystemBase {
     private TalonFX rollerMotor;
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
 
     private TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
-    public RollerIntake(CANBus canBus) {
+    public RollerIntakeSubsystem(CANBus canBus) {
         rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, Constants.CAN_BUS);
         configureMotor();
         rollerMotor.getConfigurator().apply(rollerConfig);

@@ -1,15 +1,15 @@
 package frc.robot.commands.hopper;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.hopper.HopperMotor;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class HopperManualCommand extends Command {
-    private final HopperMotor hopperMotor;
+    private final HopperSubsystem HopperSubsystem;
     private final DoubleSupplier speedSupplier;
 
-    public HopperManualCommand(HopperMotor subsystem, DoubleSupplier speedSupplier) {
-        this.hopperMotor = subsystem;
+    public HopperManualCommand(HopperSubsystem subsystem, DoubleSupplier speedSupplier) {
+        this.HopperSubsystem = subsystem;
         this.speedSupplier = speedSupplier;
         addRequirements(subsystem);
     }
@@ -26,12 +26,12 @@ public class HopperManualCommand extends Command {
             speed = 0.0;
         }
         
-        hopperMotor.setManualControl(speed);
+        HopperSubsystem.setManualControl(speed);
     }
     
     @Override
     public void end(boolean interrupted) {
-        hopperMotor.stop();
+        HopperSubsystem.stop();
     }
     
     @Override

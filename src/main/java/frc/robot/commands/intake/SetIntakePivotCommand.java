@@ -8,11 +8,11 @@ package frc.robot.commands.intake;
 // import edu.wpi.first.wpilibj2.command.Command;
 // import frc.robot.subsystems.Intake.PivotIntake;
 //
-// public class SetIntakePivot extends Command {
+// public class SetIntakePivotCommand extends Command {
 //   private final PivotIntake pivotIntake;
 //   private final double targetAngle;
 //
-//   public SetIntakePivot(PivotIntake pivotIntake, double targetAngle) {
+//   public SetIntakePivotCommand(PivotIntake pivotIntake, double targetAngle) {
 //     this.pivotIntake = pivotIntake;
 //     this.targetAngle = targetAngle;
 //     addRequirements(pivotIntake);

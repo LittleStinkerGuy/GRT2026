@@ -2,19 +2,19 @@ package frc.robot.commands.hopper;
 
 // --- Set RPM command (commented out for now - using manual control) ---
 // import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.subsystems.hopper.HopperMotor;
+// import frc.robot.subsystems.hopper.HopperSubsystem;
 //
 // public class HopperSetRPMCommand extends Command {
-//     private final HopperMotor hopperMotor;
+//     private final HopperSubsystem HopperSubsystem;
 //
-//     public HopperSetRPMCommand(HopperMotor subsystem) {
-//         this.hopperMotor = subsystem;
+//     public HopperSetRPMCommand(HopperSubsystem subsystem) {
+//         this.HopperSubsystem = subsystem;
 //         addRequirements(subsystem);
 //     }
 //
 //     @Override
 //     public void initialize() {
-//         hopperMotor.spinAtTargetRPM();
+//         HopperSubsystem.spinAtTargetRPM();
 //     }
 //
 //     @Override
@@ -23,7 +23,7 @@ package frc.robot.commands.hopper;
 //
 //     @Override
 //     public void end(boolean interrupted) {
-//         hopperMotor.stop();
+//         HopperSubsystem.stop();
 //     }
 //
 //     @Override

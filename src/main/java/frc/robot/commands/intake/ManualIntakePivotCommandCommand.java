@@ -6,11 +6,11 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.subsystems.Intake.PivotIntake;
+import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import java.util.function.DoubleSupplier;
 
-public class ManualIntakePivot extends Command {
-  private final PivotIntake pivotIntake;
+public class ManualIntakePivotCommandCommand extends Command {
+  private final PivotIntakeSubsystem pivotIntake;
   private final DoubleSupplier speedSupplier;
 
    /**
@@ -20,7 +20,7 @@ public class ManualIntakePivot extends Command {
    * @param speedSupplier A supplier returning the desired speed (-1.0 to 1.0), in this case its R2 and L2
    *
    */
-  public ManualIntakePivot(PivotIntake pivotIntake, DoubleSupplier speedSupplier) {
+  public ManualIntakePivotCommandCommand(PivotIntakeSubsystem pivotIntake, DoubleSupplier speedSupplier) {
     this.pivotIntake = pivotIntake;
     this.speedSupplier = speedSupplier;
     addRequirements(pivotIntake);

@@ -10,17 +10,17 @@ import frc.robot.controllers.PS5DriveController;
 
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.Intake.RollerIntake;
-import frc.robot.subsystems.Intake.PivotIntake;
-import frc.robot.subsystems.hopper.HopperMotor;
+import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
-import frc.robot.commands.intake.ManualIntakePivot;
+import frc.robot.commands.intake.ManualIntakePivotCommandCommand;
 
 import com.ctre.phoenix6.CANBus;
 
-// import frc.robot.commands.intake.SetIntakePivot;
+// import frc.robot.commands.intake.SetIntakePivotCommand;
 // import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -53,10 +53,10 @@ public class RobotContainer {
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  private PivotIntake pivotIntake = new PivotIntake();
+  private PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
   private CANBus canivore = new CANBus("can");
-  private HopperMotor hopperMotor = new HopperMotor(canivore);
-  private RollerIntake intakeSubsystem = new RollerIntake(canivore);
+  private HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
+  private RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
 
 
   private final Field2d m_field = new Field2d();
@@ -124,28 +124,28 @@ public class RobotContainer {
 
     // --- Intake pivot set-position controls (commented out for now) ---
     // mechController.square().onTrue(
-    //   new SetIntakePivot(pivotIntake, IntakeConstants.STOWED_POS)
+    //   new SetIntakePivotCommand(pivotIntake, IntakeConstants.STOWED_POS)
     // );
     // mechController.cross().onTrue(
-    //   new SetIntakePivot(pivotIntake, IntakeConstants.EXTENDED_POS)
+    //   new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS)
     // );
 
   // circle for the manual hopper
     mechController.circle().whileTrue(
       new RunCommand(
-        () -> hopperMotor.setManualControl(1.0),
-        hopperMotor
+        () -> HopperSubsystem.setManualControl(1.0),
+        HopperSubsystem
       )
     ).onFalse(
       new InstantCommand(
-        () -> hopperMotor.stop(),
-        hopperMotor
+        () -> HopperSubsystem.stop(),
+        HopperSubsystem
       )
     );
 
     // --- Hopper RPM control (commented out for now) ---
     // mechController.triangle().onTrue(
-    //   new HopperSetRPMCommand(hopperMotor)
+    //   new HopperSetRPMCommand(HopperSubsystem)
     // );
 
     /* Intake Controls - Hold button to run rollers */
@@ -177,7 +177,7 @@ public class RobotContainer {
 
      // Pivot Configs: R2 for pivot up and L2 for pivot down
         pivotIntake.setDefaultCommand(
-    new ManualIntakePivot(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
+    new ManualIntakePivotCommandCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
      )
    );
 

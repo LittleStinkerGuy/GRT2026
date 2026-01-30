@@ -16,13 +16,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.HopperConstants;
 
 
-public class HopperMotor extends SubsystemBase {
+public class HopperSubsystem extends SubsystemBase {
 
     private final TalonFX krakenMotor;
     // private final VelocityVoltage velocityControl;
     private final DutyCycleOut dutyCycleControl;
 
-    public HopperMotor(CANBus canBus) {
+    public HopperSubsystem(CANBus canBus) {
         krakenMotor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, canBus);
         // velocityControl = new VelocityVoltage(0);
         dutyCycleControl = new DutyCycleOut(0);
