@@ -299,7 +299,7 @@ public final class Constants {
     public static final double ARM_MAX_SPEED = 0.05;
     public static final double WINCH_MAX_SPEED = 0.1;
 
-    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0);
+    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0.05);
     public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.3);
     public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
     public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
