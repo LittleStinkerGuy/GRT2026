@@ -7,6 +7,7 @@ package frc.robot;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 
+
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Intake.RollerIntake;
@@ -16,6 +17,9 @@ import frc.robot.subsystems.hopper.HopperMotor;
 
 // Commands
 import frc.robot.commands.intake.ManualIntakePivot;
+
+import com.ctre.phoenix6.CANBus;
+
 // import frc.robot.commands.intake.SetIntakePivot;
 // import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -51,7 +55,9 @@ public class RobotContainer {
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   private RollerIntake intakeSubsystem = new RollerIntake();
   private PivotIntake pivotIntake = new PivotIntake();
-  private HopperMotor hopperMotor = new HopperMotor();
+  private CANBus canivore = new CANBus("can");
+  private HopperMotor hopperMotor = new HopperMotor(canivore);
+
 
   private final Field2d m_field = new Field2d();
 
@@ -127,7 +133,7 @@ public class RobotContainer {
   // circle for the manual hopper
     mechController.circle().whileTrue(
       new RunCommand(
-        () -> hopperMotor.setManualControl(0.5),
+        () -> hopperMotor.setManualControl(1.0),
         hopperMotor
       )
     ).onFalse(

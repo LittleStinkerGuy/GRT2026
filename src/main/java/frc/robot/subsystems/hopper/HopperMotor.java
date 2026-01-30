@@ -1,9 +1,20 @@
 package frc.robot.subsystems.hopper;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Rotations;
+// ig im using units library now yw daniel!
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 // import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,27 +29,37 @@ public class HopperMotor extends SubsystemBase {
     // private final VelocityVoltage velocityControl;
     private final DutyCycleOut dutyCycleControl;
 
-    public HopperMotor() {
-        krakenMotor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, Constants.CAN_BUS);
+    public HopperMotor(CANBus canBus) {
+        krakenMotor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, canBus);
         // velocityControl = new VelocityVoltage(0);
         dutyCycleControl = new DutyCycleOut(0);
 
         configureMotor();
     }
 
+
     private void configureMotor() {
         TalonFXConfiguration config = new TalonFXConfiguration();
-
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-        // --- PID for RPM control (commented out for now) ---
-        // config.Slot0.kP = 0.1;
-        // config.Slot0.kI = 0.0;
-        // config.Slot0.kD = 0.0;
-        // config.Slot0.kV = 0.12;
-
+    
+        // Motor output
+        config.withMotorOutput(new MotorOutputConfigs()
+                .withNeutralMode(NeutralModeValue.Brake)      
+                .withInverted(HopperConstants.HOPPERINVERTED));
+    
+        // Current limits
+        config.withCurrentLimits(
+                new CurrentLimitsConfigs()
+                        .withStatorCurrentLimitEnable(false)  
+                        .withStatorCurrentLimit(Amps.of(120))
+        );
+    
+        config.withOpenLoopRamps(new OpenLoopRampsConfigs()
+                .withDutyCycleOpenLoopRampPeriod(0.05)       
+        );
+    
         krakenMotor.getConfigurator().apply(config);
     }
+    
 
     // --- RPM control methods (commented out for now) ---
     // public void spinAtTargetRPM() {
@@ -61,7 +82,9 @@ public class HopperMotor extends SubsystemBase {
     }
 
     public void stop() {
-        krakenMotor.setControl(dutyCycleControl.withOutput(0));
+        dutyCycleControl.withOutput(0);
+        krakenMotor.setControl(dutyCycleControl);
+
     }
 
     public double getMotorOutput() {

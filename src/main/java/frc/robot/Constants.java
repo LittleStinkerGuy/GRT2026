@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.List;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -160,7 +162,14 @@ public final class Constants {
     // --- RPM control (commented out for now) ---
     // public static final double TARGET_RPM = 3000.0;
     // public static final double HOPPER_SPEED = 2.0;
-  }
+
+    public static final int SUPPLY_CURRENT_LIMIT = 80;
+    public static final int STATOR_CURRENT_LIMIT = 60;
+    public static final int VOLTAGE_COMPENSATION = 12;  
+    public static final double OPEN_LOOP_RAMP = 0.5;
+
+    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+    }
 
 
   public static class AlignConstants{

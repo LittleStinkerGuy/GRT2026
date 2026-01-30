@@ -54,10 +54,21 @@ public class PivotIntake extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    // Configure current limits
-    config.CurrentLimits
-        .withStatorCurrentLimit(40)
-        .withStatorCurrentLimitEnable(true);
+    // Config current limits
+    config.withCurrentLimits(
+      new CurrentLimitsConfigs()
+          .withStatorCurrentLimit(40)
+          .withStatorCurrentLimitEnable(true)
+    );
+
+    // Configure software limits separately
+    config.withSoftwareLimitSwitch(
+      new SoftwareLimitSwitchConfigs()
+          .withForwardSoftLimitEnable(true)
+          .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+          .withReverseSoftLimitEnable(true)
+          .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT)
+    );
 
     pivotMotor.getConfigurator().apply(config);
   }
