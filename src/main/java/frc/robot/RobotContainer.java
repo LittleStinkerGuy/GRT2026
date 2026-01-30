@@ -19,7 +19,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
-import frc.robot.commands.intake.ManualIntakePivotCommandCommand;
+import frc.robot.commands.intake.ManualIntakePivotCommand;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -181,7 +181,7 @@ public class RobotContainer {
 
      // Pivot Configs: R2 for pivot up and L2 for pivot down
         pivotIntake.setDefaultCommand(
-    new ManualIntakePivotCommandCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
+    new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
      )
    );
 
