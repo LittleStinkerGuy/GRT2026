@@ -25,41 +25,48 @@
 | PS5 Button                     | Assigned Mech Function | Motor Type | Motor ID |
 | ------------------------------ | ---------------------- | ---------- | -------- |
 | X (Cross)                      |                        |            |          |
-| O (Circle)                     |    Spinup shooter      |            |          |
+| O (Circle)                     |    Spinup shooter      | Kraken     | 16       |
 | △ (Triangle)                   |                        |            |          |
-| □ (Square)                     |    Hopper Spin         |            |          |
+| □ (Square)                     |    Hopper Spin         | Kraken     | 15       |
 | L1                             |                        |            |          |
-| R1                             |    Roller intake       |            |          |
-| L2                             |    Intake Pivot Up     |            |          |
-| R2                             |    Intake Pivot Down   |            |          |
+| R1                             |    Roller intake       | Kraken     | 14       |
+| L2                             |    Intake Pivot Up     | Kraken     | 12       |
+| R2                             |    Intake Pivot Down   | Kraken     | 12       |
 | L3 (Left Stick Click)          |                        |            |          |
 | R3 (Right Stick Click)         |                        |            |          |
-| D-Pad Up                       |    Doornob down        |            |          |
-| D-Pad Down                     |    Doornob up          |            |          |
+| D-Pad Up                       |    Doornob down        | Kraken     | 20       |
+| D-Pad Down                     |    Doornob up          | Kraken     | 20       |
 | D-Pad Left                     |                        |            |          |
 | D-Pad Right                    |                        |            |          |
 | Options Button                 |                        |            |          |
-| Create Button                  |                        |            |          | 
-| Track pad                      | Intake in + stop roller|            |          |         
-| Left Joystick                  | Winch up + down        |            |          |
+| Create Button                  |                        |            |          |
+| Track pad                      | Intake in + stop roller| Kraken     | 14       |
+| Left Joystick                  | Winch up + down        | Kraken     | 19       |
 
 
 
-## **Motor Assignments**
+## **Motor & CAN Assignments**
 
-| Component    | Motor Type     | Position | Port | 
-| ------------ | -------------- | -------- | ---- | 
-| **Drive**    | Kraken         | FL       |   1  | 
-|              | Kraken         | FR       |   3  | 
-|              | Kraken         | BR       |   5  | 
-|              | Kraken         | BL       |   7  | 
-| **Steer**    | Kraken         | FL       |   0  | 
-|              | Kraken         | FR       |   2  | 
-|              | Kraken         | BL       |   4  | 
-|              | Kraken         | BR       |   6  | 
-| **Climb**    | Kraken         | -        |      | 
-|              | Kraken         |          |      | 
-| **Shooter**  | Kraken         | -        |      | 
-| **Pivot**    | Kraken         | -        |      | 
-| **Intake**   | Kraken         | -        |      |
+| Component           | Motor Type     | Position | Port |
+| ------------------- | -------------- | -------- | ---- |
+| **Drive**           | Kraken         | FL       |   1  |
+|                     | Kraken         | FR       |   3  |
+|                     | Kraken         | BR       |   5  |
+|                     | Kraken         | BL       |   7  |
+| **Steer**           | Kraken         | FL       |   0  |
+|                     | Kraken         | FR       |   2  |
+|                     | Kraken         | BL       |   4  |
+|                     | Kraken         | BR       |   6  |
+| **CANcoder**        | CANcoder       | FL       |  11  |
+|                     | CANcoder       | FR       |  10  |
+|                     | CANcoder       | BL       |   8  |
+|                     | CANcoder       | BR       |   9  |
+| **Intake Pivot**    | Kraken         | -        |  12  |
+| **Intake Roller**   | Kraken         | -        |  14  |
+| **Hopper**          | Kraken         | -        |  15  |
+| **Shooter**         | Kraken         | -        |  16  |
+| **Climb**           | Kraken         | Left     |  17  |
+|                     | Kraken         | Right    |  18  |
+| **Winch**           | Kraken         | -        |  19  |
+| **Doorknob**        | Kraken         | -        |  20  |
 
