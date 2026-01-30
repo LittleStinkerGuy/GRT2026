@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -56,7 +57,16 @@ public class StabilizingArm extends SubsystemBase {
                         .withForwardSoftLimitThreshold(ClimbConstants.ARM_FORWARD_LIMIT)
                         .withReverseSoftLimitEnable(true)
                         .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT));
-        motor.getConfigurator().apply(motorConfig);
+
+        for (int i = 0; i < 5; i++) {
+            if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
+                System.out.println("MOTOR " + motor.getDeviceID() + " CONFIGURED!");
+                break; // Success
+            }
+            if (i == 4) {
+                System.out.println("VERY BAD, MOTOR " + motor.getDeviceID() + " DID NOT GET CONFIGURED");
+            }
+        }
     }
 
     public void setMotorSpeed(double speed) {

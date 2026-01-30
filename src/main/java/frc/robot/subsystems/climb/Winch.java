@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Amps;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.DigitalInputsConfigs;
@@ -70,13 +71,30 @@ public class Winch extends SubsystemBase {
                         .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
                         .withReverseSoftLimitEnable(true)
                         .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
-        motor.getConfigurator().apply(motorConfig);
+
+        for (int i = 0; i < 5; i++) {
+            if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
+                System.out.println("MOTOR " + motor.getDeviceID() + " CONFIGURED!");
+                break; // Success
+            }
+            if (i == 4) {
+                System.out.println("VERY BAD, MOTOR " + motor.getDeviceID() + " DID NOT GET CONFIGURED");
+            }
+        }
     }
 
     private void configureCandi() {
         candiConfig.withDigitalInputs(new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow));
 
-        hardstopCANdi.getConfigurator().apply(candiConfig);
+        for (int i = 0; i < 5; i++) {
+            if (hardstopCANdi.getConfigurator().apply(candiConfig, 0.1) == StatusCode.OK) {
+                System.out.println("CANDI " + hardstopCANdi.getDeviceID() + " CONFIGURED!");
+                break; // Success
+            }
+            if (i == 4) {
+                System.out.println("VERY BAD, CANDI " + hardstopCANdi.getDeviceID() + " DID NOT GET CONFIGURED");
+            }
+        }
     }
 
     public void setMotorSpeed(double speed) {
