@@ -1,6 +1,7 @@
 package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.BooleanSupplier;
 
@@ -15,6 +16,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
@@ -28,6 +30,8 @@ public class StabilizingArm extends SubsystemBase {
     public StabilizingArm(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.ARM_MOTOR_CAN_ID, canBusObj);
         configureMotor();
+
+        setEncoder(Rotations.of(0.25));
     }
 
     private void configureMotor() {
@@ -64,12 +68,15 @@ public class StabilizingArm extends SubsystemBase {
         motor.setPosition(0);
     }
 
+    public void setEncoder(Angle pos) {
+        motor.setPosition(pos);
+    }
+
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
     private Command moveArmWithStop(double speed, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
-                    System.out.println("Move Arm Start");
                     setMotorSpeed(speed);
                 }, () -> {
                     setMotorSpeed(0);

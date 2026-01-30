@@ -22,6 +22,7 @@ import com.ctre.phoenix6.signals.S1CloseStateValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ClimbConstants;
 
 public class Winch extends SubsystemBase {
@@ -29,13 +30,19 @@ public class Winch extends SubsystemBase {
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
 
-    private CANdi hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID);
+    private CANdi hardstopCANdi;
     private CANdiConfiguration candiConfig = new CANdiConfiguration();
+    private Trigger hardstopTrigger;
 
     public Winch(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.WINCH_MOTOR_CAN_ID, canBusObj);
+        hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID, canBusObj);
         configureCandi();
         configureMotor();
+
+        // Reset encoder when limit switch is pressed
+        hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
+        hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
     }
 
     private void configureMotor() {
@@ -86,7 +93,6 @@ public class Winch extends SubsystemBase {
     private Command rotateWinchWithStop(double speed, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
-                    System.out.println("Move Winch Start");
                     setMotorSpeed(speed);
                 }, () -> {
                     setMotorSpeed(0);
