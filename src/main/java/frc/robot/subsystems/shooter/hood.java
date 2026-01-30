@@ -31,6 +31,7 @@ public class hood extends SubsystemBase {
     public void config(){
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        cfg.sensorToMechanismRatio = 12;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
