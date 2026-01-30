@@ -21,7 +21,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
@@ -60,8 +59,6 @@ public class SteerMotor {
                 .withSlot(0)
                 .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
-    private PositionVoltage positionVoltageRequest = new PositionVoltage(0.0)
-                .withSlot(0);
     // For making positions wrap from 0-1 and resetting to not stack
     private final ClosedLoopGeneralConfigs closedLoopGeneralConfigs = new ClosedLoopGeneralConfigs();
 
@@ -90,7 +87,6 @@ public class SteerMotor {
     private DoublePublisher closedLoopReferencePublisher;
     private DoublePublisher gurtMotorPos1;
 
-    private NetworkTableEntry motorNewPos;
     private double gurtMotorPos = 0.0;
     private int gurtMotorCanID;
     // Phoenix 6 Status Signals
@@ -235,7 +231,6 @@ public class SteerMotor {
     private void initNT(int canId) {
         ntInstance = NetworkTableInstance.getDefault();
         steerStatsTable = ntInstance.getTable("SwerveSteer");
-        motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
 
         encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId + "encoderPosition").publish();
         motorPositionPublisher = steerStatsTable.getDoubleTopic(canId + "motorPosition").publish();
