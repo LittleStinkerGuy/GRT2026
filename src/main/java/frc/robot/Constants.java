@@ -29,8 +29,8 @@ public final class Constants {
     //Everything in metric pls
     public static int upperId = 1;
     public static int hoodId = 0;
-    public static int hoodEncoderId = 3;
-    public static int limitId = 6;
+    //public static int hoodEncoderId = 3;
+    public static int limitId = 3;
     public static double g = 9.8;
     public static double tan75 = 3.73205;
     public static double cos75 = 0.258819;

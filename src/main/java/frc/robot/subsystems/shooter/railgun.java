@@ -36,7 +36,7 @@ public class railgun extends SubsystemBase {
     private TalonFX upperMotor = new TalonFX(railgunConstants.upperId, "can");
     private TalonFX hoodMotor = new TalonFX(railgunConstants.hoodId, "can");
     private CANdi limit = new CANdi(railgunConstants.limitId, "can");
-    private final CANcoder hoodEncoder = new CANcoder(railgunConstants.hoodEncoderId, "can");
+    //private final CANcoder hoodEncoder = new CANcoder(railgunConstants.hoodEncoderId, "can");
     TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
     TalonFXConfiguration upperConfig = new TalonFXConfiguration();
     private final CANcoder upperEncoder = new CANcoder(railgunConstants.upperEncoderId, "can");
@@ -100,12 +100,12 @@ public class railgun extends SubsystemBase {
         CANcoderConfiguration cfg = new CANcoderConfiguration();
         cfg.MagnetSensor.MagnetOffset = railgunConstants.hoodMagnetOffset; 
         cfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        hoodEncoder.getConfigurator().apply(cfg);
-        hoodEncoder.setPosition(railgunConstants.initHoodAngle);
+       // hoodEncoder.getConfigurator().apply(cfg);
+       // hoodEncoder.setPosition(railgunConstants.initHoodAngle);
 
         FeedbackConfigs fb = new FeedbackConfigs();
         fb.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        fb.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
+        //fb.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
         fb.SensorToMechanismRatio = railgunConstants.gearRatioHood;
         hoodMotor.getConfigurator().apply(fb);
 
@@ -152,7 +152,7 @@ public class railgun extends SubsystemBase {
         System.out.println("Input");
 
         if(limit.getS1Closed().refresh().getValue()){
-            hoodEncoder.setPosition(railgunConstants.initHoodAngle);
+            //hoodEncoder.setPosition(railgunConstants.initHoodAngle);
             hoodMotor.setPosition(railgunConstants.initHoodAngle);
         }
 
