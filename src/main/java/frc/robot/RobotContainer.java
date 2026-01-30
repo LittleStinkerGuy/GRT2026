@@ -79,6 +79,13 @@ public class RobotContainer {
       )
     );
     */
+    Trigger dpadUp = new Trigger(() -> gamer.getHID().getPOV() == 0);
+    Trigger dpadDown = new Trigger(() -> gamer.getHID().getPOV() == 180);
+    Trigger dpadNeutral = new Trigger(() -> {
+      int pov = gamer.getHID().getPOV();
+      return pov != 0 && pov != 180;
+    });
+  
 
     wheel.setDefaultCommand(
       new RunCommand(
@@ -88,18 +95,10 @@ public class RobotContainer {
           },
           wheel));
 
-    hooded.setDefaultCommand(
-      new RunCommand(
-          () -> {
-             int POV = gamer.getHID().getPOV();
-              if()
-          },
-          hooded));
-
-    gamer.getHID().getPOV().g.onTrue(
-      hood.runOnce(() -> hood.hoodSpeed(0.5))
-    );
-
+    dpadUp.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
+    dpadDown.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
+    dpadNeutral.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.2), hooded));
+          
    
 
       
