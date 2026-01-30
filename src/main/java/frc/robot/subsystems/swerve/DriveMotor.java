@@ -26,7 +26,6 @@ import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_CURRENT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
-import frc.robot.util.GRTUtil;
 
 
 
@@ -63,14 +62,6 @@ public class DriveMotor {
     private StatusSignal<Current> supplyCurrentSignal;
     private StatusSignal<Current> torqueCurrentSignal; //torqueCurrent is Pro
 
-    private DoubleLogEntry positionLogEntry;
-    private DoubleLogEntry veloErrorLogEntry;
-    private DoubleLogEntry veloLogEntry;
-    private DoubleLogEntry targetVeloEntry;
-    private DoubleLogEntry appliedVoltsLogEntry;
-    private DoubleLogEntry supplyCurrLogEntry;
-    private DoubleLogEntry torqueCurrLogEntry;
-    private DoubleLogEntry temperatureLogEntry;
     public DriveMotor(int motorID){
 
         // Set Motor and reset Encoder

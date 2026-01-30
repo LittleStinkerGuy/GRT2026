@@ -6,6 +6,13 @@ package frc.robot;
 
 import java.util.List;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
+// Units library:
+import static edu.wpi.first.units.Units.Rotations; 
+import edu.wpi.first.units.measure.Angle;
+
+
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -29,6 +36,8 @@ import frc.robot.util.PolynomialRegression;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final String CAN_BUS = "can";
+
   public static class VisionConstants{
     public static final double FIELD_X = 16.54;
     public static final double FIELD_Y = 8.07;
@@ -162,6 +171,68 @@ public final class Constants {
     public static final boolean STEER_DEBUG = true;
     public static final boolean STATE_DEBUG = true;
   }
+
+  public static class IntakeConstants {
+    // Roller Motor
+    public static final int ROLLER_CAN_ID = 14;
+    public static final double ROLLER_IN_SPEED = 0.5;
+    public static final double ROLLER_OUT_SPEED = -0.5;
+    public static final double ROLLER_CURRENT_LIMIT = 100.;
+    public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.;
+    public static final double ROLLER_OPEN_LOOP_RAMP = 0.05;
+
+    // Pivot Motor
+    public static final int PIVOT_MOTOR_ID = 12;
+    public static final double MANUAL_PIVOT_SPEED = 0.15;
+    public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.;
+    public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
+
+
+    // Limit switches / limits
+    public static final int TOP_LIMIT_SWITCH_DIO = 0;
+    public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
+    public static final Angle TOP_LIMIT = Rotations.of(0.25);
+    public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);;  
+    public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive; 
+
+
+    // CANdle
+    public static final int CANDLE_ID = 13;
+
+    // --- Position control (commented out for now) ---
+    // public static final double STOWED_POS = 0.0;
+    // public static final double EXTENDED_POS = 0.25;
+    // public static final int ENCODER_ID = 0;
+    // public static final double GEAR_RATIO = 14.0;
+    // public static final double PIVOT_P = 0.01;
+    // public static final double PIVOT_I = 0.0;
+    // public static final double PIVOT_D = 0.0;
+    // public static final double PIVOT_F = 0.0;
+    // public static final double PIVOT_MAX_CURRENT = 40.0;
+    // public static final double PIVOT_CURRENT_LIMIT = 60.0;
+    // public static final double MANUAL_TORQUE_CURRENT = 0.0;
+    // public static final double PIVOT_SUPPLY_CURRENT_LIMIT = 40.0;
+    // public static final double POSITION_TOLERANCE = 0.02;
+  }
+
+  public static class HopperConstants {
+    public static final int KRAKEN_CAN_ID = 15;
+
+    // --- RPM control (commented out for now) ---
+    // public static final double TARGET_RPM = 3000.0;
+    // public static final double HOPPER_SPEED = 2.0;
+
+    public static final int SUPPLY_CURRENT_LIMIT = 80;
+    public static final int STATOR_CURRENT_LIMIT = 60;
+    public static final double STATOR_CURRENT_LIMIT_AMPS = 120.;
+    public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+    public static final int VOLTAGE_COMPENSATION = 12;
+    public static final double OPEN_LOOP_RAMP = 0.5;
+    public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+
+    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+    }
+
 
   public static class AlignConstants{
     public static String reefName = "reefAlignPath";
