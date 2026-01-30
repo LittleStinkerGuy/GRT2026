@@ -102,10 +102,10 @@ public class Winch extends SubsystemBase {
         }
     }
 
-    public void setMotorSpeed(double speed) {
-        speed = Math.max(-1.0, Math.min(speed, 1.0));
-        speed *= ClimbConstants.WINCH_MAX_SPEED;
-        dutyCycleControl.withOutput(speed);
+    public void setMotorDutyCycle(double dutyCycle) {
+        dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
+        dutyCycle *= ClimbConstants.WINCH_MAX_DUTY_CYCLE;
+        dutyCycleControl.withOutput(dutyCycle);
         motor.setControl(dutyCycleControl);
     }
 
@@ -133,12 +133,12 @@ public class Winch extends SubsystemBase {
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
-    private Command rotateWinchWithStop(double speed, BooleanSupplier stopMotor) {
+    private Command rotateWinchWithStop(double dutyCycle, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
-                    setMotorSpeed(speed);
+                    setMotorDutyCycle(dutyCycle);
                 }, () -> {
-                    setMotorSpeed(0);
+                    setMotorDutyCycle(0);
                 }).until(stopMotor);
     }
 

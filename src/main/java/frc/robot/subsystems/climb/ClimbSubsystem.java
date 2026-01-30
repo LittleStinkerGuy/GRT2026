@@ -17,12 +17,12 @@ public class ClimbSubsystem extends SubsystemBase {
         m_Winch = new Winch(canBusObj);
     }
 
-    public void setArmSpeed(double speed) {
-        m_StabilizingArm.setMotorSpeed(speed);
+    public void setArmDutyCycle(double dutyCycle) {
+        m_StabilizingArm.setMotorDutyCycle(dutyCycle);
     }
 
-    public void setWinchSpeed(double speed) {
-        m_Winch.setMotorSpeed(speed);
+    public void setWinchDutyCycle(double dutyCycle) {
+        m_Winch.setMotorDutyCycle(dutyCycle);
     }
 
     private Command waitForButtonRelease(BooleanSupplier step) {
