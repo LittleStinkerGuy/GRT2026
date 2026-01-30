@@ -57,8 +57,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     // Config current limits
     config.withCurrentLimits(
       new CurrentLimitsConfigs()
-          .withStatorCurrentLimit(40)
-          .withStatorCurrentLimitEnable(true)
+          .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+          .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE)
     );
 
     // Config software limits 

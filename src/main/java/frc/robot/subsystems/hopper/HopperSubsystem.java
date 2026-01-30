@@ -33,23 +33,23 @@ public class HopperSubsystem extends SubsystemBase {
 
     private void configureMotor() {
         TalonFXConfiguration config = new TalonFXConfiguration();
-    
+
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)      
+                .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(HopperConstants.HOPPERINVERTED));
-    
+
         // Current limits
         config.withCurrentLimits(
                 new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(false)  
-                        .withStatorCurrentLimit(Amps.of(120))
+                        .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
+                        .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS))
         );
-    
+
         config.withOpenLoopRamps(new OpenLoopRampsConfigs()
-                .withDutyCycleOpenLoopRampPeriod(0.05)       
+                .withDutyCycleOpenLoopRampPeriod(HopperConstants.DUTY_CYCLE_OPEN_LOOP_RAMP)
         );
-    
+
         krakenMotor.getConfigurator().apply(config);
     }
     

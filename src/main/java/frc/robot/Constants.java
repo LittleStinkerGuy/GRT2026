@@ -126,14 +126,18 @@ public final class Constants {
 
   public static class IntakeConstants {
     // Roller Motor
-    public static final int ROLLER_CAN_ID = 1; // change to not conflict with swerve 
+    public static final int ROLLER_CAN_ID = 1; // change to not conflict with swerve
     public static final double ROLLER_IN_SPEED = 0.5;
     public static final double ROLLER_OUT_SPEED = -0.5;
     public static final double ROLLER_CURRENT_LIMIT = 100.;
+    public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.;
+    public static final double ROLLER_OPEN_LOOP_RAMP = 0.05;
 
     // Pivot Motor
-    public static final int PIVOT_MOTOR_ID = 0; // change to not conflict with swerve 
+    public static final int PIVOT_MOTOR_ID = 0; // change to not conflict with swerve
     public static final double MANUAL_PIVOT_SPEED = 0.15;
+    public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.;
+    public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
 
     // Limit switches / limits
@@ -172,8 +176,11 @@ public final class Constants {
 
     public static final int SUPPLY_CURRENT_LIMIT = 80;
     public static final int STATOR_CURRENT_LIMIT = 60;
-    public static final int VOLTAGE_COMPENSATION = 12;  
+    public static final double STATOR_CURRENT_LIMIT_AMPS = 120.;
+    public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+    public static final int VOLTAGE_COMPENSATION = 12;
     public static final double OPEN_LOOP_RAMP = 0.5;
+    public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
     public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
     }

@@ -31,23 +31,23 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
     private void configureMotor() {
         TalonFXConfiguration config = new TalonFXConfiguration();
-    
+
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)      
+                .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(IntakeConstants.ROLLER_INVERTED));
-    
+
         // Current limits
         config.withCurrentLimits(
                 new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(false)  
-                        .withStatorCurrentLimit(Amps.of(120))
+                        .withStatorCurrentLimitEnable(false)
+                        .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT))
         );
-    
+
         config.withOpenLoopRamps(new OpenLoopRampsConfigs()
-                .withDutyCycleOpenLoopRampPeriod(0.05)       
+                .withDutyCycleOpenLoopRampPeriod(IntakeConstants.ROLLER_OPEN_LOOP_RAMP)
         );
-    
+
         rollerMotor.getConfigurator().apply(config);
     }
     
