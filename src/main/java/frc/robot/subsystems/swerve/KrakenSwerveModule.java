@@ -19,7 +19,6 @@ import static frc.robot.Constants.SwerveConstants.STEER_D;
 import static frc.robot.Constants.SwerveConstants.STEER_S;
 import static frc.robot.Constants.SwerveConstants.STEER_I;
 import static frc.robot.Constants.SwerveConstants.STEER_P;
-import static frc.robot.Constants.SwerveConstants.STEER_S;
 
 public class KrakenSwerveModule {
 
