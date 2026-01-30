@@ -89,7 +89,6 @@ public class Winch extends SubsystemBase {
                     System.out.println("Move Winch Start");
                     setMotorSpeed(speed);
                 }, () -> {
-                    System.out.println("Move Winch End");
                     setMotorSpeed(0);
                 }).until(stopMotor);
     }

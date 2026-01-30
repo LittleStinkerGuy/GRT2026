@@ -72,7 +72,6 @@ public class StabilizingArm extends SubsystemBase {
                     System.out.println("Move Arm Start");
                     setMotorSpeed(speed);
                 }, () -> {
-                    System.out.println("Move Arm Stop");
                     setMotorSpeed(0);
                 }).until(stopMotor);
     }

@@ -30,10 +30,7 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     private Command waitForNextStep(BooleanSupplier step) {
-        return waitForButtonRelease(step).andThen(Commands.waitUntil(step)).andThen(waitForButtonRelease(step))
-                .andThen(this.runOnce(() -> {
-                    System.out.println("step");
-                }));
+        return waitForButtonRelease(step).andThen(Commands.waitUntil(step)).andThen(waitForButtonRelease(step));
     }
 
     private Command initiateClimb(BooleanSupplier step) {
