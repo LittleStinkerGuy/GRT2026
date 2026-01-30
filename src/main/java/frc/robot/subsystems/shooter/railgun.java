@@ -52,9 +52,10 @@ public class railgun extends SubsystemBase {
     
     
     public railgun(SwerveSubsystem s){
-        configNT();
+        //configNT();
         configure();
         swerve = s;
+        hoodMotor.setPosition(railgunConstants.initHoodAngle);
     }
 
     int motorTuning = 1;
@@ -94,6 +95,8 @@ public class railgun extends SubsystemBase {
     }
 
     private void configure(){
+
+        /* 
         //set gear ratios
         //set init positions
         
@@ -135,6 +138,8 @@ public class railgun extends SubsystemBase {
         upperConfig.withCurrentLimits(currLim);
         upperConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
         //upperMotor.getConfigurator().apply(upperConfig);
+
+        */
     }
 
     private double calculateAngle(double dista){
@@ -149,46 +154,55 @@ public class railgun extends SubsystemBase {
     boolean prevOptions = false;
     boolean prevL = false;
     public void input(double r, boolean l, int arrow, boolean options){ // check logic here again
-        System.out.println("Input");
-
+        
+        /* 
         if(limit.getS1Closed().refresh().getValue()){
-            //hoodEncoder.setPosition(railgunConstants.initHoodAngle);
+            // hoodEncoder.setPosition(railgunConstants.initHoodAngle);
             hoodMotor.setPosition(railgunConstants.initHoodAngle);
         }
-
+            */
+        /* 
         if(options && !prevOptions){
             manual = !manual;
             prevOptions = true;
         }
+        */
 
+        /* 
         if(l && !prevL){
             prevL = true;
             swerve.facePose();
         }
+            
 
         if(!l){
             prevL = false;
         }
 
+        */
+
         if(!options){prevOptions = false;}
 
         if(manual){
 
-            hoodAngle = hoodMotor.getPosition().getValueAsDouble();
+           // hoodAngle = hoodMotor.getPosition().getValueAsDouble();
 
             //hood
-            if(arrow == 0 && hoodAngle + 0.014 <= railgunConstants.upperAngle){
+            if(arrow == 180 && hoodAngle - 0.014 >= railgunConstants.lowerAngle){
                 //hoodAngle += 0.014;
                 hoodMotor.set(0.1);
-            }else if(arrow == 180 && hoodAngle - 0.014 >= railgunConstants.lowerAngle){
+                
+            }else if(arrow == 0 /*&& hoodAngle + 0.014 <= railgunConstants.upperAngle*/){
                 //hoodAngle -= 0.014;
                 hoodMotor.set(-0.1);
             }
+            SmartDashboard.putNumber("help", hoodMotor.getAcceleration().getValueAsDouble());
 
             //vel
             //velocity = railgunConstants.maxVelo * (r+1)/2;
             //spinner.Velocity = velocity;
-            upperMotor.set(railgunConstants.maxVelo * (r+1)/2);
+            //upperMotor.set(0.2);
+            //railgunConstants.maxVelo * (r+1)/2
 
         }else{
 
@@ -207,14 +221,19 @@ public class railgun extends SubsystemBase {
 
     }
 
+    public void run(){
+        upperMotor.set(0.2);
+    }
+
     public void periodic(){
+        
         SmartDashboard.putNumber("Actual Velocity", spinner.Velocity);
         Logger.recordOutput("Actual_Velocity", spinner.Velocity);
 
         SmartDashboard.putNumber("Req", velocity/360);
         Logger.recordOutput("Req_Velocity", velocity/360);
 
-        SmartDashboard.putNumber("Hood Rot", hoodAngle);
+        SmartDashboard.putNumber("Hood Rot", hoodMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Hood_Pos", hoodAngle);
 
         SmartDashboard.putNumber("X Distance", dist);
@@ -225,7 +244,7 @@ public class railgun extends SubsystemBase {
         SmartDashboard.putNumber("Which Motor Tuning", motorTuning);   // just for testing
         motorTuning = (int) SmartDashboard.getNumber("Which Motor Tuning", motorTuning);
 
-        SmartDashboard.putNumber("Hood Angle", hoodAngle*360);
+        SmartDashboard.putNumber("Hood Angle", hoodMotor.getPosition().getValueAsDouble()*360);
 
 
          //just reset every 20 ms, simpler that way, and apparently this is how it was meant to be done

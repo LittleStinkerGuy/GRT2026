@@ -55,6 +55,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+
+      gun.run();
       /* Driving -- One joystick controls translation, the other rotation. If the robot-relative button is held down,
       * the robot is controlled along its own axes, otherwise controls apply to the field axes by default. If the
       * swerve aim button is held down, the robot will rotate automatically to always face a target, and only
