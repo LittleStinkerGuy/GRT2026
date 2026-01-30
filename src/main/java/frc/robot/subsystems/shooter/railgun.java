@@ -107,7 +107,7 @@ public class railgun extends SubsystemBase {
         fb.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         //fb.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
         fb.SensorToMechanismRatio = railgunConstants.gearRatioHood;
-        hoodMotor.getConfigurator().apply(fb);
+        //hoodMotor.getConfigurator().apply(fb);
 
         FeedbackConfigs b = new FeedbackConfigs();
         b.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
@@ -133,7 +133,7 @@ public class railgun extends SubsystemBase {
         upperConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         upperConfig.withCurrentLimits(currLim);
-        upperConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
+        upperConfig.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
         //upperMotor.getConfigurator().apply(upperConfig);
     }
 
