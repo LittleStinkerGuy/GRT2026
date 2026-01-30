@@ -61,7 +61,7 @@ public class PivotIntake extends SubsystemBase {
           .withStatorCurrentLimitEnable(true)
     );
 
-    // Configure software limits separately
+    // Config software limits 
     config.withSoftwareLimitSwitch(
       new SoftwareLimitSwitchConfigs()
           .withForwardSoftLimitEnable(true)
