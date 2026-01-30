@@ -107,7 +107,7 @@ public class railgun extends SubsystemBase {
         fb.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         fb.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
         fb.SensorToMechanismRatio = railgunConstants.gearRatioHood;
-        hoodMotor.getConfigurator().apply(fb);
+        //hoodMotor.getConfigurator().apply(fb);
 
         FeedbackConfigs b = new FeedbackConfigs();
         b.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
