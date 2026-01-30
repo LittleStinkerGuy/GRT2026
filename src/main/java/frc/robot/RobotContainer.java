@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import com.ctre.phoenix6.CANBus;
 
 
 
@@ -34,7 +35,8 @@ public class RobotContainer {
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  private railgun gun = new railgun(swerveSubsystem);
+  private CANBus canivore = new CANBus("can");
+  private railgun gun = new railgun(canivore);
    private CommandPS5Controller gamer = new CommandPS5Controller(0);
 
 
@@ -56,7 +58,6 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-      gun.run();
       /* Driving -- One joystick controls translation, the other rotation. If the robot-relative button is held down,
       * the robot is controlled along its own axes, otherwise controls apply to the field axes by default. If the
       * swerve aim button is held down, the robot will rotate automatically to always face a target, and only
