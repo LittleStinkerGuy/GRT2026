@@ -2,6 +2,7 @@ package frc.robot.subsystems.swerve;
 
 //Constants Import 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -95,10 +96,10 @@ public class SteerMotor {
     private StatusSignal<Current> torqueCurrentSignal;
 
 
-    public SteerMotor(int motorCAN, int encoderCAN) {
+    public SteerMotor(int motorCAN, int encoderCAN, CANBus canivore) {
         // Set motor and encoder
-        motor = new TalonFX(motorCAN, "can");
-        cancoder = new CANcoder(encoderCAN, "can");
+        motor = new TalonFX(motorCAN, canivore);
+        cancoder = new CANcoder(encoderCAN, canivore);
         gurtMotorCanID = motorCAN;
         // Configure CANcoder and Kraken
         configureCancoder(); // called to ensure settings are applied programmatically
