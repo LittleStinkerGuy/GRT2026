@@ -1,75 +1,49 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants.railgunConstants;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.units.*;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.*;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import edu.wpi.first.math.geometry.Pose2d;
-
-import java.util.EnumSet;
-import frc.robot.subsystems.swerve.SwerveSubsystem;
-import edu.wpi.first.math.geometry.Pose2d;
-
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTableEvent;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Angle;
-import com.ctre.phoenix6.hardware.CANdi;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import org.littletonrobotics.junction.Logger;
-import com.ctre.phoenix6.CANBus;
 
 public class railgun extends SubsystemBase {
 
-    private CANBus canivore;
-    private TalonFX upperMotor = new TalonFX(railgunConstants.upperId, canivore);
-    private TalonFX hoodMotor = new TalonFX(railgunConstants.hoodId, canivore);
-    private CANdi limit = new CANdi(railgunConstants.limitId, "can");
+    private final TalonFX upperMotor;
+    private final TalonFX hoodMotor;
 
-    double hoodAngle = railgunConstants.initHoodAngle;
+    public railgun() {
+        // Construct motors directly on the CAN bus
+        upperMotor = new TalonFX(railgunConstants.upperId, "can");
+        hoodMotor = new TalonFX(railgunConstants.hoodId, "can");
 
-    public railgun(CANBus c) {
+        // Initialize hood to starting angle
         hoodMotor.setPosition(railgunConstants.initHoodAngle);
-        canivore = c;
     }
 
-    public void input(double r, boolean l, int arrow, boolean options) { // check logic here again
-
-        // hood
-        if (arrow == 180 /*
-                          * && hoodMotor.getPosition().getValueAsDouble() - 0.014 >=
-                          * railgunConstants.lowerAngle
-                          */) {
-
-            hoodMotor.set(0.1);
-
-        } else if (arrow == 0 /*
-                               * && hoodMotor.getPosition().getValueAsDouble() + 0.014 <=
-                               * railgunConstants.upperAngle
-                               */) {
-
-            hoodMotor.set(-0.1);
+    /**
+     * Manual input function.
+     * @param r R2 axis for upper motor (-1 to 1)
+     * @param arrow POV for hood control (0 = up, 180 = down)
+     */
+    public void input(double r, int arrow) {
+        // Hood control
+        if (arrow == 0) {
+            hoodMotor.set(-0.1); // move up
+        } else if (arrow == 180) {
+            hoodMotor.set(0.1);  // move down
+        } else {
+            hoodMotor.set(0);    // stop
         }
 
-        SmartDashboard.putNumber("help", hoodMotor.getAcceleration().getValueAsDouble());
-
+        // Upper motor control (simple duty cycle)
         upperMotor.set((r + 1) / 2);
 
+        // Optional debug
+        SmartDashboard.putNumber("Hood Position", hoodMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Upper Motor Output", (r + 1) / 2);
     }
 
+    @Override
     public void periodic() {
-
+        // Nothing else needed for manual mode
     }
-
 }
