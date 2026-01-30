@@ -20,6 +20,9 @@ public class railgun extends SubsystemBase {
         hoodMotor.setPosition(railgunConstants.initHoodAngle);
     }
 
+    public void hoodSpeed(double speed){
+        hoodMotor.set(speed);
+    }
     /**
      * Manual input function.
      * @param r R2 axis for upper motor (-1 to 1)
