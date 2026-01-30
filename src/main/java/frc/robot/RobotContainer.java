@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -124,16 +125,16 @@ public class RobotContainer {
     // );
 
   // circle for the manual hopper
-    mechController.circle().onTrue(
+    mechController.circle().whileTrue(
       new RunCommand(
         () -> hopperMotor.setManualControl(0.5),
         hopperMotor
       )
     ).onFalse(
-      new RunCommand(
+      new InstantCommand(
         () -> hopperMotor.stop(),
         hopperMotor
-      ).withTimeout(0.02)
+      )
     );
 
     // --- Hopper RPM control (commented out for now) ---
@@ -149,10 +150,10 @@ public class RobotContainer {
         intakeSubsystem
       )
     ).onFalse(
-      new RunCommand(
+      new InstantCommand(
         () -> intakeSubsystem.stop(),
         intakeSubsystem
-      ).withTimeout(0.02)
+      )
     );
 
     // L1 - intake out
@@ -162,10 +163,10 @@ public class RobotContainer {
         intakeSubsystem
       )
     ).onFalse(
-      new RunCommand(
+      new InstantCommand(
         () -> intakeSubsystem.stop(),
         intakeSubsystem
-      ).withTimeout(0.02)
+      )
     );
 
      // Pivot Configs: R2 for pivot up and L2 for pivot down

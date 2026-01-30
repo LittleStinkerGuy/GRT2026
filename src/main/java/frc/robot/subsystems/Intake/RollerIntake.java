@@ -17,8 +17,10 @@ public class RollerIntake extends SubsystemBase {
     private TalonFX rollerMotor;
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
 
-    private TalonFXConfiguration rollerConfig = new TalonFXConfiguration()
-        .withMotorOutput(
+    private TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
+
+    private void configMotors() {
+        rollerConfig.withMotorOutput(
             new MotorOutputConfigs()
             .withInverted(InvertedValue.CounterClockwise_Positive)
             .withNeutralMode(NeutralModeValue.Brake)
@@ -28,15 +30,16 @@ public class RollerIntake extends SubsystemBase {
                 .withStatorCurrentLimit(IntakeConstants.ROLLER_CURRENT_LIMIT)
                 .withStatorCurrentLimitEnable(true)
         );
-
+    }
     public RollerIntake() {
         rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, Constants.CAN_BUS);
+        configMotors();
         rollerMotor.getConfigurator().apply(rollerConfig);
     }
 
     @Override
     public void periodic() {
-        // Motor status
+        // Motor status logging!
         SmartDashboard.putNumber("Intake/Roller/DutyCycle", rollerMotor.get());
         SmartDashboard.putNumber("Intake/Roller/Velocity", rollerMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Intake/Roller/Current", rollerMotor.getStatorCurrent().getValueAsDouble());

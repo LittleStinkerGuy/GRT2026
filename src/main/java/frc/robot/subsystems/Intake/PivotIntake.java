@@ -7,6 +7,8 @@ package frc.robot.subsystems.Intake;
 // import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 // import com.ctre.phoenix6.controls.PositionVoltage;
@@ -51,6 +53,12 @@ public class PivotIntake extends SubsystemBase {
     // config.Slot0.kV = IntakeConstants.PIVOT_F;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    // Configure current limits
+    config.CurrentLimits
+        .withStatorCurrentLimit(40)
+        .withStatorCurrentLimitEnable(true);
+
     pivotMotor.getConfigurator().apply(config);
   }
 

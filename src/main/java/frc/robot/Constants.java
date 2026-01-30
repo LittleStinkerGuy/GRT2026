@@ -119,18 +119,21 @@ public final class Constants {
 
   public static class IntakeConstants {
     // Roller Motor
-    public static final int ROLLER_CAN_ID = 1;
+    public static final int ROLLER_CAN_ID = 1; // change to not conflict with swerve 
     public static final double ROLLER_IN_SPEED = 0.5;
     public static final double ROLLER_OUT_SPEED = -0.5;
     public static final double ROLLER_CURRENT_LIMIT = 100.;
 
     // Pivot Motor
-    public static final int PIVOT_MOTOR_ID = 0;
+    public static final int PIVOT_MOTOR_ID = 0; // change to not conflict with swerve 
     public static final double MANUAL_PIVOT_SPEED = 0.15;
 
-    // Limit switches
+
+    // Limit switches / limits
     public static final int TOP_LIMIT_SWITCH_DIO = 0;
     public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
+    public static final int TOP_LIMIT = 3;
+    public static final int BOTTOM_LIMIT = 0;  
 
     // CANdle
     public static final int CANDLE_ID = 13;
