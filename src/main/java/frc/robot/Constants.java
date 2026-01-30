@@ -7,7 +7,11 @@ package frc.robot;
 import java.util.List;
 
 import com.ctre.phoenix6.signals.InvertedValue;
+
+// Units library:
 import static edu.wpi.first.units.Units.Rotations; 
+import edu.wpi.first.units.measure.Angle;
+
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -135,8 +139,10 @@ public final class Constants {
     // Limit switches / limits
     public static final int TOP_LIMIT_SWITCH_DIO = 0;
     public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
-    public static final int TOP_LIMIT = Rotations.of(0.25);
-    public static final int BOTTOM_LIMIT = Rotations.of(-0.1);;  
+    public static final Angle TOP_LIMIT = Rotations.of(0.25);
+    public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);;  
+    public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive; 
+
 
     // CANdle
     public static final int CANDLE_ID = 13;

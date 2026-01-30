@@ -2,11 +2,16 @@ package frc.robot.subsystems.Intake;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import static edu.wpi.first.units.Units.Amps;
+import com.ctre.phoenix6.CANBus;
+
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,23 +24,34 @@ public class RollerIntake extends SubsystemBase {
 
     private TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
-    private void configMotors() {
-        rollerConfig.withMotorOutput(
-            new MotorOutputConfigs()
-            .withInverted(InvertedValue.CounterClockwise_Positive)
-            .withNeutralMode(NeutralModeValue.Brake)
-        )
-        .withCurrentLimits(
-            new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(IntakeConstants.ROLLER_CURRENT_LIMIT)
-                .withStatorCurrentLimitEnable(true)
-        );
-    }
-    public RollerIntake() {
+    public RollerIntake(CANBus canBus) {
         rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, Constants.CAN_BUS);
-        configMotors();
+        configureMotor();
         rollerMotor.getConfigurator().apply(rollerConfig);
     }
+
+    private void configureMotor() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+    
+        // Motor output
+        config.withMotorOutput(new MotorOutputConfigs()
+                .withNeutralMode(NeutralModeValue.Brake)      
+                .withInverted(IntakeConstants.ROLLER_INVERTED));
+    
+        // Current limits
+        config.withCurrentLimits(
+                new CurrentLimitsConfigs()
+                        .withStatorCurrentLimitEnable(false)  
+                        .withStatorCurrentLimit(Amps.of(120))
+        );
+    
+        config.withOpenLoopRamps(new OpenLoopRampsConfigs()
+                .withDutyCycleOpenLoopRampPeriod(0.05)       
+        );
+    
+        rollerMotor.getConfigurator().apply(config);
+    }
+    
 
     @Override
     public void periodic() {

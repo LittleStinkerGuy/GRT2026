@@ -53,10 +53,10 @@ public class RobotContainer {
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  private RollerIntake intakeSubsystem = new RollerIntake();
   private PivotIntake pivotIntake = new PivotIntake();
   private CANBus canivore = new CANBus("can");
   private HopperMotor hopperMotor = new HopperMotor(canivore);
+  private RollerIntake intakeSubsystem = new RollerIntake(canivore);
 
 
   private final Field2d m_field = new Field2d();
