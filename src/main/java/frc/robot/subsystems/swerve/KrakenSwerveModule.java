@@ -2,6 +2,8 @@ package frc.robot.subsystems.swerve;
 
 import java.util.EnumSet;
 
+import com.ctre.phoenix6.CANBus;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -39,7 +41,7 @@ public class KrakenSwerveModule {
      * @param offsetRads The offset of the absolute encoder (0 for our cases)
      * @param canCoderPort The CAN ID of the steer motor encoder
      */
-    public KrakenSwerveModule(int drivePort, int steerPort, double offsetRads, int canCoderPort) {
+    public KrakenSwerveModule(int drivePort, int steerPort, double offsetRads, int canCoderPort, CANBus canivore) {
 
         this.drivePort = drivePort;
         this.steerPort = steerPort;
@@ -54,7 +56,7 @@ public class KrakenSwerveModule {
         //     STEER_D[steerIndex],
         //     STEER_FF[steerIndex]
         // );
-        steerMotor = new SteerMotor2(steerPort, canCoderPort);
+        steerMotor = new SteerMotor2(steerPort, canCoderPort, canivore);
         steerMotor.configPID(
             STEER_P[steerIndex],
             STEER_I[steerIndex],
@@ -63,7 +65,7 @@ public class KrakenSwerveModule {
         );
 
 
-        driveMotor = new DriveMotor(drivePort);
+        driveMotor = new DriveMotor(drivePort, canivore);
         driveMotor.configPID(
             DRIVE_P[driveIndex],
             DRIVE_I[driveIndex],

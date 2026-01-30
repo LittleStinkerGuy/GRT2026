@@ -6,6 +6,7 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_RAMP_RATE;
 
 import java.util.EnumSet;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -174,9 +175,9 @@ public class SteerMotor2 extends SubsystemBase{
     
     }
 
-    public SteerMotor2(int motorCAN, int encoderID){
+    public SteerMotor2(int motorCAN, int encoderID, CANBus canivore){
         motorID = motorCAN;
-        motor = new TalonFX(motorCAN, "can");
+        motor = new TalonFX(motorCAN, canivore);
         cancoder = new CANcoder(encoderID);
         configureMotor();
         initNT(motorCAN);

@@ -2,6 +2,7 @@ package frc.robot.subsystems.swerve;
 
 //Constants Import 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -71,10 +72,10 @@ public class DriveMotor {
     private DoubleLogEntry supplyCurrLogEntry;
     private DoubleLogEntry torqueCurrLogEntry;
     private DoubleLogEntry temperatureLogEntry;
-    public DriveMotor(int motorID){
+    public DriveMotor(int motorID, CANBus canivore){
 
         // Set Motor and reset Encoder
-        motor = new TalonFX(motorID, "can");
+        motor = new TalonFX(motorID, canivore);
         motor.setPosition(0);
 
         // Configure CANcoder and Kraken
