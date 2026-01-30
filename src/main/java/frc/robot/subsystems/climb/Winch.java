@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 
 import java.util.function.BooleanSupplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -19,6 +20,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.S1CloseStateValue;
+import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +31,10 @@ public class Winch extends SubsystemBase {
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private static final double LIMIT_STATUS_FREQ_HZ = 50.0;
+
+    private final StatusSignal<Boolean> forwardLimitSignal;
+    private final StatusSignal<Boolean> reverseLimitSignal;
 
     private CANdi hardstopCANdi;
     private CANdiConfiguration candiConfig = new CANdiConfiguration();
@@ -36,9 +42,14 @@ public class Winch extends SubsystemBase {
 
     public Winch(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.WINCH_MOTOR_CAN_ID, canBusObj);
+        forwardLimitSignal = motor.getFault_ForwardSoftLimit();
+        reverseLimitSignal = motor.getFault_ReverseSoftLimit();
         hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID, canBusObj);
         configureCandi();
         configureMotor();
+        BaseStatusSignal.setUpdateFrequencyForAll(
+                LIMIT_STATUS_FREQ_HZ, forwardLimitSignal, reverseLimitSignal);
+        motor.optimizeBusUtilization(0, 1.0);
 
         // Reset encoder when limit switch is pressed
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
@@ -86,6 +97,20 @@ public class Winch extends SubsystemBase {
 
     public void zeroEncoder() {
         motor.setPosition(0);
+    }
+
+    public boolean getForwardLimit() {
+        if (!forwardLimitSignal.refresh().getValue()) {
+            return false;
+        }
+        return forwardLimitSignal.getValue();
+    }
+
+    public boolean getReverseLimit() {
+        if (!reverseLimitSignal.refresh().getValue()) {
+            return false;
+        }
+        return reverseLimitSignal.getValue();
     }
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot

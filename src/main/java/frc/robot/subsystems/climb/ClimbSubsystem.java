@@ -33,20 +33,26 @@ public class ClimbSubsystem extends SubsystemBase {
         return waitForButtonRelease(step).andThen(Commands.waitUntil(step)).andThen(waitForButtonRelease(step));
     }
 
-    private Command initiateClimb(BooleanSupplier step) {
-        return m_Winch.pullUpClaw(step).andThen(waitForNextStep(step)).andThen(m_StabilizingArm.deployArm(step));
-    }
-
+    // arm + winch -
     public Command climbUp(BooleanSupplier step) {
         Command climbUp = (waitForButtonRelease(step)
-                .andThen(initiateClimb(step).andThen(waitForNextStep(step)).andThen(m_Winch.pullDownClaw(step))));
+                .andThen(m_StabilizingArm.deployArm(step)
+                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))
+                        .andThen(waitForNextStep(step))
+                        .andThen(m_Winch.pullDownClaw(step))
+                        .raceWith(Commands.waitUntil(() -> m_Winch.getReverseLimit()))));
         climbUp.addRequirements(this);
         return climbUp;
     }
 
+    // winch + arm -
     public Command climbDown(BooleanSupplier step) {
-        Command climbDown = waitForButtonRelease(step).andThen(
-                m_Winch.pullUpClaw(step).andThen(waitForNextStep(step)).andThen(m_StabilizingArm.retractArm(step)));
+        Command climbDown = waitForButtonRelease(step)
+                .andThen(m_Winch.pullUpClaw(step)
+                        .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit()))
+                        .andThen(waitForNextStep(step))
+                        .andThen(m_StabilizingArm.retractArm(step)
+                                .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getReverseLimit()))));
         climbDown.addRequirements(this);
         return climbDown;
     }
