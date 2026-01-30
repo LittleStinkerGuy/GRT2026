@@ -8,11 +8,9 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.networktables.DoublePublisher;
@@ -22,6 +20,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 
+import static edu.wpi.first.units.Units.Rotation;
 import static frc.robot.Constants.DebugConstants.MASTER_DEBUG;
 public class LoggedTalon{
 
@@ -41,7 +40,7 @@ public class LoggedTalon{
     private DoublePublisher temperaturePublisher;
     private DoublePublisher targetPositionPublisher;
     private DoublePublisher targetVelocityPublisher;
-    private DoublePublisher targetTorqueCurrentFOCPublisher;
+    private DoublePublisher targetVoltagePublisher;
     private DoublePublisher targetDutyCyclePublisher; 
     private DoublePublisher closedLoopErrorPublisher;
 
@@ -53,13 +52,13 @@ public class LoggedTalon{
     private DoubleLogEntry temperatureLogEntry;
     private DoubleLogEntry targetPositionLogEntry; 
     private DoubleLogEntry targetVelocityLogEntry;
-    private DoubleLogEntry targetTorqueCurrentFOCLogEntry;
+    private DoubleLogEntry targetVoltageLogEntry;
     private DoubleLogEntry targetDutyCycleLogEntry; 
     private DoubleLogEntry closedLoopErrorLogEntry;
 
     private double targetPosition;
     private double targetVelocity;
-    private double targetTorqueCurrentFOC;
+    private double targetVoltage;
     private double targetDutyCycle;
 
     public LoggedTalon(
@@ -95,7 +94,7 @@ public class LoggedTalon{
      */
     public void setPositionReference(double position){
         targetPosition = position;
-        motor.setControl(new PositionTorqueCurrentFOC(position));
+        motor.setControl(new PositionVoltage(position));
     }
 
     public void setSpeed(double speed) {
@@ -119,7 +118,7 @@ public class LoggedTalon{
     public void setPositionReferenceWithArbFF(double position, double arbFF){
         targetPosition = position;
         motor.setControl(
-            new PositionTorqueCurrentFOC(position).withSlot(0).withFeedForward(arbFF)
+            new PositionVoltage(position).withSlot(0).withFeedForward(arbFF)
         );
     }
 
@@ -129,7 +128,7 @@ public class LoggedTalon{
      */
     public void setVelocityReference(double velocity){
         targetVelocity = velocity;
-        motor.setControl(new VelocityTorqueCurrentFOC(velocity));
+        motor.setControl(new VelocityVoltage(velocity));
     }
     /**
      * Sets the motor's velocity reference with voltage
@@ -144,9 +143,9 @@ public class LoggedTalon{
      * Set the current of the motor directly
      * @param current target current output
      */
-    public void setTorqueCurrentFOC(double current){
-        targetTorqueCurrentFOC = current;
-        motor.setControl(new TorqueCurrentFOC(current));
+    public void setVoltage(double current){
+        targetVoltage = current;
+        motor.setControl(new VoltageOut(current));
     } 
 
     /**
@@ -242,8 +241,8 @@ public class LoggedTalon{
             canId + "targetVelocity"
         ).publish();
 
-        targetTorqueCurrentFOCPublisher = motorStatsTable.getDoubleTopic(
-            canId + "targetTorqueCurrentFOC"
+        targetVoltagePublisher = motorStatsTable.getDoubleTopic(
+            canId + "targetVoltage"
         ).publish();
 
         targetDutyCyclePublisher = motorStatsTable.getDoubleTopic(
@@ -292,8 +291,8 @@ public class LoggedTalon{
             DataLogManager.getLog(), canId + "targetVelocity"
         );
 
-        targetTorqueCurrentFOCLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "targetTorqueCurrentFOC"
+        targetVoltageLogEntry = new DoubleLogEntry(
+            DataLogManager.getLog(), canId + "targetVoltage"
         );
 
         targetDutyCycleLogEntry = new DoubleLogEntry(
@@ -333,7 +332,7 @@ public class LoggedTalon{
      * @return position of the motor in rotations
      */
     public double getPosition(){
-        return motor.getPosition().getValueAsDouble();
+        return motor.getPosition().getValue().in(Rotation);
     }
 
     /**
@@ -366,7 +365,7 @@ public class LoggedTalon{
         targetPositionPublisher.set(targetPosition);
         targetVelocityPublisher.set(targetVelocity);
         targetDutyCyclePublisher.set(targetDutyCycle);
-        targetTorqueCurrentFOCPublisher.set(targetTorqueCurrentFOC);
+        targetVoltagePublisher.set(targetVoltage);
         closedLoopErrorPublisher.set(motor.getClosedLoopError().getValueAsDouble());
     }    
 
@@ -402,8 +401,8 @@ public class LoggedTalon{
 
         targetVelocityLogEntry.append(targetVelocity, GRTUtil.getFPGATime());
 
-        targetTorqueCurrentFOCLogEntry.append(
-            targetTorqueCurrentFOC, GRTUtil.getFPGATime()
+        targetVoltageLogEntry.append(
+            targetVoltage, GRTUtil.getFPGATime()
         );
 
         targetDutyCycleLogEntry.append(targetDutyCycle, GRTUtil.getFPGATime());

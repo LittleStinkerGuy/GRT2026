@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
+
 }
 
 java {
@@ -73,6 +74,9 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation files('libs/Jama-1.0.3.jar')
+    implementation "gov.nist.math:jama:1.0.3" 
+
 }
 
 test {

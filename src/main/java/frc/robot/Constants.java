@@ -13,11 +13,18 @@ import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 
 
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.subsystems.Vision.CameraConfig;
 import edu.wpi.first.math.util.Units;
 import frc.robot.util.AlignUtil;
+import frc.robot.util.PolynomialRegression;
 
 
 /**
@@ -31,79 +38,120 @@ import frc.robot.util.AlignUtil;
 public final class Constants {
   public static final String CAN_BUS = "can";
 
+  public static class VisionConstants{
+    public static final double FIELD_X = 16.54;
+    public static final double FIELD_Y = 8.07;
+    public static final double ROBOT_RADIUS = 0.762;
+    public static final double[] STD_DEV_DIST = new double[] {
+      0.75, 1.00, 1.3, 1.69, 2., 2.51, 2.78, 3.07, 3.54, 4.1, 4.52
+    };
+    public static final double[] X_STD_DEV = new double[] {
+      0.002, 0.005, 0.007, 0.014, 0.029, 0.074, 0.101, 0.12, 0.151, 0.204, 0.287
+    };
+    public static final double[] Y_STD_DEV = new double[] {
+      0.002, 0.005, 0.013, 0.020, 0.067, 0.080, 0.095, 0.160, 0.206, 0.259, 0.288
+    };
+    public static final double[] O_STD_DEV = new double[] {
+      0.002, 0.004, 0.005, 0.011, 0.031, 0.4, 1.72, 1.89, 2.05, 2.443, 2.804
+    };
+
+    public static final CameraConfig[] cameraConfigs = new CameraConfig[]{//back top
+      new CameraConfig(
+        "7",
+        new Transform3d(
+          -0.019, -0.3613, 0.981,
+          new Rotation3d(0, -Math.PI/6., Math.PI*17./18.)
+        ),
+        PoseStrategy.LOWEST_AMBIGUITY
+      )
+    };
+    public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
+      VisionConstants.STD_DEV_DIST,VisionConstants.X_STD_DEV,2);
+    public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
+      VisionConstants.STD_DEV_DIST,VisionConstants.Y_STD_DEV,2);
+    public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
+      VisionConstants.STD_DEV_DIST,VisionConstants.O_STD_DEV,1);
+
+  }
   public static class SwerveDriveConstants {
 
     // Motor Constants (DRIVE)
-    public static final double DRIVE_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps, this number is in CTRE docs 
-    public static final double DRIVE_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle NEED TO TUNE
+    public static final double DRIVE_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps
+    public static final double DRIVE_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle
 
     // Physical Measurements (DRIVE)
-    public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4 * Math.PI); // Circumference of the drive wheel in Meters
-    public static final double DRIVE_GEAR_REDUCTION = 180. / 26.; // Gear reduction ratio  for Drive
+    public static final double DRIVE_WHEEL_RADIUS = 2.0; // Wheel radius in inches
+    public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS); // Circumference of the drive wheel in meters
+    public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // Gear reduction ratio for Drive (8.25)
 
 
   }
   public static class SwerveSteerConstants{
       // Motor Constants (STEER)
-      public static final double STEER_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps, this number is in CTRE docs 
-      public static final double STEER_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle NEED TO TUNE
-  
+      public static final double STEER_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps
+      public static final double STEER_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full throttle
+
       // Physical Measurements (STEER)
-      public static final double STEER_GEAR_REDUCTION = 444/35.0; // Gear reduction ratio for steer
-  
+      public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // Gear reduction ratio for steer (22.857142...)
+
 
   }
 
   public static class SwerveConstants{
 
-    // Swerve Drive PID values
-    public static final double[] DRIVE_P = new double[] {9.5, 9.5, 9.5, 9.5}; 
+    // Swerve Drive PID values (Velocity Control)
+    public static final double[] DRIVE_P = new double[] {9.5, 9.5, 9.5, 9.5};
     public static final double[] DRIVE_I = new double[] {0, 0, 0, 0};
     public static final double[] DRIVE_D = new double[] {0.1, 0.1, 0.1, 0.1};
-    public static final double[] DRIVE_S = new double[] {5, 5, 5, 5};
-    public static final double[] DRIVE_V = new double[] {0.0, 0.0, 0.0, 0.0}; 
+    public static final double[] DRIVE_S = new double[] {0.5, 0.5, 0.5, 0.5}; // Static friction compensation
+    public static final double[] DRIVE_V = new double[] {0.12, 0.12, 0.12, 0.12}; // Velocity feedforward
 
-    // Swerve Steer PID values
-    public static final double[] STEER_P = new double[] {50, 50, 50, 50};
-    public static final double[] STEER_I = new double[] {1, 1, 1, 1};
-    public static final double[] STEER_D = new double[] {1, 1, 1, 1};
-    public static final double[] STEER_FF = new double[] {2,2,2,2}; 
+    // Swerve Steer PID values (Position Control)
+    public static final double[] STEER_P = new double[] {35, 35, 35, 35};
+    public static final double[] STEER_I = new double[] {0, 0, 0, 0};
+    public static final double[] STEER_D = new double[] {0.1, 0.1, 0.1, 0.1};
+    public static final double[] STEER_S = new double[] {0.25, 0.25, 0.25, 0.25}; 
 
     // Front Left Module
-    public static final int    FL_DRIVE   = 1;
-    public static final int    FL_STEER   = 0;
-    public static final int    FL_ENCODER = 11;
+    public static final int    FL_DRIVE   = 0;
+    public static final int    FL_STEER   = 1;
+    public static final int    FL_ENCODER = 8;
     public static final double FL_OFFSET  = 0;
 
     // Front Right Module
-    public static final int    FR_DRIVE   = 3;
-    public static final int    FR_STEER   = 2;
-    public static final int    FR_ENCODER = 10;
+    public static final int    FR_DRIVE   = 2;
+    public static final int    FR_STEER   = 3;
+    public static final int    FR_ENCODER = 9;
     public static final double FR_OFFSET  = 0;
 
     // Back Left Module
-    public static final int    BL_DRIVE   = 7;
-    public static final int    BL_STEER   = 6;
-    public static final int    BL_ENCODER = 8;
+    public static final int    BL_DRIVE   = 4;
+    public static final int    BL_STEER   = 5;
+    public static final int    BL_ENCODER = 10;
     public static final double BL_OFFSET  = 0;
 
     // Back Right Module
-    public static final int    BR_DRIVE   = 5;
-    public static final int    BR_STEER   = 4;
-    public static final int    BR_ENCODER = 9;
+    public static final int    BR_DRIVE   = 6;
+    public static final int    BR_STEER   = 7;
+    public static final int    BR_ENCODER = 11;
     public static final double BR_OFFSET  = 0;
 
     // Module distance from center (in meters)
-    public static final double MODULE_X_DIST = Units.inchesToMeters(33 / 2.0);
-    public static final double MODULE_Y_DIST = Units.inchesToMeters(27 / 2.0);
+    // Square configuration: distance between adjacent modules (FL to FR, or FL to BL) 
+    public static final double MODULE_FRONT_BACK_SPACING = 20.45; // Distance between front and back swerves
+    public static final double MODULE_LEFTRIGHT_SPACING = 25.45; // Distance between left and right swerves
 
-    // Module positions relative to robot center
-    public static final Translation2d FL_POS = new Translation2d( MODULE_X_DIST,  MODULE_Y_DIST);
-    public static final Translation2d FR_POS = new Translation2d( MODULE_X_DIST, -MODULE_Y_DIST);
-    public static final Translation2d BL_POS = new Translation2d(-MODULE_X_DIST,  MODULE_Y_DIST);
-    public static final Translation2d BR_POS = new Translation2d(-MODULE_X_DIST, -MODULE_Y_DIST);
+    // public static final double MODULE_DIST_FROM_CENTER = Units.inchesToMeters(MODULE_SPACING / 2.0); // Half the spacing = distance from center
 
-    public static final double MAX_VEL = 4800. / 6.923 / 60. * 2. * 2. * Math.PI * .0254; // Kraken speed / gear ratio / reduced to per second * circumference * convert to meters
+    // Module positions relative to robot center (square configuration)
+    //FB   LR  
+    public static final Translation2d FL_POS = new Translation2d( MODULE_FRONT_BACK_SPACING/2.0,  MODULE_LEFTRIGHT_SPACING/2.0);
+    public static final Translation2d FR_POS = new Translation2d( MODULE_FRONT_BACK_SPACING/2.0, -MODULE_LEFTRIGHT_SPACING/2.0);
+    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING/2.0,  MODULE_LEFTRIGHT_SPACING/2.0);
+    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING/2.0, -MODULE_LEFTRIGHT_SPACING/2.0);
+
+    // Maximum velocity calculation: Kraken max RPM / gear ratio / 60 (convert to per second) * wheel circumference
+    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0 * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
     public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
     
 
@@ -119,7 +167,7 @@ public final class Constants {
 
   public static class DebugConstants{
     public static final boolean MASTER_DEBUG = true;
-    public static final boolean DRIVE_DEBUG = false;
+    public static final boolean DRIVE_DEBUG = true;
     public static final boolean STEER_DEBUG = true;
     public static final boolean STATE_DEBUG = true;
   }

@@ -8,7 +8,9 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -52,7 +54,7 @@ public class SteerMotor {
     private final  CANcoderConfiguration cancoderconfig = new CANcoderConfiguration();
 
     // For fine control of velocity and torque using FOC (Field-Oriented Control)
-    private PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0)
+    private PositionVoltage positionRequest = new PositionVoltage(0)
                 .withSlot(0)
                 .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
