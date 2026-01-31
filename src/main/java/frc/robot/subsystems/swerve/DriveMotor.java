@@ -82,7 +82,7 @@ public class DriveMotor {
         configureMotor();
         initNT(motorID);
         initSignals();
-        // initLogs(motorID);
+        initLogs(motorID);
     }
 
     /**
@@ -122,16 +122,16 @@ public class DriveMotor {
      * Initializes log entries
      * @param canId drive motor's CAN ID
      */
-    // private void initLogs(int canId){
-    //     positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "position");
-    //     veloErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "veloError"); 
-    //     veloLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "velo");
-    //     targetVeloEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "targetVelo");
-    //     appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "appliedVolts");
-    //     supplyCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "supplyCurrent");
-    //     torqueCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "torqueCurrent");
-    //     temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "temperature");
-    // }
+    private void initLogs(int canId){
+        positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/position");
+        veloErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/veloError");
+        veloLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/velo");
+        targetVeloEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/targetVelo");
+        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/appliedVolts");
+        supplyCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/supplyCurrent");
+        torqueCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/torqueCurrent");
+        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/temperature");
+    }
 
     /**
      * Set Configurations for Kraken drive
@@ -295,16 +295,17 @@ public class DriveMotor {
     /**
      * Logs drive motor statistics to data log
      */
-    // public void logStats() {
-    //     positionLogEntry.append(getDistance(), GRTUtil.getFPGATime());
-    //     targetVeloEntry.append(targetRotationsPerSec, GRTUtil.getFPGATime());
-    //     veloErrorLogEntry.append(0.0, GRTUtil.getFPGATime()); // TODO: Calculate actual velocity error
-    //     veloLogEntry.append(getVelocity(), GRTUtil.getFPGATime());
-    //     appliedVoltsLogEntry.append(appliedVoltsSignal.getValueAsDouble(), GRTUtil.getFPGATime());
-    //     supplyCurrLogEntry.append(supplyCurrentSignal.getValueAsDouble(), GRTUtil.getFPGATime());
-    //     torqueCurrLogEntry.append(torqueCurrentSignal.getValueAsDouble(), GRTUtil.getFPGATime());
-    //     temperatureLogEntry.append(getTemperature(), GRTUtil.getFPGATime());
-    // }
+    public void logStats() {
+        long ts = GRTUtil.getFPGATime();
+        positionLogEntry.append(getDistance(), ts);
+        targetVeloEntry.append(targetRotationsPerSec, ts);
+        veloErrorLogEntry.append(targetRotationsPerSec - motor.getVelocity().getValueAsDouble(), ts);
+        veloLogEntry.append(getVelocity(), ts);
+        appliedVoltsLogEntry.append(appliedVoltsSignal.getValueAsDouble(), ts);
+        supplyCurrLogEntry.append(supplyCurrentSignal.getValueAsDouble(), ts);
+        torqueCurrLogEntry.append(torqueCurrentSignal.getValueAsDouble(), ts);
+        temperatureLogEntry.append(getTemperature(), ts);
+    }
 
     
 

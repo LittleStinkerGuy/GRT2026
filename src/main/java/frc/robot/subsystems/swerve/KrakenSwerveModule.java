@@ -217,6 +217,10 @@ public class KrakenSwerveModule {
         steerMotor.setCruiseVelocity(velocity);
     }
 
+    public double getSteerVelocityRPM() {
+        return steerMotor.getVelocityRPM();
+    }
+
     /**
      * Publishes steer motor statistics to NetworkTables
      */
@@ -225,16 +229,10 @@ public class KrakenSwerveModule {
     }
 
     /**
-     * Logs drive motor statistics to data log
+     * Logs all motor statistics to data log
      */
-    // public void logDriveStats() {
-    //     driveMotor.logStats();
-    // }
-
-    /**
-     * Logs steer motor statistics to data log
-     */
-    // public void logSteerStats() {
-    //     steerMotor.logStats();
-    // }
+    public void logStats() {
+        driveMotor.logStats();
+        steerMotor.logStats();
+    }
 }

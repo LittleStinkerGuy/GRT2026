@@ -28,7 +28,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.GRTUtil;
 
 public class SteerMotor2 extends SubsystemBase{
         // For NT
@@ -48,6 +51,16 @@ public class SteerMotor2 extends SubsystemBase{
     private DoublePublisher gurtMotorPos1;
     private NetworkTableEntry motorNewPos;
     
+    // DataLog entries
+    private DoubleLogEntry positionLogEntry;
+    private DoubleLogEntry velocityLogEntry;
+    private DoubleLogEntry targetPositionLogEntry;
+    private DoubleLogEntry appliedVoltsLogEntry;
+    private DoubleLogEntry supplyCurrentLogEntry;
+    private DoubleLogEntry torqueCurrentLogEntry;
+    private DoubleLogEntry temperatureLogEntry;
+    private DoubleLogEntry closedLoopErrorLogEntry;
+
     private double gurtMotorPos = 0.0;
     private double targetPos = 0.0;
     private int canID;
@@ -186,6 +199,30 @@ public class SteerMotor2 extends SubsystemBase{
         cancoder = new CANcoder(encoderID);
         configureMotor();
         initNT(motorCAN);
+        initLogs(motorCAN);
+    }
+
+    private void initLogs(int canId) {
+        positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/position");
+        velocityLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/velocityRPM");
+        targetPositionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/targetPosition");
+        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/appliedVolts");
+        supplyCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/supplyCurrent");
+        torqueCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/torqueCurrent");
+        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/temperature");
+        closedLoopErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/closedLoopError");
+    }
+
+    public void logStats() {
+        long ts = GRTUtil.getFPGATime();
+        positionLogEntry.append(motor.getPosition().getValueAsDouble(), ts);
+        velocityLogEntry.append(motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0, ts);
+        targetPositionLogEntry.append(gurtMotorPos, ts);
+        appliedVoltsLogEntry.append(motor.getMotorVoltage().getValueAsDouble(), ts);
+        supplyCurrentLogEntry.append(motor.getSupplyCurrent().getValueAsDouble(), ts);
+        torqueCurrentLogEntry.append(motor.getTorqueCurrent().getValueAsDouble(), ts);
+        temperatureLogEntry.append(motor.getDeviceTemp().getValueAsDouble(), ts);
+        closedLoopErrorLogEntry.append(motor.getClosedLoopError().getValueAsDouble(), ts);
     }
     /**
      * 
@@ -246,11 +283,16 @@ public class SteerMotor2 extends SubsystemBase{
         return motorCurrentPos;
         }
 
+    public double getVelocityRPM() {
+        return motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0;
+    }
+
     public void setCruiseVelocity(double velocity) {
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
         mmConfigs.MotionMagicCruiseVelocity = velocity;
         mmConfigs.MotionMagicAcceleration = STEER_ACCELERATION;
         motor.getConfigurator().apply(mmConfigs);
+        System.out.println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
     }
 
     public void setCruiseVelocity(double velocity, double acceleration) {
