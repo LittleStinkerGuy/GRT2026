@@ -39,8 +39,8 @@ public final class Constants {
     public static double gearRatioUpper = 1;
     public static double gearRatioLower = 2;
     public static double gearRatioHood = 12;
-    public static double upperAngle = 0.5;
-    public static double lowerAngle = 0.25;
+    public static double upperAngle = 0.45;
+    public static double lowerAngle = 0.14;
     public static double maxVelo = 1;
     public static double initHoodAngle = 0.5;
     public static double hoodMagnetOffset = 0.5;

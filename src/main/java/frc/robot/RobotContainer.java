@@ -86,7 +86,7 @@ public class RobotContainer {
       return pov != 0 && pov != 180;
     });
   
-
+    
     wheel.setDefaultCommand(
       new RunCommand(
           () -> {
@@ -94,6 +94,7 @@ public class RobotContainer {
             wheel.flySpeed((r2+1)/2);
           },
           wheel));
+    
 
     dpadUp.whileTrue(new RunCommand(() -> hooded.hoodSpeed(0.05), hooded));
     dpadDown.whileTrue(new RunCommand(() -> hooded.hoodSpeed(-0.05), hooded));
