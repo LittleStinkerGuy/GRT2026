@@ -2,46 +2,46 @@
 
 ## **Drive Controller (Pilot)**
 
-| PS5 Button                     | Assigned Function  | Motor Type | Motor ID   |
-| ------------------------------ | ------------------ | ---------- | ---------- |
-| X (Cross)                      |                    |            |            |
-| O (Circle)                     |                    |            |            |
-| △ (Triangle)                   |                    |            |            |
-| □ (Square)                     |                    |            |            |
-| L1                             |                    |            |            |
-| L2                             |                    |            |            |
-| R1                             |                    |            |            |
-| R2                             |                    |            |            |
-| L3 (Left Stick Click)          |                    |            |            |
-| R3 (Right Stick Click)         |                    |            |            |
-| D-Pad Up                       |                    |            |            |
-| D-Pad Down                     |                    |            |            |
-| D-Pad Left                     |                    |            |            |
-| D-Pad Right                    |                    |            |            |
-| Options Button + Create Button |                    |            |            |
+| PS5 Button                     | Assigned Function  | Motor ID   |
+| ------------------------------ | ------------------ | ---------- |
+| X (Cross)                      |                    |           |
+| O (Circle)                     |                    |          |
+| △ (Triangle)                   |                    |          |
+| □ (Square)                     |                    |           |
+| L1                             |                    |         |
+| L2                             |                    |          |
+| R1                             |                    |           |
+| R2                             |                    |           |
+| L3 (Left Stick Click)          |                    |         |
+| R3 (Right Stick Click)         |                    |          |
+| D-Pad Up                       |                    |     |
+| D-Pad Down                     |                    |           |
+| D-Pad Left                     |                    |            |
+| D-Pad Right                    |                    |            |
+| Options Button + Create Button |                    |            |
 
 ## **Mech Controller (Operator)**
 
-| PS5 Button                     | Assigned Mech Function | Motor Type | Motor ID |
-| ------------------------------ | ---------------------- | ---------- | -------- |
-| X (Cross)                      |                        |            |          |
-| O (Circle)                     |    Spinup shooter      | Kraken     | 16       |
-| △ (Triangle)                   |                        |            |          |
-| □ (Square)                     |    Hopper Spin         | Kraken     | 15       |
-| L1                             |                        |            |          |
-| R1                             |    Roller intake       | Kraken     | 14       |
-| L2                             |    Intake Pivot Up     | Kraken     | 12       |
-| R2                             |    Intake Pivot Down   | Kraken     | 12       |
-| L3 (Left Stick Click)          |                        |            |          |
-| R3 (Right Stick Click)         |                        |            |          |
-| D-Pad Up                       |    Doornob down        | Kraken     | 20       |
-| D-Pad Down                     |    Doornob up          | Kraken     | 20       |
-| D-Pad Left                     |                        |            |          |
-| D-Pad Right                    |                        |            |          |
-| Options Button                 |                        |            |          |
-| Create Button                  |                        |            |          |
-| Track pad                      | Intake in + stop roller| Kraken     | 14       |
-| Left Joystick                  | Winch up + down        | Kraken     | 19       |
+| PS5 Button                     | Assigned Mech Function | Motor ID |
+| ------------------------------ | ---------------------- | ---------- |
+| X (Cross)                      |                        |             |
+| O (Circle)                     |    Spinup shooter      | 16       |
+| △ (Triangle)                   |                        |           |
+| □ (Square)                     |    Hopper Spin         | 15       |
+| L1                             |                        |          |
+| R1                             |    Roller intake       |  14       |
+| L2                             |    Intake Pivot Up     |  12       |
+| R2                             |    Intake Pivot Down   |12       |
+| L3 (Left Stick Click)          |                        |          |
+| R3 (Right Stick Click)         |                        |      |
+| D-Pad Up                       |    Doornob down        |      |
+| D-Pad Down                     |    Doornob up          |       |
+| D-Pad Left                     |                        |        |
+| D-Pad Right                    |                        |      |
+| Options Button                 |                        |   |
+| Create Button                  |                        |         |
+| Track pad                      | Intake in + stop roller|     |
+| Left Joystick                  | Winch up + down        |    |
 
 
 
@@ -49,25 +49,22 @@
 
 | Component           | Motor Type     | Position | Port |
 | ------------------- | -------------- | -------- | ---- |
-| **Drive**           | Kraken         | FL       |   1  |
-|                     | Kraken         | FR       |   3  |
-|                     | Kraken         | BR       |   5  |
-|                     | Kraken         | BL       |   7  |
-| **Steer**           | Kraken         | FL       |   0  |
-|                     | Kraken         | FR       |   2  |
-|                     | Kraken         | BL       |   4  |
-|                     | Kraken         | BR       |   6  |
+| **Drive**           | Kraken x60        | FL       |   1  |
+|                     | -        | FR       |   3  |
+|                     | -         | BR       |   5  |
+|                     | -         | BL       |   7  |
+| **Steer**           | Kraken x44         | FL       |   0  |
+|                     | -         | FR       |   2  |
+|                     | -         | BL       |   4  |
+|                     | -         | BR       |   6  |
 | **CANcoder**        | CANcoder       | FL       |  11  |
-|                     | CANcoder       | FR       |  10  |
-|                     | CANcoder       | BL       |   8  |
-|                     | CANcoder       | BR       |   9  |
-| **Intake Pivot**    | Kraken         | -        |  12  |
-| **Intake Roller**   | Kraken         | -        |  14  |
-| **Hopper**          | Kraken         | -        |  15  |
-| **Shooter**         | Kraken         | -        |  16  |
-|                     | Kraken         | -        |  17  |
-| **Climb**           | Kraken         | Left     |  18  |
-|                     | Kraken         | Right    |  19  |
-| **Winch**           | Kraken         | -        |  20  |
-| **Doorknob**        | Kraken         | -        |  21  |
-
+|                     |     -   | FR       |  10  |
+|                     |      -  | BL       |   8  |
+|                     |       - | BR       |   9  |
+| **Intake Pivot**    | Kraken x60      | -        |  12  |
+| **Intake Roller**   | Kraken x44        | -        |  14  |
+| **Hopper**          | Kraken x44        | -        |  15  |
+| **Shooter**         | Kraken x44         | -        |  16  |
+|                     | Kraken x44        | -        |  17  |
+| **Climb**           | Kraken x44        | Arm     |  18  |
+|                     | Kraken x60     | Winch    |  19  |
