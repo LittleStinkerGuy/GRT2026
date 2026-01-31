@@ -16,6 +16,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -37,7 +38,7 @@ public class RobotContainer {
 
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
-  // private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
 
@@ -74,37 +75,31 @@ public class RobotContainer {
      * face a target, and only
      * translation will be manually controllable.
      */
-    // swerveSubsystem.setDefaultCommand(
-    // new RunCommand(() -> {
-    // swerveSubsystem.setDrivePowers(
-    // driveController.getForwardPower(),
-    // driveController.getLeftPower(),
-    // driveController.getRotatePower()
-    // );
-    // },
-    // swerveSubsystem
-    // )
-    // );
+    swerveSubsystem.setDefaultCommand(
+        new RunCommand(() -> {
+          swerveSubsystem.setDrivePowers(
+              driveController.getForwardPower(),
+              driveController.getLeftPower(),
+              driveController.getRotatePower());
+        },
+            swerveSubsystem));
 
-    // driveController.getRelativeMode().whileTrue(
-    // new RunCommand(
-    // () -> {
-    // swerveSubsystem.setRobotRelativeDrivePowers(
-    // driveController.getForwardPower(),
-    // driveController.getLeftPower(),
-    // driveController.getRotatePower()
-    // );
-    // driveController.getRotatePower();
-    // }, swerveSubsystem)
-    // );
+    driveController.getRelativeMode().whileTrue(
+        new RunCommand(
+            () -> {
+              swerveSubsystem.setRobotRelativeDrivePowers(
+                  driveController.getForwardPower(),
+                  driveController.getLeftPower(),
+                  driveController.getRotatePower());
+              driveController.getRotatePower();
+            }, swerveSubsystem));
 
-    // /* Pressing the button resets the field axes to the current robot axes. */
-    // driveController.bindDriverHeadingReset(
-    // () ->{
-    // swerveSubsystem.resetDriverHeading();
-    // },
-    // swerveSubsystem
-    // );
+    /* Pressing the button resets the field axes to the current robot axes. */
+    driveController.bindDriverHeadingReset(
+        () -> {
+          swerveSubsystem.resetDriverHeading();
+        },
+        swerveSubsystem);
 
     // bind semi auto commands
     var crossTrigger = mechController.cross();
