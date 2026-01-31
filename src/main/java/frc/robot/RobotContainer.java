@@ -106,13 +106,15 @@ public class RobotContainer {
     // swerveSubsystem
     // );
 
+    // bind semi auto commands
     var crossTrigger = mechController.cross();
     var triangleTrigger = mechController.triangle();
     crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
     triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
 
+    // Manual control with d-pad for winch and left stick for arm
     m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-      var armDutyCycle = -mechController.getLeftY();
+      var armDutyCycle = mechController.getLeftY();
       double winchDutyCycle = 0;
 
       if (mechController.povUp().getAsBoolean()) {

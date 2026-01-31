@@ -25,15 +25,21 @@ public class ClimbSubsystem extends SubsystemBase {
         m_Winch.setMotorDutyCycle(dutyCycle);
     }
 
+    // block command execution until the booleanSupplier, usually a button, is
+    // released
     private Command waitForButtonRelease(BooleanSupplier step) {
         return Commands.waitUntil(() -> !step.getAsBoolean());
     }
 
+    // block command execution until the booleanSupplier, usually a button, toggles
+    // back and forth
     private Command waitForNextStep(BooleanSupplier step) {
         return waitForButtonRelease(step).andThen(Commands.waitUntil(step)).andThen(waitForButtonRelease(step));
     }
 
     // arm + winch -
+    // Step through the climb up sequence, stopping motors either with a button
+    // press or them reaching the soft stop
     public Command climbUp(BooleanSupplier step) {
         Command climbUp = (waitForButtonRelease(step)
                 .andThen(m_StabilizingArm.deployArm(step)
@@ -46,6 +52,8 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     // winch + arm -
+    // Step through the climb down sequence, stopping motors either with a button
+    // press or them reaching the soft stop
     public Command climbDown(BooleanSupplier step) {
         Command climbDown = waitForButtonRelease(step)
                 .andThen(m_Winch.pullUpClaw(step)

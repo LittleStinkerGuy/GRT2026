@@ -54,6 +54,8 @@ public class Winch extends SubsystemBase {
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
         hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
 
+        // Change soft limit signal update frequency
+        // idk why this is necessary but it makes code work
         BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
@@ -102,6 +104,8 @@ public class Winch extends SubsystemBase {
         }
     }
 
+    // take an input value and clamp it to the max value then run motor at that duty
+    // cycle
     public void setMotorDutyCycle(double dutyCycle) {
         dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
         dutyCycle *= ClimbConstants.WINCH_MAX_DUTY_CYCLE;
@@ -117,6 +121,7 @@ public class Winch extends SubsystemBase {
         motor.setPosition(0);
     }
 
+    // returns false if can't refresh
     public boolean getForwardLimit() {
         if (!forwardLimitSignal.refresh().getValue()) {
             return false;
@@ -124,6 +129,7 @@ public class Winch extends SubsystemBase {
         return forwardLimitSignal.getValue();
     }
 
+    // returns false if can't refresh
     public boolean getReverseLimit() {
         if (!reverseLimitSignal.refresh().getValue()) {
             return false;
@@ -133,6 +139,8 @@ public class Winch extends SubsystemBase {
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
+
+    // rotate motor and stop it when boolean is true
     private Command rotateWinchWithStop(double dutyCycle, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
@@ -142,11 +150,13 @@ public class Winch extends SubsystemBase {
                 }).until(stopMotor);
     }
 
+    // make claw go up and stop with boolean supplier
     public Command pullUpClaw(BooleanSupplier stopMotor) {
-        return rotateWinchWithStop(0.5, stopMotor);
+        return rotateWinchWithStop(1, stopMotor);
     }
 
+    // make claw go down and stop with boolean supplier
     public Command pullDownClaw(BooleanSupplier stopMotor) {
-        return rotateWinchWithStop(-0.5, stopMotor);
+        return rotateWinchWithStop(-1, stopMotor);
     }
 }

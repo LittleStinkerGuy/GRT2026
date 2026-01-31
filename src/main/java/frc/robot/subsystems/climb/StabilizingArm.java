@@ -41,6 +41,8 @@ public class StabilizingArm extends SubsystemBase {
 
         setEncoder(Rotations.of(0));
 
+        // Change soft limit signal update frequency
+        // idk why this is necessary but it makes code work
         BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
@@ -72,6 +74,8 @@ public class StabilizingArm extends SubsystemBase {
         }
     }
 
+    // take an input value and clamp it to the max value then run motor at that duty
+    // cycle
     public void setMotorDutyCycle(double dutyCycle) {
         dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
         dutyCycle *= ClimbConstants.ARM_MAX_DUTY_CYCLE;
@@ -91,6 +95,7 @@ public class StabilizingArm extends SubsystemBase {
         motor.setPosition(pos);
     }
 
+    // returns false if can't refresh
     public boolean getForwardLimit() {
         if (!forwardLimitSignal.refresh().getValue()) {
             return false;
@@ -98,6 +103,7 @@ public class StabilizingArm extends SubsystemBase {
         return forwardLimitSignal.getValue();
     }
 
+    // returns false if can't refresh
     public boolean getReverseLimit() {
         if (!reverseLimitSignal.refresh().getValue()) {
             return false;
@@ -107,6 +113,8 @@ public class StabilizingArm extends SubsystemBase {
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
+
+    // rotate motor and stop it when boolean is true
     private Command moveArmWithStop(double dutyCycle, BooleanSupplier stopMotor) {
         return this.startEnd(
                 () -> {
@@ -116,10 +124,12 @@ public class StabilizingArm extends SubsystemBase {
                 }).until(stopMotor);
     }
 
+    // make arm go down and stop with boolean supplier
     public Command deployArm(BooleanSupplier stopMotor) {
         return moveArmWithStop(1, stopMotor);
     }
 
+    // make arm go up and stop with boolean supplier
     public Command retractArm(BooleanSupplier stopMotor) {
         return moveArmWithStop(-1, stopMotor);
     }
