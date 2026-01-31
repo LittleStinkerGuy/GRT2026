@@ -38,12 +38,12 @@ public class RobotContainer {
   private CommandPS5Controller mechController;
   private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
-  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    VisionConstants.cameraConfigs[0]
-  );
+  // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+  //   VisionConstants.cameraConfigs[0]
+  // );
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+    // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
     constructDriveController(); 
     constructMechController();
