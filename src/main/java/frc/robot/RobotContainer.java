@@ -15,6 +15,10 @@ import frc.robot.subsystems.Vision.CameraConfig;
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import java.util.function.BooleanSupplier;
+
+import frc.robot.commands.swerve.RotateToAngleCommand;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -97,6 +101,16 @@ public class RobotContainer {
       },
       swerveSubsystem
     );
+
+    // Cancel rotate command if driver touches any stick
+    BooleanSupplier driverInput = () ->
+        Math.abs(driveController.getForwardPower()) > 0 ||
+        Math.abs(driveController.getLeftPower()) > 0 ||
+        Math.abs(driveController.getRotatePower()) > 0;
+
+    // Triangle = rotate to 0°, Circle = rotate to 90°
+    driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
+    driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
 
     // D-pad steer speed limiting (scales MotionMagic cruise velocity)
     // Up = 100%, Right = 75%, Down = 50%, Left = 25%

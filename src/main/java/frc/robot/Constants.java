@@ -161,6 +161,13 @@ public final class Constants {
 
   
 
+  public static class RotateToAngleConstants {
+    public static final double kP = 0.005;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0005;
+    public static final double TOLERANCE_DEGREES = 2.0;
+  }
+
   public static class LoggingConstants{
     public static final String SWERVE_TABLE = "SwerveStats";
     public static final String SENSOR_TABLE = "Sensors";

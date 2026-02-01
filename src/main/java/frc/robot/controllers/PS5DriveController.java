@@ -92,6 +92,14 @@ public class PS5DriveController extends BaseDriveController{
         return driveController.getHID().getPOV();
     }
 
+    public Trigger triangle() {
+        return driveController.triangle();
+    }
+
+    public Trigger circle() {
+        return driveController.circle();
+    }
+
     @Override
     public Trigger getAlignToReef() {
         return cross;
