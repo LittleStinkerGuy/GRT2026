@@ -134,8 +134,8 @@ public class RobotContainer {
     // bind semi auto commands
     var crossTrigger = mechController.cross();
     var triangleTrigger = mechController.triangle();
-    crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
-    triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
+    crossTrigger.onTrue(m_ClimbSubsystem.semiAutoClimbDown(() -> crossTrigger.getAsBoolean()));
+    triangleTrigger.onTrue(m_ClimbSubsystem.semiAutoClimbUp(() -> triangleTrigger.getAsBoolean()));
 
     // Manual control with d-pad for winch and left stick for arm
     m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {

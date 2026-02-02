@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climb;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.CANBus;
@@ -7,14 +8,21 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
 
 public class ClimbSubsystem extends SubsystemBase {
     private StabilizingArm m_StabilizingArm;
     private Winch m_Winch;
 
+    private CLIMB_MECH_STATE armState = CLIMB_MECH_STATE.FLOATING;
+    private CLIMB_MECH_STATE winchState = CLIMB_MECH_STATE.FLOATING;
+
     public ClimbSubsystem(CANBus canBusObj) {
         m_StabilizingArm = new StabilizingArm(canBusObj);
         m_Winch = new Winch(canBusObj);
+
+        armState = m_StabilizingArm.getArmState();
+        winchState = m_Winch.getWinchState();
     }
 
     public void setArmDutyCycle(double dutyCycle) {
@@ -23,6 +31,40 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public void setWinchDutyCycle(double dutyCycle) {
         m_Winch.setMotorDutyCycle(dutyCycle);
+    }
+
+    public CLIMB_MECH_STATE getClimbState() {
+        if (armState == CLIMB_MECH_STATE.FLOATING && winchState == CLIMB_MECH_STATE.FLOATING) {
+            return CLIMB_MECH_STATE.FLOATING;
+        } else if (armState == CLIMB_MECH_STATE.DEPLOYED && winchState == CLIMB_MECH_STATE.DEPLOYED) {
+            return CLIMB_MECH_STATE.DEPLOYED;
+        } else {
+            return CLIMB_MECH_STATE.FLOATING;
+        }
+    }
+
+    public Command autoClimbUp() {
+        AtomicBoolean armInterrupted = new AtomicBoolean(false);
+        Command deployArm = m_StabilizingArm.autoDeployArm().finallyDo(interrupted -> armInterrupted.set(interrupted));
+        Command climbUp = deployArm
+                .andThen(Commands.either(m_Winch.autoPullDownClaw(),
+                        Commands.none(),
+                        () -> armInterrupted.get()));
+
+        climbUp.addRequirements(this);
+        return climbUp;
+    }
+
+    public Command autoClimbDown() {
+        AtomicBoolean winchInterrupted = new AtomicBoolean(false);
+        Command pullDownWinch = m_Winch.autoPullDownClaw().finallyDo(interrupted -> winchInterrupted.set(interrupted));
+        Command climbDown = pullDownWinch
+                .andThen(Commands.either(m_StabilizingArm.autoRetractArm(),
+                        Commands.none(),
+                        () -> winchInterrupted.get()));
+
+        climbDown.addRequirements(this);
+        return climbDown;
     }
 
     // block command execution until the booleanSupplier, usually a button, is
@@ -40,7 +82,7 @@ public class ClimbSubsystem extends SubsystemBase {
     // arm + winch -
     // Step through the climb up sequence, stopping motors either with a button
     // press or them reaching the soft stop
-    public Command climbUp(BooleanSupplier step) {
+    public Command semiAutoClimbUp(BooleanSupplier step) {
         Command climbUp = (waitForButtonRelease(step)
                 .andThen(m_StabilizingArm.deployArm(step)
                         .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))
@@ -54,7 +96,7 @@ public class ClimbSubsystem extends SubsystemBase {
     // winch + arm -
     // Step through the climb down sequence, stopping motors either with a button
     // press or them reaching the soft stop
-    public Command climbDown(BooleanSupplier step) {
+    public Command semiAutoClimbDown(BooleanSupplier step) {
         Command climbDown = waitForButtonRelease(step)
                 .andThen(m_Winch.manualPullUpClaw(step)
                         .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit()))
