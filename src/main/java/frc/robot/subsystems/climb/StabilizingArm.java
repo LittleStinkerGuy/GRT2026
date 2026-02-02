@@ -178,13 +178,13 @@ public class StabilizingArm extends SubsystemBase {
         return this.runOnce(() -> setPositionSetpoint(position));
     }
 
-    public Command autoPullUpClaw() {
+    public Command autoDeployArm() {
         return goToSetPosition(ClimbConstants.ARM_DEPLOYED_POS)
                 .andThen(Commands.waitUntil(() -> atSetPosition()))
                 .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
     }
 
-    public Command autoPullDownClaw() {
+    public Command autoRetractArm() {
         return goToSetPosition(ClimbConstants.ARM_HOME_POS)
                 .andThen(Commands.waitUntil(() -> atSetPosition()))
                 .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
