@@ -59,8 +59,8 @@ public final class Constants {
       new CameraConfig(
         "7",
         new Transform3d(
-          -0.019, -0.3613, 0.981,
-          new Rotation3d(0, -Math.PI/6., Math.PI*17./18.)
+          0.28, 0, 0,
+          new Rotation3d(0, -Math.toRadians(5), 0)
         ),
         PoseStrategy.LOWEST_AMBIGUITY
       )

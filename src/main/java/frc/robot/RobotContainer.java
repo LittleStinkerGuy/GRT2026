@@ -63,12 +63,12 @@ public class RobotContainer {
   private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
   private final Field2d m_field = new Field2d();
 
-  // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-  //   VisionConstants.cameraConfigs[0]
-  // );
+  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+    VisionConstants.cameraConfigs[0]
+  );
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
     constructDriveController();
     constructMechController();
