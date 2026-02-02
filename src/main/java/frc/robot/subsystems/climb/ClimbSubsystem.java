@@ -16,6 +16,7 @@ public class ClimbSubsystem extends SubsystemBase {
 
     private CLIMB_MECH_STATE armState = CLIMB_MECH_STATE.FLOATING;
     private CLIMB_MECH_STATE winchState = CLIMB_MECH_STATE.FLOATING;
+    private CLIMB_MECH_STATE climbState = CLIMB_MECH_STATE.FLOATING;
 
     public ClimbSubsystem(CANBus canBusObj) {
         m_StabilizingArm = new StabilizingArm(canBusObj);
@@ -35,12 +36,29 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public CLIMB_MECH_STATE getClimbState() {
         if (armState == CLIMB_MECH_STATE.FLOATING && winchState == CLIMB_MECH_STATE.FLOATING) {
-            return CLIMB_MECH_STATE.FLOATING;
+            climbState = CLIMB_MECH_STATE.FLOATING;
         } else if (armState == CLIMB_MECH_STATE.DEPLOYED && winchState == CLIMB_MECH_STATE.DEPLOYED) {
-            return CLIMB_MECH_STATE.DEPLOYED;
+            climbState = CLIMB_MECH_STATE.DEPLOYED;
         } else {
-            return CLIMB_MECH_STATE.FLOATING;
+            climbState = CLIMB_MECH_STATE.FLOATING;
         }
+        return climbState;
+    }
+
+    private Command getClimbCommand() {
+        climbState = getClimbState();
+
+        if (climbState == CLIMB_MECH_STATE.HOME) {
+            return autoClimbUp();
+        } else if (climbState == CLIMB_MECH_STATE.DEPLOYED) {
+            return autoClimbDown();
+        } else {
+            return stopMechs();
+        }
+    }
+
+    public Command autoClimb() {
+        return this.defer(this::getClimbCommand);
     }
 
     public Command autoClimbUp() {
@@ -107,5 +125,12 @@ public class ClimbSubsystem extends SubsystemBase {
                                 .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getReverseLimit()))));
         climbDown.addRequirements(this);
         return climbDown;
+    }
+
+    public Command stopMechs() {
+        return this.runOnce(() -> {
+            setArmDutyCycle(0);
+            setWinchDutyCycle(0);
+        });
     }
 }
