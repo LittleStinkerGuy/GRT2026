@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
 
 public class Winch extends SubsystemBase {
     private TalonFX motor;
@@ -152,7 +153,7 @@ public class Winch extends SubsystemBase {
     }
 
     // Checks if arm is at position set by PID control with a tolerance
-    private boolean atSetPosition() {
+    public boolean atSetPosition() {
         // if not in position control return false
         if (motor.getControlMode().getValue() != ControlModeValue.PositionTorqueCurrentFOC) {
             return false;
@@ -164,7 +165,7 @@ public class Winch extends SubsystemBase {
     }
 
     // Checks if arm is at given position
-    private boolean atPosition(Angle target) {
+    public boolean atPosition(Angle target) {
         // finds error between position and target and its absolute value
         Angle error = target.minus(getMotorPosition());
         Angle absError = Radians.of(Math.abs(error.in(Radians)));
@@ -197,6 +198,16 @@ public class Winch extends SubsystemBase {
         return reverseLimitSignal.getValue();
     }
 
+    public CLIMB_MECH_STATE getWinchState() {
+        if (atPosition(ClimbConstants.WINCH_HOME_POS)) {
+            return CLIMB_MECH_STATE.HOME;
+        } else if (atPosition(ClimbConstants.WINCH_DEPLOYED_POS)) {
+            return CLIMB_MECH_STATE.DEPLOYED;
+        } else {
+            return CLIMB_MECH_STATE.FLOATING;
+        }
+    }
+
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
 
@@ -204,13 +215,13 @@ public class Winch extends SubsystemBase {
         return this.runOnce(() -> setPositionSetpoint(position));
     }
 
-    public Command automanualPullUpClaw() {
+    public Command autoPullUpClaw() {
         return goToSetPosition(ClimbConstants.WINCH_DEPLOYED_POS)
                 .andThen(Commands.waitUntil(() -> atSetPosition()))
                 .withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
     }
 
-    public Command automanualPullDownClaw() {
+    public Command autoPullDownClaw() {
         if (hardstopTrigger.getAsBoolean()) {
             return Commands.none();
         }

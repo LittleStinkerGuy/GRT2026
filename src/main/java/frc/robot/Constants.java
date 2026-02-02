@@ -13,7 +13,6 @@ import java.util.List;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 // Units library:
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Time;
 
@@ -27,7 +26,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.subsystems.Vision.CameraConfig;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import frc.robot.util.AlignUtil;
 import frc.robot.util.PolynomialRegression;
 
@@ -84,18 +82,20 @@ public final class Constants {
 
         // Motor Constants (DRIVE)
         public static final double DRIVE_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps
-        public static final double DRIVE_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full
+        public static final double DRIVE_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to
+                                                        // full
                                                         // throttle
 
         // Physical Measurements (DRIVE)
         public static final double DRIVE_WHEEL_RADIUS = 2.0; // Wheel radius in inches
-        public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS); // Circumference
-                                                                                                                         // of
-                                                                                                                         // the
-                                                                                                                         // drive
-                                                                                                                         // wheel
-                                                                                                                         // in
-                                                                                                                         // meters
+        public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units
+                .inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS); // Circumference
+                                                                     // of
+                                                                     // the
+                                                                     // drive
+                                                                     // wheel
+                                                                     // in
+                                                                     // meters
         public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // Gear reduction ratio for Drive (8.25)
 
     }
@@ -103,11 +103,13 @@ public final class Constants {
     public static class SwerveSteerConstants {
         // Motor Constants (STEER)
         public static final double STEER_PEAK_CURRENT = 80; // Maximum current limit for the motor in amps
-        public static final double STEER_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to full
+        public static final double STEER_RAMP_RATE = 0; // Time in seconds for the motor to go from neutral to
+                                                        // full
                                                         // throttle
 
         // Physical Measurements (STEER)
-        public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // Gear reduction ratio for steer (22.857142...)
+        public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // Gear reduction ratio for steer
+                                                                       // (22.857142...)
 
     }
 
@@ -117,7 +119,8 @@ public final class Constants {
         public static final double[] DRIVE_P = new double[] { 9.5, 9.5, 9.5, 9.5 };
         public static final double[] DRIVE_I = new double[] { 0, 0, 0, 0 };
         public static final double[] DRIVE_D = new double[] { 0.1, 0.1, 0.1, 0.1 };
-        public static final double[] DRIVE_S = new double[] { 0.5, 0.5, 0.5, 0.5 }; // Static friction compensation
+        public static final double[] DRIVE_S = new double[] { 0.5, 0.5, 0.5, 0.5 }; // Static friction
+                                                                                    // compensation
         public static final double[] DRIVE_V = new double[] { 0.12, 0.12, 0.12, 0.12 }; // Velocity feedforward
 
         // Swerve Steer PID values (Position Control)
@@ -408,6 +411,12 @@ public final class Constants {
         public static final int ARM_MOTOR_CAN_ID = 0;
         public static final int CANDI_CAN_ID = 3;
 
+        public static enum CLIMB_MECH_STATE {
+            HOME,
+            DEPLOYED,
+            FLOATING
+        }
+
         public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
         public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
 
@@ -429,8 +438,11 @@ public final class Constants {
         public static final Angle WINCH_HOME_POS = Rotations.of(0);
 
         public static final Angle WINCH_DEPLOYED_POS = Rotations.of(2);
+        public static final Angle ARM_DEPLOYED_POS = Rotations.of(0.1);
 
+        public static final Time ARM_POS_TIMEOUT = Seconds.of(5);
         public static final Time WINCH_POS_TIMEOUT = Seconds.of(5);
+
         public static final double WINCH_MAX_SAFETY_DUTY_CYCLE = 0.01;
 
         public static final double WINCH_kP = 0.0;
