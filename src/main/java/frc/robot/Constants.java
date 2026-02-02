@@ -450,5 +450,11 @@ public final class Constants {
         public static final double WINCH_kD = 0.0;
         public static final double WINCH_kG = 0.0;
         public static final double WINCH_kS = 0.0;
+
+        public static final double ARM_kP = 0.0;
+        public static final double ARM_kI = 0.0;
+        public static final double ARM_kD = 0.0;
+        public static final double ARM_kG = 0.0;
+        public static final double ARM_kS = 0.0;
     }
 }

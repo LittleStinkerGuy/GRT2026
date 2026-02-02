@@ -12,6 +12,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -19,6 +20,7 @@ import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.StatusSignal;
 
@@ -67,7 +69,14 @@ public class StabilizingArm extends SubsystemBase {
                         .withForwardSoftLimitEnable(true)
                         .withForwardSoftLimitThreshold(ClimbConstants.ARM_FORWARD_LIMIT)
                         .withReverseSoftLimitEnable(true)
-                        .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT));
+                        .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT))
+                .withSlot0(new Slot0Configs()
+                        .withGravityType(GravityTypeValue.Elevator_Static)
+                        .withKP(ClimbConstants.ARM_kP)
+                        .withKI(ClimbConstants.ARM_kI)
+                        .withKD(ClimbConstants.ARM_kD)
+                        .withKG(ClimbConstants.ARM_kG)
+                        .withKS(ClimbConstants.ARM_kS));
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
