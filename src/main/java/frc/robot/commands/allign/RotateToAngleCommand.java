@@ -48,7 +48,7 @@ public class RotateToAngleCommand extends Command {
     public void execute() {
         double currentAngle = swerve.getDriverHeading().getDegrees();
         double rotationPower = pid.calculate(currentAngle, targetDegrees);
-        swerve.setDrivePowers(0, 0, rotationPower);
+        swerve.setDrivePowers(0, 0, -rotationPower);
 
         SmartDashboard.putNumber("RotateToAngle/Goal", targetDegrees);
         SmartDashboard.putNumber("RotateToAngle/Actual", currentAngle);
