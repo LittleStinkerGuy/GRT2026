@@ -25,6 +25,7 @@ import com.ctre.phoenix6.CANBus;
 // import frc.robot.commands.intake.SetIntakePivotCommand;
 // import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -141,7 +142,8 @@ public class RobotContainer {
 
     // Manual control with d-pad for winch and left stick for arm
     m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-      var armDutyCycle = mechController.getLeftY();
+      var armDutyCycle = MathUtil.applyDeadband(mechController.getLeftY(), 0.1);
+      Math.copySign(armDutyCycle * armDutyCycle, armDutyCycle);
       double winchDutyCycle = 0;
 
       if (mechController.povUp().getAsBoolean()) {

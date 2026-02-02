@@ -35,8 +35,11 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     public CLIMB_MECH_STATE getClimbState() {
-        if (armState == CLIMB_MECH_STATE.FLOATING && winchState == CLIMB_MECH_STATE.FLOATING) {
-            climbState = CLIMB_MECH_STATE.FLOATING;
+        armState = m_StabilizingArm.getArmState();
+        winchState = m_Winch.getWinchState();
+
+        if (armState == CLIMB_MECH_STATE.HOME && winchState == CLIMB_MECH_STATE.HOME) {
+            climbState = CLIMB_MECH_STATE.HOME;
         } else if (armState == CLIMB_MECH_STATE.DEPLOYED && winchState == CLIMB_MECH_STATE.DEPLOYED) {
             climbState = CLIMB_MECH_STATE.DEPLOYED;
         } else {

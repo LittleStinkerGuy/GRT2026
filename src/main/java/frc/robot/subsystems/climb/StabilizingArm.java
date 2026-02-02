@@ -105,7 +105,7 @@ public class StabilizingArm extends SubsystemBase {
     }
 
     public Angle getPositionSetpoint() {
-        if (motor.getControlMode().getValue() != ControlModeValue.PositionDutyCycleFOC) {
+        if (motor.getControlMode().getValue() != ControlModeValue.PositionTorqueCurrentFOC) {
             return null;
         }
         return Rotations.of(motor.getClosedLoopReference().getValue());
