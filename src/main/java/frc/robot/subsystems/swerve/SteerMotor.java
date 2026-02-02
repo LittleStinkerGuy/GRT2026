@@ -2,6 +2,7 @@ package frc.robot.subsystems.swerve;
 
 //Constants Import 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -20,7 +21,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
@@ -59,8 +59,6 @@ public class SteerMotor {
                 .withSlot(0)
                 .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
-    private PositionVoltage positionVoltageRequest = new PositionVoltage(0.0)
-                .withSlot(0);
     // For making positions wrap from 0-1 and resetting to not stack
     private final ClosedLoopGeneralConfigs closedLoopGeneralConfigs = new ClosedLoopGeneralConfigs();
 
@@ -89,7 +87,6 @@ public class SteerMotor {
     private DoublePublisher closedLoopReferencePublisher;
     private DoublePublisher gurtMotorPos1;
 
-    private NetworkTableEntry motorNewPos;
     private double gurtMotorPos = 0.0;
     private int gurtMotorCanID;
     // Phoenix 6 Status Signals
@@ -99,10 +96,10 @@ public class SteerMotor {
     private StatusSignal<Current> torqueCurrentSignal;
 
 
-    public SteerMotor(int motorCAN, int encoderCAN) {
+    public SteerMotor(int motorCAN, int encoderCAN, CANBus canivore) {
         // Set motor and encoder
-        motor = new TalonFX(motorCAN, "can");
-        cancoder = new CANcoder(encoderCAN, "can");
+        motor = new TalonFX(motorCAN, canivore);
+        cancoder = new CANcoder(encoderCAN, canivore);
         gurtMotorCanID = motorCAN;
         // Configure CANcoder and Kraken
         configureCancoder(); // called to ensure settings are applied programmatically
@@ -234,7 +231,6 @@ public class SteerMotor {
     private void initNT(int canId) {
         ntInstance = NetworkTableInstance.getDefault();
         steerStatsTable = ntInstance.getTable("SwerveSteer");
-        motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
 
         encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId + "encoderPosition").publish();
         motorPositionPublisher = steerStatsTable.getDoubleTopic(canId + "motorPosition").publish();
