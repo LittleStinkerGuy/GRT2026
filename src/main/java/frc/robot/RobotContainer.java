@@ -5,6 +5,8 @@
 package frc.robot;
 
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.allign.AlignToHubCommand;
+import frc.robot.commands.allign.RotateToAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 
@@ -35,8 +37,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -126,146 +130,29 @@ public class RobotContainer {
       swerveSubsystem
     );
 
-    // --- Intake pivot set-position controls (commented out for now) ---
-    // mechController.square().onTrue(
-    //   new SetIntakePivotCommand(pivotIntake, IntakeConstants.STOWED_POS)
-    // );
-    // mechController.cross().onTrue(
-    //   new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS)
-    // );
+    // Cancel rotate command if driver touches any stick
+    BooleanSupplier driverInput = () ->
+        Math.abs(driveController.getForwardPower()) > 0 ||
+        Math.abs(driveController.getLeftPower()) > 0 ||
+        Math.abs(driveController.getRotatePower()) > 0;
 
-  // circle for the manual hopper
-    mechController.circle().whileTrue(
-      new RunCommand(
-        () -> HopperSubsystem.setManualControl(1.0),
-        HopperSubsystem
-      )
-    ).onFalse(
-      new InstantCommand(
-        () -> HopperSubsystem.stop(),
-        HopperSubsystem
-      )
-    );
+    // Triangle = rotate to 0°, Circle = rotate to 90°
+    driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
+    driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
 
-    // --- Hopper RPM control (commented out for now) ---
-    // mechController.triangle().onTrue(
-    //   new HopperSetRPMCommand(HopperSubsystem)
-    // );
+    // L1 = align to hub
+    new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
 
-    /* Intake Controls - Hold button to run rollers */
-    // R1 - intake in
-    mechController.R1().whileTrue(
-      new RunCommand(
-        () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
-        intakeSubsystem
-      )
-    ).onFalse(
-      new InstantCommand(
-        () -> intakeSubsystem.stop(),
-        intakeSubsystem
-      )
-    );
-
-    // L1 - intake out
-    mechController.L1().whileTrue(
-      new RunCommand(
-        () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
-        intakeSubsystem
-      )
-    ).onFalse(
-      new InstantCommand(
-        () -> intakeSubsystem.stop(),
-        intakeSubsystem
-      )
-    );
-
-     // Pivot Configs: R2 for pivot up and L2 for pivot down
-        pivotIntake.setDefaultCommand(
-    new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()
-     )
-   );
-
-
-
-  }
-
-
-  public void updateDashboard() {
-    // Robot position
-    Pose2d robotPose = swerveSubsystem.getRobotPosition();
-    m_field.setRobotPose(robotPose);
-
-    // Match time
-    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-
-    // Intake
-    // SmartDashboard.putString("Status/Intake State", getIntakeState());
-    // SmartDashboard.putNumber("Status/Intake Angle", pivotIntake.getAngleDegrees());
-    SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
-    SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
-    SmartDashboard.putBoolean("Status/At Bottom Limit", pivotIntake.isAtBottomLimit());
-
-    // Vision + Autoalign 
-    // VisionSubsystem is commented out rn because it's outdated
-    SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
-    SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
-    SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
-    SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
-  }
-
-  // --- Intake state detection (commented out for now) ---
-  // private String getIntakeState() {
-  //   double angle = pivotIntake.getAngleDegrees();
-  //   double tolerance = 0.05;
-  //   if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
-  //     return "STOWED";
-  //   } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
-  //     return "EXTENDED";
-  //   } else {
-  //     return "MOVING";
-  //   }
-  // }
-
-
-  private boolean isRollerActive() {
-    return intakeSubsystem.isRunning();
-  }
-
-  // TODO: Integrate w vision subsystem when its setup / enabled
-
-  /**
-   * Returns true if a target is detected by vision
-   */
-  private boolean hasTarget() {
-    // TODO: check if AprilTag/target is detected
-    // return visionSubsystem.hasTarget();
-    return false;
-  }
-
-  /**
-   * Returns true if target is locked (centered and stable)
-   */
-  private boolean isTargetLocked() {
-    // TODO: Implement target lock 
-    // Check if target is within tolerance and robot is aligned
-    // return visionSubsystem.isTargetLocked();
-    return false;
-  }
-
-
-  /**
-   * Returns distance to target in meters
-   */
-  private double getTargetDistance() {
-    // TODO: Get distance from vision subsystem
-    // return visionSubsystem.getTargetDistance();
-    return 0.0;
-  }
-
-
-  private boolean isAutoAlignActive() {
-    // TODO: Check if auto-align command is running
-    return false;
+    // D-pad steer speed limiting (scales MotionMagic cruise velocity)
+    // Up = 100%, Right = 75%, Down = 50%, Left = 25%
+    new Trigger(() -> driveController.getPOV() == 0)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+    new Trigger(() -> driveController.getPOV() == 90)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+    new Trigger(() -> driveController.getPOV() == 180)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+    new Trigger(() -> driveController.getPOV() == 270)
+        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
   }
 
   /**
