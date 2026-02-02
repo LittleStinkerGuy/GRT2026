@@ -45,7 +45,7 @@ public class ClimbSubsystem extends SubsystemBase {
                 .andThen(m_StabilizingArm.deployArm(step)
                         .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))
                         .andThen(waitForNextStep(step))
-                        .andThen(m_Winch.pullDownClaw(step))
+                        .andThen(m_Winch.manualPullDownClaw(step))
                         .raceWith(Commands.waitUntil(() -> m_Winch.getReverseLimit()))));
         climbUp.addRequirements(this);
         return climbUp;
@@ -56,7 +56,7 @@ public class ClimbSubsystem extends SubsystemBase {
     // press or them reaching the soft stop
     public Command climbDown(BooleanSupplier step) {
         Command climbDown = waitForButtonRelease(step)
-                .andThen(m_Winch.pullUpClaw(step)
+                .andThen(m_Winch.manualPullUpClaw(step)
                         .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit()))
                         .andThen(waitForNextStep(step))
                         .andThen(m_StabilizingArm.retractArm(step)

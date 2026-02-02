@@ -39,7 +39,7 @@ public class StabilizingArm extends SubsystemBase {
         reverseLimitSignal = motor.getFault_ReverseSoftLimit();
         configureMotor();
 
-        setEncoder(Rotations.of(0));
+        homeEncoder();
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
@@ -87,8 +87,8 @@ public class StabilizingArm extends SubsystemBase {
         return dutyCycleControl.Output;
     }
 
-    public void zeroEncoder() {
-        motor.setPosition(0);
+    public void homeEncoder() {
+        motor.setPosition(ClimbConstants.ARM_HOME_POS);
     }
 
     public void setEncoder(Angle pos) {

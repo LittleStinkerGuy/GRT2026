@@ -1,6 +1,8 @@
 package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.BooleanSupplier;
 
@@ -13,17 +15,23 @@ import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.StatusSignal;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ClimbConstants;
@@ -32,6 +40,7 @@ public class Winch extends SubsystemBase {
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private PositionTorqueCurrentFOC posControl = new PositionTorqueCurrentFOC(0).withSlot(0);
 
     private final StatusSignal<Boolean> forwardLimitSignal;
     private final StatusSignal<Boolean> reverseLimitSignal;
@@ -48,11 +57,11 @@ public class Winch extends SubsystemBase {
         configureCandi();
         configureMotor();
 
-        zeroEncoder();
+        homeEncoder();
 
         // Reset encoder when limit switch is pressed
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
-        hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
+        hardstopTrigger.onTrue(this.runOnce(this::homeEncoder));
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
@@ -77,7 +86,14 @@ public class Winch extends SubsystemBase {
                         .withForwardSoftLimitEnable(true)
                         .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
                         .withReverseSoftLimitEnable(true)
-                        .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
+                        .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT))
+                .withSlot0(new Slot0Configs()
+                        .withGravityType(GravityTypeValue.Elevator_Static)
+                        .withKP(ClimbConstants.WINCH_kP)
+                        .withKI(ClimbConstants.WINCH_kI)
+                        .withKD(ClimbConstants.WINCH_kD)
+                        .withKG(ClimbConstants.WINCH_kG)
+                        .withKS(ClimbConstants.WINCH_kS));
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
@@ -117,8 +133,52 @@ public class Winch extends SubsystemBase {
         return dutyCycleControl.Output;
     }
 
-    public void zeroEncoder() {
-        motor.setPosition(0);
+    public void setPositionSetpoint(Angle setpoint) {
+        if (setpoint.gt(ClimbConstants.WINCH_FORWARD_LIMIT)) {
+            setpoint = ClimbConstants.WINCH_FORWARD_LIMIT;
+        } else if (setpoint.lt(ClimbConstants.WINCH_REVERSE_LIMIT)) {
+            setpoint = ClimbConstants.WINCH_REVERSE_LIMIT;
+        }
+
+        posControl.withPosition(setpoint);
+        motor.setControl(posControl);
+    }
+
+    public Angle getPositionSetpoint() {
+        if (motor.getControlMode().getValue() != ControlModeValue.PositionDutyCycleFOC) {
+            return null;
+        }
+        return Rotations.of(motor.getClosedLoopReference().getValue());
+    }
+
+    // Checks if arm is at position set by PID control with a tolerance
+    private boolean atSetPosition() {
+        // if not in position control return false
+        if (motor.getControlMode().getValue() != ControlModeValue.PositionTorqueCurrentFOC) {
+            return false;
+        }
+
+        // checks if closed loop error is within tolerance
+        return (Rotations.of(Math.abs(motor.getClosedLoopError().getValue())))
+                .lte(ClimbConstants.WINCH_ACCEPTABLE_POSITION_ERROR);
+    }
+
+    // Checks if arm is at given position
+    private boolean atPosition(Angle target) {
+        // finds error between position and target and its absolute value
+        Angle error = target.minus(getMotorPosition());
+        Angle absError = Radians.of(Math.abs(error.in(Radians)));
+
+        // checks if difference is within tolerance
+        return absError.lte(ClimbConstants.WINCH_ACCEPTABLE_POSITION_ERROR);
+    }
+
+    public void homeEncoder() {
+        motor.setPosition(ClimbConstants.WINCH_HOME_POS);
+    }
+
+    public Angle getMotorPosition() {
+        return motor.getPosition().getValue();
     }
 
     // returns false if can't refresh
@@ -140,6 +200,29 @@ public class Winch extends SubsystemBase {
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
 
+    private Command goToSetPosition(Angle position) {
+        return this.runOnce(() -> setPositionSetpoint(position));
+    }
+
+    public Command automanualPullUpClaw() {
+        return goToSetPosition(ClimbConstants.WINCH_DEPLOYED_POS)
+                .andThen(Commands.waitUntil(() -> atSetPosition()))
+                .withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
+    }
+
+    public Command automanualPullDownClaw() {
+        if (hardstopTrigger.getAsBoolean()) {
+            return Commands.none();
+        }
+        Command setPosition = goToSetPosition(Rotations.of(0))
+                .andThen(Commands.waitUntil(hardstopTrigger).withTimeout(ClimbConstants.WINCH_POS_TIMEOUT));
+        Command runMotorBackUntilLimit = this.startEnd(
+                () -> setMotorDutyCycle(-ClimbConstants.WINCH_MAX_SAFETY_DUTY_CYCLE),
+                () -> setMotorDutyCycle(0)).until(hardstopTrigger).withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
+
+        return setPosition.andThen(Commands.either(Commands.none(), runMotorBackUntilLimit, hardstopTrigger));
+    }
+
     // rotate motor and stop it when boolean is true
     private Command rotateWinchWithStop(double dutyCycle, BooleanSupplier stopMotor) {
         return this.startEnd(
@@ -151,12 +234,12 @@ public class Winch extends SubsystemBase {
     }
 
     // make claw go up and stop with boolean supplier
-    public Command pullUpClaw(BooleanSupplier stopMotor) {
+    public Command manualPullUpClaw(BooleanSupplier stopMotor) {
         return rotateWinchWithStop(1, stopMotor);
     }
 
     // make claw go down and stop with boolean supplier
-    public Command pullDownClaw(BooleanSupplier stopMotor) {
+    public Command manualPullDownClaw(BooleanSupplier stopMotor) {
         return rotateWinchWithStop(-1, stopMotor);
     }
 }
