@@ -17,6 +17,7 @@ public class RotateToAngleCommand extends Command {
     public RotateToAngleCommand(SwerveSubsystem swerve, double targetDegrees, BooleanSupplier cancelCondition) {
         this.swerve = swerve;
         this.targetDegrees = targetDegrees;
+        
         this.cancelCondition = cancelCondition;
         this.pid = new PIDController(
             RotateToAngleConstants.kP,

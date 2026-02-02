@@ -113,7 +113,7 @@ public class VisionSubsystem extends SubsystemBase {
                 visionDistPublisher.set(minDistance);
 
                 //Don't use vision measurement if tags are too far
-                if(minDistance > 2) continue;
+                if(minDistance > 4) continue;
                     
                 Optional<EstimatedRobotPose> estimatedPose = 
                     // photonPoseEstimator.update(result);
