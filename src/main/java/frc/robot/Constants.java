@@ -168,6 +168,11 @@ public final class Constants {
     public static final double TOLERANCE_DEGREES = 2.0;
   }
 
+  public static class AlignToHubConstants {
+    // TODO: Set these to the actual hub/target field coordinates (meters)
+    public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4.03479);
+  }
+
   public static class LoggingConstants{
     public static final String SWERVE_TABLE = "SwerveStats";
     public static final String SENSOR_TABLE = "Sensors";

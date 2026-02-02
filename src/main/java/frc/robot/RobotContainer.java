@@ -5,6 +5,8 @@
 package frc.robot;
 
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.allign.AlignToHubCommand;
+import frc.robot.commands.allign.RotateToAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 
@@ -16,8 +18,6 @@ import frc.robot.subsystems.Vision.CameraConfig;
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.util.function.BooleanSupplier;
-
-import frc.robot.commands.swerve.RotateToAngleCommand;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -111,6 +111,9 @@ public class RobotContainer {
     // Triangle = rotate to 0°, Circle = rotate to 90°
     driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
     driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
+
+    // L1 = align to hub
+    new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
 
     // D-pad steer speed limiting (scales MotionMagic cruise velocity)
     // Up = 100%, Right = 75%, Down = 50%, Left = 25%
