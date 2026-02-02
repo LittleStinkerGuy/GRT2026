@@ -47,8 +47,9 @@ public class ClimbSubsystem extends SubsystemBase {
         AtomicBoolean armInterrupted = new AtomicBoolean(false);
         Command deployArm = m_StabilizingArm.autoDeployArm().finallyDo(interrupted -> armInterrupted.set(interrupted));
         Command climbUp = deployArm
-                .andThen(Commands.either(m_Winch.autoPullDownClaw(),
+                .andThen(Commands.either(
                         Commands.none(),
+                        m_Winch.autoPullDownClaw(),
                         () -> armInterrupted.get()));
 
         climbUp.addRequirements(this);
@@ -59,8 +60,9 @@ public class ClimbSubsystem extends SubsystemBase {
         AtomicBoolean winchInterrupted = new AtomicBoolean(false);
         Command pullDownWinch = m_Winch.autoPullDownClaw().finallyDo(interrupted -> winchInterrupted.set(interrupted));
         Command climbDown = pullDownWinch
-                .andThen(Commands.either(m_StabilizingArm.autoRetractArm(),
+                .andThen(Commands.either(
                         Commands.none(),
+                        m_StabilizingArm.autoRetractArm(),
                         () -> winchInterrupted.get()));
 
         climbDown.addRequirements(this);
