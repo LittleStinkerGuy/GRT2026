@@ -25,6 +25,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -109,6 +110,7 @@ public class StabilizingArm extends SubsystemBase {
             setpoint = ClimbConstants.ARM_REVERSE_LIMIT;
         }
 
+        System.out.println(setpoint);
         posControl.withPosition(setpoint);
         motor.setControl(posControl);
     }
@@ -188,9 +190,9 @@ public class StabilizingArm extends SubsystemBase {
     }
 
     public Command autoDeployArm() {
-        return goToSetPosition(ClimbConstants.ARM_DEPLOYED_POS)
-                .andThen(Commands.waitUntil(() -> atSetPosition()))
-                .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
+        return goToSetPosition(ClimbConstants.ARM_DEPLOYED_POS);
+        // .andThen(Commands.waitUntil(() -> atSetPosition()))
+        // .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
     }
 
     public Command autoRetractArm() {
@@ -211,11 +213,17 @@ public class StabilizingArm extends SubsystemBase {
 
     // make arm go down and stop with boolean supplier
     public Command deployArm(BooleanSupplier stopMotor) {
-        return moveArmWithStop(1, stopMotor);
+        return moveArmWithStop(-1, stopMotor);
     }
 
     // make arm go up and stop with boolean supplier
     public Command retractArm(BooleanSupplier stopMotor) {
-        return moveArmWithStop(-1, stopMotor);
+        return moveArmWithStop(1, stopMotor);
+    }
+
+    @Override
+    public void periodic() {
+        // SmartDashboard.putBoolean("for", getForwardLimit());
+        // SmartDashboard.putBoolean("rev", getReverseLimit());
     }
 }

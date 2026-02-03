@@ -5,6 +5,7 @@ import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.CANBus;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -48,6 +49,15 @@ public class ClimbSubsystem extends SubsystemBase {
         return climbState;
     }
 
+    private Command log(String toLog) {
+        var logCommand = this.runOnce(() -> {
+            System.out.println(toLog);
+        });
+        logCommand.addRequirements(this);
+
+        return logCommand;
+    }
+
     private Command getClimbCommand() {
         climbState = getClimbState();
 
@@ -67,14 +77,14 @@ public class ClimbSubsystem extends SubsystemBase {
     public Command autoClimbUp() {
         AtomicBoolean armInterrupted = new AtomicBoolean(false);
         Command deployArm = m_StabilizingArm.autoDeployArm().finallyDo(interrupted -> armInterrupted.set(interrupted));
-        Command climbUp = deployArm
-                .andThen(Commands.either(
-                        Commands.none(),
-                        m_Winch.autoPullDownClaw(),
-                        () -> armInterrupted.get()));
+        Command climbUp = m_StabilizingArm.autoDeployArm();
+        // .andThen(Commands.either(
+        // Commands.none(),
+        // m_Winch.autoPullDownClaw(),
+        // () -> armInterrupted.get()));
 
         climbUp.addRequirements(this);
-        return climbUp;
+        return log("climbUp").andThen(climbUp);
     }
 
     public Command autoClimbDown() {
@@ -87,7 +97,7 @@ public class ClimbSubsystem extends SubsystemBase {
                         () -> winchInterrupted.get()));
 
         climbDown.addRequirements(this);
-        return climbDown;
+        return log("climbDown").andThen(climbDown);
     }
 
     // block command execution until the booleanSupplier, usually a button, is
@@ -131,9 +141,16 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     public Command stopMechs() {
-        return this.runOnce(() -> {
+        return log("stop").andThen(this.runOnce(() -> {
             setArmDutyCycle(0);
             setWinchDutyCycle(0);
-        });
+        }));
+    }
+
+    @Override
+    public void periodic() {
+        // SmartDashboard.putString("wstat", m_Winch.getWinchState().toString());
+        // SmartDashboard.putString("astat", m_StabilizingArm.getArmState().toString());
+        // SmartDashboard.putString("cstat", getClimbState().toString());
     }
 }
