@@ -429,12 +429,12 @@ public final class Constants {
         public static final Angle ARM_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
         public static final Angle WINCH_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
 
-        public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0.05);
-        public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.3);
+        public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.05);
+        public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.25);
         public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(-0.25);
         public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(0.25);
 
-        public static final Angle ARM_HOME_POS = Rotations.of(-0.25);
+        public static final Angle ARM_HOME_POS = Rotations.of(0.25);
         public static final Angle WINCH_HOME_POS = Rotations.of(0);
 
         public static final Angle WINCH_DEPLOYED_POS = Rotations.of(2);
