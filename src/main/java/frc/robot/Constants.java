@@ -457,9 +457,9 @@ public final class Constants {
         public static final double ARM_kG = 4.5;
         public static final double ARM_kS = 2;
 
-        public static final String CLIMB_BASE_TABLE = "Climb/";
-        public static final String ARM_TABLE = CLIMB_BASE_TABLE + "Arm";
-        public static final String WINCH_TABLE = CLIMB_BASE_TABLE + "Winch";
-        public static final String STATUS_TABLE = CLIMB_BASE_TABLE + "Status";
+        public static final String CLIMB_BASE_TABLE = "Climb";
+        public static final String ARM_TABLE = CLIMB_BASE_TABLE + "/Arm";
+        public static final String WINCH_TABLE = CLIMB_BASE_TABLE + "/Winch";
+        public static final String STATUS_TABLE = CLIMB_BASE_TABLE + "/Status";
     }
 }

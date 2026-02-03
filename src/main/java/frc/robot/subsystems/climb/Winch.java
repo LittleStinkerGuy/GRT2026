@@ -30,6 +30,7 @@ import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -119,6 +120,20 @@ public class Winch extends SubsystemBase {
                 System.out.println("VERY BAD, CANDI " + hardstopCANdi.getDeviceID() + " DID NOT GET CONFIGURED");
             }
         }
+    }
+
+    private void logToDashboard() {
+        SmartDashboard.putString(ClimbConstants.WINCH_TABLE + "/state", getWinchState().toString());
+
+        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/rotations", getMotorPosition().in(Rotations));
+        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/setRotations", getPositionSetpoint().in(Rotations));
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/atSetpoint", atSetPosition());
+
+        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/dutyCycle", getDutyCycleSetpoint());
+
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseHardStop", hardstopTrigger.getAsBoolean());
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/forwardSoftStop", getForwardLimit());
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseSoftStop", getReverseLimit());
     }
 
     // take an input value and clamp it to the max value then run motor at that duty
