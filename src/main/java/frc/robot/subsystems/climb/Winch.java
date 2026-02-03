@@ -59,15 +59,15 @@ public class Winch extends SubsystemBase {
         configureCandi();
         configureMotor();
 
-        homeEncoder();
-
         // Reset encoder when limit switch is pressed
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
-        hardstopTrigger.onTrue(this.runOnce(this::homeEncoder));
+        hardstopTrigger.onTrue(this.runOnce(this::homeEncoder).ignoringDisable(true));
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
         BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
+
+        homeEncoder();
     }
 
     private void configureMotor() {
