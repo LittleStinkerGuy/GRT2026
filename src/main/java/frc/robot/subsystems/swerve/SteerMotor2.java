@@ -35,6 +35,8 @@ import frc.robot.util.GRTUtil;
 
 public class SteerMotor2 extends SubsystemBase{
         // For NT
+
+    //changing text to try out git bot (ignore this)
     private NetworkTableInstance ntInstance;
     private NetworkTable steerStatsTable;
     private DoublePublisher encoderPositionPublisher;

@@ -34,7 +34,7 @@ import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE
 
 public class DriveMotor {
 
-
+    
     // Motor instance for controlling the drive motor
     private TalonFX motor;
 
