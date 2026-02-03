@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    m_robotContainer.updateDashboard();
+    // m_robotContainer.updateDashboard();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -66,19 +66,20 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
   }
 
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+  // @Override
+  // public void autonomousInit() {
+  // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
-  }
+  // // schedule the autonomous command
+  // if (m_autonomousCommand != null) {
+  // m_autonomousCommand.schedule();
+  // }
+  // }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
   public void teleopInit() {

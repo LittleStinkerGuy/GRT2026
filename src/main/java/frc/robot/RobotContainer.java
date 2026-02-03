@@ -53,33 +53,35 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   private CANBus canivore = new CANBus("can");
 
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-  private PS5DriveController driveController;
+  // private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+  // private PS5DriveController driveController;
   private CommandPS5Controller mechController;
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  // private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
-  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
-  private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
-  private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
-  private final Field2d m_field = new Field2d();
+  // private final RollerIntakeSubsystem intakeSubsystem = new
+  // RollerIntakeSubsystem(canivore);
+  // private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
+  // private final HopperSubsystem HopperSubsystem = new
+  // HopperSubsystem(canivore);
+  // private final Field2d m_field = new Field2d();
   private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
 
-  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-      VisionConstants.cameraConfigs[0]);
+  // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+  // VisionConstants.cameraConfigs[0]);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+    // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
-    constructDriveController();
+    // constructDriveController();
     constructMechController();
     configureBindings();
-    configureAutoChooser();
+    // configureAutoChooser();
 
-    CameraServer.startAutomaticCapture(); // start driver cam
-    SmartDashboard.putData("Field", m_field);
+    // CameraServer.startAutomaticCapture(); // start driver cam
+    // SmartDashboard.putData("Field", m_field);
   }
 
   /**
@@ -106,31 +108,31 @@ public class RobotContainer {
      * face a target, and only
      * translation will be manually controllable.
      */
-    swerveSubsystem.setDefaultCommand(
-        new RunCommand(() -> {
-          swerveSubsystem.setDrivePowers(
-              driveController.getForwardPower(),
-              driveController.getLeftPower(),
-              driveController.getRotatePower());
-        },
-            swerveSubsystem));
+    // swerveSubsystem.setDefaultCommand(
+    // new RunCommand(() -> {
+    // swerveSubsystem.setDrivePowers(
+    // driveController.getForwardPower(),
+    // driveController.getLeftPower(),
+    // driveController.getRotatePower());
+    // },
+    // swerveSubsystem));
 
-    driveController.getRelativeMode().whileTrue(
-        new RunCommand(
-            () -> {
-              swerveSubsystem.setRobotRelativeDrivePowers(
-                  driveController.getForwardPower(),
-                  driveController.getLeftPower(),
-                  driveController.getRotatePower());
-              driveController.getRotatePower();
-            }, swerveSubsystem));
+    // driveController.getRelativeMode().whileTrue(
+    // new RunCommand(
+    // () -> {
+    // swerveSubsystem.setRobotRelativeDrivePowers(
+    // driveController.getForwardPower(),
+    // driveController.getLeftPower(),
+    // driveController.getRotatePower());
+    // driveController.getRotatePower();
+    // }, swerveSubsystem));
 
-    /* Pressing the button resets the field axes to the current robot axes. */
-    driveController.bindDriverHeadingReset(
-        () -> {
-          swerveSubsystem.resetDriverHeading();
-        },
-        swerveSubsystem);
+    // /* Pressing the button resets the field axes to the current robot axes. */
+    // driveController.bindDriverHeadingReset(
+    // () -> {
+    // swerveSubsystem.resetDriverHeading();
+    // },
+    // swerveSubsystem);
 
     // bind semi auto commands
     var crossTrigger = mechController.cross();
@@ -141,20 +143,20 @@ public class RobotContainer {
     mechController.options().onTrue(m_ClimbSubsystem.autoClimb());
 
     // Manual control with d-pad for winch and left stick for arm
-    m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-      var armDutyCycle = MathUtil.applyDeadband(mechController.getLeftY(), 0.1);
-      Math.copySign(armDutyCycle * armDutyCycle, armDutyCycle);
-      double winchDutyCycle = 0;
+    // m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
+    // var armDutyCycle = MathUtil.applyDeadband(mechController.getLeftY(), 0.1);
+    // Math.copySign(armDutyCycle * armDutyCycle, armDutyCycle);
+    // double winchDutyCycle = 0;
 
-      if (mechController.povUp().getAsBoolean()) {
-        winchDutyCycle++;
-      }
-      if (mechController.povDown().getAsBoolean()) {
-        winchDutyCycle--;
-      }
-      m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-      m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-    }, m_ClimbSubsystem));
+    // if (mechController.povUp().getAsBoolean()) {
+    // winchDutyCycle++;
+    // }
+    // if (mechController.povDown().getAsBoolean()) {
+    // winchDutyCycle--;
+    // }
+    // m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
+    // m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+    // }, m_ClimbSubsystem));
 
     // --- Intake pivot set-position controls (commented out for now) ---
     // mechController.square().onTrue(
@@ -165,14 +167,14 @@ public class RobotContainer {
     // );
 
     // circle for the manual hopper
-    mechController.circle().whileTrue(
-        new RunCommand(
-            () -> HopperSubsystem.setManualControl(1.0),
-            HopperSubsystem))
-        .onFalse(
-            new InstantCommand(
-                () -> HopperSubsystem.stop(),
-                HopperSubsystem));
+    // mechController.circle().whileTrue(
+    // new RunCommand(
+    // () -> HopperSubsystem.setManualControl(1.0),
+    // HopperSubsystem))
+    // .onFalse(
+    // new InstantCommand(
+    // () -> HopperSubsystem.stop(),
+    // HopperSubsystem));
 
     // --- Hopper RPM control (commented out for now) ---
     // mechController.triangle().onTrue(
@@ -181,71 +183,75 @@ public class RobotContainer {
 
     /* Intake Controls - Hold button to run rollers */
     // R1 - intake in
-    mechController.R1().whileTrue(
-        new RunCommand(
-            () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
-            intakeSubsystem))
-        .onFalse(
-            new InstantCommand(
-                () -> intakeSubsystem.stop(),
-                intakeSubsystem));
+    // mechController.R1().whileTrue(
+    // new RunCommand(
+    // () ->
+    // intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
+    // intakeSubsystem))
+    // .onFalse(
+    // new InstantCommand(
+    // () -> intakeSubsystem.stop(),
+    // intakeSubsystem));
 
-    // L1 - intake out
-    mechController.L1().whileTrue(
-        new RunCommand(
-            () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
-            intakeSubsystem))
-        .onFalse(
-            new InstantCommand(
-                () -> intakeSubsystem.stop(),
-                intakeSubsystem));
+    // // L1 - intake out
+    // mechController.L1().whileTrue(
+    // new RunCommand(
+    // () ->
+    // intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
+    // intakeSubsystem))
+    // .onFalse(
+    // new InstantCommand(
+    // () -> intakeSubsystem.stop(),
+    // intakeSubsystem));
 
-    // Pivot Configs: R2 for pivot up and L2 for pivot down
-    pivotIntake.setDefaultCommand(
-        new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() - mechController.getL2Axis()));
+    // // Pivot Configs: R2 for pivot up and L2 for pivot down
+    // pivotIntake.setDefaultCommand(
+    // new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() -
+    // mechController.getL2Axis()));
 
   }
 
-  public void updateDashboard() {
-    // Robot position
-    Pose2d robotPose = swerveSubsystem.getRobotPosition();
-    m_field.setRobotPose(robotPose);
+  // public void updateDashboard() {
+  // // Robot position
+  // Pose2d robotPose = swerveSubsystem.getRobotPosition();
+  // m_field.setRobotPose(robotPose);
 
-    // Match time
-    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+  // // Match time
+  // SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
 
-    // Intake
-    // SmartDashboard.putString("Status/Intake State", getIntakeState());
-    // SmartDashboard.putNumber("Status/Intake Angle",
-    // pivotIntake.getAngleDegrees());
-    SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
-    SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
-    SmartDashboard.putBoolean("Status/At Bottom Limit", pivotIntake.isAtBottomLimit());
+  // // Intake
+  // // SmartDashboard.putString("Status/Intake State", getIntakeState());
+  // // SmartDashboard.putNumber("Status/Intake Angle",
+  // // pivotIntake.getAngleDegrees());
+  // SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
+  // SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
+  // SmartDashboard.putBoolean("Status/At Bottom Limit",
+  // pivotIntake.isAtBottomLimit());
 
-    // Vision + Autoalign
-    // VisionSubsystem is commented out rn because it's outdated
-    SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
-    SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
-    SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
-    SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
-  }
-
-  // --- Intake state detection (commented out for now) ---
-  // private String getIntakeState() {
-  // double angle = pivotIntake.getAngleDegrees();
-  // double tolerance = 0.05;
-  // if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
-  // return "STOWED";
-  // } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
-  // return "EXTENDED";
-  // } else {
-  // return "MOVING";
-  // }
+  // // Vision + Autoalign
+  // // VisionSubsystem is commented out rn because it's outdated
+  // SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
+  // SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
+  // SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
+  // SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
   // }
 
-  private boolean isRollerActive() {
-    return intakeSubsystem.isRunning();
-  }
+  // // --- Intake state detection (commented out for now) ---
+  // // private String getIntakeState() {
+  // // double angle = pivotIntake.getAngleDegrees();
+  // // double tolerance = 0.05;
+  // // if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
+  // // return "STOWED";
+  // // } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
+  // // return "EXTENDED";
+  // // } else {
+  // // return "MOVING";
+  // // }
+  // }
+
+  // private boolean isRollerActive() {
+  // return intakeSubsystem.isRunning();
+  // }
 
   // TODO: Integrate w vision subsystem when its setup / enabled
 
@@ -286,10 +292,10 @@ public class RobotContainer {
    * Constructs the drive controller based on the name of the controller at port
    * 0
    */
-  private void constructDriveController() {
-    driveController = new PS5DriveController();
-    driveController.setDeadZone(0.05);
-  }
+  // private void constructDriveController() {
+  // driveController = new PS5DriveController();
+  // driveController.setDeadZone(0.05);
+  // }
 
   /**
    * Constructs mech controller
@@ -298,18 +304,18 @@ public class RobotContainer {
     mechController = new CommandPS5Controller(1);
   }
 
-  /**
-   * Config the autonomous command chooser
-   */
-  private void configureAutoChooser() {
-    // Add auton here
-    autoChooser.setDefaultOption("Do Nothing", null);
+  // /**
+  // * Config the autonomous command chooser
+  // */
+  // private void configureAutoChooser() {
+  // // Add auton here
+  // autoChooser.setDefaultOption("Do Nothing", null);
 
-    SmartDashboard.putData("Auto Selector", autoChooser);
-  }
+  // SmartDashboard.putData("Auto Selector", autoChooser);
+  // }
 
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+  // public Command getAutonomousCommand() {
+  // return autoChooser.getSelected();
+  // }
 
 }

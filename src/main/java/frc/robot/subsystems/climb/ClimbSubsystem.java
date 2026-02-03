@@ -108,7 +108,7 @@ public class ClimbSubsystem extends SubsystemBase {
     public Command semiAutoClimbUp(BooleanSupplier step) {
         Command climbUp = (waitForButtonRelease(step)
                 .andThen(m_StabilizingArm.deployArm(step)
-                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))
+                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getReverseLimit()))
                         .andThen(waitForNextStep(step))
                         .andThen(m_Winch.manualPullDownClaw(step))
                         .raceWith(Commands.waitUntil(() -> m_Winch.getReverseLimit()))));
@@ -125,7 +125,7 @@ public class ClimbSubsystem extends SubsystemBase {
                         .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit()))
                         .andThen(waitForNextStep(step))
                         .andThen(m_StabilizingArm.retractArm(step)
-                                .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getReverseLimit()))));
+                                .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))));
         climbDown.addRequirements(this);
         return climbDown;
     }
