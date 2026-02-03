@@ -71,7 +71,7 @@ public class StabilizingArm extends SubsystemBase {
                         .withReverseSoftLimitEnable(true)
                         .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT))
                 .withSlot0(new Slot0Configs()
-                        .withGravityType(GravityTypeValue.Elevator_Static)
+                        .withGravityType(GravityTypeValue.Arm_Cosine)
                         .withKP(ClimbConstants.ARM_kP)
                         .withKI(ClimbConstants.ARM_kI)
                         .withKD(ClimbConstants.ARM_kD)

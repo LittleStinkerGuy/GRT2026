@@ -417,7 +417,7 @@ public final class Constants {
             FLOATING
         }
 
-        public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
         public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
 
         public static final double ARM_GR = 12.0;
@@ -431,8 +431,8 @@ public final class Constants {
 
         public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0.05);
         public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.3);
-        public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
-        public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
+        public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(-0.25);
+        public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(0.25);
 
         public static final Angle ARM_HOME_POS = Rotations.of(-0.25);
         public static final Angle WINCH_HOME_POS = Rotations.of(0);
@@ -445,16 +445,21 @@ public final class Constants {
 
         public static final double WINCH_MAX_SAFETY_DUTY_CYCLE = 0.01;
 
-        public static final double WINCH_kP = 0.0;
+        public static final double WINCH_kP = 25;
         public static final double WINCH_kI = 0.0;
-        public static final double WINCH_kD = 0.0;
+        public static final double WINCH_kD = 1;
         public static final double WINCH_kG = 0.0;
-        public static final double WINCH_kS = 0.0;
+        public static final double WINCH_kS = 0.5;
 
-        public static final double ARM_kP = 0.0;
+        public static final double ARM_kP = 15;
         public static final double ARM_kI = 0.0;
-        public static final double ARM_kD = 0.0;
-        public static final double ARM_kG = 0.0;
-        public static final double ARM_kS = 0.0;
+        public static final double ARM_kD = 0.1;
+        public static final double ARM_kG = 4.5;
+        public static final double ARM_kS = 2;
+
+        public static final String CLIMB_BASE_TABLE = "Climb/";
+        public static final String ARM_TABLE = CLIMB_BASE_TABLE + "Arm";
+        public static final String WINCH_TABLE = CLIMB_BASE_TABLE + "Winch";
+        public static final String STATUS_TABLE = CLIMB_BASE_TABLE + "Status";
     }
 }
