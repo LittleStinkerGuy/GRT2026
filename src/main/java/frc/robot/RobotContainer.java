@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.Constants.VisionConstants;
+// import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.allign.AlignToHubCommand;
 import frc.robot.commands.allign.RotateToAngleCommand;
 // frc imports
@@ -13,8 +13,8 @@ import frc.robot.controllers.PS5DriveController;
 
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.Vision.VisionSubsystem;
-import frc.robot.subsystems.Vision.CameraConfig;
+// import frc.robot.subsystems.Vision.VisionSubsystem;
+// import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
@@ -67,12 +67,12 @@ public class RobotContainer {
   private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
   private final Field2d m_field = new Field2d();
 
-  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    VisionConstants.cameraConfigs[0]
-  );
+  // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+  //   VisionConstants.cameraConfigs[0]
+  // );
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+    // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
     constructDriveController();
     constructMechController();
