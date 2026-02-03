@@ -435,10 +435,10 @@ public final class Constants {
         public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(0.25);
 
         public static final Angle ARM_HOME_POS = Rotations.of(0.25);
-        public static final Angle WINCH_HOME_POS = Rotations.of(0);
+        public static final Angle WINCH_HOME_POS = Rotations.of(-0.25);
 
-        public static final Angle WINCH_DEPLOYED_POS = Rotations.of(2);
-        public static final Angle ARM_DEPLOYED_POS = Rotations.of(0.1);
+        public static final Angle WINCH_DEPLOYED_POS = Rotations.of(0.25);
+        public static final Angle ARM_DEPLOYED_POS = Rotations.of(0);
 
         public static final Time ARM_POS_TIMEOUT = Seconds.of(5);
         public static final Time WINCH_POS_TIMEOUT = Seconds.of(5);
