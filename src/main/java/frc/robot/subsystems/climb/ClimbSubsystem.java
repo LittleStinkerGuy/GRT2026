@@ -121,10 +121,12 @@ public class ClimbSubsystem extends SubsystemBase {
     public Command semiAutoClimbUp(BooleanSupplier step) {
         Command climbUp = (waitForButtonRelease(step)
                 .andThen(m_StabilizingArm.deployArm(step)
-                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getReverseLimit()))
+                        .raceWith(Commands.waitUntil(
+                                () -> m_StabilizingArm.getReverseLimit().orElseGet(() -> false)))
                         .andThen(waitForNextStep(step))
                         .andThen(m_Winch.manualPullDownClaw(step))
-                        .raceWith(Commands.waitUntil(() -> m_Winch.getReverseLimit()))));
+                        .raceWith(Commands.waitUntil(
+                                () -> m_Winch.getReverseLimit().orElseGet(() -> false)))));
         climbUp.addRequirements(this);
         return climbUp;
     }
@@ -135,10 +137,12 @@ public class ClimbSubsystem extends SubsystemBase {
     public Command semiAutoClimbDown(BooleanSupplier step) {
         Command climbDown = waitForButtonRelease(step)
                 .andThen(m_Winch.manualPullUpClaw(step)
-                        .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit()))
+                        .raceWith(Commands.waitUntil(
+                                () -> m_Winch.getForwardLimit().orElseGet(() -> false)))
                         .andThen(waitForNextStep(step))
                         .andThen(m_StabilizingArm.retractArm(step)
-                                .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))));
+                                .raceWith(Commands.waitUntil(
+                                        () -> m_StabilizingArm.getForwardLimit().orElseGet(() -> false)))));
         climbDown.addRequirements(this);
         return climbDown;
     }

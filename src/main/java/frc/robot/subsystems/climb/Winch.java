@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -132,15 +133,17 @@ public class Winch extends SubsystemBase {
         SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/dutyCycle", getDutyCycleSetpoint());
 
         SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseHardStop", hardstopTrigger.getAsBoolean());
-        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/forwardSoftStop", getForwardLimit());
-        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseSoftStop", getReverseLimit());
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/forwardSoftStop",
+                getForwardLimit().orElse(false));
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseSoftStop",
+                getReverseLimit().orElse(false));
     }
 
     // take an input value and clamp it to the max value then run motor at that duty
     // cycle
     public void setMotorDutyCycle(double dutyCycle) {
         dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
-        dutyCycle *= ClimbConstants.WINCH_MAX_DUTY_CYCLE;
+        dutyCycle *= ClimbConstants.WINCH_MAX_OUTPUT;
         dutyCycleControl.withOutput(dutyCycle);
         motor.setControl(dutyCycleControl);
     }
@@ -190,7 +193,15 @@ public class Winch extends SubsystemBase {
     }
 
     public void homeEncoder() {
-        motor.setPosition(ClimbConstants.WINCH_HOME_POS);
+        setEncoder(ClimbConstants.WINCH_HOME_POS);
+    }
+
+    public void zeroEncoder() {
+        setEncoder(Rotations.of(0));
+    }
+
+    public void setEncoder(Angle pos) {
+        motor.setPosition(pos);
     }
 
     public Angle getMotorPosition() {
@@ -198,19 +209,19 @@ public class Winch extends SubsystemBase {
     }
 
     // returns false if can't refresh
-    public boolean getForwardLimit() {
+    public Optional<Boolean> getForwardLimit() {
         if (!forwardLimitSignal.refresh().getValue()) {
-            return false;
+            return Optional.empty();
         }
-        return forwardLimitSignal.getValue();
+        return Optional.of(forwardLimitSignal.getValue());
     }
 
     // returns false if can't refresh
-    public boolean getReverseLimit() {
+    public Optional<Boolean> getReverseLimit() {
         if (!reverseLimitSignal.refresh().getValue()) {
-            return false;
+            return Optional.empty();
         }
-        return reverseLimitSignal.getValue();
+        return Optional.of(reverseLimitSignal.getValue());
     }
 
     public CLIMB_MECH_STATE getWinchState() {
