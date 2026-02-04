@@ -1,7 +1,9 @@
 package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -23,6 +25,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.StatusSignal;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -106,9 +109,10 @@ public class Winch extends SubsystemBase {
 
     // take an input value and clamp it to the max value then run motor at that duty
     // cycle
-    public void setMotorDutyCycle(double dutyCycle) {
-        dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
-        dutyCycle *= ClimbConstants.WINCH_MAX_DUTY_CYCLE;
+    public void setMotorDutyCycle(double targetOutput) {
+        targetOutput = Math.max(-1.0, Math.min(targetOutput, 1.0));
+        var dutyCycle = targetOutput * ClimbConstants.WINCH_MAX_OUTPUT;
+
         dutyCycleControl.withOutput(dutyCycle);
         motor.setControl(dutyCycleControl);
     }
@@ -117,24 +121,28 @@ public class Winch extends SubsystemBase {
         return dutyCycleControl.Output;
     }
 
+    public void setEncoder(Angle pos) {
+        motor.setPosition(pos);
+    }
+
     public void zeroEncoder() {
-        motor.setPosition(0);
+        setEncoder(Rotations.of(0));
     }
 
     // returns false if can't refresh
-    public boolean getForwardLimit() {
+    public Optional<Boolean> getForwardLimit() {
         if (!forwardLimitSignal.refresh().getValue()) {
-            return false;
+            return Optional.empty();
         }
-        return forwardLimitSignal.getValue();
+        return Optional.of(forwardLimitSignal.getValue());
     }
 
     // returns false if can't refresh
-    public boolean getReverseLimit() {
+    public Optional<Boolean> getReverseLimit() {
         if (!reverseLimitSignal.refresh().getValue()) {
-            return false;
+            return Optional.empty();
         }
-        return reverseLimitSignal.getValue();
+        return Optional.of(reverseLimitSignal.getValue());
     }
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot
