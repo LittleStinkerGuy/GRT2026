@@ -43,7 +43,7 @@ public class ClimbSubsystem extends SubsystemBase {
     public Command climbUp(BooleanSupplier step) {
         Command climbUp = (waitForButtonRelease(step)
                 .andThen(m_StabilizingArm.deployArm(step)
-                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit()))
+                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit().orElseGet(() -> false)))
                         .andThen(waitForNextStep(step))
                         .andThen(m_Winch.pullDownClaw(step))
                         .raceWith(Commands.waitUntil(() -> m_Winch.getReverseLimit()))));
@@ -60,7 +60,8 @@ public class ClimbSubsystem extends SubsystemBase {
                         .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit()))
                         .andThen(waitForNextStep(step))
                         .andThen(m_StabilizingArm.retractArm(step)
-                                .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getReverseLimit()))));
+                                .raceWith(Commands
+                                        .waitUntil(() -> m_StabilizingArm.getReverseLimit().orElseGet(() -> false)))));
         climbDown.addRequirements(this);
         return climbDown;
     }
