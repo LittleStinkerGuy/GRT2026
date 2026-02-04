@@ -230,17 +230,17 @@ public class Winch extends SubsystemBase {
         return this.runOnce(() -> setPositionSetpoint(position));
     }
 
-    public Command autoPullUpClaw() {
+    public Command autoPullDownClaw() {
         return goToSetPosition(ClimbConstants.WINCH_DEPLOYED_POS)
                 .andThen(Commands.waitUntil(() -> atSetPosition()))
                 .withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
     }
 
-    public Command autoPullDownClaw() {
+    public Command autoPullUpClaw() {
         if (hardstopTrigger.getAsBoolean()) {
-            return Commands.none();
+            return this.run(() -> System.out.println("hi")).andThen(Commands.none());
         }
-        Command setPosition = goToSetPosition(Rotations.of(0))
+        Command setPosition = goToSetPosition(ClimbConstants.WINCH_HOME_POS)
                 .andThen(Commands.waitUntil(hardstopTrigger).withTimeout(ClimbConstants.WINCH_POS_TIMEOUT));
         Command runMotorBackUntilLimit = this.startEnd(
                 () -> setMotorDutyCycle(-ClimbConstants.WINCH_MAX_SAFETY_DUTY_CYCLE),

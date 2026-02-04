@@ -62,10 +62,13 @@ public class ClimbSubsystem extends SubsystemBase {
         climbState = getClimbState();
 
         if (climbState == CLIMB_MECH_STATE.HOME) {
+            System.out.println("up");
             return autoClimbUp();
         } else if (climbState == CLIMB_MECH_STATE.DEPLOYED) {
+            System.out.println("down");
             return autoClimbDown();
         } else {
+            System.out.println("stop");
             return stopMechs();
         }
     }
@@ -76,12 +79,12 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public Command autoClimbUp() {
         AtomicBoolean armInterrupted = new AtomicBoolean(false);
-        Command deployArm = m_StabilizingArm.autoDeployArm().finallyDo(interrupted -> armInterrupted.set(interrupted));
-        Command climbUp = m_StabilizingArm.autoDeployArm();
-        // .andThen(Commands.either(
-        // Commands.none(),
-        // m_Winch.autoPullDownClaw(),
-        // () -> armInterrupted.get()));
+        Command deployArm = m_StabilizingArm.autoDeployArm();
+        Command climbUp = deployArm
+                .andThen(Commands.either(
+                        Commands.none(),
+                        m_Winch.autoPullDownClaw(),
+                        () -> armInterrupted.get()));
 
         climbUp.addRequirements(this);
         return log("climbUp").andThen(climbUp);
@@ -149,8 +152,8 @@ public class ClimbSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // SmartDashboard.putString("wstat", m_Winch.getWinchState().toString());
-        // SmartDashboard.putString("astat", m_StabilizingArm.getArmState().toString());
-        // SmartDashboard.putString("cstat", getClimbState().toString());
+        SmartDashboard.putString("wstat", m_Winch.getWinchState().toString());
+        SmartDashboard.putString("astat", m_StabilizingArm.getArmState().toString());
+        SmartDashboard.putString("cstat", getClimbState().toString());
     }
 }

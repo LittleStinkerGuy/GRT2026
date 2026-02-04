@@ -22,6 +22,7 @@ import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
@@ -73,6 +74,7 @@ public class StabilizingArm extends SubsystemBase {
                         .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT))
                 .withSlot0(new Slot0Configs()
                         .withGravityType(GravityTypeValue.Arm_Cosine)
+                        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
                         .withKP(ClimbConstants.ARM_kP)
                         .withKI(ClimbConstants.ARM_kI)
                         .withKD(ClimbConstants.ARM_kD)
@@ -190,9 +192,9 @@ public class StabilizingArm extends SubsystemBase {
     }
 
     public Command autoDeployArm() {
-        return goToSetPosition(ClimbConstants.ARM_DEPLOYED_POS);
-        // .andThen(Commands.waitUntil(() -> atSetPosition()))
-        // .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
+        return goToSetPosition(ClimbConstants.ARM_DEPLOYED_POS)
+                .andThen(Commands.waitUntil(() -> atSetPosition()))
+                .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
     }
 
     public Command autoRetractArm() {
