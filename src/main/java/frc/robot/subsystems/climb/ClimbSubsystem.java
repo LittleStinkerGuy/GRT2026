@@ -12,16 +12,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
 
 public class ClimbSubsystem extends SubsystemBase {
-    private StabilizingArm m_StabilizingArm;
-    private Winch m_Winch;
+    private StabilizingArmSubsystem m_StabilizingArm;
+    private WinchSubsystem m_Winch;
 
     private CLIMB_MECH_STATE armState = CLIMB_MECH_STATE.FLOATING;
     private CLIMB_MECH_STATE winchState = CLIMB_MECH_STATE.FLOATING;
     private CLIMB_MECH_STATE climbState = CLIMB_MECH_STATE.FLOATING;
 
     public ClimbSubsystem(CANBus canBusObj) {
-        m_StabilizingArm = new StabilizingArm(canBusObj);
-        m_Winch = new Winch(canBusObj);
+        m_StabilizingArm = new StabilizingArmSubsystem(canBusObj);
+        m_Winch = new WinchSubsystem(canBusObj);
 
         armState = m_StabilizingArm.getArmState();
         winchState = m_Winch.getWinchState();
