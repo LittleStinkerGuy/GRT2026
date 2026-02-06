@@ -21,6 +21,9 @@ public class hood extends SubsystemBase {
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
     private CANdi limit;
 
+    private double commandedDutyCycle = 0.0;
+    private static final String LOG_PREFIX = "Hood/";
+
     public hood(CANBus cn) {
         // Construct motors directly on the CAN bus
         hoodMotor = new TalonFX(railgunConstants.hoodId, cn);
@@ -47,10 +50,13 @@ public class hood extends SubsystemBase {
         
         if(hoodMotor.getPosition().getValueAsDouble() >= railgunConstants.initHoodAngle && speed >0){
             hoodMotor.setControl(dutyCycl.withOutput(0));
+            commandedDutyCycle = 0;
         }else if(hoodMotor.getPosition().getValueAsDouble() <= railgunConstants.lowerAngle && speed <0){
             hoodMotor.setControl(dutyCycl.withOutput(0));
+            commandedDutyCycle = 0;
         }else{
             hoodMotor.setControl(dutyCycl.withOutput(speed));
+            commandedDutyCycle = speed;
         }
         
     }
@@ -66,12 +72,35 @@ public class hood extends SubsystemBase {
         if(!limit.getS1Closed().refresh().getValue()){
             prevPress = false;
         }
+        sendData();
+    }
 
-        System.out.println(hoodMotor.getPosition().toString());
-        SmartDashboard.putNumber("Position", hoodMotor.getPosition().getValueAsDouble());
-        double pivotPosition = hoodMotor.getPosition().getValueAsDouble();
-        Logger.recordOutput("Pivot_Position", pivotPosition);
-        SmartDashboard.putNumber("Speed", hoodMotor.getVelocity().getValueAsDouble());
-            
+    public void sendData(){
+        Logger.recordOutput(LOG_PREFIX + "PositionRotations",
+            upperMotor.getPosition().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
+            upperMotor.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
+            upperMotor.getMotorVoltage().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
+            upperMotor.getSupplyVoltage().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
+            upperMotor.getStatorCurrent().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
+            upperMotor.getSupplyCurrent().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "TemperatureC",
+            upperMotor.getDeviceTemp().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
+            commandedDutyCycle);
+
+        Logger.recordOutput(LOG_PREFIX + "Connected",
+            upperMotor.isConnected());
     }
 }
