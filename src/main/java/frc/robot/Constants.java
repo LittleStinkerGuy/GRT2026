@@ -420,8 +420,8 @@ public final class Constants {
         public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
         public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
 
-        public static final double ARM_GR = 12.0;
-        public static final double WINCH_GR = 1.0;
+        public static final double ARM_GR = 1.0;
+        public static final double WINCH_GR = 70.0;
 
         public static final double ARM_MAX_OUTPUT = 0.05;
         public static final double WINCH_MAX_OUTPUT = 0.1;
