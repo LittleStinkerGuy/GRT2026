@@ -8,10 +8,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import org.littletonrobotics.junction.Logger;
 
 public class flywheel extends SubsystemBase {
 
@@ -30,14 +29,13 @@ public class flywheel extends SubsystemBase {
 
     public void config(){
         TalonFXConfiguration cfg = new TalonFXConfiguration();
-        //cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        FeedbackConfigs b = new FeedbackConfigs();
-        b.SensorToMechanismRatio = 3;
-        CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(40.0).withStatorCurrentLimitEnable(true);
-        cfg.withCurrentLimits(currLim);
+        cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
+        //CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(40.0).withStatorCurrentLimitEnable(true);
+        //cfg.withCurrentLimits(currLim);
         upperMotor.getConfigurator().apply(cfg);
-        upperMotor.getConfigurator().apply(b);
+       
     }
 
     public void flySpeed(double speed){

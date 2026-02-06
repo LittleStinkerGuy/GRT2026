@@ -38,12 +38,10 @@ public class hood extends SubsystemBase {
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        FeedbackConfigs b = new FeedbackConfigs();
-        b.SensorToMechanismRatio = 12;
+        cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
-        hoodMotor.getConfigurator().apply(b);
     }
 
     public void hoodSpeed(double speed){
@@ -77,30 +75,30 @@ public class hood extends SubsystemBase {
 
     public void sendData(){
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-            upperMotor.getPosition().getValueAsDouble());
+            hoodMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-            upperMotor.getVelocity().getValueAsDouble());
+            hoodMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-            upperMotor.getMotorVoltage().getValueAsDouble());
+            hoodMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-            upperMotor.getSupplyVoltage().getValueAsDouble());
+            hoodMotor.getSupplyVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-            upperMotor.getStatorCurrent().getValueAsDouble());
+            hoodMotor.getStatorCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-            upperMotor.getSupplyCurrent().getValueAsDouble());
+            hoodMotor.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-            upperMotor.getDeviceTemp().getValueAsDouble());
+            hoodMotor.getDeviceTemp().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
             commandedDutyCycle);
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
-            upperMotor.isConnected());
+            hoodMotor.isConnected());
     }
 }
