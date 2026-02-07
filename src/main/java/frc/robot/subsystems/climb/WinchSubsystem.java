@@ -30,6 +30,7 @@ import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -51,11 +52,8 @@ public class WinchSubsystem extends SubsystemBase {
 
     public WinchSubsystem(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.WINCH_MOTOR_CAN_ID, canBusObj);
-
-        forwardLimitSignal = motor.getFault_ForwardSoftLimit();
-        reverseLimitSignal = motor.getFault_ReverseSoftLimit();
-
         hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID, canBusObj);
+
         configureCandi();
         configureMotor();
 
@@ -63,6 +61,9 @@ public class WinchSubsystem extends SubsystemBase {
         hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
         hardstopTrigger.onTrue(this.runOnce(this::homeEncoder).ignoringDisable(true));
 
+        forwardLimitSignal = motor.getFault_ForwardSoftLimit();
+        reverseLimitSignal = motor.getFault_ReverseSoftLimit();
+        
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
         BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
@@ -131,6 +132,9 @@ public class WinchSubsystem extends SubsystemBase {
 
         SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/dutyCycle", getDutyCycleSetpoint());
 
+        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/supplyCurrent(Amps)", getSupplyCurrent().in(Amps));
+        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/torqueCurrent(Amps)", getTorqueCurrent().in(Amps));
+    
         SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseHardStop", hardstopTrigger.getAsBoolean());
         SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/forwardSoftStop",
                 getForwardLimit().orElse(false));
@@ -207,6 +211,14 @@ public class WinchSubsystem extends SubsystemBase {
         return motor.getPosition().getValue();
     }
 
+    public Current getSupplyCurrent(){
+        return motor.getSupplyCurrent().getValue();
+    }
+
+    public Current getTorqueCurrent(){
+        return motor.getTorqueCurrent().getValue();
+    }
+
     // returns false if can't refresh
     public Optional<Boolean> getForwardLimit() {
         if (!forwardLimitSignal.refresh().getValue()) {
@@ -243,5 +255,10 @@ public class WinchSubsystem extends SubsystemBase {
 
     public boolean isHardstopPressed() {
         return hardstopTrigger.getAsBoolean();
+    }
+
+    @Override
+    public void periodic() {
+        logToDashboard();
     }
 }
