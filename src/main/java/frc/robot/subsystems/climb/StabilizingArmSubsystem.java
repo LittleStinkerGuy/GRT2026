@@ -9,14 +9,17 @@ import java.util.Optional;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -26,7 +29,6 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
@@ -38,17 +40,20 @@ public class StabilizingArmSubsystem extends SubsystemBase {
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private PositionTorqueCurrentFOC posControl = new PositionTorqueCurrentFOC(0).withSlot(0);
 
+    private CANcoder cancoder;
+    private CANcoderConfiguration cancoderConfig;
+
     private final StatusSignal<Boolean> forwardLimitSignal;
     private final StatusSignal<Boolean> reverseLimitSignal;
 
     public StabilizingArmSubsystem(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.ARM_MOTOR_CAN_ID, canBusObj);
+        cancoder = new CANcoder(ClimbConstants.ARM_ENCODER_CAN_ID, canBusObj);
+        configureMotor();
+        configureEncoder();
+
         forwardLimitSignal = motor.getFault_ForwardSoftLimit();
         reverseLimitSignal = motor.getFault_ReverseSoftLimit();
-        configureMotor();
-
-        homeEncoder();
-
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
         BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
@@ -63,7 +68,9 @@ public class StabilizingArmSubsystem extends SubsystemBase {
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(ClimbConstants.ARM_MOTOR_INVERTED))
                 .withFeedback(new FeedbackConfigs()
-                        .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                        .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+                        .withFeedbackRemoteSensorID(ClimbConstants.ARM_ENCODER_CAN_ID)
+
                         .withSensorToMechanismRatio(ClimbConstants.ARM_GR))
                 .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
                         .withForwardSoftLimitEnable(true)
@@ -86,6 +93,22 @@ public class StabilizingArmSubsystem extends SubsystemBase {
             }
             if (i == 4) {
                 System.out.println("VERY BAD, MOTOR " + motor.getDeviceID() + " DID NOT GET CONFIGURED");
+            }
+        }
+    }
+
+    private void configureEncoder(){
+        cancoderConfig.withMagnetSensor(new MagnetSensorConfigs()
+        .withMagnetOffset(ClimbConstants.ENCODER_OFFSET)
+        .withAbsoluteSensorDiscontinuityPoint(ClimbConstants.ENCODER_DISCONTINUITY_POINT));
+
+        for (int i = 0; i < 5; i++) {
+            if (cancoder.getConfigurator().apply(cancoderConfig, 0.1) == StatusCode.OK) {
+                System.out.println("ENCODER " + cancoder.getDeviceID() + " CONFIGURED!");
+                break; // Success
+            }
+            if (i == 4) {
+                System.out.println("VERY BAD, ENCODER " + cancoder.getDeviceID() + " DID NOT GET CONFIGURED");
             }
         }
     }
