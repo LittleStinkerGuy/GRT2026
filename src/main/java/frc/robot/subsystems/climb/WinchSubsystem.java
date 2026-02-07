@@ -127,19 +127,18 @@ public class WinchSubsystem extends SubsystemBase {
         SmartDashboard.putString(ClimbConstants.WINCH_TABLE + "/state", getWinchState().toString());
 
         SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/rotations", getMotorPosition().in(Rotations));
-        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/setRotations", getPositionSetpoint().in(Rotations));
+        SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/setRotations", getPositionSetpoint().orElse(Rotations.of(0)).in(Rotations));
         SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/atSetpoint", atSetPosition());
 
         SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/dutyCycle", getDutyCycleSetpoint());
+        SmartDashboard.putString(ClimbConstants.WINCH_TABLE + "/controlMode", getControlMode());
 
         SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/supplyCurrent(Amps)", getSupplyCurrent().in(Amps));
         SmartDashboard.putNumber(ClimbConstants.WINCH_TABLE + "/torqueCurrent(Amps)", getTorqueCurrent().in(Amps));
     
         SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseHardStop", hardstopTrigger.getAsBoolean());
-        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/forwardSoftStop",
-                getForwardLimit().orElse(false));
-        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseSoftStop",
-                getReverseLimit().orElse(false));
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/forwardSoftStop", isForwardLimitActive());
+        SmartDashboard.putBoolean(ClimbConstants.WINCH_TABLE + "/reverseSoftStop", isReverseLimitActive());
     }
 
     // take an input value and clamp it to the max value then run motor at that duty
@@ -155,6 +154,10 @@ public class WinchSubsystem extends SubsystemBase {
         return dutyCycleControl.Output;
     }
 
+    public String getControlMode(){
+        return motor.getControlMode().toString();
+    }
+
     public void setPositionSetpoint(Angle setpoint) {
         if (setpoint.gt(ClimbConstants.WINCH_FORWARD_LIMIT)) {
             setpoint = ClimbConstants.WINCH_FORWARD_LIMIT;
@@ -166,11 +169,11 @@ public class WinchSubsystem extends SubsystemBase {
         motor.setControl(posControl);
     }
 
-    public Angle getPositionSetpoint() {
+    public Optional<Angle> getPositionSetpoint() {
         if (motor.getControlMode().getValue() != ControlModeValue.PositionTorqueCurrentFOC) {
-            return null;
+            return Optional.empty();
         }
-        return Rotations.of(motor.getClosedLoopReference().getValue());
+        return Optional.of(Rotations.of(motor.getClosedLoopReference().getValue()));
     }
 
     // Checks if arm is at position set by PID control with a tolerance
