@@ -407,9 +407,10 @@ public final class Constants {
     }
 
     public static final class ClimbConstants {
-        public static final int WINCH_MOTOR_CAN_ID = 1;
-        public static final int ARM_MOTOR_CAN_ID = 0;
-        public static final int CANDI_CAN_ID = 3;
+        public static final int WINCH_MOTOR_CAN_ID = 20;
+        public static final int ARM_MOTOR_CAN_ID = 19;
+        public static final int CANDI_CAN_ID = 22; // might be 23
+        public static final int ARM_ENCODER_CAN_ID = 20;
 
         public static enum CLIMB_MECH_STATE {
             HOME,
