@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
@@ -32,8 +31,6 @@ import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ClimbConstants;
@@ -236,51 +233,15 @@ public class WinchSubsystem extends SubsystemBase {
         }
     }
 
-    // hi swayam, its daniel. i'm using inline commands here because its a lot
-    // easier i will move these when the code gets more complicated.
-
-    private Command goToSetPosition(Angle position) {
-        return this.runOnce(() -> setPositionSetpoint(position));
+    public boolean isForwardLimitActive() {
+        return getForwardLimit().orElse(false);
     }
 
-    public Command autoPullDownClaw() {
-        return goToSetPosition(ClimbConstants.WINCH_DEPLOYED_POS)
-                .andThen(Commands.waitUntil(() -> atSetPosition()))
-                .withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
+    public boolean isReverseLimitActive() {
+        return getReverseLimit().orElse(false);
     }
 
-    public Command autoPullUpClaw() {
-        this.run(() -> System.out.println("hi1"));
-        if (hardstopTrigger.getAsBoolean()) {
-            return this.run(() -> System.out.println("hi2")).andThen(Commands.none());
-        }
-        Command setPosition = goToSetPosition(ClimbConstants.WINCH_HOME_POS)
-                .andThen(Commands.waitUntil(() -> hardstopTrigger.getAsBoolean())
-                        .withTimeout(ClimbConstants.WINCH_POS_TIMEOUT));
-        Command runMotorBackUntilLimit = this.startEnd(
-                () -> setMotorDutyCycle(-ClimbConstants.WINCH_MAX_SAFETY_DUTY_CYCLE),
-                () -> setMotorDutyCycle(0)).until(hardstopTrigger).withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
-
-        return setPosition.andThen(Commands.either(Commands.none(), runMotorBackUntilLimit, hardstopTrigger));
-    }
-
-    // rotate motor and stop it when boolean is true
-    private Command rotateWinchWithStop(double dutyCycle, BooleanSupplier stopMotor) {
-        return this.startEnd(
-                () -> {
-                    setMotorDutyCycle(dutyCycle);
-                }, () -> {
-                    setMotorDutyCycle(0);
-                }).until(stopMotor);
-    }
-
-    // make claw go up and stop with boolean supplier
-    public Command manualPullUpClaw(BooleanSupplier stopMotor) {
-        return rotateWinchWithStop(1, stopMotor);
-    }
-
-    // make claw go down and stop with boolean supplier
-    public Command manualPullDownClaw(BooleanSupplier stopMotor) {
-        return rotateWinchWithStop(-1, stopMotor);
+    public boolean isHardstopPressed() {
+        return hardstopTrigger.getAsBoolean();
     }
 }

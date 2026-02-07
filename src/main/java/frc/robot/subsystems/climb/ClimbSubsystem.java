@@ -1,13 +1,9 @@
 package frc.robot.subsystems.climb;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.CANBus;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
 
@@ -35,6 +31,42 @@ public class ClimbSubsystem extends SubsystemBase {
         m_Winch.setMotorDutyCycle(dutyCycle);
     }
 
+    public void setArmPositionSetpoint(Angle setpoint) {
+        m_StabilizingArm.setPositionSetpoint(setpoint);
+    }
+
+    public void setWinchPositionSetpoint(Angle setpoint) {
+        m_Winch.setPositionSetpoint(setpoint);
+    }
+
+    public boolean isArmAtSetPosition() {
+        return m_StabilizingArm.atSetPosition();
+    }
+
+    public boolean isWinchAtSetPosition() {
+        return m_Winch.atSetPosition();
+    }
+
+    public boolean isArmForwardLimitActive() {
+        return m_StabilizingArm.isForwardLimitActive();
+    }
+
+    public boolean isArmReverseLimitActive() {
+        return m_StabilizingArm.isReverseLimitActive();
+    }
+
+    public boolean isWinchForwardLimitActive() {
+        return m_Winch.isForwardLimitActive();
+    }
+
+    public boolean isWinchReverseLimitActive() {
+        return m_Winch.isReverseLimitActive();
+    }
+
+    public boolean isWinchHardstopPressed() {
+        return m_Winch.isHardstopPressed();
+    }
+
     public CLIMB_MECH_STATE getClimbState() {
         armState = m_StabilizingArm.getArmState();
         winchState = m_Winch.getWinchState();
@@ -49,109 +81,12 @@ public class ClimbSubsystem extends SubsystemBase {
         return climbState;
     }
 
-    private Command log(String toLog) {
-        var logCommand = this.runOnce(() -> {
-            System.out.println(toLog);
-        });
-        logCommand.addRequirements(this);
-
-        return logCommand;
+    public CLIMB_MECH_STATE getArmState() {
+        return m_StabilizingArm.getArmState();
     }
 
-    private Command getClimbCommand() {
-        climbState = getClimbState();
-
-        if (climbState == CLIMB_MECH_STATE.HOME) {
-            System.out.println("up");
-            return autoClimbUp();
-        } else if (climbState == CLIMB_MECH_STATE.DEPLOYED) {
-            System.out.println("down");
-            return autoClimbDown();
-        } else {
-            System.out.println("stop");
-            return stopMechs();
-        }
-    }
-
-    public Command autoClimb() {
-        return this.defer(this::getClimbCommand);
-    }
-
-    public Command autoClimbUp() {
-        AtomicBoolean armInterrupted = new AtomicBoolean(false);
-        Command deployArm = m_StabilizingArm.autoDeployArm();
-        Command climbUp = deployArm
-                .andThen(Commands.either(
-                        Commands.none(),
-                        m_Winch.autoPullDownClaw(),
-                        () -> armInterrupted.get()));
-
-        climbUp.addRequirements(this);
-        return log("climbUp").andThen(climbUp);
-    }
-
-    public Command autoClimbDown() {
-        AtomicBoolean winchInterrupted = new AtomicBoolean(false);
-        Command pullDownWinch = m_Winch.autoPullDownClaw().finallyDo(interrupted -> winchInterrupted.set(interrupted));
-        Command climbDown = pullDownWinch
-                .andThen(Commands.either(
-                        Commands.none(),
-                        m_StabilizingArm.autoRetractArm(),
-                        () -> winchInterrupted.get()));
-
-        climbDown.addRequirements(this);
-        return log("climbDown").andThen(climbDown);
-    }
-
-    // block command execution until the booleanSupplier, usually a button, is
-    // released
-    private Command waitForButtonRelease(BooleanSupplier step) {
-        return Commands.waitUntil(() -> !step.getAsBoolean());
-    }
-
-    // block command execution until the booleanSupplier, usually a button, toggles
-    // back and forth
-    private Command waitForNextStep(BooleanSupplier step) {
-        return waitForButtonRelease(step).andThen(Commands.waitUntil(step)).andThen(waitForButtonRelease(step));
-    }
-
-    // arm + winch -
-    // Step through the climb up sequence, stopping motors either with a button
-    // press or them reaching the soft stop
-    public Command semiAutoClimbUp(BooleanSupplier step) {
-        Command climbUp = (waitForButtonRelease(step)
-                .andThen(m_StabilizingArm.deployArm(step)
-                        .raceWith(Commands.waitUntil(
-                                () -> m_StabilizingArm.getReverseLimit().orElseGet(() -> false)))
-                        .andThen(waitForNextStep(step))
-                        .andThen(m_Winch.manualPullDownClaw(step))
-                        .raceWith(Commands.waitUntil(
-                                () -> m_Winch.getReverseLimit().orElseGet(() -> false)))));
-        climbUp.addRequirements(this);
-        return climbUp;
-    }
-
-    // winch + arm -
-    // Step through the climb down sequence, stopping motors either with a button
-    // press or them reaching the soft stop
-    public Command semiAutoClimbDown(BooleanSupplier step) {
-        Command climbDown = waitForButtonRelease(step)
-                .andThen(m_Winch.manualPullUpClaw(step)
-                        .raceWith(Commands.waitUntil(
-                                () -> m_Winch.getForwardLimit().orElseGet(() -> false)))
-                        .andThen(waitForNextStep(step))
-                        .andThen(m_StabilizingArm.retractArm(step)
-                                .raceWith(Commands.waitUntil(
-                                        () -> m_StabilizingArm.getForwardLimit().orElseGet(() -> false)))));
-        climbDown.addRequirements(this);
-        return climbDown;
-    }
-
-    public Command stopMechs() {
-        return log("stop").andThen(this.runOnce(() -> {
-            setArmDutyCycle(0);
-            setWinchDutyCycle(0);
-        }));
+    public CLIMB_MECH_STATE getWinchState() {
+        return m_Winch.getWinchState();
     }
 
     @Override

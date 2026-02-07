@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
@@ -28,8 +27,6 @@ import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
@@ -189,43 +186,12 @@ public class StabilizingArmSubsystem extends SubsystemBase {
         }
     }
 
-    // hi swayam, its daniel. i'm using inline commands here because its a lot
-    // easier i will move these when the code gets more complicated.
-
-    private Command goToSetPosition(Angle position) {
-        return this.runOnce(() -> setPositionSetpoint(position));
+    public boolean isForwardLimitActive() {
+        return getForwardLimit().orElse(false);
     }
 
-    public Command autoDeployArm() {
-        return goToSetPosition(ClimbConstants.ARM_DEPLOYED_POS)
-                .andThen(Commands.waitUntil(() -> atSetPosition()))
-                .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
-    }
-
-    public Command autoRetractArm() {
-        return goToSetPosition(ClimbConstants.ARM_HOME_POS)
-                .andThen(Commands.waitUntil(() -> atSetPosition()))
-                .withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
-    }
-
-    // rotate motor and stop it when boolean is true
-    private Command moveArmWithStop(double dutyCycle, BooleanSupplier stopMotor) {
-        return this.startEnd(
-                () -> {
-                    setMotorDutyCycle(dutyCycle);
-                }, () -> {
-                    setMotorDutyCycle(0);
-                }).until(stopMotor);
-    }
-
-    // make arm go down and stop with boolean supplier
-    public Command deployArm(BooleanSupplier stopMotor) {
-        return moveArmWithStop(-1, stopMotor);
-    }
-
-    // make arm go up and stop with boolean supplier
-    public Command retractArm(BooleanSupplier stopMotor) {
-        return moveArmWithStop(1, stopMotor);
+    public boolean isReverseLimitActive() {
+        return getReverseLimit().orElse(false);
     }
 
     @Override
