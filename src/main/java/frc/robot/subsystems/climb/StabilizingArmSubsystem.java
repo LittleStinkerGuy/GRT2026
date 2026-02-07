@@ -29,6 +29,8 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
@@ -138,11 +140,11 @@ public class StabilizingArmSubsystem extends SubsystemBase {
         motor.setControl(posControl);
     }
 
-    public Angle getPositionSetpoint() {
+    public Optional<Angle> getPositionSetpoint() {
         if (motor.getControlMode().getValue() != ControlModeValue.PositionTorqueCurrentFOC) {
-            return null;
+            return Optional.empty();
         }
-        return Rotations.of(motor.getClosedLoopReference().getValue());
+        return Optional.of(Rotations.of(motor.getClosedLoopReference().getValue()));
     }
 
     // Checks if arm is at position set by PID control with a tolerance
@@ -217,9 +219,43 @@ public class StabilizingArmSubsystem extends SubsystemBase {
         return getReverseLimit().orElse(false);
     }
 
+    private void logToDashboard() {
+        SmartDashboard.putString(ClimbConstants.ARM_TABLE + "/state", getArmState().toString());
+
+        SmartDashboard.putNumber(ClimbConstants.ARM_TABLE + "/rotations", getMotorPosition().in(Rotations));
+        SmartDashboard.putNumber(
+                ClimbConstants.ARM_TABLE + "/setRotations",
+                getPositionSetpoint().orElse(Rotations.of(0)).in(Rotations));
+        SmartDashboard.putBoolean(ClimbConstants.ARM_TABLE + "/atSetpoint", atSetPosition());
+
+        SmartDashboard.putNumber(ClimbConstants.ARM_TABLE + "/dutyCycle", getDutyCycleSetpoint());
+        SmartDashboard.putString(ClimbConstants.ARM_TABLE + "/controlMode", getControlMode());
+
+        SmartDashboard.putNumber(ClimbConstants.ARM_TABLE + "/supplyCurrent(Amps)", getSupplyCurrent().in(Amps));
+        SmartDashboard.putNumber(ClimbConstants.ARM_TABLE + "/torqueCurrent(Amps)", getTorqueCurrent().in(Amps));
+
+        SmartDashboard.putBoolean(
+                ClimbConstants.ARM_TABLE + "/forwardSoftStop",
+                isForwardLimitActive());
+        SmartDashboard.putBoolean(
+                ClimbConstants.ARM_TABLE + "/reverseSoftStop",
+                isReverseLimitActive());
+    }
+
+    public Current getSupplyCurrent() {
+        return motor.getSupplyCurrent().getValue();
+    }
+
+    public Current getTorqueCurrent() {
+        return motor.getTorqueCurrent().getValue();
+    }
+
+    public String getControlMode() {
+        return motor.getControlMode().toString();
+    }
+
     @Override
     public void periodic() {
-        // SmartDashboard.putBoolean("for", getForwardLimit());
-        // SmartDashboard.putBoolean("rev", getReverseLimit());
+        logToDashboard();
     }
 }
