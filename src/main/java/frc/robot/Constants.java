@@ -27,8 +27,8 @@ public final class Constants {
   public static class railgunConstants {
         
     //Everything in metric pls
-    public static int upperId = 1;
-    public static int hoodId = 0;
+    public static int upperId = 14;
+    public static int hoodId = 15;
     //public static int hoodEncoderId = 3;
     public static int limitId = 3;
     public static double g = 9.8;
@@ -36,7 +36,7 @@ public final class Constants {
     public static double cos75 = 0.258819;
     public static double height = 1.83;
     public static double radius = 0.0508;
-    public static double gearRatioUpper = 1;
+    public static double gearRatioUpper = 1.5;
     public static double gearRatioLower = 2;
     public static double gearRatioHood = 12;
     public static double upperAngle = 0.45;

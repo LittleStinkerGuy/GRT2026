@@ -46,6 +46,7 @@ public class flywheel extends SubsystemBase {
     @Override
     public void periodic(){
         sendData();
+        
     }
 
     public void sendData(){
@@ -54,6 +55,9 @@ public class flywheel extends SubsystemBase {
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
             upperMotor.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput(LOG_PREFIX + "VelocityRPM",
+           (60* upperMotor.getVelocity().getValueAsDouble()));
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
             upperMotor.getMotorVoltage().getValueAsDouble());
@@ -75,5 +79,8 @@ public class flywheel extends SubsystemBase {
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
             upperMotor.isConnected());
+
+        Logger.recordOutput(LOG_PREFIX + "RPS", upperMotor.getVelocity().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "Linear_Velocity_mPs", upperMotor.getVelocity().getValueAsDouble()*0.0762/2);
     }
 }
