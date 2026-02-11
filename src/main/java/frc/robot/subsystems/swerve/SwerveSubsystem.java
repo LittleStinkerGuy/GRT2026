@@ -77,8 +77,8 @@ public class SwerveSubsystem extends SubsystemBase {
     //         Pose2d.struct
     //     );
 
-    public SwerveSubsystem() {
-        canivore = new CANBus("can");
+    public SwerveSubsystem(CANBus canBus) {
+        canivore = canBus;
         //initialize and reset the NavX gyro
         pidgey = new Pigeon2(12, canivore);
         pidgey.reset();

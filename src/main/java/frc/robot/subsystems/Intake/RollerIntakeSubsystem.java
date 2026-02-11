@@ -14,7 +14,6 @@ import com.ctre.phoenix6.CANBus;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 
 public class RollerIntakeSubsystem extends SubsystemBase {
@@ -24,7 +23,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     private TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
     public RollerIntakeSubsystem(CANBus canBus) {
-        rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, Constants.CAN_BUS);
+        rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, canBus);
         configureMotor();
         rollerMotor.getConfigurator().apply(rollerConfig);
     }

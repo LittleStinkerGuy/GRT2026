@@ -18,29 +18,24 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 
-public class PivotIntakeSubsystem extends SubsystemBase {
-  private final TalonFX pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, Constants.CAN_BUS);
+import com.ctre.phoenix6.CANBus;
 
-  private final CANdle candle = new CANdle(IntakeConstants.CANDLE_ID);
+public class PivotIntakeSubsystem extends SubsystemBase {
+  private final TalonFX pivotMotor;
+  private final CANdle candle;
 
   private final DigitalInput bottomLimitSwitch = new DigitalInput(IntakeConstants.BOTTOM_LIMIT_SWITCH_DIO);
   private final DigitalInput topLimitSwitch = new DigitalInput(IntakeConstants.TOP_LIMIT_SWITCH_DIO);
 
   private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
 
-  // --- Position control (commented out for now) ---
-  // private final PositionVoltage positionControl = new PositionVoltage(0);
-  // private final CANcoder canCoder = new CANcoder(IntakeConstants.ENCODER_ID);
-  // private boolean previousBottomLimitState = false;
-  // private boolean previousTopLimitState = false;
-
-  public PivotIntakeSubsystem() {
+  public PivotIntakeSubsystem(CANBus canBus) {
+    pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
+    candle = new CANdle(IntakeConstants.CANDLE_ID);
     configCANdle();
     configMotors();
-    // configEncoder();
   }
 
   private void configMotors() {

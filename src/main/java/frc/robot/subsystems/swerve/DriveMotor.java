@@ -25,9 +25,12 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.util.GRTUtil;
 
 import static frc.robot.Constants.LoggingConstants.SWERVE_TABLE;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_CURRENT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_STATOR_CURRENT_LIMIT;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
 
 
@@ -141,12 +144,18 @@ public class DriveMotor {
 
         // Set peak current for torque limiting for stall prevention
         motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = DRIVE_PEAK_CURRENT;
-        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = - DRIVE_PEAK_CURRENT;
+        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DRIVE_PEAK_CURRENT;
+
+        // Current limits (optimized for swerve drive)
+        motorConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_SUPPLY_CURRENT_LIMIT;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = DRIVE_CURRENT_LIMIT_ENABLE;
+        motorConfig.CurrentLimits.StatorCurrentLimit = DRIVE_STATOR_CURRENT_LIMIT;
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = DRIVE_CURRENT_LIMIT_ENABLE;
 
         // How fast can the code change torque for the motor
         motorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = DRIVE_RAMP_RATE;
 
-        // By Default Robot will not move 
+        // By Default Robot will not move
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         // Apply motor config with retries (max 5 attempts)

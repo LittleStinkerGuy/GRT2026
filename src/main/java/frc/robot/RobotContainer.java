@@ -59,12 +59,14 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private final CANBus swerveCAN = new CANBus(Constants.Swerve_CAN_BUS);
+  private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
-  private final CANBus canivore = new CANBus("can");
-  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
-  private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
-  private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
+  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem(swerveCAN);
+
+  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
+  private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
+  private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
   private final Field2d m_field = new Field2d();
 
   // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
