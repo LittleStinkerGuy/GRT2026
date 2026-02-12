@@ -106,11 +106,14 @@ public class HopperSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("Hopper/CurrentRPM", getCurrentRPM());
         SmartDashboard.putNumber("Hopper/MotorOutput", getMotorOutput());
+        SmartDashboard.putNumber("Hopper/Position", krakenMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Hopper/Velocity", krakenMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/Current", krakenMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/Voltage", krakenMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/StatorCurrent", krakenMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/SupplyCurrent", krakenMotor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/AppliedVolts", krakenMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Hopper/SupplyVoltage", krakenMotor.getSupplyVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Hopper/Temp", krakenMotor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Hopper/Connected", krakenMotor.isConnected());
     }
 }

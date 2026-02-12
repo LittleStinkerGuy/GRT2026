@@ -60,12 +60,15 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Motor status logging!
         SmartDashboard.putNumber("Intake/Roller/DutyCycle", rollerMotor.get());
+        SmartDashboard.putNumber("Intake/Roller/Position", rollerMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Intake/Roller/Velocity", rollerMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Roller/Current", rollerMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Roller/Voltage", rollerMotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Roller/MotorTemp", rollerMotor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/StatorCurrent", rollerMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/SupplyCurrent", rollerMotor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/AppliedVolts", rollerMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/SupplyVoltage", rollerMotor.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Roller/Temp", rollerMotor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Intake/Roller/Connected", rollerMotor.isConnected());
         SmartDashboard.putBoolean("Intake/Roller/IsRunning", Math.abs(rollerMotor.get()) > 0.01);
     }
 

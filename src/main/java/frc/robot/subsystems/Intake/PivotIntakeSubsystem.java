@@ -155,9 +155,13 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
 
     SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
+    SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Current", pivotMotor.getStatorCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Voltage", pivotMotor.getMotorVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/MotorTemp", pivotMotor.getDeviceTemp().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/SupplyVoltage", pivotMotor.getSupplyVoltage().getValueAsDouble());
+    SmartDashboard.putNumber("Intake/Pivot/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
+    SmartDashboard.putBoolean("Intake/Pivot/Connected", pivotMotor.isConnected());
   }
 }
