@@ -6,7 +6,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Rotations;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.List;
+
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 
@@ -22,15 +26,18 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.util.AlignUtil;
-import frc.robot.util.PolynomialRegression;
 
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
+ * The Constants class provides a convenient place for teams to hold robot-wide
+ * numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants
+ * should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
+ * wherever the
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
@@ -225,7 +232,7 @@ public final class Constants {
     public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4.03479);
   }
 
-  public static class AlignConstants {
+  public static class AlignConstants  {
     public static String reefName = "reefAlignPath";
     public static String sourceName = "sourceAlignPath";
     public static String A_alignName = "A align";
@@ -240,59 +247,54 @@ public final class Constants {
     public static String J_alignName = "J align";
     public static String K_alignName = "K align";
     public static String L_alignName = "L align";
-  
-    public final static List<Pose2d> blueLeftReefPoseList = List.of(
-      AlignUtil.getAlignPath(A_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(C_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(E_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(G_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(I_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(K_alignName).getStartingHolonomicPose().get()
-    );
-    
-    public final static List<Pose2d> blueRightReefPoseList = List.of(
-      AlignUtil.getAlignPath(B_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(D_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(F_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(H_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(J_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(L_alignName).getStartingHolonomicPose().get()
-    ); 
-    
-    public final static List<Pose2d> redLeftReefPoseList = List.of(
-      AlignUtil.getAlignPath(A_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(C_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(E_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(G_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(I_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(K_alignName).flipPath().getStartingHolonomicPose().get()
-    );
-  
-    public final static List<Pose2d> redRightReefPoseList = List.of(
-      AlignUtil.getAlignPath(B_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(D_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(F_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(H_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(J_alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(L_alignName).flipPath().getStartingHolonomicPose().get()
-    ); 
-    
-    //put the left on top of right
-    public final static List<Pose2d> allReefPoseList = List.of(
-      AlignUtil.getAlignPath(B_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(C_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(D_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(E_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(F_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(G_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(H_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(I_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(J_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(K_alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(L_alignName).getStartingHolonomicPose().get()
-    );
 
-      //put the left on top of right
+    public final static List<Pose2d> blueLeftReefPoseList = List.of(
+        AlignUtil.getAlignPath(A_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(C_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(E_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(G_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(I_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(K_alignName).getStartingHolonomicPose().get());
+
+    public final static List<Pose2d> blueRightReefPoseList = List.of(
+        AlignUtil.getAlignPath(B_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(D_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(F_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(H_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(J_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(L_alignName).getStartingHolonomicPose().get());
+
+    public final static List<Pose2d> redLeftReefPoseList = List.of(
+        AlignUtil.getAlignPath(A_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(C_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(E_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(G_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(I_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(K_alignName).flipPath().getStartingHolonomicPose().get());
+
+    public final static List<Pose2d> redRightReefPoseList = List.of(
+        AlignUtil.getAlignPath(B_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(D_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(F_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(H_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(J_alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(L_alignName).flipPath().getStartingHolonomicPose().get());
+
+    // put the left on top of right
+    public final static List<Pose2d> allReefPoseList = List.of(
+        AlignUtil.getAlignPath(B_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(C_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(D_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(E_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(F_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(G_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(H_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(I_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(J_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(K_alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(L_alignName).getStartingHolonomicPose().get());
+
+    // put the left on top of right
     public final static List<String> reefPathList = List.of(
         A_alignName,
         B_alignName,
@@ -305,51 +307,48 @@ public final class Constants {
         I_alignName,
         J_alignName,
         K_alignName,
-        L_alignName
-    );
+        L_alignName);
 
     public final static List<ChassisSpeeds> reefdirectionList = List.of(
-      new ChassisSpeeds(-.5, 0, 0),
-      new ChassisSpeeds(-.25, -.25, 0),
-      new ChassisSpeeds(.25, -.25, 0),
-      new ChassisSpeeds(.5, 0, 0),
-      new ChassisSpeeds(.25, .25, 0),
-      new ChassisSpeeds(-.25, .25, 0)
-    );
+        new ChassisSpeeds(-.5, 0, 0),
+        new ChassisSpeeds(-.25, -.25, 0),
+        new ChassisSpeeds(.25, -.25, 0),
+        new ChassisSpeeds(.5, 0, 0),
+        new ChassisSpeeds(.25, .25, 0),
+        new ChassisSpeeds(-.25, .25, 0));
 
-    public static String LS_1alignName  = "LS align 1";
-    public static String LS_2alignName  = "LS align 2";
-    public static String LS_3alignName  = "LS align 3";
-    public static String RS_1alignName  = "RS align 1";
-    public static String RS_2alignName  = "RS align 2";
-    public static String RS_3alignName  = "RS align 3";
-
+    public static String LS_1alignName = "LS align 1";
+    public static String LS_2alignName = "LS align 2";
+    public static String LS_3alignName = "LS align 3";
+    public static String RS_1alignName = "RS align 1";
+    public static String RS_2alignName = "RS align 2";
+    public static String RS_3alignName = "RS align 3";
 
     public static final List<Pose2d> blueSourcePoses = List.of(
-      // AlignUtil.getAlignPath(LS_1alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(LS_2alignName).getStartingHolonomicPose().get(),
-      // AlignUtil.getAlignPath(LS_3alignName).getStartingHolonomicPose().get(),
-      // AlignUtil.getAlignPath(RS_1alignName).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(RS_2alignName).getStartingHolonomicPose().get()
-      // AlignUtil.getAlignPath(RS_3alignName).getStartingHolonomicPose().get()
+        // AlignUtil.getAlignPath(LS_1alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(LS_2alignName).getStartingHolonomicPose().get(),
+        // AlignUtil.getAlignPath(LS_3alignName).getStartingHolonomicPose().get(),
+        // AlignUtil.getAlignPath(RS_1alignName).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(RS_2alignName).getStartingHolonomicPose().get()
+    // AlignUtil.getAlignPath(RS_3alignName).getStartingHolonomicPose().get()
     );
 
     public static final List<Pose2d> redSourcePoses = List.of(
-      // AlignUtil.getAlignPath(LS_1alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(LS_2alignName).flipPath().getStartingHolonomicPose().get(),
-     // AlignUtil.getAlignPath(LS_3alignName).flipPath().getStartingHolonomicPose().get(),
-     // AlignUtil.getAlignPath(RS_1alignName).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(RS_2alignName).flipPath().getStartingHolonomicPose().get()
-      //AlignUtil.getAlignPath(RS_3alignName).flipPath().getStartingHolonomicPose().get()
+        // AlignUtil.getAlignPath(LS_1alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(LS_2alignName).flipPath().getStartingHolonomicPose().get(),
+        // AlignUtil.getAlignPath(LS_3alignName).flipPath().getStartingHolonomicPose().get(),
+        // AlignUtil.getAlignPath(RS_1alignName).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(RS_2alignName).flipPath().getStartingHolonomicPose().get()
+    // AlignUtil.getAlignPath(RS_3alignName).flipPath().getStartingHolonomicPose().get()
     );
 
     public static final List<String> sourcePathList = List.of(
-     // LS_1alignName,
-      LS_2alignName,
-     // LS_3alignName,
-     // RS_1alignName,
-      RS_2alignName
-     // RS_3alignName
+        // LS_1alignName,
+        LS_2alignName,
+        // LS_3alignName,
+        // RS_1alignName,
+        RS_2alignName
+    // RS_3alignName
     );
 
     public static String algae_1 = "Algae Align 1";
@@ -360,33 +359,28 @@ public final class Constants {
     public static String algae_6 = "Algae Align 6";
 
     public static List<String> algaeAlignNames = List.of(
-      algae_1,
-      algae_2,
-      algae_3,
-      algae_4,
-      algae_5,
-      algae_6
-    );
+        algae_1,
+        algae_2,
+        algae_3,
+        algae_4,
+        algae_5,
+        algae_6);
 
     public static List<Pose2d> blueAlgaeAlignPoses = List.of(
-      AlignUtil.getAlignPath(algae_1).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_2).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_3).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_4).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_5).getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_6).getStartingHolonomicPose().get()
-    );
+        AlignUtil.getAlignPath(algae_1).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_2).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_3).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_4).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_5).getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_6).getStartingHolonomicPose().get());
 
     public static List<Pose2d> redAlgaeAlignPoses = List.of(
-      AlignUtil.getAlignPath(algae_1).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_2).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_3).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_4).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_5).flipPath().getStartingHolonomicPose().get(),
-      AlignUtil.getAlignPath(algae_6).flipPath().getStartingHolonomicPose().get()
-    );
-    
-
+        AlignUtil.getAlignPath(algae_1).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_2).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_3).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_4).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_5).flipPath().getStartingHolonomicPose().get(),
+        AlignUtil.getAlignPath(algae_6).flipPath().getStartingHolonomicPose().get());
 
     public static double distanceTolerance = 0.47;
   }
@@ -403,5 +397,25 @@ public final class Constants {
     public static final boolean DRIVE_DEBUG = true;
     public static final boolean STEER_DEBUG = true;
     public static final boolean STATE_DEBUG = true;
+  }
+
+  public static final class ClimbConstants {
+    public static final int WINCH_MOTOR_CAN_ID = 1;
+    public static final int ARM_MOTOR_CAN_ID = 0;
+    public static final int CANDI_CAN_ID = 3;
+
+    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
+
+    public static final double ARM_GR = 12.0;
+    public static final double WINCH_GR = 1.0;
+
+    public static final double ARM_MAX_OUTPUT = 0.05;
+    public static final double WINCH_MAX_OUTPUT = 0.1;
+
+    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0.05);
+    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.3);
+    public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
+    public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
   }
 }
