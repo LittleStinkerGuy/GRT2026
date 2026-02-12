@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,6 +29,12 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   public Robot() {
+    // Start logging to .wpilog file (saved to USB stick or /home/lvuser/logs/)
+    DataLogManager.start();
+    // Also log DS data (joystick inputs, mode changes, etc.)
+    DriverStation.startDataLog(DataLogManager.getLog());
+
+    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
@@ -53,6 +61,8 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // m_robotContainer.updateDashboard();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -64,9 +74,19 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
   }
 
-  // /** This function is called periodically during autonomous. */
-  // @Override
-  // public void autonomousPeriodic() {}
+  @Override
+  public void autonomousInit() {
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    // schedule the autonomous command
+    if (m_autonomousCommand != null) {
+      CommandScheduler.getInstance().schedule(m_autonomousCommand);
+    }
+  }
+
+  /** This function is called periodically during autonomous. */
+  @Override
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {

@@ -2,15 +2,16 @@ package frc.robot.subsystems.swerve;
 
 //Constants Import 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -20,7 +21,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
@@ -28,9 +28,12 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_PEAK_CURRENT;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_RAMP_RATE;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_STATOR_CURRENT_LIMIT;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_SUPPLY_CURRENT_LIMIT;
 
 import java.util.EnumSet;
 
@@ -55,12 +58,10 @@ public class SteerMotor {
     private final  CANcoderConfiguration cancoderconfig = new CANcoderConfiguration();
 
     // For fine control of velocity and torque using FOC (Field-Oriented Control)
-    private PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0)
+    private PositionVoltage positionRequest = new PositionVoltage(0)
                 .withSlot(0)
                 .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
-    private PositionVoltage positionVoltageRequest = new PositionVoltage(0.0)
-                .withSlot(0);
     // For making positions wrap from 0-1 and resetting to not stack
     private final ClosedLoopGeneralConfigs closedLoopGeneralConfigs = new ClosedLoopGeneralConfigs();
 
@@ -89,7 +90,6 @@ public class SteerMotor {
     private DoublePublisher closedLoopReferencePublisher;
     private DoublePublisher gurtMotorPos1;
 
-    private NetworkTableEntry motorNewPos;
     private double gurtMotorPos = 0.0;
     private int gurtMotorCanID;
     // Phoenix 6 Status Signals
@@ -99,10 +99,10 @@ public class SteerMotor {
     private StatusSignal<Current> torqueCurrentSignal;
 
 
-    public SteerMotor(int motorCAN, int encoderCAN) {
+    public SteerMotor(int motorCAN, int encoderCAN, CANBus canivore) {
         // Set motor and encoder
-        motor = new TalonFX(motorCAN, "can");
-        cancoder = new CANcoder(encoderCAN, "can");
+        motor = new TalonFX(motorCAN, canivore);
+        cancoder = new CANcoder(encoderCAN, canivore);
         gurtMotorCanID = motorCAN;
         // Configure CANcoder and Kraken
         configureCancoder(); // called to ensure settings are applied programmatically
@@ -144,13 +144,19 @@ public class SteerMotor {
 
         // Set peak current for torque limiting for stall prevention
         motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = STEER_PEAK_CURRENT;
-        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = - STEER_PEAK_CURRENT;
+        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -STEER_PEAK_CURRENT;
+
+        // Current limits (optimized for swerve steer)
+        motorConfig.CurrentLimits.SupplyCurrentLimit = STEER_SUPPLY_CURRENT_LIMIT;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = STEER_CURRENT_LIMIT_ENABLE;
+        motorConfig.CurrentLimits.StatorCurrentLimit = STEER_STATOR_CURRENT_LIMIT;
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = STEER_CURRENT_LIMIT_ENABLE;
 
         // How fast can the code change torque for the motor
         motorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = STEER_RAMP_RATE;
 
         // By Default Robot will not move
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // required if motor spins opposite 
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         // Encoder Being Applied
@@ -234,7 +240,6 @@ public class SteerMotor {
     private void initNT(int canId) {
         ntInstance = NetworkTableInstance.getDefault();
         steerStatsTable = ntInstance.getTable("SwerveSteer");
-        motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
 
         encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId + "encoderPosition").publish();
         motorPositionPublisher = steerStatsTable.getDoubleTopic(canId + "motorPosition").publish();

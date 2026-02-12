@@ -1,30 +1,45 @@
 package frc.robot.subsystems.swerve;
 
+import static frc.robot.Constants.SwerveSteerConstants.STEER_ACCELERATION;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_PEAK_CURRENT;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_RAMP_RATE;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_STATOR_CURRENT_LIMIT;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_SUPPLY_CURRENT_LIMIT;
 
 import java.util.EnumSet;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.GRTUtil;
 
 public class SteerMotor2 extends SubsystemBase{
         // For NT
+
+    //test two 
     private NetworkTableInstance ntInstance;
     private NetworkTable steerStatsTable;
     private DoublePublisher encoderPositionPublisher;
@@ -41,6 +56,16 @@ public class SteerMotor2 extends SubsystemBase{
     private DoublePublisher gurtMotorPos1;
     private NetworkTableEntry motorNewPos;
     
+    // DataLog entries
+    private DoubleLogEntry positionLogEntry;
+    private DoubleLogEntry velocityLogEntry;
+    private DoubleLogEntry targetPositionLogEntry;
+    private DoubleLogEntry appliedVoltsLogEntry;
+    private DoubleLogEntry supplyCurrentLogEntry;
+    private DoubleLogEntry torqueCurrentLogEntry;
+    private DoubleLogEntry temperatureLogEntry;
+    private DoubleLogEntry closedLoopErrorLogEntry;
+
     private double gurtMotorPos = 0.0;
     private double targetPos = 0.0;
     private int canID;
@@ -49,22 +74,28 @@ public class SteerMotor2 extends SubsystemBase{
     private CANcoder cancoder;
     private final boolean enableEncoder = true;
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    private PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0)
+    private final CANcoderConfiguration encoderConfig  = new CANcoderConfiguration();
+    private MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0)
                 .withSlot(0)
-                .withFeedForward(0)
                 .withUpdateFreqHz(100.0);
 
     private void configureMotor() {
         // Set peak current for torque limiting for stall prevention
         motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = STEER_PEAK_CURRENT;
-        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = - STEER_PEAK_CURRENT;
+        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -STEER_PEAK_CURRENT;
+
+        // Current limits (optimized for swerve steer)
+        motorConfig.CurrentLimits.SupplyCurrentLimit = STEER_SUPPLY_CURRENT_LIMIT;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = STEER_CURRENT_LIMIT_ENABLE;
+        motorConfig.CurrentLimits.StatorCurrentLimit = STEER_STATOR_CURRENT_LIMIT;
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = STEER_CURRENT_LIMIT_ENABLE;
 
         // How fast can the code change torque for the motor
         motorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = STEER_RAMP_RATE;
 
         // By Default Robot will not move
         motorConfig.ClosedLoopGeneral.ContinuousWrap = true;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // required if motor spins opposite 
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
  
 
@@ -83,6 +114,10 @@ public class SteerMotor2 extends SubsystemBase{
         
         // Enable position wrapping (by default values are from 0-1)
 
+        // MotionMagic profile config
+        motorConfig.MotionMagic.MotionMagicCruiseVelocity = STEER_CRUISE_VELOCITY;
+        motorConfig.MotionMagic.MotionMagicAcceleration = STEER_ACCELERATION;
+
         // Apply motor config with retries (max 5 attempts)
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
@@ -98,8 +133,9 @@ public class SteerMotor2 extends SubsystemBase{
         // Reset motor position to 0 for consistent starting point
         motor.setPosition(0);
     }
+    
 
-    public void configPID(double p, double i, double d, double ff) {
+    public void configPID(double p, double i, double d, double s) {
 
         Slot0Configs slot0Configs = new Slot0Configs(); //used to store and update PID values
         /*
@@ -120,10 +156,10 @@ public class SteerMotor2 extends SubsystemBase{
         slot0Configs.kD = d;
 
         /*
-        * Feedforward Control (kFF, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
+        * Feedforward Control (kS, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
         *      instead of waiting for an error to happen first.
         */
-        slot0Configs.kV = ff;
+        slot0Configs.kS = s;
         
         motor.getConfigurator().apply(slot0Configs);
     }
@@ -167,12 +203,36 @@ public class SteerMotor2 extends SubsystemBase{
     
     }
 
-    public SteerMotor2(int motorCAN, int encoderID){
+    public SteerMotor2(int motorCAN, int encoderID, CANBus canivore){
         motorID = motorCAN;
-        motor = new TalonFX(motorCAN, "can");
+        motor = new TalonFX(motorCAN, canivore);
         cancoder = new CANcoder(encoderID);
         configureMotor();
         initNT(motorCAN);
+        initLogs(motorCAN);
+    }
+
+    private void initLogs(int canId) {
+        positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/position");
+        velocityLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/velocityRPM");
+        targetPositionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/targetPosition");
+        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/appliedVolts");
+        supplyCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/supplyCurrent");
+        torqueCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/torqueCurrent");
+        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/temperature");
+        closedLoopErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/closedLoopError");
+    }
+
+    public void logStats() {
+        long ts = GRTUtil.getFPGATime();
+        positionLogEntry.append(motor.getPosition().getValueAsDouble(), ts);
+        velocityLogEntry.append(motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0, ts);
+        targetPositionLogEntry.append(gurtMotorPos, ts);
+        appliedVoltsLogEntry.append(motor.getMotorVoltage().getValueAsDouble(), ts);
+        supplyCurrentLogEntry.append(motor.getSupplyCurrent().getValueAsDouble(), ts);
+        torqueCurrentLogEntry.append(motor.getTorqueCurrent().getValueAsDouble(), ts);
+        temperatureLogEntry.append(motor.getDeviceTemp().getValueAsDouble(), ts);
+        closedLoopErrorLogEntry.append(motor.getClosedLoopError().getValueAsDouble(), ts);
     }
     /**
      * 
@@ -219,8 +279,8 @@ public class SteerMotor2 extends SubsystemBase{
 
         // targetWheelPosition = getOptimalSteerTargetPosition(motorCurrentPos, targetWheelPosition);        
         // targetPos = targetWheelPosition;
-        positionRequest.withPosition(gurtMotorPos);
-        motor.setControl(positionRequest);
+        motionMagicRequest.withPosition(gurtMotorPos);
+        motor.setControl(motionMagicRequest);
         publishStats();
     }
     /**
@@ -230,10 +290,25 @@ public class SteerMotor2 extends SubsystemBase{
     public double getPosition(){
         double motorCurrentPos = motor.getPosition().getValueAsDouble();
         //ensures current motor position is between 0 and 1
-        return motorCurrentPos;   
+        return motorCurrentPos;
         }
-    // @Override
-    // public void periodic(){
 
-    // }
+    public double getVelocityRPM() {
+        return motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0;
+    }
+
+    public void setCruiseVelocity(double velocity) {
+        MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+        mmConfigs.MotionMagicCruiseVelocity = velocity;
+        mmConfigs.MotionMagicAcceleration = STEER_ACCELERATION;
+        motor.getConfigurator().apply(mmConfigs);
+        System.out.println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
+    }
+
+    public void setCruiseVelocity(double velocity, double acceleration) {
+        MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+        mmConfigs.MotionMagicCruiseVelocity = velocity;
+        mmConfigs.MotionMagicAcceleration = acceleration;
+        motor.getConfigurator().apply(mmConfigs);
+    }
 }

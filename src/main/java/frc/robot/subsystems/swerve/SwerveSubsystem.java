@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -18,14 +20,18 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DebugConstants.*;
 import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
 
@@ -44,8 +50,18 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrivePoseEstimator poseEstimator;
     private Rotation2d driverHeadingOffset = new Rotation2d();
 
-    private final AHRS ahrs;
+    private final Pigeon2 pidgey;
+    private final CANBus canivore;
     private Timer lockTimer;
+    private double currentCruiseVelocityRPM = STEER_CRUISE_VELOCITY * STEER_GEAR_REDUCTION * 60.0;
+
+    // DataLog entries
+    private StructLogEntry<Pose2d> poseLogEntry;
+    private DoubleLogEntry gyroHeadingLogEntry;
+    private DoubleLogEntry chassisVxLogEntry;
+    private DoubleLogEntry chassisVyLogEntry;
+    private DoubleLogEntry chassisOmegaLogEntry;
+    private DoubleLogEntry steerCruiseRPMLogEntry;
 
     //logging
     private NetworkTableInstance ntInstance;
@@ -61,16 +77,16 @@ public class SwerveSubsystem extends SubsystemBase {
     //         Pose2d.struct
     //     );
 
-    public SwerveSubsystem() {
+    public SwerveSubsystem(CANBus canBus) {
+        canivore = canBus;
         //initialize and reset the NavX gyro
-        ahrs = new AHRS(NavXComType.kMXP_SPI);
-        ahrs.reset();
-        ahrs.zeroYaw();
+        pidgey = new Pigeon2(12, canivore);
+        pidgey.reset();
 
-        frontLeftModule = new KrakenSwerveModule(FL_DRIVE, FL_STEER, FL_OFFSET, FL_ENCODER);
-        frontRightModule = new KrakenSwerveModule(FR_DRIVE, FR_STEER, FR_OFFSET, FR_ENCODER);
-        backLeftModule = new KrakenSwerveModule(BL_DRIVE, BL_STEER, BL_OFFSET, BL_ENCODER);
-        backRightModule = new KrakenSwerveModule(BR_DRIVE, BR_STEER, BR_OFFSET, BR_ENCODER);
+        frontLeftModule = new KrakenSwerveModule(FL_DRIVE, FL_STEER, FL_OFFSET, FL_ENCODER, canivore);
+        frontRightModule = new KrakenSwerveModule(FR_DRIVE, FR_STEER, FR_OFFSET, FR_ENCODER, canivore);
+        backLeftModule = new KrakenSwerveModule(BL_DRIVE, BL_STEER, BL_OFFSET, BL_ENCODER, canivore);
+        backRightModule = new KrakenSwerveModule(BR_DRIVE, BR_STEER, BR_OFFSET, BR_ENCODER, canivore);
 
         //sets swerve
         kinematics = new SwerveDriveKinematics(FL_POS, FR_POS, BL_POS, BR_POS);
@@ -81,8 +97,9 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d()
             );
 
-        // buildAuton(); 
+        // buildAuton();
         initNT();
+        initLogs();
 
         if(DRIVE_DEBUG) {
             enableDriveDebug();
@@ -131,9 +148,12 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         
         //logging
-        // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFPGATime()); 
+        // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFPGATime());
+        SmartDashboard.putNumber("Steer/Current RPM", frontLeftModule.getSteerVelocityRPM());
+        SmartDashboard.putNumber("Steer/Max RPM", currentCruiseVelocityRPM);
+        
         publishStats();
-        // logStats();
+        logStats();
     }
 
     /**
@@ -144,7 +164,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param angularPower [-1, 1] The rotational power.
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
             xPower * MAX_VEL, 
             yPower * MAX_VEL, 
             angularPower * MAX_OMEGA,
@@ -156,6 +176,7 @@ public class SwerveSubsystem extends SubsystemBase {
             states, speeds,
             MAX_VEL, MAX_VEL, MAX_OMEGA
         );
+        
         
     }
 
@@ -211,7 +232,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return The angle of the robot relative to the driver heading.
      */
     public Rotation2d getDriverHeading() {
-        Rotation2d robotHeading = ahrs.isConnected() ? getGyroHeading() : getRobotPosition().getRotation();
+        Rotation2d robotHeading = getGyroHeading(); 
         return robotHeading.minus(driverHeadingOffset);
     }
 
@@ -234,7 +255,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Gets the gyro heading.*/
     private Rotation2d getGyroHeading() {
-        return Rotation2d.fromDegrees(-ahrs.getAngle()); // Might need to flip depending on the robot setup
+        return Rotation2d.fromDegrees(-pidgey.getYaw().getValueAsDouble()); // Might need to flip depending on the robot setup
     }
 
     /**
@@ -291,11 +312,24 @@ public class SwerveSubsystem extends SubsystemBase {
             angularPower * MAX_OMEGA, 
             new Rotation2d(0)
         );
-
+ 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
             states, speeds,
             MAX_VEL, MAX_VEL, MAX_OMEGA);
+    }
+
+    /**
+     * Limits all steer motor speeds by scaling the MotionMagic cruise velocity.
+     * @param limit [0, 1] fraction of max cruise velocity. 1.0 = full speed, 0.25 = quarter speed.
+     */
+    public void setSteerSpeedLimit(double limit) {
+        double velocity = STEER_CRUISE_VELOCITY * limit;
+        currentCruiseVelocityRPM = velocity * STEER_GEAR_REDUCTION * 60.0;
+        frontLeftModule.setSteerCruiseVelocity(velocity);
+        frontRightModule.setSteerCruiseVelocity(velocity);
+        backLeftModule.setSteerCruiseVelocity(velocity);
+        backRightModule.setSteerCruiseVelocity(velocity);
     }
 
     private void initNT() {
@@ -337,12 +371,35 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
-    // private void logStats() {
-    //     frontLeftModule.logStats();
-    //     frontRightModule.logStats();
-    //     backLeftModule.logStats();
-    //     backRightModule.logStats();
-    // }
+    private void initLogs() {
+        poseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "swerve/estimatedPose", Pose2d.struct);
+        gyroHeadingLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/gyroHeading");
+        chassisVxLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVx");
+        chassisVyLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVy");
+        chassisOmegaLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisOmega");
+        steerCruiseRPMLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/steerCruiseRPM");
+    }
+
+    private void logStats() {
+        long ts = GRTUtil.getFPGATime();
+
+        // Subsystem-level
+        poseLogEntry.append(estimatedPose, ts);
+        gyroHeadingLogEntry.append(getGyroHeading().getDegrees(), ts);
+        steerCruiseRPMLogEntry.append(currentCruiseVelocityRPM, ts);
+
+        // Chassis speeds
+        ChassisSpeeds speeds = getRobotRelativeChassisSpeeds();
+        chassisVxLogEntry.append(speeds.vxMetersPerSecond, ts);
+        chassisVyLogEntry.append(speeds.vyMetersPerSecond, ts);
+        chassisOmegaLogEntry.append(speeds.omegaRadiansPerSecond, ts);
+
+        // Per-module logging
+        frontLeftModule.logStats();
+        frontRightModule.logStats();
+        backLeftModule.logStats();
+        backRightModule.logStats();
+    }
 
     /**
      * Enables drive debug
