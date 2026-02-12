@@ -10,6 +10,8 @@ import frc.robot.commands.allign.RotateToAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
+import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.shooter.hood;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
@@ -31,17 +33,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
-
-
-import com.ctre.phoenix6.CANBus;
-
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -58,8 +55,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private CANBus canivore = new CANBus("can");
-
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private PS5DriveController driveController;
   private CommandPS5Controller mechController;
@@ -72,7 +67,9 @@ public class RobotContainer {
   private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
   private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
   private final Field2d m_field = new Field2d();
-  private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
+  private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
+  private flywheel flywheelSubsystem = new flywheel(mechCAN);
+  private hood hoodSubsystem = new hood(mechCAN);
 
   // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
   //   VisionConstants.cameraConfigs[0]
@@ -161,6 +158,50 @@ public class RobotContainer {
       m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
     }, m_ClimbSubsystem));
 
+    // ==================== INTAKE ROLLER ====================
+    // R1 = intake in, R2 = intake out
+    mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+    mechController.R2().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
+    intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+
+    // ==================== INTAKE PIVOT ====================
+    // Right stick Y controls pivot manually
+    pivotIntake.setDefaultCommand(Commands.run(() -> {
+      double pivotInput = -mechController.getRightY();
+      if (Math.abs(pivotInput) > 0.1) {
+        pivotIntake.setManualSpeed(pivotInput * 0.3);
+      } else {
+        pivotIntake.stop();
+      }
+    }, pivotIntake));
+
+    // ==================== HOPPER ====================
+    // L1 = hopper forward, L2 = hopper reverse
+    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
+    mechController.L2().whileTrue(Commands.run(() -> HopperSubsystem.runReverse(), HopperSubsystem));
+    HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
+
+    // ==================== SHOOTER ====================
+    // Square = flywheel (hold R2 analog for speed)
+    // Left stick Y = hood manual control
+    flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+      if (mechController.square().getAsBoolean()) {
+        double speed = (mechController.getR2Axis() + 1) / 2;
+        flywheelSubsystem.flySpeed(speed);
+      } else {
+        flywheelSubsystem.flySpeed(0);
+      }
+    }, flywheelSubsystem));
+
+    hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+      double hoodInput = -mechController.getLeftY();
+      if (Math.abs(hoodInput) > 0.1) {
+        hoodSubsystem.hoodSpeed(hoodInput * 0.15);
+      } else {
+        hoodSubsystem.hoodSpeed(0);
+      }
+    }, hoodSubsystem));
+
     // Cancel rotate command if driver touches any stick
     BooleanSupplier driverInput = () ->
         Math.abs(driveController.getForwardPower()) > 0 ||
@@ -185,6 +226,7 @@ public class RobotContainer {
     new Trigger(() -> driveController.getPOV() == 270)
         .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
   }
+    
 
   /**
    * Constructs the drive controller based on the name of the controller at port

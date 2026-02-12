@@ -4,6 +4,7 @@ import java.util.EnumSet;
 
 import javax.xml.crypto.Data;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -62,9 +63,9 @@ public class LoggedTalon{
     private double targetDutyCycle;
 
     public LoggedTalon(
-        int canId, String canBusName, TalonFXConfiguration talonConfig
+        int canId, CANBus canBus, TalonFXConfiguration talonConfig
     ){
-        motor = new TalonFX(canId, canBusName);
+        motor = new TalonFX(canId, canBus);
         for (int i = 0; i < 4; i++) {
             boolean error =
                 motor.getConfigurator()

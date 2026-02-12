@@ -6,11 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Rotations;
 
-import static edu.wpi.first.units.Units.Rotations;
-
 import java.util.List;
-
-import com.ctre.phoenix6.signals.InvertedValue;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 
@@ -26,6 +22,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.util.AlignUtil;
+import frc.robot.util.PolynomialRegression;
 
 
 /**
@@ -46,6 +43,38 @@ public final class Constants {
   public static final String Swerve_CAN_BUS = "swerveCAN";
   public static final String Mech_CAN_BUS = "mechCAN";
 
+  // ==================== SHOOTER ====================
+  public static class ShooterConstants {
+    // CAN IDs (per README: Hood=16, Flywheel=17, Flywheel Encoder=18)
+    public static final int HOOD_CAN_ID = 16;
+    public static final int FLYWHEEL_CAN_ID = 17;
+    public static final int FLYWHEEL_ENCODER_ID = 18;
+
+    // Physics constants
+    public static final double g = 9.8;
+    public static final double tan75 = 3.73205;
+    public static final double cos75 = 0.258819;
+    public static final double height = 1.83;
+    public static final double radius = 0.0508;
+
+    // Gear ratios
+    public static final double GEAR_RATIO_FLYWHEEL = 1.5;
+    public static final double GEAR_RATIO_HOOD = 12;
+
+    // Angles
+    public static final double UPPER_ANGLE = 0.45;
+    public static final double LOWER_ANGLE = 0.14;
+    public static final double MAX_VELO = 1;
+    public static final double INIT_HOOD_ANGLE = 0.5;
+    public static final double HOOD_MAGNET_OFFSET = 0.5;
+
+    // Hub position
+    public static final Pose2d HUB_POS = new Pose2d(4.03479, 4.0288, null);
+
+    // Manual control
+    public static final double HOOD_MANUAL_SPEED = 0.15;
+    public static final double FLYWHEEL_MANUAL_SPEED = 0.5;
+  }
 
   // ==================== DRIVETRAIN ====================
 
@@ -100,25 +129,25 @@ public final class Constants {
     public static final double[] STEER_D = {0.1, 0.1, 0.1, 0.1};
     public static final double[] STEER_S = {0.25, 0.25, 0.25, 0.25};
 
-    // Module CAN IDs and Offsets
-    public static final int FL_DRIVE = 0;
-    public static final int FL_STEER = 1;
-    public static final int FL_ENCODER = 8;
+    // Module CAN IDs and Offsets (per README)
+    public static final int FL_DRIVE = 1;
+    public static final int FL_STEER = 0;
+    public static final int FL_ENCODER = 11;
     public static final double FL_OFFSET = 0;
 
-    public static final int FR_DRIVE = 2;
-    public static final int FR_STEER = 3;
-    public static final int FR_ENCODER = 9;
+    public static final int FR_DRIVE = 3;
+    public static final int FR_STEER = 2;
+    public static final int FR_ENCODER = 10;
     public static final double FR_OFFSET = 0;
 
-    public static final int BL_DRIVE = 4;
-    public static final int BL_STEER = 5;
-    public static final int BL_ENCODER = 10;
+    public static final int BL_DRIVE = 7;
+    public static final int BL_STEER = 4;
+    public static final int BL_ENCODER = 8;
     public static final double BL_OFFSET = 0;
 
-    public static final int BR_DRIVE = 6;
-    public static final int BR_STEER = 7;
-    public static final int BR_ENCODER = 11;
+    public static final int BR_DRIVE = 5;
+    public static final int BR_STEER = 6;
+    public static final int BR_ENCODER = 9;
     public static final double BR_OFFSET = 0;
 
     // Module Geometry (inches)
@@ -186,6 +215,9 @@ public final class Constants {
     public static final int VOLTAGE_COMPENSATION = 12;
     public static final double OPEN_LOOP_RAMP = 0.5;
     public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+
+    // Manual Control
+    public static final double MANUAL_SPEED = 0.5;
   }
 
   // ==================== VISION ====================
@@ -400,9 +432,10 @@ public final class Constants {
   }
 
   public static final class ClimbConstants {
-    public static final int WINCH_MOTOR_CAN_ID = 1;
-    public static final int ARM_MOTOR_CAN_ID = 0;
-    public static final int CANDI_CAN_ID = 3;
+    // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
+    public static final int WINCH_MOTOR_CAN_ID = 21;
+    public static final int ARM_MOTOR_CAN_ID = 19;  // Doornob
+    public static final int CANDI_CAN_ID = 22;
 
     public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;

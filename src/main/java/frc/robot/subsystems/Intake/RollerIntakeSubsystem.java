@@ -22,10 +22,17 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
     private TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
+    private double inSpeed = IntakeConstants.ROLLER_IN_SPEED;
+    private double outSpeed = IntakeConstants.ROLLER_OUT_SPEED;
+
     public RollerIntakeSubsystem(CANBus canBus) {
         rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, canBus);
         configureMotor();
         rollerMotor.getConfigurator().apply(rollerConfig);
+
+        // Initialize tunable speeds in NetworkTables
+        SmartDashboard.putNumber("Intake/Roller/InSpeed", inSpeed);
+        SmartDashboard.putNumber("Intake/Roller/OutSpeed", Math.abs(outSpeed));
     }
 
     private void configureMotor() {
@@ -75,6 +82,22 @@ public class RollerIntakeSubsystem extends SubsystemBase {
      */
     public void stop() {
         rollerMotor.setControl(dutyCycleRequest.withOutput(0));
+    }
+
+    /**
+     * Run intake in (positive direction) at tunable speed
+     */
+    public void runIn() {
+        inSpeed = SmartDashboard.getNumber("Intake/Roller/InSpeed", IntakeConstants.ROLLER_IN_SPEED);
+        setDutyCycle(inSpeed);
+    }
+
+    /**
+     * Run intake out (negative direction) at tunable speed
+     */
+    public void runOut() {
+        outSpeed = SmartDashboard.getNumber("Intake/Roller/OutSpeed", Math.abs(IntakeConstants.ROLLER_OUT_SPEED));
+        setDutyCycle(-outSpeed);
     }
 
     //Check if the roller is currently running
