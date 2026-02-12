@@ -18,7 +18,7 @@ public class FlywheelSubsystem extends SubsystemBase {
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
 
     private double commandedDutyCycle = 0.0;
-    private static final String LOG_PREFIX = "FlyWheel/";
+    private static final String LOG_PREFIX = "Shooter/Flywheel/";
 
     public FlywheelSubsystem(CANBus cn) {
         // Construct motors directly on the CAN bus

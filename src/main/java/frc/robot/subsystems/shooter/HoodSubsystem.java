@@ -22,7 +22,7 @@ public class HoodSubsystem extends SubsystemBase {
     private CANdi limit;
 
     private double commandedDutyCycle = 0.0;
-    private static final String LOG_PREFIX = "Hood/";
+    private static final String LOG_PREFIX = "Shooter/Hood/";
 
     public HoodSubsystem(CANBus cn) {
         // Construct motors directly on the CAN bus
