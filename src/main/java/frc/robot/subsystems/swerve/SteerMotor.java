@@ -36,7 +36,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.GRTUtil;
 
-public class SteerMotor2 extends SubsystemBase{
+public class SteerMotor extends SubsystemBase{
         // For NT
 
     //test two 
@@ -203,7 +203,7 @@ public class SteerMotor2 extends SubsystemBase{
     
     }
 
-    public SteerMotor2(int motorCAN, int encoderID, CANBus canivore){
+    public SteerMotor(int motorCAN, int encoderID, CANBus canivore){
         motorID = motorCAN;
         motor = new TalonFX(motorCAN, canivore);
         cancoder = new CANcoder(encoderID);
