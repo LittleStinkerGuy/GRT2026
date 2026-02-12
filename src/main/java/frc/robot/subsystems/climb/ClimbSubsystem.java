@@ -40,30 +40,30 @@ public class ClimbSubsystem extends SubsystemBase {
     // arm + winch -
     // Step through the climb up sequence, stopping motors either with a button
     // press or them reaching the soft stop
-    public Command climbUp(BooleanSupplier step) {
-        Command climbUp = (waitForButtonRelease(step)
-                .andThen(m_StabilizingArm.deployArm(step)
-                        .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit().orElseGet(() -> false)))
-                        .andThen(waitForNextStep(step))
-                        .andThen(m_Winch.pullDownClaw(step))
-                        .raceWith(Commands
-                                .waitUntil(() -> m_Winch.getReverseLimit().orElseGet(() -> false)))));
-        climbUp.addRequirements(this);
-        return climbUp;
-    }
+    // public Command climbUp(BooleanSupplier step) {
+    //     Command climbUp = (waitForButtonRelease(step)
+    //             .andThen(m_StabilizingArm.deployArm(step)
+    //                     .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit().orElseGet(() -> false)))
+    //                     .andThen(waitForNextStep(step))
+    //                     .andThen(m_Winch.pullDownClaw(step))
+    //                     .raceWith(Commands
+    //                             .waitUntil(() -> m_Winch.getReverseLimit().orElseGet(() -> false)))));
+    //     climbUp.addRequirements(this);
+    //     return climbUp;
+    // }
 
-    // winch + arm -
-    // Step through the climb down sequence, stopping motors either with a button
-    // press or them reaching the soft stop
-    public Command climbDown(BooleanSupplier step) {
-        Command climbDown = waitForButtonRelease(step)
-                .andThen(m_Winch.pullUpClaw(step)
-                        .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit().orElseGet(() -> false)))
-                        .andThen(waitForNextStep(step))
-                        .andThen(m_StabilizingArm.retractArm(step)
-                                .raceWith(Commands
-                                        .waitUntil(() -> m_StabilizingArm.getReverseLimit().orElseGet(() -> false)))));
-        climbDown.addRequirements(this);
-        return climbDown;
-    }
+    // // winch + arm -
+    // // Step through the climb down sequence, stopping motors either with a button
+    // // press or them reaching the soft stop
+    // public Command climbDown(BooleanSupplier step) {
+    //     Command climbDown = waitForButtonRelease(step)
+    //             .andThen(m_Winch.pullUpClaw(step)
+    //                     .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit().orElseGet(() -> false)))
+    //                     .andThen(waitForNextStep(step))
+    //                     .andThen(m_StabilizingArm.retractArm(step)
+    //                             .raceWith(Commands
+    //                                     .waitUntil(() -> m_StabilizingArm.getReverseLimit().orElseGet(() -> false)))));
+    //     climbDown.addRequirements(this);
+    //     return climbDown;
+    // }
 }

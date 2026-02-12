@@ -37,30 +37,30 @@ public class Winch extends SubsystemBase {
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
 
-    private final StatusSignal<Boolean> forwardLimitSignal;
-    private final StatusSignal<Boolean> reverseLimitSignal;
+    // private final StatusSignal<Boolean> forwardLimitSignal;
+    // private final StatusSignal<Boolean> reverseLimitSignal;
 
-    private CANdi hardstopCANdi;
-    private CANdiConfiguration candiConfig = new CANdiConfiguration();
-    private Trigger hardstopTrigger;
+    // private CANdi hardstopCANdi;
+    // private CANdiConfiguration candiConfig = new CANdiConfiguration();
+    // private Trigger hardstopTrigger;
 
     public Winch(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.WINCH_MOTOR_CAN_ID, canBusObj);
-        forwardLimitSignal = motor.getFault_ForwardSoftLimit();
-        reverseLimitSignal = motor.getFault_ReverseSoftLimit();
-        hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID, canBusObj);
-        configureCandi();
+        // forwardLimitSignal = motor.getFault_ForwardSoftLimit();
+        // reverseLimitSignal = motor.getFault_ReverseSoftLimit();
+        // hardstopCANdi = new CANdi(ClimbConstants.CANDI_CAN_ID, canBusObj);
+        // configureCandi();
         configureMotor();
 
         zeroEncoder();
 
         // Reset encoder when limit switch is pressed
-        hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
-        hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
+        // hardstopTrigger = new Trigger(() -> hardstopCANdi.getS1Closed().getValue());
+        // hardstopTrigger.onTrue(this.runOnce(this::zeroEncoder));
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
-        BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
+        // BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
     private void configureMotor() {
@@ -73,15 +73,15 @@ public class Winch extends SubsystemBase {
                         .withInverted(ClimbConstants.WINCH_MOTOR_INVERTED))
                 .withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(ClimbConstants.WINCH_GR))
-                .withHardwareLimitSwitch(new HardwareLimitSwitchConfigs()
-                        .withReverseLimitEnable(true)
-                        .withReverseLimitRemoteCANdiS1(hardstopCANdi))
-                .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
-                        .withForwardSoftLimitEnable(true)
-                        .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
-                        .withReverseSoftLimitEnable(true)
-                        .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
+                        .withSensorToMechanismRatio(ClimbConstants.WINCH_GR));
+                // .withHardwareLimitSwitch(new HardwareLimitSwitchConfigs()
+                //         .withReverseLimitEnable(true)
+                //         .withReverseLimitRemoteCANdiS1(hardstopCANdi))
+                // .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
+                //         .withForwardSoftLimitEnable(true)
+                //         .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
+                //         .withReverseSoftLimitEnable(true)
+                //         .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
@@ -94,19 +94,19 @@ public class Winch extends SubsystemBase {
         }
     }
 
-    private void configureCandi() {
-        candiConfig.withDigitalInputs(new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow));
+    // private void configureCandi() {
+    //     candiConfig.withDigitalInputs(new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow));
 
-        for (int i = 0; i < 5; i++) {
-            if (hardstopCANdi.getConfigurator().apply(candiConfig, 0.1) == StatusCode.OK) {
-                System.out.println("CANDI " + hardstopCANdi.getDeviceID() + " CONFIGURED!");
-                break; // Success
-            }
-            if (i == 4) {
-                System.out.println("VERY BAD, CANDI " + hardstopCANdi.getDeviceID() + " DID NOT GET CONFIGURED");
-            }
-        }
-    }
+    //     for (int i = 0; i < 5; i++) {
+    //         if (hardstopCANdi.getConfigurator().apply(candiConfig, 0.1) == StatusCode.OK) {
+    //             System.out.println("CANDI " + hardstopCANdi.getDeviceID() + " CONFIGURED!");
+    //             break; // Success
+    //         }
+    //         if (i == 4) {
+    //             System.out.println("VERY BAD, CANDI " + hardstopCANdi.getDeviceID() + " DID NOT GET CONFIGURED");
+    //         }
+    //     }
+    // }
 
     // take an input value and clamp it to the max value then run motor at that duty
     // cycle
@@ -131,20 +131,20 @@ public class Winch extends SubsystemBase {
     }
 
     // returns false if can't refresh
-    public Optional<Boolean> getForwardLimit() {
-        if (!forwardLimitSignal.refresh().getValue()) {
-            return Optional.empty();
-        }
-        return Optional.of(forwardLimitSignal.getValue());
-    }
+    // public Optional<Boolean> getForwardLimit() {
+    //     if (!forwardLimitSignal.refresh().getValue()) {
+    //         return Optional.empty();
+    //     }
+    //     return Optional.of(forwardLimitSignal.getValue());
+    // }
 
-    // returns false if can't refresh
-    public Optional<Boolean> getReverseLimit() {
-        if (!reverseLimitSignal.refresh().getValue()) {
-            return Optional.empty();
-        }
-        return Optional.of(reverseLimitSignal.getValue());
-    }
+    // // returns false if can't refresh
+    // public Optional<Boolean> getReverseLimit() {
+    //     if (!reverseLimitSignal.refresh().getValue()) {
+    //         return Optional.empty();
+    //     }
+    //     return Optional.of(reverseLimitSignal.getValue());
+    // }
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
@@ -180,8 +180,8 @@ public class Winch extends SubsystemBase {
         SmartDashboard.putNumber("Climb/Winch/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Climb/Winch/Temp", motor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Climb/Winch/Connected", motor.isConnected());
-        SmartDashboard.putBoolean("Climb/Winch/ForwardLimitHit", forwardLimitSignal.getValue());
-        SmartDashboard.putBoolean("Climb/Winch/ReverseLimitHit", reverseLimitSignal.getValue());
-        SmartDashboard.putBoolean("Climb/Winch/HardstopPressed", hardstopCANdi.getS1Closed().getValue());
+        // SmartDashboard.putBoolean("Climb/Winch/ForwardLimitHit", forwardLimitSignal.getValue());
+        // SmartDashboard.putBoolean("Climb/Winch/ReverseLimitHit", reverseLimitSignal.getValue());
+        // SmartDashboard.putBoolean("Climb/Winch/HardstopPressed", hardstopCANdi.getS1Closed().getValue());
     }
 }

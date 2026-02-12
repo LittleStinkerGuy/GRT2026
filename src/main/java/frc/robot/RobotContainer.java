@@ -139,10 +139,10 @@ public class RobotContainer {
     }
 
     // bind semi auto commands
-    var crossTrigger = mechController.cross();
-    var triangleTrigger = mechController.triangle();
-    crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
-    triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
+    // var crossTrigger = mechController.cross();
+    // var triangleTrigger = mechController.triangle();
+    // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
+    // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
 
     // Manual control with d-pad for winch and left stick for arm
     m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
@@ -155,6 +155,10 @@ public class RobotContainer {
       if (mechController.povDown().getAsBoolean()) {
         winchDutyCycle--;
       }
+      System.out.print(armDutyCycle);
+      System.out.print(" ");
+      System.out.print(winchDutyCycle);
+
       m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
       m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
     }, m_ClimbSubsystem));

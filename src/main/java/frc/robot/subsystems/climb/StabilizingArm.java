@@ -32,20 +32,20 @@ public class StabilizingArm extends SubsystemBase {
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
 
-    private final StatusSignal<Boolean> forwardLimitSignal;
-    private final StatusSignal<Boolean> reverseLimitSignal;
+    // private final StatusSignal<Boolean> forwardLimitSignal;
+    // private final StatusSignal<Boolean> reverseLimitSignal;
 
     public StabilizingArm(CANBus canBusObj) {
         motor = new TalonFX(ClimbConstants.ARM_MOTOR_CAN_ID, canBusObj);
-        forwardLimitSignal = motor.getFault_ForwardSoftLimit();
-        reverseLimitSignal = motor.getFault_ReverseSoftLimit();
+        // forwardLimitSignal = motor.getFault_ForwardSoftLimit();
+        // reverseLimitSignal = motor.getFault_ReverseSoftLimit();
         configureMotor();
 
         zeroEncoder();
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
-        BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
+        // BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
     private void configureMotor() {
@@ -58,12 +58,12 @@ public class StabilizingArm extends SubsystemBase {
                         .withInverted(ClimbConstants.ARM_MOTOR_INVERTED))
                 .withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(ClimbConstants.ARM_GR))
-                .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
-                        .withForwardSoftLimitEnable(true)
-                        .withForwardSoftLimitThreshold(ClimbConstants.ARM_FORWARD_LIMIT)
-                        .withReverseSoftLimitEnable(true)
-                        .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT));
+                        .withSensorToMechanismRatio(ClimbConstants.ARM_GR));
+                // .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
+                //         .withForwardSoftLimitEnable(true)
+                //         .withForwardSoftLimitThreshold(ClimbConstants.ARM_FORWARD_LIMIT)
+                //         .withReverseSoftLimitEnable(true)
+                //         .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT));
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
@@ -98,21 +98,21 @@ public class StabilizingArm extends SubsystemBase {
         setEncoder(Rotations.of(0));
     }
 
-    // returns false if can't refresh
-    public Optional<Boolean> getForwardLimit() {
-        if (!forwardLimitSignal.refresh().getValue()) {
-            return Optional.empty();
-        }
-        return Optional.of(forwardLimitSignal.getValue());
-    }
+    // // returns false if can't refresh
+    // public Optional<Boolean> getForwardLimit() {
+    //     if (!forwardLimitSignal.refresh().getValue()) {
+    //         return Optional.empty();
+    //     }
+    //     return Optional.of(forwardLimitSignal.getValue());
+    // }
 
-    // returns false if can't refresh
-    public Optional<Boolean> getReverseLimit() {
-        if (!reverseLimitSignal.refresh().getValue()) {
-            return Optional.empty();
-        }
-        return Optional.of(reverseLimitSignal.getValue());
-    }
+    // // returns false if can't refresh
+    // public Optional<Boolean> getReverseLimit() {
+    //     if (!reverseLimitSignal.refresh().getValue()) {
+    //         return Optional.empty();
+    //     }
+    //     return Optional.of(reverseLimitSignal.getValue());
+    // }
 
     // hi swayam, its daniel. i'm using inline commands here because its a lot
     // easier i will move these when the code gets more complicated.
@@ -148,7 +148,7 @@ public class StabilizingArm extends SubsystemBase {
         SmartDashboard.putNumber("Climb/Arm/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Climb/Arm/Temp", motor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Climb/Arm/Connected", motor.isConnected());
-        SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", forwardLimitSignal.getValue());
-        SmartDashboard.putBoolean("Climb/Arm/ReverseLimitHit", reverseLimitSignal.getValue());
-    }
+    //     SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", forwardLimitSignal.getValue());
+    //     SmartDashboard.putBoolean("Climb/Arm/ReverseLimitHit", reverseLimitSignal.getValue());
+     }
 }
