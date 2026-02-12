@@ -1,33 +1,7 @@
 package frc.robot.subsystems.swerve;
 
-//Constants Import 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEvent;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_ACCELERATION;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_PEAK_CURRENT;
@@ -37,44 +11,35 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_SUPPLY_CURRENT_LIMI
 
 import java.util.EnumSet;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.GRTUtil;
 
-//Logging and NT imports
+public class SteerMotor2 extends SubsystemBase{
+        // For NT
 
-
-public class SteerMotor {
-
-    // Motor instance for controlling the drive motor
-    private TalonFX motor;
-
-    // Configuration for Kraken stored in one Object
-    private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    private final TalonFXConfiguration simplePIDConfig = new TalonFXConfiguration();
-
-    // Cancoder Creation
-    private CANcoder cancoder;
-
-    // Configuration for CANCODER stored in one Object
-    private final  CANcoderConfiguration cancoderconfig = new CANcoderConfiguration();
-
-    // For fine control of velocity and torque using FOC (Field-Oriented Control)
-    private PositionVoltage positionRequest = new PositionVoltage(0)
-                .withSlot(0)
-                .withFeedForward(0)
-                .withUpdateFreqHz(100.0);
-    // For making positions wrap from 0-1 and resetting to not stack
-    private final ClosedLoopGeneralConfigs closedLoopGeneralConfigs = new ClosedLoopGeneralConfigs();
-
-    // For Logging
-    private DoubleLogEntry temperatureLogEntry;
-    private DoubleLogEntry motorPositionLogEntry;
-    private DoubleLogEntry targetPositionLogEntry;
-    private DoubleLogEntry appliedVoltsLogEntry;
-    private DoubleLogEntry supplyCurrLogEntry;
-    private DoubleLogEntry torqueCurrLogEntry;
-    private DoubleLogEntry positionErrorLogEntry;
-
-    // For NT
+    //test two 
     private NetworkTableInstance ntInstance;
     private NetworkTable steerStatsTable;
     private DoublePublisher encoderPositionPublisher;
@@ -89,59 +54,32 @@ public class SteerMotor {
     private DoublePublisher positionControlPositionPublisher;
     private DoublePublisher closedLoopReferencePublisher;
     private DoublePublisher gurtMotorPos1;
+    private NetworkTableEntry motorNewPos;
+    
+    // DataLog entries
+    private DoubleLogEntry positionLogEntry;
+    private DoubleLogEntry velocityLogEntry;
+    private DoubleLogEntry targetPositionLogEntry;
+    private DoubleLogEntry appliedVoltsLogEntry;
+    private DoubleLogEntry supplyCurrentLogEntry;
+    private DoubleLogEntry torqueCurrentLogEntry;
+    private DoubleLogEntry temperatureLogEntry;
+    private DoubleLogEntry closedLoopErrorLogEntry;
 
     private double gurtMotorPos = 0.0;
-    private int gurtMotorCanID;
-    // Phoenix 6 Status Signals
-    private StatusSignal<Angle> positionSignal;
-    private StatusSignal<Voltage> appliedVoltsSignal;
-    private StatusSignal<Current> supplyCurrentSignal;
-    private StatusSignal<Current> torqueCurrentSignal;
+    private double targetPos = 0.0;
+    private int canID;
+    private int motorID;
+    private TalonFX motor;
+    private CANcoder cancoder;
+    private final boolean enableEncoder = true;
+    private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    private final CANcoderConfiguration encoderConfig  = new CANcoderConfiguration();
+    private MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0)
+                .withSlot(0)
+                .withUpdateFreqHz(100.0);
 
-
-    public SteerMotor(int motorCAN, int encoderCAN, CANBus canivore) {
-        // Set motor and encoder
-        motor = new TalonFX(motorCAN, canivore);
-        cancoder = new CANcoder(encoderCAN, canivore);
-        gurtMotorCanID = motorCAN;
-        // Configure CANcoder and Kraken
-        configureCancoder(); // called to ensure settings are applied programmatically
-        configureMotor();
-
-        // Initialize NetworkTables
-        initNT(motorCAN);
-
-
-        // Initialize logs
-        // initLogs(motorCAN);
-        
-        // Initialize Phoenix 6 signals
-        initSignals();
-
-    }
-
-    /**
-     * Applying Configurations to CANCODER
-     */
-    private void configureCancoder() {
-        
-        // cancoderconfig.MagnetSensor.MagnetOffset = offsetRads / (2.0 * Math.PI);
-        cancoderconfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        cancoder.getConfigurator().apply(cancoderconfig);
-
-        // Apply config with retries (max 5 attempts)
-        for (int i = 0; i < 5; i++) {
-            if (cancoder.getConfigurator().apply(cancoderconfig, 0.1) == StatusCode.OK) {
-                break; // Success
-            }
-        }
-    }
-
-    /**
-     * Applying Configurations to Kraken
-     */
     private void configureMotor() {
-
         // Set peak current for torque limiting for stall prevention
         motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = STEER_PEAK_CURRENT;
         motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -STEER_PEAK_CURRENT;
@@ -156,101 +94,90 @@ public class SteerMotor {
         motorConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = STEER_RAMP_RATE;
 
         // By Default Robot will not move
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.ClosedLoopGeneral.ContinuousWrap = true;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+ 
 
+        // motorConfig.Slot0.kP = 3;
+        // motorConfig.Slot0.kI = 0;
+        // motorConfig.Slot0.kD = 0;
         // Encoder Being Applied
-
-// GUYS WE DID NOT APPLY IT T_T
+        if (enableEncoder){
 
         // Use the CANcoder as feedback
         motorConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
         motorConfig.Feedback.FeedbackSensorSource   = FeedbackSensorSourceValue.RemoteCANcoder;
-
-        // Tell it how rotor relates to module angle:
-        motorConfig.Feedback.RotorToSensorRatio = STEER_GEAR_REDUCTION; // e.g., 12.8
-
-        // Enable position wrapping (by default values are from 0-1)
-        closedLoopGeneralConfigs.ContinuousWrap = true; //basicaly turns stacking off
-        motorConfig.ClosedLoopGeneral = closedLoopGeneralConfigs;
-        
-        simplePIDConfig.Slot0.kP = 3;
-        simplePIDConfig.Slot0.kI = 0.1;
-        simplePIDConfig.Slot0.kD = 0;
-        if (gurtMotorCanID == 1){
-            simplePIDConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
-            simplePIDConfig.Feedback.FeedbackSensorSource   = FeedbackSensorSourceValue.RemoteCANcoder;
-
-            simplePIDConfig.Feedback.SensorToMechanismRatio = 1.0;
-            simplePIDConfig.Feedback.RotorToSensorRatio = STEER_GEAR_REDUCTION;
-            // simplePIDConfig.ClosedLoopGeneral.ContinuousWrap = true;
-
         }
+        // Tell it how rotor relates to module angle:
+        // motorConfig.Feedback.SensorToMechanismRatio = STEER_GEAR_REDUCTION; // e.g., 12.8
+        
+        // Enable position wrapping (by default values are from 0-1)
+
+        // MotionMagic profile config
+        motorConfig.MotionMagic.MotionMagicCruiseVelocity = STEER_CRUISE_VELOCITY;
+        motorConfig.MotionMagic.MotionMagicAcceleration = STEER_ACCELERATION;
 
         // Apply motor config with retries (max 5 attempts)
         for (int i = 0; i < 5; i++) {
-            if (motor.getConfigurator().apply(simplePIDConfig, 0.1) == StatusCode.OK) {
+            if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
+                System.out.println("MOTOR" + motorID + "SUCCESSFULLY CONFIGURED");
+
                 break; // Success
             }
             if (i == 4){
-                System.out.println("VERY BAD MOTOR DID NOT GET CONFIGURED");
+                System.out.println("VERY BAD MOTOR" + motorID + "DID NOT GET CONFIGURED");
             }
         }
         
         // Reset motor position to 0 for consistent starting point
         motor.setPosition(0);
     }
+    
 
-    /**
-     * Initializes Phoenix 6's signals
-     */
-    private void initSignals(){
-        positionSignal = motor.getPosition();
-        appliedVoltsSignal = motor.getMotorVoltage();
-        torqueCurrentSignal = motor.getTorqueCurrent();
-        supplyCurrentSignal = motor.getSupplyCurrent();
+    public void configPID(double p, double i, double d, double s) {
 
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            250.0, positionSignal, appliedVoltsSignal,
-            torqueCurrentSignal, supplyCurrentSignal
-        );
-        motor.optimizeBusUtilization(0, 1.0);
+        Slot0Configs slot0Configs = new Slot0Configs(); //used to store and update PID values
+        /*
+         * Think of P as how much we want it to correct, as an example imagine you are parking a car
+         */
+
+        slot0Configs.kP = p;
+        /*
+         * Integral Control's job is to correct recurring errors over time by stacking past errors.
+         * It sums up previous errors, so it looks at how many errors you have had over time.
+         */
+        slot0Configs.kI = i;
+
+        /*
+         * The Derivitive Controls job is to look at the Rate of Change (slope) of how fast the error is changing (def of derrivitive)
+         * If the error is chaning too fast, the kD will slow it down so we do not overshoot
+         */
+        slot0Configs.kD = d;
+
+        /*
+        * Feedforward Control (kS, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
+        *      instead of waiting for an error to happen first.
+        */
+        slot0Configs.kS = s;
+        
+        motor.getConfigurator().apply(slot0Configs);
     }
-
-    private void initLogs(int canId) {
-        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "motorTemperature");
-        motorPositionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "motorPosition");
-        targetPositionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "targetPosition");
-        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "appliedVolts");
-        supplyCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "supplyCurrent");
-        torqueCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "torqueCurrent");
-        positionErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), canId + "positionError");
-    }
-
-    public void logStats() {
-        temperatureLogEntry.append(getTemperature(), GRTUtil.getFPGATime());
-        motorPositionLogEntry.append(getPosition(), GRTUtil.getFPGATime());
-        targetPositionLogEntry.append(getPosition(), GRTUtil.getFPGATime()); // TODO: Log actual target
-        appliedVoltsLogEntry.append(appliedVoltsSignal.getValueAsDouble(), GRTUtil.getFPGATime());
-        supplyCurrLogEntry.append(supplyCurrentSignal.getValueAsDouble(), GRTUtil.getFPGATime());
-        torqueCurrLogEntry.append(torqueCurrentSignal.getValueAsDouble(), GRTUtil.getFPGATime());
-        positionErrorLogEntry.append(0.0, GRTUtil.getFPGATime()); // TODO: Calculate actual position error
-    }
-
     private void initNT(int canId) {
         ntInstance = NetworkTableInstance.getDefault();
         steerStatsTable = ntInstance.getTable("SwerveSteer");
+        motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
 
-        encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId + "encoderPosition").publish();
+        // encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId + "encoderPosition").publish();
         motorPositionPublisher = steerStatsTable.getDoubleTopic(canId + "motorPosition").publish();
         targetPositionPublisher = steerStatsTable.getDoubleTopic(canId + "targetPosition").publish();
-        motorTemperaturePublisher = steerStatsTable.getDoubleTopic(canId + "motorTemperature").publish();
-        appliedVoltsPublisher = steerStatsTable.getDoubleTopic(canId + "appliedVolts").publish();
-        supplyCurrentPublisher = steerStatsTable.getDoubleTopic(canId + "supplyCurrent").publish();
-        torqueCurrentPublisher = steerStatsTable.getDoubleTopic(canId + "torqueCurrent").publish();
-        positionErrorPublisher = steerStatsTable.getDoubleTopic(canId + "positionError").publish();
-        rotationPublisher = steerStatsTable.getDoubleTopic(canId + "targetMotorRotationPosition").publish();
-        closedLoopReferencePublisher = steerStatsTable.getDoubleTopic(canId + "targetMotorRotationPosition").publish();
+        // motorTemperaturePublisher = steerStatsTable.getDoubleTopic(canId + "motorTemperature").publish();
+        // appliedVoltsPublisher = steerStatsTable.getDoubleTopic(canId + "appliedVolts").publish();
+        // supplyCurrentPublisher = steerStatsTable.getDoubleTopic(canId + "supplyCurrent").publish();
+        // torqueCurrentPublisher = steerStatsTable.getDoubleTopic(canId + "torqueCurrent").publish();
+        // positionErrorPublisher = steerStatsTable.getDoubleTopic(canId + "positionError").publish();
+        rotationPublisher = steerStatsTable.getDoubleTopic(canId + "controllerTargetPosition").publish();
+        // closedLoopReferencePublisher = steerStatsTable.getDoubleTopic(canId + "targetMotorRotationPosition").publish();
         gurtMotorPos1 = steerStatsTable.getDoubleTopic(canId + "motorPosThing").publish();
         gurtMotorPos1.set(0.0);
         positionControlPositionPublisher = steerStatsTable.getDoubleTopic(canId + "positionControlPosition").publish();
@@ -261,164 +188,127 @@ public class SteerMotor {
     }
 
     public void publishStats() {
-        motorPositionPublisher.set(getPosition());
-  
-        encoderPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
-        targetPositionPublisher.set(rotorRotations); // Just show current position for now
-        rotationPublisher.set(motor.getPosition().getValueAsDouble()); // get position
-        closedLoopReferencePublisher.set(motor.getClosedLoopReference().getValueAsDouble()); // TODO: Calculate actual position error
-        
-        motorTemperaturePublisher.set(getTemperature());
-        appliedVoltsPublisher.set(appliedVoltsSignal.getValueAsDouble());
-        supplyCurrentPublisher.set(supplyCurrentSignal.getValueAsDouble());
-        torqueCurrentPublisher.set(torqueCurrentSignal.getValueAsDouble());
-        positionErrorPublisher.set(0.0); // TODO: Calculate actual position error
 
-        positionControlPositionPublisher.set(positionRequest.Position);
+        motorPositionPublisher.set(motor.getPosition().getValueAsDouble());
+        targetPositionPublisher.set(targetPos);
+
+        // encoderPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
+        // targetPositionPublisher.set(rotorRotations); // Just show current position for now
+        rotationPublisher.set(controllerTargetRotations); // get position
+        // closedLoopReferencePublisher.set(motor.getClosedLoopReference().getValueAsDouble()); // TODO: Calculate actual position error
+        
+        // positionErrorPublisher.set(0.0); // TODO: Calculate actual position error
+
+        // positionControlPositionPublisher.set(positionRequest.Position);
     
     }
-    
 
+    public SteerMotor2(int motorCAN, int encoderID, CANBus canivore){
+        motorID = motorCAN;
+        motor = new TalonFX(motorCAN, canivore);
+        cancoder = new CANcoder(encoderID);
+        configureMotor();
+        initNT(motorCAN);
+        initLogs(motorCAN);
+    }
 
+    private void initLogs(int canId) {
+        positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/position");
+        velocityLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/velocityRPM");
+        targetPositionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/targetPosition");
+        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/appliedVolts");
+        supplyCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/supplyCurrent");
+        torqueCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/torqueCurrent");
+        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/temperature");
+        closedLoopErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/closedLoopError");
+    }
 
+    public void logStats() {
+        long ts = GRTUtil.getFPGATime();
+        positionLogEntry.append(motor.getPosition().getValueAsDouble(), ts);
+        velocityLogEntry.append(motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0, ts);
+        targetPositionLogEntry.append(gurtMotorPos, ts);
+        appliedVoltsLogEntry.append(motor.getMotorVoltage().getValueAsDouble(), ts);
+        supplyCurrentLogEntry.append(motor.getSupplyCurrent().getValueAsDouble(), ts);
+        torqueCurrentLogEntry.append(motor.getTorqueCurrent().getValueAsDouble(), ts);
+        temperatureLogEntry.append(motor.getDeviceTemp().getValueAsDouble(), ts);
+        closedLoopErrorLogEntry.append(motor.getClosedLoopError().getValueAsDouble(), ts);
+    }
     /**
-     * Gets the motor's position through the absolute encoder
      * 
-     * @return position in double from 0 to 1
+     * @param C current rotations domain: 0-1
+     * @param T target rotations domain: 0-1
+     * @return MotorPosition target range: -1 - 1
      */
-    public double getPosition() {
-        return cancoder.getAbsolutePosition().getValueAsDouble();// 0..1 rotations, absolute
-    }
+    public double getOptimalSteerTargetPosition(double C, double T){
 
-    
-    /**
-     * Configures drive motor's PIDSV
-     * @param p :Determines how much the config will react to the error
-     * @param i :Corrects recurring errors over time by stacking past errors
-     * @param d :Reacting to the rate of change of the error, preventing overshooting and damping oscillations
-     * @param ff :
-     */
-    public void configPID(double p, double i, double d, double ff) {
-
-        Slot0Configs slot0Configs = new Slot0Configs(); //used to store and update PID values
-
-        /*
-         * Think of P as how much we want it to correct, as an example imagine you are parking a car
-         *      If you’re too far from the spot, you might turn the steering wheel sharply (a large correction) to get closer.
-         *      If you’re very close to the spot, you might make smaller, finer adjustments (a smaller correction).
-         * 
-         * The proportional control is like how hard you turn the steering wheel based on how far you are from the target spot. If you’re far away, you turn more; if you’re close, you turn less.
-         */
-
-        slot0Configs.kP = p;
-
-        /*
-         * Integral Control's job is to correct recurring errors over time by stacking past errors.
-         * It sums up previous errors, so it looks at how many errors you have had over time.
-         * 
-         * Imagine the motor is consistently below the target position due to friction.
-         *      kI will accumulate this error over time and then apply this correction to bring the motor to its target.
-         * 
-         * Keep in mind that this will also apply if something is blocking the mechanism from working, e.g., a rock.
-         * This will lead to a crazy increase in errors, potentially causing motors to burn out.
-         */
-        slot0Configs.kI = i;
-
-        /*
-         * The Derivitive Controls job is to look at the Rate of Change (slope) of how fast the error is changing (def of derrivitive)
-         * If the error is chaning too fast, the kD will slow it down so we do not overshoot
-         * 
-         * Imagine you’re driving a car toward a stop sign. As you approach the stop sign, you start to apply the brakes. 
-         *      The derivative control is like reacting to how quickly you’re approaching the stop sign:
-         * 	        If you’re coming in fast, the derivative term would apply more braking force to slow you down before you overshoot the stop sign.
-         *          If you’re coming in slowly, the derivative term would apply less braking force, just enough to prevent overshooting but not too much.
-         * 
-         * kD responds to the rate of change of the error, preventing overshooting and damping oscillations, too high will make mech slower
-         */
-        slot0Configs.kD = d;
-
-        /*
-        * Feedforward Control (kFF, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
-        *      instead of waiting for an error to happen first.
-        * 
-        * Imagine you’re driving a car on the highway. 
-        *      To stay at 60 mph, you don’t wait until you slow down to press the gas pedal — you give a little gas constantly.
-        * 
-        * kV is like setting a cruise control: it applies just enough output to maintain a certain speed or motion,
-        *      before any errors even occur.
-        * 
-        * Feedforward makes the motor control smoother, faster, and prevents the controller from working too hard correcting errors later.
-        */
-        slot0Configs.kV = ff;
-        
-        motor.getConfigurator().apply(slot0Configs);
-    }
-
-
-    /**
-     * Gets the tempature of the motor
-     * @return temperature of the motor in double
-     */
-    public double getTemperature() {
-        return motor.getDeviceTemp().getValueAsDouble();
-    }
-    
-
-    private double degreesToMotorRotations(double degrees) {
-        return (degrees / 360.0);
-        // return (degrees / 360.0) / STEER_GEAR_REDUCTION;
-    }
-
-    /**
-    * Gets the current position of the motor in radians.
-    * 
-    * @return the current position in radians
-    */
-    private double getCurrentPositionRads() {
-        
-        return getPosition() * 2.0 * Math.PI; // Convert from 0..1 rotations to radians
-    }
-
-    
-    public double fasterTurnDirection(double current, double target) {  
-        current = current / (Math.PI * 2)*360;
-        target = target / (Math.PI * 2)*360;
-
-        // Normalize the angles between 0 and 360
-        current = ((current % 360) + 360) % 360;
-        target = ((target % 360) + 360) % 360;
-
-        // Calculate clockwise and counterclockwise distances
-        double clockwise = (target - current + 360) % 360;
-        double counterClockwise = (current - target + 360) % 360;
-
-        // Determine the faster direction
-        if (clockwise <= counterClockwise) {
-            return clockwise*Math.PI*2/360; // turn clockwise
-        } else {
-            return -counterClockwise*Math.PI*2/360; // turn counterclockwise
+        double d1 = Math.abs((T+1)-C);//T+1 
+        double d2 = Math.abs((T) - C);//T
+        double d3 = Math.abs((T-1) - C);
+        double motorPos = 0;
+        if ((d1 <= d2)&&(d1 <= d3)){
+            motorPos = T+1;
+        } 
+        if ((d2 <= d1)&&(d2<=d3)){
+            motorPos = T;
         }
+        if ((d3 <= d1)&&(d3<=d2)){
+            motorPos = T-1;
+        }
+        return motorPos;
     }
 
+    
     /**
-     * Using PID to move to target position
      * 
-     * @param targetRads target position in radiants
+     * @param targetWheelPosition wheel position in radians, pi = 180 degrees CCW looking from the top
      */
-    double rotorRotations;
-    public void setPosition(double targetRads) {
+    double controllerTargetRotations;
+    public void setPosition(double targetWheelPosition){
+        gurtMotorPos = targetWheelPosition;
 
-        // double currentRads = getCurrentPositionRads(); 
-        // double deltaRads = fasterTurnDirection(currentRads, targetRads);
-        // double newTargetRads = currentRads + deltaRads;
-        rotorRotations = (targetRads / (2.0 * Math.PI)*gurtMotorPos);
-        
-        
+        targetWheelPosition = (targetWheelPosition / (2*Math.PI)) + .5;
+        controllerTargetRotations = targetWheelPosition;
+        // System.out.println("moved: " + gurtMotorPos);
+        gurtMotorPos = targetWheelPosition;
 
-        positionRequest.withPosition(rotorRotations);
-        motor.setControl(positionRequest);
+        targetWheelPosition = targetWheelPosition % 1;
+
+        //radians to rotations
+        // // motor.wra(motorCurrentPos);
+
+        // targetWheelPosition = getOptimalSteerTargetPosition(motorCurrentPos, targetWheelPosition);        
+        // targetPos = targetWheelPosition;
+        motionMagicRequest.withPosition(gurtMotorPos);
+        motor.setControl(motionMagicRequest);
         publishStats();
     }
+    /**
+     * 
+     * @return get position range 0-1
+     */
+    public double getPosition(){
+        double motorCurrentPos = motor.getPosition().getValueAsDouble();
+        //ensures current motor position is between 0 and 1
+        return motorCurrentPos;
+        }
+
+    public double getVelocityRPM() {
+        return motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0;
+    }
+
+    public void setCruiseVelocity(double velocity) {
+        MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+        mmConfigs.MotionMagicCruiseVelocity = velocity;
+        mmConfigs.MotionMagicAcceleration = STEER_ACCELERATION;
+        motor.getConfigurator().apply(mmConfigs);
+        System.out.println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
+    }
+
+    public void setCruiseVelocity(double velocity, double acceleration) {
+        MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+        mmConfigs.MotionMagicCruiseVelocity = velocity;
+        mmConfigs.MotionMagicAcceleration = acceleration;
+        motor.getConfigurator().apply(mmConfigs);
+    }
 }
-
-

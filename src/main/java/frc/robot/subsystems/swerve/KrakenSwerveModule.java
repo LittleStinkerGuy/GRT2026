@@ -23,7 +23,7 @@ import static frc.robot.Constants.SwerveConstants.STEER_P;
 public class KrakenSwerveModule {
 
     private final DriveMotor driveMotor;
-    private final SteerMotor2 steerMotor;
+    private final SteerMotor steerMotor;
 
     private int drivePort;
     private int steerPort;
@@ -55,7 +55,7 @@ public class KrakenSwerveModule {
         //     STEER_D[steerIndex],
         //     STEER_FF[steerIndex]
         // );
-        steerMotor = new SteerMotor2(steerPort, canCoderPort, canivore);
+        steerMotor = new SteerMotor(steerPort, canCoderPort, canivore);
         steerMotor.configPID(
             STEER_P[steerIndex],
             STEER_I[steerIndex],
