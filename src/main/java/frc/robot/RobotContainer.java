@@ -10,8 +10,8 @@ import frc.robot.commands.allign.RotateToAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
@@ -61,15 +61,15 @@ public class RobotContainer {
   private final CANBus swerveCAN = new CANBus(Constants.Swerve_CAN_BUS);
   private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem(swerveCAN);
+  private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
 
   private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
   private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
   private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
   private final Field2d m_field = new Field2d();
-  private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-  private flywheel flywheelSubsystem = new flywheel(mechCAN);
-  private hood hoodSubsystem = new hood(mechCAN);
+  private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
+  private final FlywheelSubsystem flywheelSubsystem = new FlywheelSubsystem(mechCAN);
+  private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
 
   // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
   //   VisionConstants.cameraConfigs[0]
@@ -78,8 +78,7 @@ public class RobotContainer {
   public RobotContainer() {
     // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
-    constructDriveController();
-    constructMechController();
+    constructController();
     configureBindings();
     configureAutoChooser();
 
@@ -111,31 +110,33 @@ public class RobotContainer {
      * face a target, and only
      * translation will be manually controllable.
      */
-    swerveSubsystem.setDefaultCommand(
-        new RunCommand(() -> {
-          swerveSubsystem.setDrivePowers(
-              driveController.getForwardPower(),
-              driveController.getLeftPower(),
-              driveController.getRotatePower());
-        },
-            swerveSubsystem));
+    if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+      swerveSubsystem.setDefaultCommand(
+          new RunCommand(() -> {
+            swerveSubsystem.setDrivePowers(
+                driveController.getForwardPower(),
+                driveController.getLeftPower(),
+                driveController.getRotatePower());
+          },
+              swerveSubsystem));
 
-    driveController.getRelativeMode().whileTrue(
-        new RunCommand(
-            () -> {
-              swerveSubsystem.setRobotRelativeDrivePowers(
-                  driveController.getForwardPower(),
-                  driveController.getLeftPower(),
-                  driveController.getRotatePower());
-              driveController.getRotatePower();
-            }, swerveSubsystem));
+      driveController.getRelativeMode().whileTrue(
+          new RunCommand(
+              () -> {
+                swerveSubsystem.setRobotRelativeDrivePowers(
+                    driveController.getForwardPower(),
+                    driveController.getLeftPower(),
+                    driveController.getRotatePower());
+                driveController.getRotatePower();
+              }, swerveSubsystem));
 
-    /* Pressing the button resets the field axes to the current robot axes. */
-    driveController.bindDriverHeadingReset(
-        () -> {
-          swerveSubsystem.resetDriverHeading();
-        },
-        swerveSubsystem);
+      /* Pressing the button resets the field axes to the current robot axes. */
+      driveController.bindDriverHeadingReset(
+          () -> {
+            swerveSubsystem.resetDriverHeading();
+          },
+          swerveSubsystem);
+    }
 
     // bind semi auto commands
     var crossTrigger = mechController.cross();
@@ -202,29 +203,32 @@ public class RobotContainer {
       }
     }, hoodSubsystem));
 
-    // Cancel rotate command if driver touches any stick
-    BooleanSupplier driverInput = () ->
-        Math.abs(driveController.getForwardPower()) > 0 ||
-        Math.abs(driveController.getLeftPower()) > 0 ||
-        Math.abs(driveController.getRotatePower()) > 0;
+    // Swerve-dependent drive controller commands
+    if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+      // Cancel rotate command if driver touches any stick
+      BooleanSupplier driverInput = () ->
+          Math.abs(driveController.getForwardPower()) > 0 ||
+          Math.abs(driveController.getLeftPower()) > 0 ||
+          Math.abs(driveController.getRotatePower()) > 0;
 
-    // Triangle = rotate to 0°, Circle = rotate to 90°
-    driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
-    driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
+      // Triangle = rotate to 0°, Circle = rotate to 90°
+      driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
+      driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
 
-    // L1 = align to hub
-    new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
+      // L1 = align to hub
+      new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
 
-    // D-pad steer speed limiting (scales MotionMagic cruise velocity)
-    // Up = 100%, Right = 75%, Down = 50%, Left = 25%
-    new Trigger(() -> driveController.getPOV() == 0)
-        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
-    new Trigger(() -> driveController.getPOV() == 90)
-        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
-    new Trigger(() -> driveController.getPOV() == 180)
-        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
-    new Trigger(() -> driveController.getPOV() == 270)
-        .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
+      // D-pad steer speed limiting (scales MotionMagic cruise velocity)
+      // Up = 100%, Right = 75%, Down = 50%, Left = 25%
+      new Trigger(() -> driveController.getPOV() == 0)
+          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+      new Trigger(() -> driveController.getPOV() == 90)
+          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+      new Trigger(() -> driveController.getPOV() == 180)
+          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+      new Trigger(() -> driveController.getPOV() == 270)
+          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
+    }
   }
     
 
@@ -232,17 +236,13 @@ public class RobotContainer {
    * Constructs the drive controller based on the name of the controller at port
    * 0
    */
-  private void constructDriveController() {
+  private void constructController() {
     driveController = new PS5DriveController();
     driveController.setDeadZone(0.05);
-  }
-
-  /**
-   * Constructs mech controller
-   */
-  private void constructMechController() {
     mechController = new CommandPS5Controller(1);
   }
+
+
 
   /**
    * Config the autonomous command chooser

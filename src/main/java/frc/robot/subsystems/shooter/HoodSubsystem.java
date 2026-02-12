@@ -15,7 +15,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import org.littletonrobotics.junction.Logger;
 
-public class hood extends SubsystemBase {
+public class HoodSubsystem extends SubsystemBase {
 
     private final TalonFX hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
@@ -24,7 +24,7 @@ public class hood extends SubsystemBase {
     private double commandedDutyCycle = 0.0;
     private static final String LOG_PREFIX = "Hood/";
 
-    public hood(CANBus cn) {
+    public HoodSubsystem(CANBus cn) {
         // Construct motors directly on the CAN bus
         hoodMotor = new TalonFX(ShooterConstants.HOOD_CAN_ID, cn);
         limit = new CANdi(ShooterConstants.FLYWHEEL_ENCODER_ID, cn);

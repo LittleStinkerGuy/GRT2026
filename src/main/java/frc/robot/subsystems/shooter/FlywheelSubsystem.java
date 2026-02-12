@@ -12,7 +12,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import org.littletonrobotics.junction.Logger;
 
-public class flywheel extends SubsystemBase {
+public class FlywheelSubsystem extends SubsystemBase {
 
     private final TalonFX upperMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
@@ -20,7 +20,7 @@ public class flywheel extends SubsystemBase {
     private double commandedDutyCycle = 0.0;
     private static final String LOG_PREFIX = "FlyWheel/";
 
-    public flywheel(CANBus cn) {
+    public FlywheelSubsystem(CANBus cn) {
         // Construct motors directly on the CAN bus
         upperMotor = new TalonFX(ShooterConstants.FLYWHEEL_CAN_ID, cn);
         config();
