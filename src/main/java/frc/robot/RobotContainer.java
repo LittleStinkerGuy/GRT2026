@@ -200,8 +200,8 @@ public class RobotContainer {
 
     hoodSubsystem.setDefaultCommand(Commands.run(() -> {
       double hoodInput = -mechController.getLeftY();
-      if (Math.abs(hoodInput) != 0.0) {
-        hoodSubsystem.hoodSpeed(hoodInput * 0.15);
+      if (Math.abs(hoodInput) >= 0.05) {
+        hoodSubsystem.hoodSpeed(hoodInput/Math.abs(hoodInput) * 0.05);
       } else {
         hoodSubsystem.hoodSpeed(0);
       }
