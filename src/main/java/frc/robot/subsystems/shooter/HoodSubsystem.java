@@ -46,7 +46,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     public void hoodSpeed(double speed){
         
-        if(hoodMotor.getPosition().getValueAsDouble() >= ShooterConstants.INIT_HOOD_ANGLE && speed >0){
+       /*  if(hoodMotor.getPosition().getValueAsDouble() >= ShooterConstants.INIT_HOOD_ANGLE && speed >0){
             hoodMotor.setControl(dutyCycl.withOutput(0));
             commandedDutyCycle = 0;
         }else if(hoodMotor.getPosition().getValueAsDouble() <= ShooterConstants.LOWER_ANGLE && speed <0){
@@ -56,6 +56,9 @@ public class HoodSubsystem extends SubsystemBase {
             hoodMotor.setControl(dutyCycl.withOutput(speed));
             commandedDutyCycle = speed;
         }
+            */
+            commandedDutyCycle = speed;
+            hoodMotor.setControl(dutyCycl.withOutput(speed));
         
     }
 
