@@ -166,7 +166,7 @@ public class RobotContainer {
     // ==================== INTAKE ROLLER ====================
     ///R1 = intake in, R2 = intake out
     mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-    mechController.R2().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
+    mechController.R2().whileTrue(Commands.run(() -> {if(!mechController.square().getAsBoolean())intakeSubsystem.runOut();}, intakeSubsystem));
     intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
     // ==================== INTAKE PIVOT ====================
@@ -184,8 +184,12 @@ public class RobotContainer {
 
     // ==================== HOPPER ====================
     // L1 = hopper forward, L2 = hopper reverse
-    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
+
+    mechController.L1().whileTrue(Commands.run(() -> 
+      HopperSubsystem.runForward(), HopperSubsystem));
+
     mechController.L2().whileTrue(Commands.run(() -> HopperSubsystem.runReverse(), HopperSubsystem));
+
     HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
 
     // ==================== SHOOTER ====================
