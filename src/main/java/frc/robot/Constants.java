@@ -205,7 +205,7 @@ public final class Constants {
   public static class HopperConstants {
     // Motor Configuration
     public static final int KRAKEN_CAN_ID = 15;
-    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue HOPPERINVERTED = InvertedValue.Clockwise_Positive;
 
     // Current Limits
     public static final int SUPPLY_CURRENT_LIMIT = 80;

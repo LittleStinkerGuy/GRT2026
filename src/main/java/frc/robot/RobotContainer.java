@@ -16,8 +16,8 @@ import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
 // import frc.robot.subsystems.Vision.CameraConfig;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
+//import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+//import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
@@ -63,8 +63,8 @@ public class RobotContainer {
 
   private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
 
-  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
-  private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
+  //private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
+  //private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
   private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
   private final Field2d m_field = new Field2d();
   private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
@@ -165,13 +165,13 @@ public class RobotContainer {
 
     // ==================== INTAKE ROLLER ====================
     // R1 = intake in, R2 = intake out
-    mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-    mechController.R2().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
-    intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+    //mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+    //mechController.R2().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
+    //intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
     // ==================== INTAKE PIVOT ====================
     // Right stick Y controls pivot manually
-    pivotIntake.setDefaultCommand(Commands.run(() -> {
+    /*pivotIntake.setDefaultCommand(Commands.run(() -> {
       double pivotInput = -mechController.getRightY();
       if (Math.abs(pivotInput) > 0.1) {
         pivotIntake.setManualSpeed(pivotInput * 0.3);
@@ -179,6 +179,7 @@ public class RobotContainer {
         pivotIntake.stop();
       }
     }, pivotIntake));
+    */
 
     // ==================== HOPPER ====================
     // L1 = hopper forward, L2 = hopper reverse
@@ -190,18 +191,20 @@ public class RobotContainer {
     // Square = flywheel (hold R2 analog for speed)
     // Left stick Y = hood manual control
     flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-      if (mechController.square().getAsBoolean()) {
+      //if (mechController.square().getAsBoolean()) {
         double speed = (mechController.getR2Axis() + 1) / 2;
         flywheelSubsystem.flySpeed(speed);
-      } else {
-        flywheelSubsystem.flySpeed(0);
-      }
+      //} else {
+       // flywheelSubsystem.flySpeed(0);
+      //}
     }, flywheelSubsystem));
 
     hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-      double hoodInput = -mechController.getLeftY();
-      if (Math.abs(hoodInput) >= 0.05) {
-        hoodSubsystem.hoodSpeed(hoodInput/Math.abs(hoodInput) * 0.05);
+      //double hoodInput = -mechController.getLeftY();
+      if (mechController.L3().getAsBoolean()) {
+        hoodSubsystem.hoodSpeed(0.05);
+      }else if(mechController.R3().getAsBoolean()){
+        hoodSubsystem.hoodSpeed(-0.05);
       } else {
         hoodSubsystem.hoodSpeed(0);
       }
