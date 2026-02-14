@@ -100,6 +100,7 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private boolean mechEnabled = false;
   private void configureBindings() {
     /*
      * Driving -- One joystick controls translation, the other rotation. If the
@@ -138,6 +139,7 @@ public class RobotContainer {
           swerveSubsystem);
     }
 
+    if (Constants.MECH_ENABLED){
     // bind semi auto commands
     // var crossTrigger = mechController.cross();
     // var triangleTrigger = mechController.triangle();
@@ -241,6 +243,8 @@ public class RobotContainer {
       new Trigger(() -> driveController.getPOV() == 270)
           .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
     }
+    }
+
   }
     
 

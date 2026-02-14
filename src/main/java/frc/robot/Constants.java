@@ -43,8 +43,8 @@ public final class Constants {
   public static final String Mech_CAN_BUS = "mechCAN";
 
   // Subsystem Enable/Disable
-  public static final boolean SWERVE_ENABLED = false;
-
+  public static final boolean SWERVE_ENABLED = true;
+  public static final boolean MECH_ENABLED = true;
   // ==================== SHOOTER ====================
   public static class ShooterConstants {
     // CAN IDs (: Hood=16, Flywheel=17, Flywheel Encoder=18)
@@ -132,24 +132,24 @@ public final class Constants {
     public static final double[] STEER_S = {0.25, 0.25, 0.25, 0.25};
 
     // Module CAN IDs and Offsets (per README)
-    public static final int FL_DRIVE = 1;
-    public static final int FL_STEER = 0;
-    public static final int FL_ENCODER = 11;
+    public static final int FL_DRIVE = 0;
+    public static final int FL_STEER = 1;
+    public static final int FL_ENCODER = 8;
     public static final double FL_OFFSET = 0;
 
-    public static final int FR_DRIVE = 3;
-    public static final int FR_STEER = 2;
-    public static final int FR_ENCODER = 10;
+    public static final int FR_DRIVE = 2;
+    public static final int FR_STEER = 3;
+    public static final int FR_ENCODER = 9;
     public static final double FR_OFFSET = 0;
 
-    public static final int BL_DRIVE = 7;
-    public static final int BL_STEER = 4;
-    public static final int BL_ENCODER = 8;
+    public static final int BL_DRIVE = 4;
+    public static final int BL_STEER = 5;
+    public static final int BL_ENCODER = 10;
     public static final double BL_OFFSET = 0;
 
-    public static final int BR_DRIVE = 5;
-    public static final int BR_STEER = 6;
-    public static final int BR_ENCODER = 9;
+    public static final int BR_DRIVE = 6;
+    public static final int BR_STEER = 7;
+    public static final int BR_ENCODER = 11;
     public static final double BR_OFFSET = 0;
 
     // Module Geometry (inches)
@@ -300,7 +300,7 @@ public final class Constants {
     public static final double WINCH_GR = 1.0;
 
     public static final double ARM_MAX_OUTPUT = 0.5;
-    public static final double WINCH_MAX_OUTPUT = 0.1;
+    public static final double WINCH_MAX_OUTPUT = 1;
 
     public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0.05);
     public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.3);

@@ -44,9 +44,10 @@ public class KrakenSwerveModule {
 
         this.drivePort = drivePort;
         this.steerPort = steerPort;
-
-        driveIndex = drivePort / 2;
-        steerIndex = (steerPort - 1) / 2;
+        
+        //very efficient code VVV :)
+        driveIndex = drivePort / 2;//this means that drive must be even IE: 0, 2, 4, 8
+        steerIndex = (steerPort - 1) / 2;//this means that steer must be odd IE: 1,3,5,7
 
         // steerMotor = new SteerMotor(steerPort, canCoderPort);
         // steerMotor.configPID(
