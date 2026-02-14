@@ -185,12 +185,12 @@ public class RobotContainer {
     
 
     // ==================== HOPPER ====================
-    // L1 = hopper forward, L2 = hopper reverse
+    // L2 = hopper forward, L1 = hopper reverse
 
-    mechController.L1().whileTrue(Commands.run(() -> 
+    mechController.L2().whileTrue(Commands.run(() -> 
       HopperSubsystem.runForward(), HopperSubsystem));
 
-    mechController.L2().whileTrue(Commands.run(() -> HopperSubsystem.runReverse(), HopperSubsystem));
+    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runReverse(), HopperSubsystem));
 
     HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
 

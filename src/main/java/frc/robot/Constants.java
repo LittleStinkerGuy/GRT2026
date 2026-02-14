@@ -179,8 +179,8 @@ public final class Constants {
   public static class IntakeConstants {
     // Roller Motor
     public static final int ROLLER_CAN_ID = 14;
-    public static final double ROLLER_IN_SPEED = 0.5;
-    public static final double ROLLER_OUT_SPEED = -0.5;
+    public static final double ROLLER_IN_SPEED = 1;
+    public static final double ROLLER_OUT_SPEED = -1;
     public static final double ROLLER_CURRENT_LIMIT = 100.0;
     public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
     public static final double ROLLER_OPEN_LOOP_RAMP = 0.05;
@@ -215,7 +215,7 @@ public final class Constants {
 
     // Ramp Rates
     public static final int VOLTAGE_COMPENSATION = 12;
-    public static final double OPEN_LOOP_RAMP = 0.5;
+    public static final double OPEN_LOOP_RAMP = 0.2;
     public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
     // Manual Control
