@@ -187,12 +187,17 @@ public class RobotContainer {
     // ==================== HOPPER ====================
     // L2 = hopper forward, L1 = hopper reverse
 
-    mechController.L2().whileTrue(Commands.run(() -> 
-      HopperSubsystem.runForward(), HopperSubsystem));
+    HopperSubsystem.setDefaultCommand(Commands.run(() -> {
+      double l2Speed = (mechController.getL2Axis() + 1) / 2;
 
-    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runReverse(), HopperSubsystem));
-
-    HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
+      if (mechController.L2().getAsBoolean()) {
+        HopperSubsystem.runForward();
+      } else if (l2Speed > 0.1) {
+        HopperSubsystem.setManualControl(-l2Speed);
+      } else {
+        HopperSubsystem.stop();
+      }
+    }, HopperSubsystem));
 
     // ==================== SHOOTER ====================
     // Square = flywheel (hold R2 analog for speed)
