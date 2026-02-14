@@ -159,7 +159,7 @@ public class RobotContainer {
       }
       System.out.print(armDutyCycle);
       System.out.print(" ");
-      System.out.print(winchDutyCycle);
+      System.out.println(winchDutyCycle);
 
       m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
       m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);

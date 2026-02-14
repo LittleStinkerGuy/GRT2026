@@ -293,8 +293,10 @@ public final class Constants {
     public static final int ARM_MOTOR_CAN_ID = 19;  // Doornob
     public static final int CANDI_CAN_ID = 22;
 
-    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
     public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
+    public static final Angle ARM_MOTOR_ROTOR_OFFSET = Rotations.of(0.195);
+    public static final Angle WINCH_MOTOR_ROTOR_OFFSET = Rotations.of(0);
 
     public static final double ARM_GR = 12.0;
     public static final double WINCH_GR = 1.0;
@@ -302,8 +304,8 @@ public final class Constants {
     public static final double ARM_MAX_OUTPUT = 0.5;
     public static final double WINCH_MAX_OUTPUT = 1;
 
-    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0.05);
-    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.3);
+    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0);
+    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.195);
     public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
     public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
   }
