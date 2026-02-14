@@ -185,15 +185,15 @@ public class RobotContainer {
     
 
     // ==================== HOPPER ====================
-    // L1 = hopper forward, L2 = hopper reverse 
+    // L2 = hopper forward, L1 = hopper reverse 
 
     HopperSubsystem.setDefaultCommand(Commands.run(() -> {
       double l2Speed = (mechController.getL2Axis() + 1) / 2;
 
       if (mechController.L1().getAsBoolean()) {
-        HopperSubsystem.runForward();
+        HopperSubsystem.runReverse();
       } else if (l2Speed > 0.1) {
-        HopperSubsystem.setManualControl(-l2Speed);
+        HopperSubsystem.setManualControl(l2Speed);
       } else {
         HopperSubsystem.stop();
       }
