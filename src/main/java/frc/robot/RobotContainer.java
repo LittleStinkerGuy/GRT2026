@@ -166,9 +166,8 @@ public class RobotContainer {
     }, m_ClimbSubsystem));
 
     // ==================== INTAKE ROLLER ====================
-    ///R1 = intake in, R2 = intake out
-    // mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-    mechController.L1().whileTrue(Commands.run(() -> {if(!mechController.square().getAsBoolean())intakeSubsystem.runOut();}, intakeSubsystem));
+    // R1 = intake in
+    mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
     intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
     // ==================== INTAKE PIVOT ====================
@@ -185,26 +184,16 @@ public class RobotContainer {
     
 
     // ==================== HOPPER ====================
-    // L2 = hopper forward, L1 = hopper reverse
-
-    HopperSubsystem.setDefaultCommand(Commands.run(() -> {
-      double l2Speed = (mechController.getL2Axis() + 1) / 2;
-
-      if (mechController.L1().getAsBoolean()) {
-        HopperSubsystem.runReverse();
-      } else if (l2Speed > 0.1) {
-        HopperSubsystem.setManualControl(l2Speed);
-      } else {
-        HopperSubsystem.stop();
-      }
-    }, HopperSubsystem));
+    // L1 = hopper in
+    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
+    HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
 
     // ==================== SHOOTER ====================
-    // Square = flywheel (hold R2 analog for speed)
+    // R2 = flywheel (analog speed control)
     // Left stick Y = hood manual control
     flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-      if (mechController.square().getAsBoolean()) {
-        double speed = (mechController.getR2Axis() + 1) / 2;
+      double speed = (mechController.getR2Axis() + 1) / 2;
+      if (speed > 0.1) {
         flywheelSubsystem.flySpeed(speed);
       } else {
         flywheelSubsystem.flySpeed(0);
