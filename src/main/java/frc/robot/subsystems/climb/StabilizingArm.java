@@ -41,7 +41,7 @@ public class StabilizingArm extends SubsystemBase {
         reverseLimitSignal = motor.getFault_ReverseSoftLimit();
         configureMotor();
 
-        zeroEncoder();
+        setEncoder(ClimbConstants.ARM_FORWARD_LIMIT);
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
@@ -100,10 +100,11 @@ public class StabilizingArm extends SubsystemBase {
 
 
     public Optional<Boolean> getForwardLimit() {
-        if (!forwardLimitSignal.refresh().getValue()) {
+        boolean forwardLimit = forwardLimitSignal.refresh().getValue();
+        if (!forwardLimitSignal.hasUpdated()) {
             return Optional.empty();
         }
-        return Optional.of(forwardLimitSignal.getValue());
+        return Optional.of(forwardLimit);
     }
 
     public Optional<Boolean> getReverseLimit() {
@@ -147,7 +148,9 @@ public class StabilizingArm extends SubsystemBase {
         SmartDashboard.putNumber("Climb/Arm/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Climb/Arm/Temp", motor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Climb/Arm/Connected", motor.isConnected());
-        SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", forwardLimitSignal.getValue());
+        SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", getForwardLimit().orElse(false));
+        SmartDashboard.putBoolean("Climb/Arm/ForwardLimitAccurate", getForwardLimit().isPresent());
         SmartDashboard.putBoolean("Climb/Arm/ReverseLimitHit", reverseLimitSignal.getValue());
      }
 }
+

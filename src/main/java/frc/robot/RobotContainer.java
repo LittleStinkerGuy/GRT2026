@@ -167,8 +167,8 @@ public class RobotContainer {
 
     // ==================== INTAKE ROLLER ====================
     ///R1 = intake in, R2 = intake out
-    mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-    mechController.R2().whileTrue(Commands.run(() -> {if(!mechController.square().getAsBoolean())intakeSubsystem.runOut();}, intakeSubsystem));
+    // mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+    mechController.L1().whileTrue(Commands.run(() -> {if(!mechController.square().getAsBoolean())intakeSubsystem.runOut();}, intakeSubsystem));
     intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
     // ==================== INTAKE PIVOT ====================

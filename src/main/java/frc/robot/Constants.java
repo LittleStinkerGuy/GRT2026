@@ -181,9 +181,9 @@ public final class Constants {
     public static final int ROLLER_CAN_ID = 14;
     public static final double ROLLER_IN_SPEED = 1;
     public static final double ROLLER_OUT_SPEED = -1;
-    public static final double ROLLER_CURRENT_LIMIT = 100.0;
+    public static final double ROLLER_CURRENT_LIMIT = 120.0;
     public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
-    public static final double ROLLER_OPEN_LOOP_RAMP = 0.05;
+    public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
     public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
     // Pivot Motor
@@ -295,17 +295,16 @@ public final class Constants {
 
     public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
     public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
-    public static final Angle ARM_MOTOR_ROTOR_OFFSET = Rotations.of(0.195);
-    public static final Angle WINCH_MOTOR_ROTOR_OFFSET = Rotations.of(0);
 
-    public static final double ARM_GR = 12.0;
+    public static final double ARM_GR = 1.0;
     public static final double WINCH_GR = 1.0;
 
     public static final double ARM_MAX_OUTPUT = 0.5;
     public static final double WINCH_MAX_OUTPUT = 1;
 
-    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(0);
-    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.195);
+    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.19);
+    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0);
+
     public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
     public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
   }
