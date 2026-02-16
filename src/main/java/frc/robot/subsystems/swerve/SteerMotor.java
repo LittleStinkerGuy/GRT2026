@@ -19,6 +19,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -75,7 +76,7 @@ public class SteerMotor extends SubsystemBase{
     private final boolean enableEncoder = true;
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private final CANcoderConfiguration encoderConfig  = new CANcoderConfiguration();
-    private MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0)
+    private PositionTorqueCurrentFOC posTorqueCurrentFOCRequest = new PositionTorqueCurrentFOC(0)
                 .withSlot(0)
                 .withUpdateFreqHz(100.0);
 
@@ -279,8 +280,8 @@ public class SteerMotor extends SubsystemBase{
 
         // targetWheelPosition = getOptimalSteerTargetPosition(motorCurrentPos, targetWheelPosition);        
         // targetPos = targetWheelPosition;
-        motionMagicRequest.withPosition(gurtMotorPos);
-        motor.setControl(motionMagicRequest);
+        posTorqueCurrentFOCRequest.withPosition(gurtMotorPos);
+        motor.setControl(posTorqueCurrentFOCRequest);
         publishStats();
     }
     /**

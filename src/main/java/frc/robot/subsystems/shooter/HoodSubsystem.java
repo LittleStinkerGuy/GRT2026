@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -13,6 +14,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
@@ -42,6 +45,13 @@ public class HoodSubsystem extends SubsystemBase {
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
         cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
+        cfg.withSoftwareLimitSwitch(
+            new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(ShooterConstants.UPPER_ANGLE)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(ShooterConstants.LOWER_ANGLE)
+            );
     }
 
     public void hoodSpeed(double speed){

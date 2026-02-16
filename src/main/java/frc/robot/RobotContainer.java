@@ -193,11 +193,8 @@ public class RobotContainer {
     // Left stick Y = hood manual control
     flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
       double speed = (mechController.getR2Axis() + 1) / 2;
-      if (speed > 0.1) {
         flywheelSubsystem.flySpeed(speed);
-      } else {
-        flywheelSubsystem.flySpeed(0);
-      }
+        //flywheelSubsystem.flySpeed(0);
     }, flywheelSubsystem));
 
     hoodSubsystem.setDefaultCommand(Commands.run(() -> {

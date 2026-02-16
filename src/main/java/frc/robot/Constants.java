@@ -61,13 +61,13 @@ public final class Constants {
 
     // Gear ratios
     public static final double GEAR_RATIO_FLYWHEEL = 1.5;
-    public static final double GEAR_RATIO_HOOD = 12;
+    public static final double GEAR_RATIO_HOOD = 50;
 
     // Angles
     public static final double UPPER_ANGLE = 0.45;
-    public static final double LOWER_ANGLE = 0.14;
+    public static final double LOWER_ANGLE = -1.25;
     public static final double MAX_VELO = 1;
-    public static final double INIT_HOOD_ANGLE = 0.5;
+    public static final double INIT_HOOD_ANGLE = -1.25;
     public static final double HOOD_MAGNET_OFFSET = 0.5;
 
     // Hub position
@@ -126,10 +126,10 @@ public final class Constants {
     public static final double[] DRIVE_V = {0.12, 0.12, 0.12, 0.12};
 
     // Steer PID (Position Control)
-    public static final double[] STEER_P = {35, 35, 35, 35};
+    public static final double[] STEER_P = {190, 190, 190, 190};
     public static final double[] STEER_I = {0, 0, 0, 0};
-    public static final double[] STEER_D = {0.1, 0.1, 0.1, 0.1};
-    public static final double[] STEER_S = {0.25, 0.25, 0.25, 0.25};
+    public static final double[] STEER_D = {7, 7, 7, 7};
+    public static final double[] STEER_S = {1, 1, 1, 1};
 
     // Module CAN IDs and Offsets (per README)
     public static final int FL_DRIVE = 0;
@@ -179,8 +179,8 @@ public final class Constants {
   public static class IntakeConstants {
     // Roller Motor
     public static final int ROLLER_CAN_ID = 14;
-    public static final double ROLLER_IN_SPEED = 1;
-    public static final double ROLLER_OUT_SPEED = -1;
+    public static final double ROLLER_IN_SPEED = -1;
+    public static final double ROLLER_OUT_SPEED = 1;
     public static final double ROLLER_CURRENT_LIMIT = 120.0;
     public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
     public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
