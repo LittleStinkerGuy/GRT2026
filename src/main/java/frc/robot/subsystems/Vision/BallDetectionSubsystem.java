@@ -36,14 +36,14 @@ public class BallDetectionSubsystem extends SubsystemBase {
         double yawDegrees,
         double pitchDegrees,
         double area,
-        double distanceMeters
+        Optional<Distance> distanceMeters
     ) { }
 
     private final PhotonCamera camera;
     private int pipelineIndex;
-    private final double cameraHeightMeters;
-    private final double targetHeightMeters;
-    private final double cameraPitchRadians;
+    private final Optional<Double> cameraHeightMeters;
+    private final Optional<Double> targetHeightMeters;
+    private final Optional<Double> cameraPitchRadians;
     private final boolean rangeCalculationEnabled;
 
     private final String dashboardPrefix;
@@ -56,10 +56,9 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private final Deque<Distance> distanceWindow = new ArrayDeque<>();
     private Distance distanceWindowSum = Meters.of(0.0);
 
-    private Distance filteredDistance = Meters.of(Double.NaN);
-    private Time latestTimestamp = Seconds.of(Double.NaN);
-    private double lastDetectionRobotTime = Double.NaN;
-    private Time startDecayTime = Seconds.zero();
+    private Optional<Distance> filteredDistance = Optional.empty();
+    private Optional<Time> latestTimestamp = Optional.empty();
+    private Optional<Time> startDecayTime = Optional.empty();
 
     /**
      * Creates the subsystem using the default configuration (pipeline 0) and no
@@ -84,11 +83,9 @@ public class BallDetectionSubsystem extends SubsystemBase {
         cameraHeightMeters = config.cameraHeightMeters();
         targetHeightMeters = config.targetHeightMeters();
         cameraPitchRadians = config.cameraPitchRadians();
-        rangeCalculationEnabled = !(
-            Double.isNaN(cameraHeightMeters) ||
-            Double.isNaN(targetHeightMeters) ||
-            Double.isNaN(cameraPitchRadians)
-        );
+        rangeCalculationEnabled = cameraHeightMeters.isPresent()
+            && targetHeightMeters.isPresent()
+            && cameraPitchRadians.isPresent();
 
         dashboardPrefix = "Ball Detection/" + config.cameraName() + "/";
         camera.setPipelineIndex(pipelineIndex);
@@ -178,14 +175,17 @@ public class BallDetectionSubsystem extends SubsystemBase {
     }
 
     private Detection createDetection(double timestampSeconds, PhotonTrackedTarget target) {
-        double distanceMeters = Double.NaN;
+        Optional<Distance> distanceMeters = Optional.empty();
         if (rangeCalculationEnabled) {
-            distanceMeters = PhotonUtils.calculateDistanceToTargetMeters(
-                cameraHeightMeters,
-                targetHeightMeters,
-                cameraPitchRadians,
+            double calculatedMeters = PhotonUtils.calculateDistanceToTargetMeters(
+                cameraHeightMeters.orElseThrow(),
+                targetHeightMeters.orElseThrow(),
+                cameraPitchRadians.orElseThrow(),
                 Units.degreesToRadians(target.getPitch())
             );
+            if (!Double.isNaN(calculatedMeters)) {
+                distanceMeters = Optional.of(Meters.of(calculatedMeters));
+            }
         }
         return new Detection(
             timestampSeconds,
@@ -197,23 +197,19 @@ public class BallDetectionSubsystem extends SubsystemBase {
     }
 
     private void recordDetectionForSmoothing(Detection detection, Time robotTimestamp) {
-        double detectionDistanceMeters = detection.distanceMeters();
-        if (!Double.isNaN(detectionDistanceMeters)) {
-            Distance detectionDistance = Meters.of(detectionDistanceMeters);
+        detection.distanceMeters().ifPresent(detectionDistance -> {
             distanceWindowSum = appendSample(distanceWindow, detectionDistance, distanceWindowSum);
             double averageMeters = distanceWindowSum.in(Meters) / distanceWindow.size();
-            filteredDistance = Meters.of(averageMeters);
-        }
-        latestTimestamp = Seconds.of(detection.timestampSeconds());
-        lastDetectionRobotTime = robotTimestamp.in(Seconds);
-        startDecayTime = robotTimestamp.plus(Seconds.of(HOLD_TIME_SECONDS));
+            filteredDistance = Optional.of(Meters.of(averageMeters));
+        });
+        latestTimestamp = Optional.of(Seconds.of(detection.timestampSeconds()));
+        startDecayTime = Optional.of(robotTimestamp.plus(Seconds.of(HOLD_TIME_SECONDS)));
     }
 
     private void applyDecayToFilteredValues(Time timeNow) {
-        if (!Double.isFinite(lastDetectionRobotTime)) {
-            filteredDistance = Meters.of(Double.NaN);
-            latestTimestamp = Seconds.of(Double.NaN);
-
+        if (startDecayTime.isEmpty()) {
+            filteredDistance = Optional.empty();
+            latestTimestamp = Optional.empty();
             distanceWindow.clear();
             distanceWindowSum = Meters.of(0.0);
             return;
@@ -222,25 +218,25 @@ public class BallDetectionSubsystem extends SubsystemBase {
          * that is the question
          * - the goat Henry Dominik
          */
-        if (timeNow.lte(startDecayTime)) {
+        Time decayStartTime = startDecayTime.get();
+        if (timeNow.lte(decayStartTime)) {
             return;
         }
 
-        Time elapsed = timeNow.minus(startDecayTime);
+        Time elapsed = timeNow.minus(decayStartTime);
         double decayProgress = Math.min(elapsed.in(Seconds) / DECAY_TIME_SECONDS, 1.0);
         double scale = Math.max(0.0, 1.0 - decayProgress);
 
-        if (!Double.isNaN(filteredDistance.in(Meters))) {
-            filteredDistance = Meters.of(filteredDistance.in(Meters) * scale);
-        }
+        filteredDistance = filteredDistance.map(
+            distance -> Meters.of(distance.in(Meters) * scale)
+        );
 
         if (decayProgress >= 1.0) {
-            filteredDistance = Meters.of(Double.NaN);
-            latestTimestamp = Seconds.of(Double.NaN);
+            filteredDistance = Optional.empty();
+            latestTimestamp = Optional.empty();
             distanceWindow.clear();
             distanceWindowSum = Meters.of(0.0);
-            lastDetectionRobotTime = Double.NaN;
-            startDecayTime = Seconds.zero();
+            startDecayTime = Optional.empty();
         }
     }
 
@@ -275,11 +271,11 @@ public class BallDetectionSubsystem extends SubsystemBase {
         );
         SmartDashboard.putNumber(
             key("bestDistanceMeters"),
-            filteredDistance.in(Meters)
+            filteredDistance.map(distance -> distance.in(Meters)).orElse(Double.NaN)
         );
         SmartDashboard.putNumber(
             key("timestampSeconds"),
-            latestTimestamp.in(Seconds)
+            latestTimestamp.map(time -> time.in(Seconds)).orElse(Double.NaN)
         );
     }
 
@@ -289,18 +285,21 @@ public class BallDetectionSubsystem extends SubsystemBase {
 
     /**
      * Configuration record used to describe the colored-shape pipeline setup.
-     * Values may be {@link Double#NaN} when the corresponding configuration is not
-     * available (for example when range calculation is not desired).
+     * Values may be {@link Optional#empty()} when the corresponding configuration is
+     * not available (for example when range calculation is not desired).
      */
     public static record BallDetectionConfig(
         String cameraName,
-        double cameraHeightMeters,
-        double targetHeightMeters,
-        double cameraPitchRadians,
+        Optional<Double> cameraHeightMeters,
+        Optional<Double> targetHeightMeters,
+        Optional<Double> cameraPitchRadians,
         int pipelineIndex
     ) {
         public BallDetectionConfig {
             Objects.requireNonNull(cameraName, "cameraName is required");
+            Objects.requireNonNull(cameraHeightMeters, "cameraHeightMeters is required");
+            Objects.requireNonNull(targetHeightMeters, "targetHeightMeters is required");
+            Objects.requireNonNull(cameraPitchRadians, "cameraPitchRadians is required");
         }
 
         /**
@@ -309,9 +308,9 @@ public class BallDetectionSubsystem extends SubsystemBase {
         public static BallDetectionConfig defaultConfig(String cameraName) {
             return new BallDetectionConfig(
                 cameraName,
-                Double.NaN,
-                Double.NaN,
-                Double.NaN,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
                 0
             );
         }
@@ -319,7 +318,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
         public BallDetectionConfig withCameraHeight(double newCameraHeightMeters) {
             return new BallDetectionConfig(
                 cameraName,
-                newCameraHeightMeters,
+                Optional.of(newCameraHeightMeters),
                 targetHeightMeters,
                 cameraPitchRadians,
                 pipelineIndex
@@ -330,7 +329,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
             return new BallDetectionConfig(
                 cameraName,
                 cameraHeightMeters,
-                newTargetHeightMeters,
+                Optional.of(newTargetHeightMeters),
                 cameraPitchRadians,
                 pipelineIndex
             );
@@ -341,7 +340,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
                 cameraName,
                 cameraHeightMeters,
                 targetHeightMeters,
-                newCameraPitchRadians,
+                Optional.of(newCameraPitchRadians),
                 pipelineIndex
             );
         }
