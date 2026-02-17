@@ -1,5 +1,8 @@
 package frc.robot.subsystems.Vision;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,6 +18,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -48,16 +53,13 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private List<Detection> latestDetections = List.of();
     private Optional<Detection> bestDetection = Optional.empty();
 
-    private final Deque<Double> yawWindow = new ArrayDeque<>();
-    private final Deque<Double> pitchWindow = new ArrayDeque<>();
-    private double yawWindowSum = 0.0;
-    private double pitchWindowSum = 0.0;
-    private double filteredYaw = Double.NaN;
-    private double filteredPitch = Double.NaN;
-    private double filteredDistance = Double.NaN;
-    private double filteredTimestamp = Double.NaN;
+    private final Deque<Distance> distanceWindow = new ArrayDeque<>();
+    private Distance distanceWindowSum = Meters.of(0.0);
+
+    private Distance filteredDistance = Meters.of(Double.NaN);
+    private Time latestTimestamp = Seconds.of(Double.NaN);
     private double lastDetectionRobotTime = Double.NaN;
-    private double holdUntilRobotTime = Double.NEGATIVE_INFINITY;
+    private Time startDecayTime = Seconds.zero();
 
     /**
      * Creates the subsystem using the default configuration (pipeline 0) and no
@@ -157,19 +159,19 @@ public class BallDetectionSubsystem extends SubsystemBase {
         }
 
         latestDetections = List.copyOf(processed);
-        double now = Timer.getFPGATimestamp();
+        Time timeNow = Seconds.of(Timer.getFPGATimestamp());
         if (processed.isEmpty()) {
             bestDetection = Optional.empty();
-            applyDecayToFilteredValues(now);
+            applyDecayToFilteredValues(timeNow);
         } else {
             bestDetection = processed.stream()
                 .max(Comparator.comparingDouble(Detection::area));
             if (bestDetection.isPresent()) {
                 Detection detection = bestDetection.get();
-                recordDetectionForSmoothing(detection, now);
+                recordDetectionForSmoothing(detection, timeNow);
                 detectionConsumer.accept(detection);
             } else {
-                applyDecayToFilteredValues(now);
+                applyDecayToFilteredValues(timeNow);
             }
         }
         publishTelemetry();
@@ -194,78 +196,61 @@ public class BallDetectionSubsystem extends SubsystemBase {
         );
     }
 
-    private void recordDetectionForSmoothing(Detection detection, double robotTimestampSeconds) {
-        yawWindowSum = appendSample(yawWindow, detection.yawDegrees(), yawWindowSum);
-        pitchWindowSum = appendSample(pitchWindow, detection.pitchDegrees(), pitchWindowSum);
-
-        filteredYaw = yawWindowSum / yawWindow.size();
-        filteredPitch = pitchWindowSum / pitchWindow.size();
-
-        double detectionDistance = detection.distanceMeters();
-        if (!Double.isNaN(detectionDistance)) {
-            if (Double.isNaN(filteredDistance)) {
-                filteredDistance = detectionDistance;
-            } else {
-                filteredDistance = 0.7 * filteredDistance + 0.3 * detectionDistance;
-            }
+    private void recordDetectionForSmoothing(Detection detection, Time robotTimestamp) {
+        double detectionDistanceMeters = detection.distanceMeters();
+        if (!Double.isNaN(detectionDistanceMeters)) {
+            Distance detectionDistance = Meters.of(detectionDistanceMeters);
+            distanceWindowSum = appendSample(distanceWindow, detectionDistance, distanceWindowSum);
+            double averageMeters = distanceWindowSum.in(Meters) / distanceWindow.size();
+            filteredDistance = Meters.of(averageMeters);
         }
-        filteredTimestamp = detection.timestampSeconds();
-        lastDetectionRobotTime = robotTimestampSeconds;
-        holdUntilRobotTime = robotTimestampSeconds + HOLD_TIME_SECONDS;
+        latestTimestamp = Seconds.of(detection.timestampSeconds());
+        lastDetectionRobotTime = robotTimestamp.in(Seconds);
+        startDecayTime = robotTimestamp.plus(Seconds.of(HOLD_TIME_SECONDS));
     }
 
-    private void applyDecayToFilteredValues(double nowSeconds) {
+    private void applyDecayToFilteredValues(Time timeNow) {
         if (!Double.isFinite(lastDetectionRobotTime)) {
-            filteredYaw = Double.NaN;
-            filteredPitch = Double.NaN;
-            filteredDistance = Double.NaN;
-            filteredTimestamp = Double.NaN;
-            yawWindow.clear();
-            pitchWindow.clear();
-            yawWindowSum = 0.0;
-            pitchWindowSum = 0.0;
+            filteredDistance = Meters.of(Double.NaN);
+            latestTimestamp = Seconds.of(Double.NaN);
+
+            distanceWindow.clear();
+            distanceWindowSum = Meters.of(0.0);
+            return;
+        }
+        /*to be or not to be
+         * that is the question
+         * - the goat Henry Dominik
+         */
+        if (timeNow.lte(startDecayTime)) {
             return;
         }
 
-        if (nowSeconds <= holdUntilRobotTime) {
-            return;
-        }
-
-        double elapsed = nowSeconds - holdUntilRobotTime;
-        double decayProgress = Math.min(elapsed / DECAY_TIME_SECONDS, 1.0);
+        Time elapsed = timeNow.minus(startDecayTime);
+        double decayProgress = Math.min(elapsed.in(Seconds) / DECAY_TIME_SECONDS, 1.0);
         double scale = Math.max(0.0, 1.0 - decayProgress);
 
-        if (!Double.isNaN(filteredYaw)) {
-            filteredYaw *= scale;
-        }
-        if (!Double.isNaN(filteredPitch)) {
-            filteredPitch *= scale;
-        }
-        if (!Double.isNaN(filteredDistance)) {
-            filteredDistance *= scale;
+        if (!Double.isNaN(filteredDistance.in(Meters))) {
+            filteredDistance = Meters.of(filteredDistance.in(Meters) * scale);
         }
 
         if (decayProgress >= 1.0) {
-            filteredYaw = Double.NaN;
-            filteredPitch = Double.NaN;
-            filteredDistance = Double.NaN;
-            filteredTimestamp = Double.NaN;
-            yawWindow.clear();
-            pitchWindow.clear();
-            yawWindowSum = 0.0;
-            pitchWindowSum = 0.0;
+            filteredDistance = Meters.of(Double.NaN);
+            latestTimestamp = Seconds.of(Double.NaN);
+            distanceWindow.clear();
+            distanceWindowSum = Meters.of(0.0);
             lastDetectionRobotTime = Double.NaN;
-            holdUntilRobotTime = Double.NEGATIVE_INFINITY;
+            startDecayTime = Seconds.zero();
         }
     }
 
-    private double appendSample(Deque<Double> window, double value, double currentSum) {
+    private Distance appendSample(Deque<Distance> window, Distance value, Distance currentSum) {
         window.addLast(value);
-        currentSum += value;
+        double sumMeters = currentSum.in(Meters) + value.in(Meters);
         if (window.size() > SMOOTHING_WINDOW_SIZE) {
-            currentSum -= window.removeFirst();
+            sumMeters -= window.removeFirst().in(Meters);
         }
-        return currentSum;
+        return Meters.of(sumMeters);
     }
 
     private void publishTelemetry() {
@@ -280,10 +265,22 @@ public class BallDetectionSubsystem extends SubsystemBase {
         SmartDashboard.putNumberArray(key("yawSamples"), yawSamples);
         SmartDashboard.putNumberArray(key("pitchSamples"), pitchSamples);
 
-        SmartDashboard.putNumber(key("bestYawDeg"), filteredYaw);
-        SmartDashboard.putNumber(key("bestPitchDeg"), filteredPitch);
-        SmartDashboard.putNumber(key("bestDistanceMeters"), filteredDistance);
-        SmartDashboard.putNumber(key("timestampSeconds"), filteredTimestamp);
+        SmartDashboard.putNumber(
+            key("bestYawDeg"),
+            bestDetection.map(Detection::yawDegrees).orElse(Double.NaN)
+        );
+        SmartDashboard.putNumber(
+            key("bestPitchDeg"),
+            bestDetection.map(Detection::pitchDegrees).orElse(Double.NaN)
+        );
+        SmartDashboard.putNumber(
+            key("bestDistanceMeters"),
+            filteredDistance.in(Meters)
+        );
+        SmartDashboard.putNumber(
+            key("timestampSeconds"),
+            latestTimestamp.in(Seconds)
+        );
     }
 
     private String key(String suffix) {
