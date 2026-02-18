@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 public class BallDetectionSubsystem extends SubsystemBase {
 
     private static final int SMOOTHING_WINDOW_SIZE = 5;
@@ -32,23 +31,23 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private static final double DECAY_TIME_SECONDS = 0.4;
 
     public record Detection(
-        double timestampSeconds,
-        double yawDegrees,
-        double pitchDegrees,
-        double area,
-        Optional<Distance> distanceMeters
-    ) { }
+            double timestampSeconds,
+            double yawDegrees,
+            double pitchDegrees,
+            double area,
+            Optional<Distance> distanceMeters) {
+    }
 
     private final PhotonCamera camera;
     private int pipelineIndex;
-    private final Optional<Double> cameraHeightMeters;
-    private final Optional<Double> targetHeightMeters;
-    private final Optional<Double> cameraPitchRadians;
-    private final boolean rangeCalculationEnabled;
+    private final double cameraHeightMeters;
+    private final double targetHeightMeters;
+    private final double cameraPitchRadians;
 
     private final String dashboardPrefix;
 
-    private Consumer<Detection> detectionConsumer = (d) -> {};
+    private Consumer<Detection> detectionConsumer = (d) -> {
+    };
 
     private List<Detection> latestDetections = List.of();
     private Optional<Detection> bestDetection = Optional.empty();
@@ -61,13 +60,23 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private Optional<Time> startDecayTime = Optional.empty();
 
     /**
-     * Creates the subsystem using the default configuration (pipeline 0) and no
-     * range calculation.
+     * Creates the subsystem using the default configuration (pipeline 0).
      *
-     * @param cameraName PhotonVision camera name to use
+     * @param cameraName         PhotonVision camera name to use
+     * @param cameraHeightMeters camera height above the floor
+     * @param targetHeightMeters target height above the floor
+     * @param cameraPitchRadians camera pitch in radians
      */
-    public BallDetectionSubsystem(String cameraName) {
-        this(BallDetectionConfig.defaultConfig(cameraName));
+    public BallDetectionSubsystem(
+            String cameraName,
+            double cameraHeightMeters,
+            double targetHeightMeters,
+            double cameraPitchRadians) {
+        this(BallDetectionConfig.defaultConfig(
+                cameraName,
+                cameraHeightMeters,
+                targetHeightMeters,
+                cameraPitchRadians));
     }
 
     /**
@@ -83,10 +92,6 @@ public class BallDetectionSubsystem extends SubsystemBase {
         cameraHeightMeters = config.cameraHeightMeters();
         targetHeightMeters = config.targetHeightMeters();
         cameraPitchRadians = config.cameraPitchRadians();
-        rangeCalculationEnabled = cameraHeightMeters.isPresent()
-            && targetHeightMeters.isPresent()
-            && cameraPitchRadians.isPresent();
-
         dashboardPrefix = "Ball Detection/" + config.cameraName() + "/";
         camera.setPipelineIndex(pipelineIndex);
     }
@@ -110,7 +115,8 @@ public class BallDetectionSubsystem extends SubsystemBase {
      * produced. Passing {@code null} clears the consumer.
      */
     public void setBestDetectionConsumer(Consumer<Detection> consumer) {
-        detectionConsumer = consumer != null ? consumer : (d) -> {};
+        detectionConsumer = consumer != null ? consumer : (d) -> {
+        };
     }
 
     /**
@@ -162,7 +168,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
             applyDecayToFilteredValues(timeNow);
         } else {
             bestDetection = processed.stream()
-                .max(Comparator.comparingDouble(Detection::area));
+                    .max(Comparator.comparingDouble(Detection::area));
             if (bestDetection.isPresent()) {
                 Detection detection = bestDetection.get();
                 recordDetectionForSmoothing(detection, timeNow);
@@ -176,24 +182,20 @@ public class BallDetectionSubsystem extends SubsystemBase {
 
     private Detection createDetection(double timestampSeconds, PhotonTrackedTarget target) {
         Optional<Distance> distanceMeters = Optional.empty();
-        if (rangeCalculationEnabled) {
-            double calculatedMeters = PhotonUtils.calculateDistanceToTargetMeters(
-                cameraHeightMeters.orElseThrow(),
-                targetHeightMeters.orElseThrow(),
-                cameraPitchRadians.orElseThrow(),
-                Units.degreesToRadians(target.getPitch())
-            );
-            if (!Double.isNaN(calculatedMeters)) {
-                distanceMeters = Optional.of(Meters.of(calculatedMeters));
-            }
+        double calculatedMeters = PhotonUtils.calculateDistanceToTargetMeters(
+                cameraHeightMeters,
+                targetHeightMeters,
+                cameraPitchRadians,
+                Units.degreesToRadians(target.getPitch()));
+        if (Double.isFinite(calculatedMeters)) {
+            distanceMeters = Optional.of(Meters.of(calculatedMeters));
         }
         return new Detection(
-            timestampSeconds,
-            target.getYaw(),
-            target.getPitch(),
-            target.getArea(),
-            distanceMeters
-        );
+                timestampSeconds,
+                target.getYaw(),
+                target.getPitch(),
+                target.getArea(),
+                distanceMeters);
     }
 
     private void recordDetectionForSmoothing(Detection detection, Time robotTimestamp) {
@@ -214,7 +216,8 @@ public class BallDetectionSubsystem extends SubsystemBase {
             distanceWindowSum = Meters.of(0.0);
             return;
         }
-        /*to be or not to be
+        /*
+         * to be or not to be
          * that is the question
          * - the goat Henry Dominik
          */
@@ -228,8 +231,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
         double scale = Math.max(0.0, 1.0 - decayProgress);
 
         filteredDistance = filteredDistance.map(
-            distance -> Meters.of(distance.in(Meters) * scale)
-        );
+                distance -> Meters.of(distance.in(Meters) * scale));
 
         if (decayProgress >= 1.0) {
             filteredDistance = Optional.empty();
@@ -252,31 +254,18 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         SmartDashboard.putNumber(key("count"), latestDetections.size());
 
-        double[] yawSamples = latestDetections.stream()
-            .mapToDouble(Detection::yawDegrees)
-            .toArray();
-        double[] pitchSamples = latestDetections.stream()
-            .mapToDouble(Detection::pitchDegrees)
-            .toArray();
+        double[] yawSamples = latestDetections.stream().mapToDouble(Detection::yawDegrees).toArray();
+        double[] pitchSamples = latestDetections.stream().mapToDouble(Detection::pitchDegrees).toArray();
+
         SmartDashboard.putNumberArray(key("yawSamples"), yawSamples);
         SmartDashboard.putNumberArray(key("pitchSamples"), pitchSamples);
 
-        SmartDashboard.putNumber(
-            key("bestYawDeg"),
-            bestDetection.map(Detection::yawDegrees).orElse(Double.NaN)
-        );
-        SmartDashboard.putNumber(
-            key("bestPitchDeg"),
-            bestDetection.map(Detection::pitchDegrees).orElse(Double.NaN)
-        );
-        SmartDashboard.putNumber(
-            key("bestDistanceMeters"),
-            filteredDistance.map(distance -> distance.in(Meters)).orElse(Double.NaN)
-        );
-        SmartDashboard.putNumber(
-            key("timestampSeconds"),
-            latestTimestamp.map(time -> time.in(Seconds)).orElse(Double.NaN)
-        );
+        SmartDashboard.putNumber(key("bestYawDeg"), bestDetection.map(Detection::yawDegrees).orElse(Double.NaN));
+        SmartDashboard.putNumber(key("bestPitchDeg"), bestDetection.map(Detection::pitchDegrees).orElse(Double.NaN));
+        SmartDashboard.putNumber(key("bestDistanceMeters"),
+                filteredDistance.map(distance -> distance.in(Meters)).orElse(Double.NaN));
+        SmartDashboard.putNumber(key("timestampSeconds"),
+                latestTimestamp.map(time -> time.in(Seconds)).orElse(Double.NaN));
     }
 
     private String key(String suffix) {
@@ -285,74 +274,77 @@ public class BallDetectionSubsystem extends SubsystemBase {
 
     /**
      * Configuration record used to describe the colored-shape pipeline setup.
-     * Values may be {@link Optional#empty()} when the corresponding configuration is
-     * not available (for example when range calculation is not desired).
+     * Values must be finite. Shoutout Codex for ts code
      */
     public static record BallDetectionConfig(
-        String cameraName,
-        Optional<Double> cameraHeightMeters,
-        Optional<Double> targetHeightMeters,
-        Optional<Double> cameraPitchRadians,
-        int pipelineIndex
-    ) {
+            String cameraName,
+            double cameraHeightMeters,
+            double targetHeightMeters,
+            double cameraPitchRadians,
+            int pipelineIndex) {
         public BallDetectionConfig {
             Objects.requireNonNull(cameraName, "cameraName is required");
-            Objects.requireNonNull(cameraHeightMeters, "cameraHeightMeters is required");
-            Objects.requireNonNull(targetHeightMeters, "targetHeightMeters is required");
-            Objects.requireNonNull(cameraPitchRadians, "cameraPitchRadians is required");
+            if (!Double.isFinite(cameraHeightMeters)) {
+                throw new IllegalArgumentException("cameraHeightMeters must be finite");
+            }
+            if (!Double.isFinite(targetHeightMeters)) {
+                throw new IllegalArgumentException("targetHeightMeters must be finite");
+            }
+            if (!Double.isFinite(cameraPitchRadians)) {
+                throw new IllegalArgumentException("cameraPitchRadians must be finite");
+            }
         }
 
         /**
          * Creates a default configuration for the supplied camera.
          */
-        public static BallDetectionConfig defaultConfig(String cameraName) {
+        public static BallDetectionConfig defaultConfig(
+                String cameraName,
+                double cameraHeightMeters,
+                double targetHeightMeters,
+                double cameraPitchRadians) {
             return new BallDetectionConfig(
-                cameraName,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                0
-            );
+                    cameraName,
+                    cameraHeightMeters,
+                    targetHeightMeters,
+                    cameraPitchRadians,
+                    0);
         }
 
         public BallDetectionConfig withCameraHeight(double newCameraHeightMeters) {
             return new BallDetectionConfig(
-                cameraName,
-                Optional.of(newCameraHeightMeters),
-                targetHeightMeters,
-                cameraPitchRadians,
-                pipelineIndex
-            );
+                    cameraName,
+                    newCameraHeightMeters,
+                    targetHeightMeters,
+                    cameraPitchRadians,
+                    pipelineIndex);
         }
 
         public BallDetectionConfig withTargetHeight(double newTargetHeightMeters) {
             return new BallDetectionConfig(
-                cameraName,
-                cameraHeightMeters,
-                Optional.of(newTargetHeightMeters),
-                cameraPitchRadians,
-                pipelineIndex
-            );
+                    cameraName,
+                    cameraHeightMeters,
+                    newTargetHeightMeters,
+                    cameraPitchRadians,
+                    pipelineIndex);
         }
 
         public BallDetectionConfig withCameraPitch(double newCameraPitchRadians) {
             return new BallDetectionConfig(
-                cameraName,
-                cameraHeightMeters,
-                targetHeightMeters,
-                Optional.of(newCameraPitchRadians),
-                pipelineIndex
-            );
+                    cameraName,
+                    cameraHeightMeters,
+                    targetHeightMeters,
+                    newCameraPitchRadians,
+                    pipelineIndex);
         }
 
         public BallDetectionConfig withPipelineIndex(int newPipelineIndex) {
             return new BallDetectionConfig(
-                cameraName,
-                cameraHeightMeters,
-                targetHeightMeters,
-                cameraPitchRadians,
-                newPipelineIndex
-            );
+                    cameraName,
+                    cameraHeightMeters,
+                    targetHeightMeters,
+                    cameraPitchRadians,
+                    newPipelineIndex);
         }
     }
 }
