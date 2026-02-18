@@ -56,6 +56,8 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private Distance distanceWindowSum = Meters.of(0.0);
 
     private Optional<Distance> filteredDistance = Optional.empty();
+    private Optional<Distance> filteredMinDistance = Optional.empty();
+    private Optional<Distance> filteredMaxDistance = Optional.empty();
     private Optional<Time> latestTimestamp = Optional.empty();
     private Optional<Time> startDecayTime = Optional.empty();
 
@@ -203,6 +205,7 @@ public class FuelDetectionSubsystem extends SubsystemBase {
             distanceWindowSum = appendSample(distanceWindow, detectionDistance, distanceWindowSum);
             double averageMeters = distanceWindowSum.in(Meters) / distanceWindow.size();
             filteredDistance = Optional.of(Meters.of(averageMeters));
+            updateDistanceExtremes();
         });
         latestTimestamp = Optional.of(Seconds.of(detection.timestampSeconds()));
         startDecayTime = Optional.of(robotTimestamp.plus(VisionConstants.FUEL_DECAY_HOLD_TIME_SECONDS));
@@ -211,6 +214,8 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private void applyDecayToFilteredValues(Time timeNow) {
         if (startDecayTime.isEmpty()) {
             filteredDistance = Optional.empty();
+            filteredMinDistance = Optional.empty();
+            filteredMaxDistance = Optional.empty();
             latestTimestamp = Optional.empty();
             distanceWindow.clear();
             distanceWindowSum = Meters.of(0.0);
@@ -232,9 +237,15 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
         filteredDistance = filteredDistance.map(
                 distance -> Meters.of(distance.in(Meters) * scale));
+        filteredMinDistance = filteredMinDistance.map(
+                distance -> Meters.of(distance.in(Meters) * scale));
+        filteredMaxDistance = filteredMaxDistance.map(
+                distance -> Meters.of(distance.in(Meters) * scale));
 
         if (decayProgress >= 1.0) {
             filteredDistance = Optional.empty();
+            filteredMinDistance = Optional.empty();
+            filteredMaxDistance = Optional.empty();
             latestTimestamp = Optional.empty();
             distanceWindow.clear();
             distanceWindowSum = Meters.of(0.0);
@@ -249,6 +260,28 @@ public class FuelDetectionSubsystem extends SubsystemBase {
             sumMeters -= window.removeFirst().in(Meters);
         }
         return Meters.of(sumMeters);
+    }
+
+    private void updateDistanceExtremes() {
+        if (distanceWindow.isEmpty()) {
+            filteredMinDistance = Optional.empty();
+            filteredMaxDistance = Optional.empty();
+            return;
+        }
+
+        double minMeters = Double.POSITIVE_INFINITY;
+        double maxMeters = Double.NEGATIVE_INFINITY;
+        for (Distance distance : distanceWindow) {
+            double meters = distance.in(Meters);
+            if (meters < minMeters) {
+                minMeters = meters;
+            }
+            if (meters > maxMeters) {
+                maxMeters = meters;
+            }
+        }
+        filteredMinDistance = Optional.of(Meters.of(minMeters));
+        filteredMaxDistance = Optional.of(Meters.of(maxMeters));
     }
 
     private void publishTelemetry() {
@@ -271,9 +304,13 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber(key("bestYawDeg"), bestDetection.map(Detection::yawDegrees).orElse(Double.NaN));
         SmartDashboard.putNumber(key("bestPitchDeg"), bestDetection.map(Detection::pitchDegrees).orElse(Double.NaN));
         SmartDashboard.putNumber(key("bestDistanceMeters"),
-                filteredDistance.map(distance -> distance.in(Meters)).orElse(Double.NaN));
+                filteredDistance.orElse(Meters.of(Double.NaN)).in(Meters));
+        SmartDashboard.putNumber(key("minDistanceMeters"),
+                filteredMinDistance.orElse(Meters.of(Double.NaN)).in(Meters));
+        SmartDashboard.putNumber(key("maxDistanceMeters"),
+                filteredMaxDistance.orElse(Meters.of(Double.NaN)).in(Meters));
         SmartDashboard.putNumber(key("timestampSeconds"),
-                latestTimestamp.map(time -> time.in(Seconds)).orElse(Double.NaN));
+                latestTimestamp.orElse(Seconds.of(Double.NaN)).in(Seconds));
     }
 
     private String key(String suffix) {
