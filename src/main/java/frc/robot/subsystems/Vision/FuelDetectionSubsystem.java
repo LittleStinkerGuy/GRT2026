@@ -35,6 +35,9 @@ public class FuelDetectionSubsystem extends SubsystemBase {
             Double.NaN,
             Optional.empty());
 
+    private static final Consumer<Detection> NO_OP_CONSUMER = detection -> {
+    };
+
     
 
     public record Detection(
@@ -53,8 +56,7 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
     private final String dashboardPrefix;
 
-    private Consumer<Detection> detectionConsumer = (d) -> {
-    };
+    private Consumer<Detection> detectionConsumer = NO_OP_CONSUMER;
 
     private List<Detection> latestDetections = List.of();
     private Optional<Detection> bestDetection = Optional.empty();
@@ -108,15 +110,18 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+        Time timeNow = Seconds.of(Timer.getFPGATimestamp());
 
         if (results.isEmpty()) {
+            applyDecayToFilteredValues(timeNow);
             publishTelemetry();
             return;
         }
 
         for (PhotonPipelineResult result : results) {
-            handleResult(result);
+            handleResult(result, timeNow);
         }
+        publishTelemetry();
     }
 
     /**
@@ -124,8 +129,7 @@ public class FuelDetectionSubsystem extends SubsystemBase {
      * produced. Passing {@code null} clears the consumer.
      */
     public void setBestDetectionConsumer(Consumer<Detection> consumer) {
-        detectionConsumer = consumer != null ? consumer : (d) -> {
-        };
+        detectionConsumer = consumer != null ? consumer : NO_OP_CONSUMER;
     }
 
     /**
@@ -161,7 +165,7 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         return bestDetection;
     }
 
-    private void handleResult(PhotonPipelineResult result) {
+    private void handleResult(PhotonPipelineResult result, Time robotTimestamp) {
         List<Detection> processed = new ArrayList<>();
 
         if (result.hasTargets()) {
@@ -171,22 +175,19 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         }
 
         latestDetections = List.copyOf(processed);
-        Time timeNow = Seconds.of(Timer.getFPGATimestamp());
         if (processed.isEmpty()) {
             bestDetection = Optional.empty();
-            applyDecayToFilteredValues(timeNow);
+            applyDecayToFilteredValues(robotTimestamp);
         } else {
             bestDetection = processed.stream()
                     .max(Comparator.comparingDouble(Detection::area));
-            if (bestDetection.isPresent()) {
-                Detection detection = bestDetection.get();
-                recordDetectionForSmoothing(detection, timeNow);
-                detectionConsumer.accept(detection);
-            } else {
-                applyDecayToFilteredValues(timeNow);
-            }
+            bestDetection.ifPresentOrElse(
+                    detection -> {
+                        recordDetectionForSmoothing(detection, robotTimestamp);
+                        detectionConsumer.accept(detection);
+                    },
+                    () -> applyDecayToFilteredValues(robotTimestamp));
         }
-        publishTelemetry();
     }
 
     private Detection createDetection(double timestampSeconds, PhotonTrackedTarget target) {
@@ -220,19 +221,9 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
     private void applyDecayToFilteredValues(Time timeNow) {
         if (startDecayTime.isEmpty()) {
-            filteredDistance = Optional.empty();
-            filteredMinDistance = Optional.empty();
-            filteredMaxDistance = Optional.empty();
-            latestTimestamp = Optional.empty();
-            distanceWindow.clear();
-            distanceWindowSum = Meters.of(0.0);
+            resetFilteredState();
             return;
         }
-        /*
-         * to be or not to be
-         * that is the question
-         * - the goat Henry Dominik
-         */
         Time decayStartTime = startDecayTime.get();
         if (timeNow.lte(decayStartTime)) {
             return;
@@ -250,14 +241,18 @@ public class FuelDetectionSubsystem extends SubsystemBase {
                 distance -> Meters.of(distance.in(Meters) * scale));
 
         if (decayProgress >= 1.0) {
-            filteredDistance = Optional.empty();
-            filteredMinDistance = Optional.empty();
-            filteredMaxDistance = Optional.empty();
-            latestTimestamp = Optional.empty();
-            distanceWindow.clear();
-            distanceWindowSum = Meters.of(0.0);
+            resetFilteredState();
             startDecayTime = Optional.empty();
         }
+    }
+
+    private void resetFilteredState() {
+        filteredDistance = Optional.empty();
+        filteredMinDistance = Optional.empty();
+        filteredMaxDistance = Optional.empty();
+        latestTimestamp = Optional.empty();
+        distanceWindow.clear();
+        distanceWindowSum = Meters.of(0.0);
     }
 
     private Distance appendSample(Deque<Distance> window, Distance value, Distance currentSum) {
