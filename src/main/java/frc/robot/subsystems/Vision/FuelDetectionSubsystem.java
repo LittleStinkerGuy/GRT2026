@@ -260,6 +260,14 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         SmartDashboard.putNumberArray(key("yawSamples"), yawSamples);
         SmartDashboard.putNumberArray(key("pitchSamples"), pitchSamples);
 
+        double[] distanceSamples = latestDetections.stream()
+                .map(Detection::distanceMeters)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .mapToDouble(distance -> distance.in(Meters))
+                .toArray();
+        SmartDashboard.putNumberArray(key("distanceSamples"), distanceSamples);
+
         SmartDashboard.putNumber(key("bestYawDeg"), bestDetection.map(Detection::yawDegrees).orElse(Double.NaN));
         SmartDashboard.putNumber(key("bestPitchDeg"), bestDetection.map(Detection::pitchDegrees).orElse(Double.NaN));
         SmartDashboard.putNumber(key("bestDistanceMeters"),
