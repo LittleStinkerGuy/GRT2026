@@ -2,6 +2,7 @@ package frc.robot.subsystems.Vision;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Value;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -23,12 +24,11 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.VisionConstants;
 
 public class BallDetectionSubsystem extends SubsystemBase {
 
-    private static final int SMOOTHING_WINDOW_SIZE = 5;
-    private static final double HOLD_TIME_SECONDS = 0.2;
-    private static final double DECAY_TIME_SECONDS = 0.4;
+    
 
     public record Detection(
             double timestampSeconds,
@@ -205,7 +205,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
             filteredDistance = Optional.of(Meters.of(averageMeters));
         });
         latestTimestamp = Optional.of(Seconds.of(detection.timestampSeconds()));
-        startDecayTime = Optional.of(robotTimestamp.plus(Seconds.of(HOLD_TIME_SECONDS)));
+        startDecayTime = Optional.of(robotTimestamp.plus(VisionConstants.BALL_DECAY_HOLD_TIME_SECONDS));
     }
 
     private void applyDecayToFilteredValues(Time timeNow) {
@@ -227,7 +227,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
         }
 
         Time elapsed = timeNow.minus(decayStartTime);
-        double decayProgress = Math.min(elapsed.in(Seconds) / DECAY_TIME_SECONDS, 1.0);
+        double decayProgress = Math.min(elapsed.div(VisionConstants.BALL_DECAY_TIME_SECONDS).in(Value), 1.0);
         double scale = Math.max(0.0, 1.0 - decayProgress);
 
         filteredDistance = filteredDistance.map(
@@ -245,7 +245,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private Distance appendSample(Deque<Distance> window, Distance value, Distance currentSum) {
         window.addLast(value);
         double sumMeters = currentSum.in(Meters) + value.in(Meters);
-        if (window.size() > SMOOTHING_WINDOW_SIZE) {
+        if (window.size() > VisionConstants.BALL_SMOOTHING_WINDOW_SIZE) {
             sumMeters -= window.removeFirst().in(Meters);
         }
         return Meters.of(sumMeters);

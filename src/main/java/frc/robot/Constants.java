@@ -9,9 +9,11 @@ import java.util.List;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 // Units library:
-import static edu.wpi.first.units.Units.Rotations; 
-import edu.wpi.first.units.measure.Angle;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Time;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -72,6 +74,9 @@ public final class Constants {
     public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
       VisionConstants.STD_DEV_DIST,VisionConstants.O_STD_DEV,1);
 
+      public static final int BALL_SMOOTHING_WINDOW_SIZE = 5;
+      public static final Time BALL_DECAY_HOLD_TIME_SECONDS = Seconds.of(0.2);
+      public static final Time BALL_DECAY_TIME_SECONDS = Seconds.of(0.4);
   }
   public static class SwerveDriveConstants {
 
