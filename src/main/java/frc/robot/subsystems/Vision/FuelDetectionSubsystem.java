@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Vision;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Value;
 
@@ -19,6 +20,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
@@ -50,9 +52,9 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
     private final PhotonCamera camera;
     private int pipelineIndex;
-    private final double cameraHeightMeters;
-    private final double targetHeightMeters;
-    private final double cameraPitchRadians;
+    private final Distance cameraHeight;
+    private final Distance targetHeight;
+    private final Angle cameraPitch;
 
     private final String dashboardPrefix;
 
@@ -70,25 +72,6 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private Optional<Time> latestTimestamp = Optional.empty();
     private Optional<Time> startDecayTime = Optional.empty();
 
-    /**
-     * Creates the subsystem using the default configuration (pipeline 0).
-     *
-     * @param cameraName         PhotonVision camera name to use
-     * @param cameraHeightMeters camera height above the floor
-     * @param targetHeightMeters target height above the floor
-     * @param cameraPitchRadians camera pitch in radians
-     */
-    public FuelDetectionSubsystem(
-            String cameraName,
-            double cameraHeightMeters,
-            double targetHeightMeters,
-            double cameraPitchRadians) {
-        this(FuelDetectionConfig.defaultConfig(
-                cameraName,
-                cameraHeightMeters,
-                targetHeightMeters,
-                cameraPitchRadians));
-    }
 
     /**
      * Creates the subsystem with a custom configuration.
@@ -100,9 +83,9 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
         camera = new PhotonCamera(config.cameraName());
         pipelineIndex = config.pipelineIndex();
-        cameraHeightMeters = config.cameraHeightMeters();
-        targetHeightMeters = config.targetHeightMeters();
-        cameraPitchRadians = config.cameraPitchRadians();
+        cameraHeight = config.cameraHeight();
+        targetHeight = config.targetHeight();
+        cameraPitch = config.cameraPitch();
         dashboardPrefix = "FuelDetection/" + config.cameraName() + "/";
         camera.setPipelineIndex(pipelineIndex);
     }
@@ -193,9 +176,9 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private Detection createDetection(double timestampSeconds, PhotonTrackedTarget target) {
         Optional<Distance> distanceMeters = Optional.empty();
         double calculatedMeters = PhotonUtils.calculateDistanceToTargetMeters(
-                cameraHeightMeters,
-                targetHeightMeters,
-                cameraPitchRadians,
+                cameraHeight.in(Meters),
+                targetHeight.in(Meters),
+                cameraPitch.in(Radians),
                 Units.degreesToRadians(target.getPitch()));
         if (Double.isFinite(calculatedMeters)) {
             distanceMeters = Optional.of(Meters.of(calculatedMeters));
@@ -325,20 +308,23 @@ public class FuelDetectionSubsystem extends SubsystemBase {
      */
     public static record FuelDetectionConfig(
             String cameraName,
-            double cameraHeightMeters,
-            double targetHeightMeters,
-            double cameraPitchRadians,
+            Distance cameraHeight,
+            Distance targetHeight,
+            Angle cameraPitch,
             int pipelineIndex) {
         public FuelDetectionConfig {
             Objects.requireNonNull(cameraName, "cameraName is required");
-            if (!Double.isFinite(cameraHeightMeters)) {
-                throw new IllegalArgumentException("cameraHeightMeters must be finite");
+            Objects.requireNonNull(cameraHeight, "cameraHeight is required");
+            Objects.requireNonNull(targetHeight, "targetHeight is required");
+            Objects.requireNonNull(cameraPitch, "cameraPitch is required");
+            if (!Double.isFinite(cameraHeight.in(Meters))) {
+                throw new IllegalArgumentException("cameraHeight must be finite");
             }
-            if (!Double.isFinite(targetHeightMeters)) {
-                throw new IllegalArgumentException("targetHeightMeters must be finite");
+            if (!Double.isFinite(targetHeight.in(Meters))) {
+                throw new IllegalArgumentException("targetHeight must be finite");
             }
-            if (!Double.isFinite(cameraPitchRadians)) {
-                throw new IllegalArgumentException("cameraPitchRadians must be finite");
+            if (!Double.isFinite(cameraPitch.in(Radians))) {
+                throw new IllegalArgumentException("cameraPitch must be finite");
             }
         }
 
@@ -347,50 +333,50 @@ public class FuelDetectionSubsystem extends SubsystemBase {
          */
         public static FuelDetectionConfig defaultConfig(
                 String cameraName,
-                double cameraHeightMeters,
-                double targetHeightMeters,
-                double cameraPitchRadians) {
+                Distance cameraHeight,
+                Distance targetHeight,
+                Angle cameraPitch) {
             return new FuelDetectionConfig(
                     cameraName,
-                    cameraHeightMeters,
-                    targetHeightMeters,
-                    cameraPitchRadians,
+                    cameraHeight,
+                    targetHeight,
+                    cameraPitch,
                     0);
         }
 
-        public FuelDetectionConfig withCameraHeight(double newCameraHeightMeters) {
+        public FuelDetectionConfig withCameraHeight(Distance newCameraHeight) {
             return new FuelDetectionConfig(
                     cameraName,
-                    newCameraHeightMeters,
-                    targetHeightMeters,
-                    cameraPitchRadians,
+                    newCameraHeight,
+                    targetHeight,
+                    cameraPitch,
                     pipelineIndex);
         }
 
-        public FuelDetectionConfig withTargetHeight(double newTargetHeightMeters) {
+        public FuelDetectionConfig withTargetHeight(Distance newTargetHeight) {
             return new FuelDetectionConfig(
                     cameraName,
-                    cameraHeightMeters,
-                    newTargetHeightMeters,
-                    cameraPitchRadians,
+                    cameraHeight,
+                    newTargetHeight,
+                    cameraPitch,
                     pipelineIndex);
         }
 
-        public FuelDetectionConfig withCameraPitch(double newCameraPitchRadians) {
+        public FuelDetectionConfig withCameraPitch(Angle newCameraPitch) {
             return new FuelDetectionConfig(
                     cameraName,
-                    cameraHeightMeters,
-                    targetHeightMeters,
-                    newCameraPitchRadians,
+                    cameraHeight,
+                    targetHeight,
+                    newCameraPitch,
                     pipelineIndex);
         }
 
         public FuelDetectionConfig withPipelineIndex(int newPipelineIndex) {
             return new FuelDetectionConfig(
                     cameraName,
-                    cameraHeightMeters,
-                    targetHeightMeters,
-                    cameraPitchRadians,
+                    cameraHeight,
+                    targetHeight,
+                    cameraPitch,
                     newPipelineIndex);
         }
     }
