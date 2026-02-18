@@ -131,6 +131,8 @@ public final class Constants {
     public static final double[] STEER_D = {7, 7, 7, 7};
     public static final double[] STEER_S = {1, 1, 1, 1};
 
+    // ID
+    public static final int PigeonID = 24;
     // Module CAN IDs and Offsets (per README)
     public static final int FL_DRIVE = 0;
     public static final int FL_STEER = 1;

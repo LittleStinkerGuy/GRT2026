@@ -35,6 +35,7 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
 
@@ -84,7 +85,7 @@ public class SwerveSubsystem extends SubsystemBase {
         canivore = canBus;
         ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
         //initialize and reset the NavX gyro
-        pidgey = new Pigeon2(12, canivore);
+        pidgey = new Pigeon2(SwerveConstants.PigeonID, canivore);
         pidgey.reset();
 
         frontLeftModule = new KrakenSwerveModule(FL_DRIVE, FL_STEER, FL_OFFSET, FL_ENCODER, canivore);
