@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 
-public class BallDetectionSubsystem extends SubsystemBase {
+public class FuelDetectionSubsystem extends SubsystemBase {
 
     
 
@@ -67,12 +67,12 @@ public class BallDetectionSubsystem extends SubsystemBase {
      * @param targetHeightMeters target height above the floor
      * @param cameraPitchRadians camera pitch in radians
      */
-    public BallDetectionSubsystem(
+    public FuelDetectionSubsystem(
             String cameraName,
             double cameraHeightMeters,
             double targetHeightMeters,
             double cameraPitchRadians) {
-        this(BallDetectionConfig.defaultConfig(
+        this(FuelDetectionConfig.defaultConfig(
                 cameraName,
                 cameraHeightMeters,
                 targetHeightMeters,
@@ -84,15 +84,15 @@ public class BallDetectionSubsystem extends SubsystemBase {
      * 
      * @param config user supplied configuration
      */
-    public BallDetectionSubsystem(BallDetectionConfig config) {
-        Objects.requireNonNull(config, "BallDetectionConfig cannot be null");
+    public FuelDetectionSubsystem(FuelDetectionConfig config) {
+        Objects.requireNonNull(config, "FuelDetectionConfig cannot be null");
 
         camera = new PhotonCamera(config.cameraName());
         pipelineIndex = config.pipelineIndex();
         cameraHeightMeters = config.cameraHeightMeters();
         targetHeightMeters = config.targetHeightMeters();
         cameraPitchRadians = config.cameraPitchRadians();
-        dashboardPrefix = "Ball Detection/" + config.cameraName() + "/";
+        dashboardPrefix = "FuelDetection/" + config.cameraName() + "/";
         camera.setPipelineIndex(pipelineIndex);
     }
 
@@ -205,7 +205,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
             filteredDistance = Optional.of(Meters.of(averageMeters));
         });
         latestTimestamp = Optional.of(Seconds.of(detection.timestampSeconds()));
-        startDecayTime = Optional.of(robotTimestamp.plus(VisionConstants.BALL_DECAY_HOLD_TIME_SECONDS));
+        startDecayTime = Optional.of(robotTimestamp.plus(VisionConstants.FUEL_DECAY_HOLD_TIME_SECONDS));
     }
 
     private void applyDecayToFilteredValues(Time timeNow) {
@@ -227,7 +227,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
         }
 
         Time elapsed = timeNow.minus(decayStartTime);
-        double decayProgress = Math.min(elapsed.div(VisionConstants.BALL_DECAY_TIME_SECONDS).in(Value), 1.0);
+        double decayProgress = Math.min(elapsed.div(VisionConstants.FUEL_DECAY_TIME_SECONDS).in(Value), 1.0);
         double scale = Math.max(0.0, 1.0 - decayProgress);
 
         filteredDistance = filteredDistance.map(
@@ -245,7 +245,7 @@ public class BallDetectionSubsystem extends SubsystemBase {
     private Distance appendSample(Deque<Distance> window, Distance value, Distance currentSum) {
         window.addLast(value);
         double sumMeters = currentSum.in(Meters) + value.in(Meters);
-        if (window.size() > VisionConstants.BALL_SMOOTHING_WINDOW_SIZE) {
+        if (window.size() > VisionConstants.FUEL_SMOOTHING_WINDOW_SIZE) {
             sumMeters -= window.removeFirst().in(Meters);
         }
         return Meters.of(sumMeters);
@@ -276,13 +276,13 @@ public class BallDetectionSubsystem extends SubsystemBase {
      * Configuration record used to describe the colored-shape pipeline setup.
      * Values must be finite. Shoutout Codex for ts code
      */
-    public static record BallDetectionConfig(
+    public static record FuelDetectionConfig(
             String cameraName,
             double cameraHeightMeters,
             double targetHeightMeters,
             double cameraPitchRadians,
             int pipelineIndex) {
-        public BallDetectionConfig {
+        public FuelDetectionConfig {
             Objects.requireNonNull(cameraName, "cameraName is required");
             if (!Double.isFinite(cameraHeightMeters)) {
                 throw new IllegalArgumentException("cameraHeightMeters must be finite");
@@ -298,12 +298,12 @@ public class BallDetectionSubsystem extends SubsystemBase {
         /**
          * Creates a default configuration for the supplied camera.
          */
-        public static BallDetectionConfig defaultConfig(
+        public static FuelDetectionConfig defaultConfig(
                 String cameraName,
                 double cameraHeightMeters,
                 double targetHeightMeters,
                 double cameraPitchRadians) {
-            return new BallDetectionConfig(
+            return new FuelDetectionConfig(
                     cameraName,
                     cameraHeightMeters,
                     targetHeightMeters,
@@ -311,8 +311,8 @@ public class BallDetectionSubsystem extends SubsystemBase {
                     0);
         }
 
-        public BallDetectionConfig withCameraHeight(double newCameraHeightMeters) {
-            return new BallDetectionConfig(
+        public FuelDetectionConfig withCameraHeight(double newCameraHeightMeters) {
+            return new FuelDetectionConfig(
                     cameraName,
                     newCameraHeightMeters,
                     targetHeightMeters,
@@ -320,8 +320,8 @@ public class BallDetectionSubsystem extends SubsystemBase {
                     pipelineIndex);
         }
 
-        public BallDetectionConfig withTargetHeight(double newTargetHeightMeters) {
-            return new BallDetectionConfig(
+        public FuelDetectionConfig withTargetHeight(double newTargetHeightMeters) {
+            return new FuelDetectionConfig(
                     cameraName,
                     cameraHeightMeters,
                     newTargetHeightMeters,
@@ -329,8 +329,8 @@ public class BallDetectionSubsystem extends SubsystemBase {
                     pipelineIndex);
         }
 
-        public BallDetectionConfig withCameraPitch(double newCameraPitchRadians) {
-            return new BallDetectionConfig(
+        public FuelDetectionConfig withCameraPitch(double newCameraPitchRadians) {
+            return new FuelDetectionConfig(
                     cameraName,
                     cameraHeightMeters,
                     targetHeightMeters,
@@ -338,8 +338,8 @@ public class BallDetectionSubsystem extends SubsystemBase {
                     pipelineIndex);
         }
 
-        public BallDetectionConfig withPipelineIndex(int newPipelineIndex) {
-            return new BallDetectionConfig(
+        public FuelDetectionConfig withPipelineIndex(int newPipelineIndex) {
+            return new FuelDetectionConfig(
                     cameraName,
                     cameraHeightMeters,
                     targetHeightMeters,
