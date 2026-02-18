@@ -28,6 +28,13 @@ import frc.robot.Constants.VisionConstants;
 
 public class FuelDetectionSubsystem extends SubsystemBase {
 
+    private static final Detection EMPTY_DETECTION = new Detection(
+            Double.NaN,
+            Double.NaN,
+            Double.NaN,
+            Double.NaN,
+            Optional.empty());
+
     
 
     public record Detection(
@@ -301,8 +308,8 @@ public class FuelDetectionSubsystem extends SubsystemBase {
                 .toArray();
         SmartDashboard.putNumberArray(key("distanceSamples"), distanceSamples);
 
-        SmartDashboard.putNumber(key("bestYawDeg"), bestDetection.map(Detection::yawDegrees).orElse(Double.NaN));
-        SmartDashboard.putNumber(key("bestPitchDeg"), bestDetection.map(Detection::pitchDegrees).orElse(Double.NaN));
+        SmartDashboard.putNumber(key("bestYawDeg"), bestDetection.orElse(EMPTY_DETECTION).yawDegrees());
+        SmartDashboard.putNumber(key("bestPitchDeg"), bestDetection.orElse(EMPTY_DETECTION).pitchDegrees());
         SmartDashboard.putNumber(key("bestDistanceMeters"),
                 filteredDistance.orElse(Meters.of(Double.NaN)).in(Meters));
         SmartDashboard.putNumber(key("minDistanceMeters"),
