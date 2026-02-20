@@ -65,10 +65,10 @@ public final class Constants {
 
     public static final CameraConfig[] cameraConfigs = new CameraConfig[]{//back top
       new CameraConfig(
-        "7",
+        "192_cam6",
         new Transform3d(
-          -0.019, -0.3613, 0.981,
-          new Rotation3d(0, -Math.PI/6., Math.PI*17./18.)
+          0.0508, 0, 0.6858,
+          new Rotation3d(0, -.2222*Math.PI, 0)
         ),
         PoseStrategy.LOWEST_AMBIGUITY
       )

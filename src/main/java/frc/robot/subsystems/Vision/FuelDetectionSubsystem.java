@@ -66,11 +66,23 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private final Deque<Distance> distanceWindow = new ArrayDeque<>();
     private Distance distanceWindowSum = Meters.of(0.0);
 
+    private final Deque<Distance> minDistanceWindow = new ArrayDeque<>();
+    private Distance minDistanceWindowSum = Meters.of(0.0);
+
+    private final Deque<Distance> maxDistanceWindow = new ArrayDeque<>();
+    private Distance maxDistanceWindowSum = Meters.of(0.0);
+
     private Optional<Distance> filteredDistance = Optional.empty();
     private Optional<Distance> filteredMinDistance = Optional.empty();
     private Optional<Distance> filteredMaxDistance = Optional.empty();
     private Optional<Time> latestTimestamp = Optional.empty();
     private Optional<Time> startDecayTime = Optional.empty();
+
+    private enum DistanceSampleType {
+        BEST,
+        MIN,
+        MAX
+    }
 
 
     /**
@@ -164,9 +176,11 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         } else {
             bestDetection = processed.stream()
                     .max(Comparator.comparingDouble(Detection::area));
+            Optional<Distance> minDistance = findDistanceExtreme(processed, true);
+            Optional<Distance> maxDistance = findDistanceExtreme(processed, false);
             bestDetection.ifPresentOrElse(
                     detection -> {
-                        recordDetectionForSmoothing(detection, robotTimestamp);
+                        recordDetectionForSmoothing(detection, minDistance, maxDistance, robotTimestamp);
                         detectionConsumer.accept(detection);
                     },
                     () -> applyDecayToFilteredValues(robotTimestamp));
@@ -191,13 +205,15 @@ public class FuelDetectionSubsystem extends SubsystemBase {
                 distanceMeters);
     }
 
-    private void recordDetectionForSmoothing(Detection detection, Time robotTimestamp) {
-        detection.distanceMeters().ifPresent(detectionDistance -> {
-            distanceWindowSum = appendSample(distanceWindow, detectionDistance, distanceWindowSum);
-            double averageMeters = distanceWindowSum.in(Meters) / distanceWindow.size();
-            filteredDistance = Optional.of(Meters.of(averageMeters));
-            updateDistanceExtremes();
-        });
+    private void recordDetectionForSmoothing(
+            Detection detection,
+            Optional<Distance> minDistance,
+            Optional<Distance> maxDistance,
+            Time robotTimestamp) {
+        detection.distanceMeters().ifPresent(detectionDistance ->
+                updateSmoothedDistance(DistanceSampleType.BEST, detectionDistance));
+        minDistance.ifPresent(distance -> updateSmoothedDistance(DistanceSampleType.MIN, distance));
+        maxDistance.ifPresent(distance -> updateSmoothedDistance(DistanceSampleType.MAX, distance));
         latestTimestamp = Optional.of(Seconds.of(detection.timestampSeconds()));
         startDecayTime = Optional.of(robotTimestamp.plus(VisionConstants.FUEL_DECAY_HOLD_TIME_SECONDS));
     }
@@ -236,6 +252,10 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         latestTimestamp = Optional.empty();
         distanceWindow.clear();
         distanceWindowSum = Meters.of(0.0);
+        minDistanceWindow.clear();
+        minDistanceWindowSum = Meters.of(0.0);
+        maxDistanceWindow.clear();
+        maxDistanceWindowSum = Meters.of(0.0);
     }
 
     private Distance appendSample(Deque<Distance> window, Distance value, Distance currentSum) {
@@ -247,26 +267,45 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         return Meters.of(sumMeters);
     }
 
-    private void updateDistanceExtremes() {
-        if (distanceWindow.isEmpty()) {
-            filteredMinDistance = Optional.empty();
-            filteredMaxDistance = Optional.empty();
-            return;
+    private void updateSmoothedDistance(DistanceSampleType sampleType, Distance distance) {
+        switch (sampleType) {
+            case BEST -> {
+                distanceWindowSum = appendSample(distanceWindow, distance, distanceWindowSum);
+                double averageMeters = distanceWindowSum.in(Meters) / distanceWindow.size();
+                filteredDistance = Optional.of(Meters.of(averageMeters));
+            }
+            case MIN -> {
+                minDistanceWindowSum = appendSample(minDistanceWindow, distance, minDistanceWindowSum);
+                double averageMeters = minDistanceWindowSum.in(Meters) / minDistanceWindow.size();
+                filteredMinDistance = Optional.of(Meters.of(averageMeters));
+            }
+            case MAX -> {
+                maxDistanceWindowSum = appendSample(maxDistanceWindow, distance, maxDistanceWindowSum);
+                double averageMeters = maxDistanceWindowSum.in(Meters) / maxDistanceWindow.size();
+                filteredMaxDistance = Optional.of(Meters.of(averageMeters));
+            }
         }
+    }
 
-        double minMeters = Double.POSITIVE_INFINITY;
-        double maxMeters = Double.NEGATIVE_INFINITY;
-        for (Distance distance : distanceWindow) {
-            double meters = distance.in(Meters);
-            if (meters < minMeters) {
-                minMeters = meters;
+    private Optional<Distance> findDistanceExtreme(List<Detection> detections, boolean findMin) {
+        Distance bestDistance = null;
+        for (Detection detection : detections) {
+            Optional<Distance> distance = detection.distanceMeters();
+            if (distance.isEmpty()) {
+                continue;
             }
-            if (meters > maxMeters) {
-                maxMeters = meters;
+            Distance candidate = distance.get();
+            if (bestDistance == null) {
+                bestDistance = candidate;
+                continue;
+            }
+            double candidateMeters = candidate.in(Meters);
+            double bestMeters = bestDistance.in(Meters);
+            if (findMin ? candidateMeters < bestMeters : candidateMeters > bestMeters) {
+                bestDistance = candidate;
             }
         }
-        filteredMinDistance = Optional.of(Meters.of(minMeters));
-        filteredMaxDistance = Optional.of(Meters.of(maxMeters));
+        return Optional.ofNullable(bestDistance);
     }
 
     private void publishTelemetry() {
