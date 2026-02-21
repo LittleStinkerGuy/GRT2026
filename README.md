@@ -101,3 +101,18 @@
 |             | Flywheel       | 17 |               |              |             |                  |
 | **Climb**   | Doornob        | 19 |               |              |             |                  |
 |             | Winch          | 21 |               |              |             |                  |
+
+
+Mech Controller Keybinds:
+
+Button	Action
+R1	Intake In
+R2	Intake Out
+L1	Hopper Forward
+L2	Hopper Reverse
+Right Stick Y	Pivot Manual
+Left Stick Y	Hood/Arm Manual
+Square + R2	Flywheel Speed
+Cross (hold)	Climb Down
+Triangle (hold)	Climb Up
+D-Pad Up/Down	Winch Up/Down
