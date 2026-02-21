@@ -64,11 +64,12 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Create pose estimator
-        photonPoseEstimator = new PhotonPoseEstimator(
-            aprilTagFieldLayout,
-            cameraConfig.getPoseStrategy(),
-            cameraConfig.getCameraPose()
-        );
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, cameraConfig.getCameraPose());
+        // photonPoseEstimator = new PhotonPoseEstimator(
+        //     aprilTagFieldLayout,
+        //     cameraConfig.getPoseStrategy(),
+        //     cameraConfig.getCameraPose()
+        // );
 
         initNT(cameraConfig);
         initLog(cameraConfig);
@@ -112,24 +113,26 @@ public class VisionSubsystem extends SubsystemBase {
                 visionDistPublisher.set(minDistance);
 
                 //Don't use vision measurement if tags are too far
-                if(minDistance > 2) continue;
-
+                if(minDistance > 4) continue;
+                    
                 Optional<EstimatedRobotPose> estimatedPose = 
-                    photonPoseEstimator.update(result);
+                    // photonPoseEstimator.update(result);
+                    photonPoseEstimator.estimateAverageBestTargetsPose(result);
+                // System.out.println("estimatedPoseworked");
                 if(estimatedPose.isPresent()){
                     Pose2d estimatedPose2d = 
                         estimatedPose.get().estimatedPose.toPose2d();
 
-                    double x = estimatedPose2d.getTranslation().getX();
-                    double y = estimatedPose2d.getTranslation().getY();
+                    // double x = estimatedPose2d.getTranslation().getX();
+                    // double y = estimatedPose2d.getTranslation().getY();
 
-                    if (x - VisionConstants.ROBOT_RADIUS < 0 ||
-                        x + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_X || 
-                        y - VisionConstants.ROBOT_RADIUS < 0 ||
-                        y + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_Y
-                    ){
-                        continue;
-                    }
+                    // if (x - VisionConstants.ROBOT_RADIUS < 0 ||
+                    //     x + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_X || 
+                    //     y - VisionConstants.ROBOT_RADIUS < 0 ||
+                    //     y + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_Y
+                    // ){
+                    //     continue;
+                    // }
                         
                     visionConsumer.accept(
                         new TimestampedVisionUpdate(

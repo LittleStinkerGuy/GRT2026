@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class PS5DriveController extends BaseDriveController{
+public class PS5DriveController extends BaseDriveController {
 
     private final CommandPS5Controller driveController = new CommandPS5Controller(0);
     private Trigger L1 = new Trigger(driveController.L1());
@@ -13,51 +13,51 @@ public class PS5DriveController extends BaseDriveController{
     private Trigger cross = new Trigger(driveController.cross());
     private Trigger square = new Trigger(driveController.square());
     private double deadZone = 0;
-    
+
     @Override
     public double getForwardPower() {
         double forwardPower = -driveController.getLeftY();
-        if(Math.abs(forwardPower) > deadZone)
+        if (Math.abs(forwardPower) > deadZone)
             return -driveController.getLeftY();
-        else 
+        else
             return 0;
     }
 
     @Override
-    public double getLeftPower(){
+    public double getLeftPower() {
         double leftPower = -driveController.getLeftX();
-        if(Math.abs(leftPower) > deadZone)
+        if (Math.abs(leftPower) > deadZone)
             return -driveController.getLeftX();
         else
             return 0;
     }
 
     @Override
-    public double getRotatePower(){
+    public double getRotatePower() {
         double rotatePower = -driveController.getRightX();
-        if(Math.abs(rotatePower) > deadZone)
+        if (Math.abs(rotatePower) > deadZone)
             return -driveController.getRightX();
         else
-        return 0;
+            return 0;
     }
 
     @Override
-    public boolean getDriverHeadingResetButton(){
+    public boolean getDriverHeadingResetButton() {
         return cross.getAsBoolean();
     }
 
     @Override
-    public boolean getLeftBumper(){
+    public boolean getLeftBumper() {
         return L1.getAsBoolean();
     }
 
     @Override
-    public boolean getRightBumper(){
+    public boolean getRightBumper() {
         return R1.getAsBoolean();
     }
 
     @Override
-    public Trigger getRelativeMode(){
+    public Trigger getRelativeMode() {
         return square;
     }
 
@@ -65,27 +65,37 @@ public class PS5DriveController extends BaseDriveController{
         return driveController.getR2Axis() > .1;
     }
 
-    public boolean getLeftTrigger(){
+    public boolean getLeftTrigger() {
         return driveController.getL2Axis() > .1;
     }
 
     @Override
     public void bindDriverHeadingReset(
-        Runnable command, Subsystem requiredSubsystem
-    ){
+            Runnable command, Subsystem requiredSubsystem) {
         // EventLoop eventLoop = new EventLoop();
         InstantCommand instantCommand = new InstantCommand(
-            command,
-            requiredSubsystem
-        );
+                command,
+                requiredSubsystem);
         // eventLoop.bind(command);
         // driveController.L1(eventLoop);
         new Trigger(this::getDriverHeadingResetButton).onTrue(instantCommand);
     }
 
     @Override
-    public void setDeadZone(double deadZone){
+    public void setDeadZone(double deadZone) {
         this.deadZone = deadZone;
+    }
+
+    public int getPOV() {
+        return driveController.getHID().getPOV();
+    }
+
+    public Trigger triangle() {
+        return driveController.triangle();
+    }
+
+    public Trigger circle() {
+        return driveController.circle();
     }
 
     @Override
