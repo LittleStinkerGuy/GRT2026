@@ -4,15 +4,15 @@
 
 package frc.robot.subsystems.Intake;
 
-// import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-// import com.ctre.phoenix6.controls.PositionVoltage;
-// import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -24,16 +24,23 @@ import com.ctre.phoenix6.CANBus;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
   private final TalonFX pivotMotor;
+  private final CANcoder canCoder;
   private final CANdle candle;
 
   private final DigitalInput bottomLimitSwitch = new DigitalInput(IntakeConstants.BOTTOM_LIMIT_SWITCH_DIO);
   private final DigitalInput topLimitSwitch = new DigitalInput(IntakeConstants.TOP_LIMIT_SWITCH_DIO);
 
   private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+  private final PositionVoltage positionControl = new PositionVoltage(0);
+
+  private boolean previousBottomLimitState = false;
+  private boolean previousTopLimitState = false;
 
   public PivotIntakeSubsystem(CANBus canBus) {
     pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
+    canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
     candle = new CANdle(IntakeConstants.CANDLE_ID);
+    configEncoder();
     configCANdle();
     configMotors();
   }
@@ -41,11 +48,10 @@ public class PivotIntakeSubsystem extends SubsystemBase {
   private void configMotors() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
-    // --- PID config (commented out for now) ---
-    // config.Slot0.kP = IntakeConstants.PIVOT_P;
-    // config.Slot0.kI = IntakeConstants.PIVOT_I;
-    // config.Slot0.kD = IntakeConstants.PIVOT_D;
-    // config.Slot0.kV = IntakeConstants.PIVOT_F;
+    config.Slot0.kP = IntakeConstants.PIVOT_P;
+    config.Slot0.kI = IntakeConstants.PIVOT_I;
+    config.Slot0.kD = IntakeConstants.PIVOT_D;
+    config.Slot0.kV = IntakeConstants.PIVOT_F;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -68,40 +74,39 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     pivotMotor.getConfigurator().apply(config);
   }
 
-  // private void configEncoder() {
-  //   CANcoderConfiguration config = new CANcoderConfiguration();
-  //   canCoder.getConfigurator().apply(config);
-  // }
+  private void configEncoder() {
+    CANcoderConfiguration config = new CANcoderConfiguration();
+    canCoder.getConfigurator().apply(config);
+  }
 
   private void configCANdle() {
     CANdleConfiguration config = new CANdleConfiguration();
     candle.getConfigurator().apply(config);
   }
 
-  // --- Position control methods (commented out for now) ---
-  // public double getAngleDegrees() {
-  //   return canCoder.getPosition().getValueAsDouble() * 360.0;
-  // }
-  //
-  // public double getAbsolutePosition() {
-  //   return canCoder.getAbsolutePosition().getValueAsDouble();
-  // }
-  //
-  // public void setAngle(double angleDegrees) {
-  //   angleDegrees = Math.max(IntakeConstants.STOWED_POS,
-  //                          Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
-  //   double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
-  //   pivotMotor.setControl(positionControl.withPosition(motorRotations));
-  // }
-  //
-  // public void zeroEncoder() {
-  //   canCoder.setPosition(0.0);
-  // }
-  //
-  // public void setEncoderToMax() {
-  //   double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
-  //   canCoder.setPosition(maxRotations);
-  // }
+  public double getAngleDegrees() {
+    return canCoder.getPosition().getValueAsDouble() * 360.0;
+  }
+
+  public double getAbsolutePosition() {
+    return canCoder.getAbsolutePosition().getValueAsDouble();
+  }
+
+  public void setAngle(double angleDegrees) {
+    angleDegrees = Math.max(IntakeConstants.STOWED_POS,
+                           Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
+    double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
+    pivotMotor.setControl(positionControl.withPosition(motorRotations));
+  }
+
+  public void zeroEncoder() {
+    canCoder.setPosition(0.0);
+  }
+
+  public void setEncoderToMax() {
+    double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
+    canCoder.setPosition(maxRotations);
+  }
 
   public boolean isAtTopLimit() {
     return !topLimitSwitch.get();
@@ -136,21 +141,20 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     boolean topLimit = isAtTopLimit();
     boolean bottomLimit = isAtBottomLimit();
 
-    // --- Encoder reset on limit switch (commented out for now) ---
-    // if (bottomLimit && !previousBottomLimitState) {
-    //   zeroEncoder();
-    // }
-    // previousBottomLimitState = bottomLimit;
-    //
-    // if (topLimit && !previousTopLimitState) {
-    //   setEncoderToMax();
-    // }
-    // previousTopLimitState = topLimit;
+    // Encoder reset on limit switch
+    if (bottomLimit && !previousBottomLimitState) {
+      zeroEncoder();
+    }
+    previousBottomLimitState = bottomLimit;
+
+    if (topLimit && !previousTopLimitState) {
+      setEncoderToMax();
+    }
+    previousTopLimitState = topLimit;
 
     // SmartDashboard
-    // SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
-    // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
-
+    SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
+    SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
     SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
     SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
 

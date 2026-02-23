@@ -190,9 +190,21 @@ public final class Constants {
 
     // Pivot Motor
     public static final int PIVOT_MOTOR_ID = 12;
+    public static final int PIVOT_CANCODER_ID = 11;
     public static final double MANUAL_PIVOT_SPEED = 0.15;
     public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
     public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
+
+    // Pivot PID
+    public static final double PIVOT_P = 24.0;
+    public static final double PIVOT_I = 0.0;
+    public static final double PIVOT_D = 0.0;
+    public static final double PIVOT_F = 0.0;
+
+    // Pivot Positions (in degrees)
+    public static final double STOWED_POS = 0.0;
+    public static final double EXTENDED_POS = 90.0;
+    public static final double GEAR_RATIO = 1.0; // TODO: Update with actual gear ratio
 
     // Limit Switches
     public static final int TOP_LIMIT_SWITCH_DIO = 0;
@@ -222,6 +234,13 @@ public final class Constants {
 
     // Manual Control
     public static final double MANUAL_SPEED = 0.5;
+
+    // Velocity Control
+    public static final double TARGET_RPM = 3000.0; // TODO: Tune this value
+    public static final double HOPPER_P = 0.1;
+    public static final double HOPPER_I = 0.0;
+    public static final double HOPPER_D = 0.0;
+    public static final double HOPPER_V = 0.12; // Feedforward
   }
 
   // ==================== VISION ====================
