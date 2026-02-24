@@ -49,7 +49,7 @@ public class SwerveSubsystem extends SubsystemBase {
         new SwerveModuleState()
     };
     SwerveModuleState testState = new SwerveModuleState();
-    private Pose2d estimatedPose;
+    private Pose2d estimatedPose = new Pose2d(10 , 4, new Rotation2d());
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator poseEstimator;
     private Rotation2d driverHeadingOffset = new Rotation2d();
