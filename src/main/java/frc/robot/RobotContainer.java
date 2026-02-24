@@ -23,6 +23,7 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 
 // Commands
 import frc.robot.commands.intake.ManualIntakePivotCommand;
+import frc.robot.commands.allign.AimToHubCommand;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -137,8 +138,9 @@ public class RobotContainer {
             swerveSubsystem.resetDriverHeading();
           },
           swerveSubsystem);
+          
+      new Trigger(driveController::getLeftTrigger).onTrue(AimToHubCommand.Aim(() -> swerveSubsystem.getCurrentCommand()!= null));
     }
-
     if (Constants.MECH_ENABLED){
     // bind semi auto commands
     // var crossTrigger = mechController.cross();

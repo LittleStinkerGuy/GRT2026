@@ -1,4 +1,4 @@
-package frc.robot.subsystems.FieldManagementSubsystem;
+package frc.robot.subsystems.FMS;
 
 /**
  * Holds current state of match.
