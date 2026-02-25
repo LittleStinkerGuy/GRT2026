@@ -157,6 +157,9 @@ public class RobotContainer {
       if (mechController.povDown().getAsBoolean()) {
         winchDutyCycle--;
       }
+      System.out.print(armDutyCycle);
+      System.out.print(" ");
+      System.out.println(winchDutyCycle);
 
       m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
       m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);

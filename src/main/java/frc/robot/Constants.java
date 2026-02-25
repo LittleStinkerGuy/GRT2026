@@ -118,11 +118,6 @@ public final class Constants {
   }
 
   public static class SwerveConstants {
-    // Slew Rate Limits (units per second - limits how fast joystick input can change)
-    // 1.5 = ~0.67 seconds from 0 to full power (slower/smoother for driver practice)
-    public static final double DRIVE_SLEW_RATE_LIMIT = 1.5;   // Forward/strafe acceleration limit
-    public static final double STEER_SLEW_RATE_LIMIT = 2.0;   // Rotation acceleration limit (slightly faster for responsiveness)
-
     // Drive PID (Velocity Control)
     public static final double[] DRIVE_P = {9.5, 9.5, 9.5, 9.5};
     public static final double[] DRIVE_I = {0, 0, 0, 0};
