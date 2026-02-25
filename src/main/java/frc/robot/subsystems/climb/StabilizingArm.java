@@ -21,7 +21,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
@@ -139,18 +139,18 @@ public class StabilizingArm extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("Climb/Arm/DutyCycle", dutyCycleControl.Output);
-        // SmartDashboard.putNumber("Climb/Arm/Position", motor.getPosition().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Arm/Velocity", motor.getVelocity().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Arm/StatorCurrent", motor.getStatorCurrent().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Arm/SupplyCurrent", motor.getSupplyCurrent().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Arm/AppliedVolts", motor.getMotorVoltage().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Arm/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Arm/Temp", motor.getDeviceTemp().getValueAsDouble());
-        // SmartDashboard.putBoolean("Climb/Arm/Connected", motor.isConnected());
-        // SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", getForwardLimit().orElse(false));
-        // SmartDashboard.putBoolean("Climb/Arm/ForwardLimitAccurate", getForwardLimit().isPresent());
-        // SmartDashboard.putBoolean("Climb/Arm/ReverseLimitHit", reverseLimitSignal.getValue());
+        SmartDashboard.putNumber("Climb/Arm/DutyCycle", dutyCycleControl.Output);
+        SmartDashboard.putNumber("Climb/Arm/Position", motor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Arm/Velocity", motor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Arm/StatorCurrent", motor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Arm/SupplyCurrent", motor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Arm/AppliedVolts", motor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Arm/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Arm/Temp", motor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Climb/Arm/Connected", motor.isConnected());
+        SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", getForwardLimit().orElse(false));
+        SmartDashboard.putBoolean("Climb/Arm/ForwardLimitAccurate", getForwardLimit().isPresent());
+        SmartDashboard.putBoolean("Climb/Arm/ReverseLimitHit", reverseLimitSignal.getValue());
      }
 }
 

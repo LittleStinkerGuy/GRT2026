@@ -17,19 +17,19 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-// import edu.wpi.first.networktables.NetworkTable;
-// import edu.wpi.first.networktables.NetworkTableInstance;
-// import edu.wpi.first.networktables.StructArrayPublisher;
-// import edu.wpi.first.networktables.StructPublisher;
-// import edu.wpi.first.util.datalog.DoubleLogEntry;
-// import edu.wpi.first.util.datalog.StructLogEntry;
-// import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StructLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DebugConstants.*;
-// import static frc.robot.Constants.LoggingConstants.*;
+import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
@@ -59,21 +59,21 @@ public class SwerveSubsystem extends SubsystemBase {
     private Timer lockTimer;
     private double currentCruiseVelocityRPM = STEER_CRUISE_VELOCITY * STEER_GEAR_REDUCTION * 60.0;
 
-    // // DataLog entries
-    // private StructLogEntry<Pose2d> poseLogEntry;
-    // private DoubleLogEntry gyroHeadingLogEntry;
-    // private DoubleLogEntry chassisVxLogEntry;
-    // private DoubleLogEntry chassisVyLogEntry;
-    // private DoubleLogEntry chassisOmegaLogEntry;
-    // private DoubleLogEntry steerCruiseRPMLogEntry;
+    // DataLog entries
+    private StructLogEntry<Pose2d> poseLogEntry;
+    private DoubleLogEntry gyroHeadingLogEntry;
+    private DoubleLogEntry chassisVxLogEntry;
+    private DoubleLogEntry chassisVyLogEntry;
+    private DoubleLogEntry chassisOmegaLogEntry;
+    private DoubleLogEntry steerCruiseRPMLogEntry;
 
-    // //logging
-    // private NetworkTableInstance ntInstance;
-    // private NetworkTable swerveTable;
+    //logging
+    private NetworkTableInstance ntInstance;
+    private NetworkTable swerveTable;
 
-    // private StructArrayPublisher<SwerveModuleState> swerveStatesPublisher;
+    private StructArrayPublisher<SwerveModuleState> swerveStatesPublisher;
 
-    // private StructPublisher<Pose2d> estimatedPosePublisher;
+    private StructPublisher<Pose2d> estimatedPosePublisher;
     // private StructLogEntry<Pose2d> estimatedPoseLogEntry =
     //     StructLogEntry.create(
     //         DataLogManager.getLog(),
@@ -103,8 +103,8 @@ public class SwerveSubsystem extends SubsystemBase {
             );
 
         // buildAuton();
-        // initNT();
-        // initLogs();
+        initNT();
+        initLogs();
 
         if(DRIVE_DEBUG) {
             enableDriveDebug();
@@ -171,13 +171,13 @@ public class SwerveSubsystem extends SubsystemBase {
             backRightModule.setDesiredState(states[3]);
         }
         
-        // //logging
-        // // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFPGATime());
-        // SmartDashboard.putNumber("Steer/Current RPM", frontLeftModule.getSteerVelocityRPM());
-        // SmartDashboard.putNumber("Steer/Max RPM", currentCruiseVelocityRPM);
-
-        // publishStats();
-        // logStats();
+        //logging
+        // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFPGATime());
+        SmartDashboard.putNumber("Steer/Current RPM", frontLeftModule.getSteerVelocityRPM());
+        SmartDashboard.putNumber("Steer/Max RPM", currentCruiseVelocityRPM);
+        
+        publishStats();
+        logStats();
     }
 
     /**
@@ -356,74 +356,74 @@ public class SwerveSubsystem extends SubsystemBase {
         backRightModule.setSteerCruiseVelocity(velocity);
     }
 
-    // private void initNT() {
-    //     ntInstance = NetworkTableInstance.getDefault();
-    //     swerveTable = ntInstance.getTable(SWERVE_TABLE);
+    private void initNT() {
+        ntInstance = NetworkTableInstance.getDefault();
+        swerveTable = ntInstance.getTable(SWERVE_TABLE);
 
-    //     swerveStatesPublisher = swerveTable.getStructArrayTopic(
-    //         "SwerveStates", SwerveModuleState.struct
-    //     ).publish();
+        swerveStatesPublisher = swerveTable.getStructArrayTopic(
+            "SwerveStates", SwerveModuleState.struct
+        ).publish(); 
 
-    //     estimatedPosePublisher = swerveTable.getStructTopic(
-    //         "estimatedPose",
-    //         Pose2d.struct
-    //     ).publish();
-    // }
+        estimatedPosePublisher = swerveTable.getStructTopic(
+            "estimatedPose",
+            Pose2d.struct
+        ).publish();
+    }
 
-    // /**
-    //  * publishes swerve stats to NT
-    //  */
-    // private void publishStats() {
-    //     estimatedPosePublisher.set(estimatedPose);
+    /**
+     * publishes swerve stats to NT
+     */
+    private void publishStats() {
+        estimatedPosePublisher.set(estimatedPose);
 
-    //     if(STATE_DEBUG || DRIVE_DEBUG || STEER_DEBUG) {
-    //         swerveStatesPublisher.set(getModuleStates());
-    //     }
+        if(STATE_DEBUG || DRIVE_DEBUG || STEER_DEBUG) {
+            swerveStatesPublisher.set(getModuleStates());
+        }
 
-    //     if(DRIVE_DEBUG) {
-    //         frontLeftModule.publishDriveStats();
-    //         frontRightModule.publishDriveStats();
-    //         backLeftModule.publishDriveStats();
-    //         backRightModule.publishDriveStats();
-    //     }
+        if(DRIVE_DEBUG) {
+            frontLeftModule.publishDriveStats();
+            frontRightModule.publishDriveStats();
+            backLeftModule.publishDriveStats();
+            backRightModule.publishDriveStats();
+        }
 
-    //     if(STEER_DEBUG) {
-    //         frontLeftModule.publishSteerStats();
-    //         frontRightModule.publishSteerStats();
-    //         backLeftModule.publishSteerStats();
-    //         backRightModule.publishSteerStats();
-    //     }
-    // }
+        if(STEER_DEBUG) {
+            frontLeftModule.publishSteerStats();
+            frontRightModule.publishSteerStats();
+            backLeftModule.publishSteerStats();
+            backRightModule.publishSteerStats();
+        }
+    }
 
-    // private void initLogs() {
-    //     poseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "swerve/estimatedPose", Pose2d.struct);
-    //     gyroHeadingLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/gyroHeading");
-    //     chassisVxLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVx");
-    //     chassisVyLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVy");
-    //     chassisOmegaLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisOmega");
-    //     steerCruiseRPMLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/steerCruiseRPM");
-    // }
+    private void initLogs() {
+        poseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "swerve/estimatedPose", Pose2d.struct);
+        gyroHeadingLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/gyroHeading");
+        chassisVxLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVx");
+        chassisVyLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVy");
+        chassisOmegaLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisOmega");
+        steerCruiseRPMLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/steerCruiseRPM");
+    }
 
-    // private void logStats() {
-    //     long ts = GRTUtil.getFPGATime();
+    private void logStats() {
+        long ts = GRTUtil.getFPGATime();
 
-    //     // Subsystem-level
-    //     poseLogEntry.append(estimatedPose, ts);
-    //     gyroHeadingLogEntry.append(getGyroHeading().getDegrees(), ts);
-    //     steerCruiseRPMLogEntry.append(currentCruiseVelocityRPM, ts);
+        // Subsystem-level
+        poseLogEntry.append(estimatedPose, ts);
+        gyroHeadingLogEntry.append(getGyroHeading().getDegrees(), ts);
+        steerCruiseRPMLogEntry.append(currentCruiseVelocityRPM, ts);
 
-    //     // Chassis speeds
-    //     ChassisSpeeds speeds = getRobotRelativeChassisSpeeds();
-    //     chassisVxLogEntry.append(speeds.vxMetersPerSecond, ts);
-    //     chassisVyLogEntry.append(speeds.vyMetersPerSecond, ts);
-    //     chassisOmegaLogEntry.append(speeds.omegaRadiansPerSecond, ts);
+        // Chassis speeds
+        ChassisSpeeds speeds = getRobotRelativeChassisSpeeds();
+        chassisVxLogEntry.append(speeds.vxMetersPerSecond, ts);
+        chassisVyLogEntry.append(speeds.vyMetersPerSecond, ts);
+        chassisOmegaLogEntry.append(speeds.omegaRadiansPerSecond, ts);
 
-    //     // Per-module logging
-    //     frontLeftModule.logStats();
-    //     frontRightModule.logStats();
-    //     backLeftModule.logStats();
-    //     backRightModule.logStats();
-    // }
+        // Per-module logging
+        frontLeftModule.logStats();
+        frontRightModule.logStats();
+        backLeftModule.logStats();
+        backRightModule.logStats();
+    }
 
     /**
      * Enables drive debug

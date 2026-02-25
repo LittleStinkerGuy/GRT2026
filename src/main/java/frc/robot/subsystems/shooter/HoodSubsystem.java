@@ -16,7 +16,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 
-// import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
 
@@ -87,31 +87,31 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void sendData(){
-        // Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-        //     hoodMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "PositionRotations",
+            hoodMotor.getPosition().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-        //     hoodMotor.getVelocity().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
+            hoodMotor.getVelocity().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-        //     hoodMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
+            hoodMotor.getMotorVoltage().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-        //     hoodMotor.getSupplyVoltage().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
+            hoodMotor.getSupplyVoltage().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-        //     hoodMotor.getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
+            hoodMotor.getStatorCurrent().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-        //     hoodMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
+            hoodMotor.getSupplyCurrent().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-        //     hoodMotor.getDeviceTemp().getValueAsDouble());
+        Logger.recordOutput(LOG_PREFIX + "TemperatureC",
+            hoodMotor.getDeviceTemp().getValueAsDouble());
 
-        // Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
-        //     commandedDutyCycle);
+        Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
+            commandedDutyCycle);
 
-        // Logger.recordOutput(LOG_PREFIX + "Connected",
-        //     hoodMotor.isConnected());
+        Logger.recordOutput(LOG_PREFIX + "Connected",
+            hoodMotor.isConnected());
     }
 }

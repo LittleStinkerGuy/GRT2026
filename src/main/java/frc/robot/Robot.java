@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-// import org.littletonrobotics.junction.Logger;
-// import org.littletonrobotics.junction.networktables.NT4Publisher;
-// import org.littletonrobotics.junction.LogFileUtil;
-// import org.littletonrobotics.junction.wpilog.WPILOGReader;
-// import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-// import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.junction.LoggedRobot;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * package after creating
  * this project, you must also update the Main.java file in the project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   @SuppressWarnings("unused")
@@ -67,32 +67,32 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
 
-  //  @Override
-  // public void robotInit() {
+   @Override
+  public void robotInit() {
 
-  //   Logger.recordMetadata("IntakePivot", "MyRobot");
-  //   Logger.recordMetadata("BuildType", currentMODE.toString());
+    Logger.recordMetadata("IntakePivot", "MyRobot");
+    Logger.recordMetadata("BuildType", currentMODE.toString());
 
-  //   switch (currentMODE) {
-  //     case REAL:
-  //       Logger.addDataReceiver(new WPILOGWriter("/U/logs"));
-  //       Logger.addDataReceiver(new NT4Publisher());
-  //       break;
+    switch (currentMODE) {
+      case REAL:
+        Logger.addDataReceiver(new WPILOGWriter("/U/logs"));
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
 
-  //     case SIM:
-  //       Logger.addDataReceiver(new WPILOGWriter("simlogs"));
-  //       break;
+      case SIM:
+        Logger.addDataReceiver(new WPILOGWriter("simlogs"));
+        break;
 
-  //     case REPLAY:
-  //       String logPath = LogFileUtil.findReplayLog();
-  //       Logger.setReplaySource(new WPILOGReader(logPath));
-  //       Logger.addDataReceiver(
-  //           new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
-  //       break;
-  //   }
+      case REPLAY:
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(
+            new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
+        break;
+    }
 
-  //   Logger.start();
-  // }
+    Logger.start();
+  }
 
 
   @Override
@@ -106,11 +106,11 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    // Logger.recordOutput("Robot/Enabled", isEnabled());
-    // Logger.recordOutput("Robot/Mode",
-    //   isAutonomous() ? "Auto" :
-    //   isTeleop() ? "Teleop" :
-    //   isDisabled() ? "Disabled" : "Other");
+    Logger.recordOutput("Robot/Enabled", isEnabled());
+    Logger.recordOutput("Robot/Mode",
+      isAutonomous() ? "Auto" :
+      isTeleop() ? "Teleop" :
+      isDisabled() ? "Disabled" : "Other");
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

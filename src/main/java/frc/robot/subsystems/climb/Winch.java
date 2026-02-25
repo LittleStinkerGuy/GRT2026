@@ -26,7 +26,7 @@ import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.units.measure.Angle;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -171,15 +171,15 @@ public class Winch extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("Climb/Winch/DutyCycle", dutyCycleControl.Output);
-        // SmartDashboard.putNumber("Climb/Winch/Position", motor.getPosition().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Winch/Velocity", motor.getVelocity().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Winch/StatorCurrent", motor.getStatorCurrent().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Winch/SupplyCurrent", motor.getSupplyCurrent().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Winch/AppliedVolts", motor.getMotorVoltage().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Winch/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
-        // SmartDashboard.putNumber("Climb/Winch/Temp", motor.getDeviceTemp().getValueAsDouble());
-        // SmartDashboard.putBoolean("Climb/Winch/Connected", motor.isConnected());
+        SmartDashboard.putNumber("Climb/Winch/DutyCycle", dutyCycleControl.Output);
+        SmartDashboard.putNumber("Climb/Winch/Position", motor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Winch/Velocity", motor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Winch/StatorCurrent", motor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Winch/SupplyCurrent", motor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Winch/AppliedVolts", motor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Winch/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Climb/Winch/Temp", motor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Climb/Winch/Connected", motor.isConnected());
         // SmartDashboard.putBoolean("Climb/Winch/ForwardLimitHit", forwardLimitSignal.getValue());
         // SmartDashboard.putBoolean("Climb/Winch/ReverseLimitHit", reverseLimitSignal.getValue());
         // SmartDashboard.putBoolean("Climb/Winch/HardstopPressed", hardstopCANdi.getS1Closed().getValue());

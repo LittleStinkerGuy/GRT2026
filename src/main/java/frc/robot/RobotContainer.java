@@ -35,7 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -83,7 +83,7 @@ public class RobotContainer {
     configureAutoChooser();
 
     CameraServer.startAutomaticCapture(); // start driver cam
-    // SmartDashboard.putData("Field", m_field);
+    SmartDashboard.putData("Field", m_field);
   }
 
   /**
@@ -256,7 +256,7 @@ public class RobotContainer {
     // Add auton here
     autoChooser.setDefaultOption("Do Nothing", null);
 
-    // SmartDashboard.putData("Auto Selector", autoChooser);
+    SmartDashboard.putData("Auto Selector", autoChooser);
   }
 
   public Command getAutonomousCommand() {
