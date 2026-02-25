@@ -16,7 +16,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
@@ -147,21 +147,21 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     // }
     // previousTopLimitState = topLimit;
 
-    // SmartDashboard
-    // SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
-    // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
+    // // SmartDashboard
+    // // SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
+    // // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
 
-    SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
-    SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
+    // SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
+    // SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
 
-    SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
-    SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/SupplyVoltage", pivotMotor.getSupplyVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putBoolean("Intake/Pivot/Connected", pivotMotor.isConnected());
+    // SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
+    // SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
+    // SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
+    // SmartDashboard.putNumber("Intake/Pivot/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
+    // SmartDashboard.putNumber("Intake/Pivot/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
+    // SmartDashboard.putNumber("Intake/Pivot/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
+    // SmartDashboard.putNumber("Intake/Pivot/SupplyVoltage", pivotMotor.getSupplyVoltage().getValueAsDouble());
+    // SmartDashboard.putNumber("Intake/Pivot/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
+    // SmartDashboard.putBoolean("Intake/Pivot/Connected", pivotMotor.isConnected());
   }
 }

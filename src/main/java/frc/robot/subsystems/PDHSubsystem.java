@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 
 public class PDHSubsystem extends SubsystemBase {
 
@@ -20,29 +20,29 @@ public class PDHSubsystem extends SubsystemBase {
     }
 
     public void sendData() {
-        Logger.recordOutput(LOG_PREFIX + "TotalCurrentAmps",
-            pdh.getTotalCurrent());
+        // Logger.recordOutput(LOG_PREFIX + "TotalCurrentAmps",
+        //     pdh.getTotalCurrent());
 
-        Logger.recordOutput(LOG_PREFIX + "TotalPowerWatts",
-            pdh.getTotalPower());
+        // Logger.recordOutput(LOG_PREFIX + "TotalPowerWatts",
+        //     pdh.getTotalPower());
 
-        Logger.recordOutput(LOG_PREFIX + "TotalEnergyJoules",
-            pdh.getTotalEnergy());
+        // Logger.recordOutput(LOG_PREFIX + "TotalEnergyJoules",
+        //     pdh.getTotalEnergy());
 
-        Logger.recordOutput(LOG_PREFIX + "VoltageVolts",
-            pdh.getVoltage());
+        // Logger.recordOutput(LOG_PREFIX + "VoltageVolts",
+        //     pdh.getVoltage());
 
-        Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-            pdh.getTemperature());
+        // Logger.recordOutput(LOG_PREFIX + "TemperatureC",
+        //     pdh.getTemperature());
 
-        Logger.recordOutput(LOG_PREFIX + "SwitchableChannelEnabled",
-            pdh.getSwitchableChannel());
+        // Logger.recordOutput(LOG_PREFIX + "SwitchableChannelEnabled",
+        //     pdh.getSwitchableChannel());
 
-        // Per-channel current logging
-        for (int i = 0; i < 24; i++) {
-            Logger.recordOutput(LOG_PREFIX + "Channel" + i + "CurrentAmps",
-                pdh.getCurrent(i));
-        }
+        // // Per-channel current logging
+        // for (int i = 0; i < 24; i++) {
+        //     Logger.recordOutput(LOG_PREFIX + "Channel" + i + "CurrentAmps",
+        //         pdh.getCurrent(i));
+        // }
     }
 
     public double getTotalCurrent() {

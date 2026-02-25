@@ -11,7 +11,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.HopperConstants;
 
@@ -31,8 +31,8 @@ public class HopperSubsystem extends SubsystemBase {
 
         configureMotor();
 
-        // Initialize tunable speed in NetworkTables
-        SmartDashboard.putNumber("Hopper/ManualSpeed", manualSpeed);
+        // // Initialize tunable speed in NetworkTables
+        // SmartDashboard.putNumber("Hopper/ManualSpeed", manualSpeed);
     }
 
 
@@ -88,7 +88,7 @@ public class HopperSubsystem extends SubsystemBase {
      * Run hopper forward at tunable speed
      */
     public void runForward() {
-        manualSpeed = SmartDashboard.getNumber("Hopper/ManualSpeed", HopperConstants.MANUAL_SPEED);
+        // manualSpeed = SmartDashboard.getNumber("Hopper/ManualSpeed", HopperConstants.MANUAL_SPEED);
         setManualControl(manualSpeed);
     }
 
@@ -96,7 +96,7 @@ public class HopperSubsystem extends SubsystemBase {
      * Run hopper reverse at tunable speed
      */
     public void runReverse() {
-        manualSpeed = SmartDashboard.getNumber("Hopper/ManualSpeed", HopperConstants.MANUAL_SPEED);
+        // manualSpeed = SmartDashboard.getNumber("Hopper/ManualSpeed", HopperConstants.MANUAL_SPEED);
         setManualControl(-manualSpeed);
     }
 
@@ -106,14 +106,14 @@ public class HopperSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Hopper/MotorOutput", getMotorOutput());
-        SmartDashboard.putNumber("Hopper/Position", krakenMotor.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/Velocity", krakenMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/StatorCurrent", krakenMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/SupplyCurrent", krakenMotor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/AppliedVolts", krakenMotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/SupplyVoltage", krakenMotor.getSupplyVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Hopper/Temp", krakenMotor.getDeviceTemp().getValueAsDouble());
-        SmartDashboard.putBoolean("Hopper/Connected", krakenMotor.isConnected());
+        // SmartDashboard.putNumber("Hopper/MotorOutput", getMotorOutput());
+        // SmartDashboard.putNumber("Hopper/Position", krakenMotor.getPosition().getValueAsDouble());
+        // SmartDashboard.putNumber("Hopper/Velocity", krakenMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("Hopper/StatorCurrent", krakenMotor.getStatorCurrent().getValueAsDouble());
+        // SmartDashboard.putNumber("Hopper/SupplyCurrent", krakenMotor.getSupplyCurrent().getValueAsDouble());
+        // SmartDashboard.putNumber("Hopper/AppliedVolts", krakenMotor.getMotorVoltage().getValueAsDouble());
+        // SmartDashboard.putNumber("Hopper/SupplyVoltage", krakenMotor.getSupplyVoltage().getValueAsDouble());
+        // SmartDashboard.putNumber("Hopper/Temp", krakenMotor.getDeviceTemp().getValueAsDouble());
+        // SmartDashboard.putBoolean("Hopper/Connected", krakenMotor.isConnected());
     }
 }

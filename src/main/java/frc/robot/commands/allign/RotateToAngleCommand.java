@@ -3,7 +3,7 @@ package frc.robot.commands.allign;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.RotateToAngleConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -28,20 +28,20 @@ public class RotateToAngleCommand extends Command {
         pid.setTolerance(RotateToAngleConstants.TOLERANCE_DEGREES);
         addRequirements(swerve);
 
-        // Publish initial PID values to NetworkTables so you can edit them in Shuffleboard/SmartDashboard
-        SmartDashboard.putNumber("RotateToAngle/kP", RotateToAngleConstants.kP);
-        SmartDashboard.putNumber("RotateToAngle/kI", RotateToAngleConstants.kI);
-        SmartDashboard.putNumber("RotateToAngle/kD", RotateToAngleConstants.kD);
-        SmartDashboard.putNumber("RotateToAngle/Tolerance", RotateToAngleConstants.TOLERANCE_DEGREES);
+        // // Publish initial PID values to NetworkTables so you can edit them in Shuffleboard/SmartDashboard
+        // SmartDashboard.putNumber("RotateToAngle/kP", RotateToAngleConstants.kP);
+        // SmartDashboard.putNumber("RotateToAngle/kI", RotateToAngleConstants.kI);
+        // SmartDashboard.putNumber("RotateToAngle/kD", RotateToAngleConstants.kD);
+        // SmartDashboard.putNumber("RotateToAngle/Tolerance", RotateToAngleConstants.TOLERANCE_DEGREES);
     }
 
     @Override
     public void initialize() {
-        // Read PID values from NetworkTables each time the command starts
-        pid.setP(SmartDashboard.getNumber("RotateToAngle/kP", RotateToAngleConstants.kP));
-        pid.setI(SmartDashboard.getNumber("RotateToAngle/kI", RotateToAngleConstants.kI));
-        pid.setD(SmartDashboard.getNumber("RotateToAngle/kD", RotateToAngleConstants.kD));
-        pid.setTolerance(SmartDashboard.getNumber("RotateToAngle/Tolerance", RotateToAngleConstants.TOLERANCE_DEGREES));
+        // // Read PID values from NetworkTables each time the command starts
+        // pid.setP(SmartDashboard.getNumber("RotateToAngle/kP", RotateToAngleConstants.kP));
+        // pid.setI(SmartDashboard.getNumber("RotateToAngle/kI", RotateToAngleConstants.kI));
+        // pid.setD(SmartDashboard.getNumber("RotateToAngle/kD", RotateToAngleConstants.kD));
+        // pid.setTolerance(SmartDashboard.getNumber("RotateToAngle/Tolerance", RotateToAngleConstants.TOLERANCE_DEGREES));
         pid.reset();
     }
 
@@ -51,9 +51,9 @@ public class RotateToAngleCommand extends Command {
         double rotationPower = pid.calculate(currentAngle, targetDegrees);
         swerve.setDrivePowers(0, 0, -rotationPower);
 
-        SmartDashboard.putNumber("RotateToAngle/Goal", targetDegrees);
-        SmartDashboard.putNumber("RotateToAngle/Actual", currentAngle);
-        SmartDashboard.putNumber("RotateToAngle/Error", pid.getPositionError());
+        // SmartDashboard.putNumber("RotateToAngle/Goal", targetDegrees);
+        // SmartDashboard.putNumber("RotateToAngle/Actual", currentAngle);
+        // SmartDashboard.putNumber("RotateToAngle/Error", pid.getPositionError());
     }
 
     @Override
