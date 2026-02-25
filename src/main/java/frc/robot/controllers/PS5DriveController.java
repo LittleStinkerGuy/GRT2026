@@ -1,9 +1,12 @@
 package frc.robot.controllers;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import static frc.robot.Constants.SwerveConstants.*;
 
 public class PS5DriveController extends BaseDriveController {
 
@@ -14,31 +17,44 @@ public class PS5DriveController extends BaseDriveController {
     private Trigger square = new Trigger(driveController.square());
     private double deadZone = 0;
 
+    // Slew rate limiters for smooth acceleration (high negative rate = instant deceleration)
+    private final SlewRateLimiter forwardLimiter = new SlewRateLimiter(DRIVE_SLEW_RATE_LIMIT, -1000, 0);
+    private final SlewRateLimiter strafeLimiter = new SlewRateLimiter(DRIVE_SLEW_RATE_LIMIT, -1000, 0);
+    private final SlewRateLimiter rotateLimiter = new SlewRateLimiter(STEER_SLEW_RATE_LIMIT, -1000, 0);
+
     @Override
     public double getForwardPower() {
         double forwardPower = -driveController.getLeftY();
-        if (Math.abs(forwardPower) > deadZone)
-            return -driveController.getLeftY();
-        else
-            return 0;
+        double output = Math.abs(forwardPower) > deadZone ? forwardPower : 0;
+        return applyAsymmetricLimit(forwardLimiter, output);
     }
 
     @Override
     public double getLeftPower() {
         double leftPower = -driveController.getLeftX();
-        if (Math.abs(leftPower) > deadZone)
-            return -driveController.getLeftX();
-        else
-            return 0;
+        double output = Math.abs(leftPower) > deadZone ? leftPower : 0;
+        return applyAsymmetricLimit(strafeLimiter, output);
     }
 
     @Override
     public double getRotatePower() {
         double rotatePower = -driveController.getRightX();
-        if (Math.abs(rotatePower) > deadZone)
-            return -driveController.getRightX();
-        else
-            return 0;
+        double output = Math.abs(rotatePower) > deadZone ? rotatePower : 0;
+        return applyAsymmetricLimit(rotateLimiter, output);
+    }
+
+    /**
+     * Applies slew rate limiting only for acceleration (increasing magnitude).
+     * Deceleration (decreasing magnitude) is instant.
+     */
+    private double applyAsymmetricLimit(SlewRateLimiter limiter, double input) {
+        double limited = limiter.calculate(input);
+        // If input magnitude is less than limited magnitude, use input directly (instant decel)
+        if (Math.abs(input) < Math.abs(limited)) {
+            limiter.reset(input);
+            return input;
+        }
+        return limited;
     }
 
     @Override
