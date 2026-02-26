@@ -358,10 +358,20 @@ public class SwerveSubsystem extends SubsystemBase {
     public void resetPose(Pose2d currentPose) {
         Rotation2d gyroAngle = getGyroHeading();
         poseEstimator.resetPosition(
-            gyroAngle, 
-            getModulePositions(), 
+            gyroAngle,
+            getModulePositions(),
             currentPose
         );
+    }
+
+    /**
+     * Resets the robot pose to the default starting position in front of the red hub.
+     * Use this for testing/practice when starting in a known position.
+     */
+    public void resetToStartingPosition() {
+        // Starting position: 1.5 meters in front of red hub (which is at x=11.9)
+        Pose2d startingPose = new Pose2d(10.4, 4.0, new Rotation2d());
+        resetPose(startingPose);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {

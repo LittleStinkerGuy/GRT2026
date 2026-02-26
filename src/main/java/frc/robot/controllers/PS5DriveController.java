@@ -111,4 +111,8 @@ public class PS5DriveController extends BaseDriveController {
     public CommandPS5Controller getController() {
         return driveController;
     }
+
+    public Trigger options() {
+        return driveController.options();
+    }
 }

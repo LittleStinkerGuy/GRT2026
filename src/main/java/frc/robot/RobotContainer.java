@@ -141,8 +141,8 @@ public class RobotContainer {
           },
           swerveSubsystem);
 
-      new AimToHubCommand(swerveSubsystem, fmsSubsystem);
-      new Trigger(driveController::getLeftTrigger).onTrue(Commands.defer(() -> AimToHubCommand.Aim(() -> swerveSubsystem.getCurrentCommand()!= null), java.util.Set.of(swerveSubsystem)));
+      AimToHubCommand aimToHubCommand = new AimToHubCommand(swerveSubsystem, fmsSubsystem);
+      new Trigger(driveController::getLeftTrigger).onTrue(Commands.defer(() -> aimToHubCommand.createAimCommand(() -> swerveSubsystem.getCurrentCommand()!= null), java.util.Set.of(swerveSubsystem)));
     }
     if (Constants.MECH_ENABLED){
     // bind semi auto commands
@@ -217,6 +217,9 @@ public class RobotContainer {
       // Triangle = rotate to 0°, Circle = rotate to 90°
       driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
       driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
+
+      // Options button = reset pose to starting position (in front of red hub)
+      driveController.options().onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
 
       // L1 = align to hub
       new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
