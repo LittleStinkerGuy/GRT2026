@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.Vision.VisionConstants;
 // import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.allign.AlignToHubCommand;
 import frc.robot.commands.allign.RotateToAngleCommand;
@@ -17,6 +18,8 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
 // import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.Vision.VisionSubsystem;
+
 //import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.FMS.FieldManagementSubsystem;
@@ -25,6 +28,7 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 // Commands
 import frc.robot.commands.intake.ManualIntakePivotCommand;
 import frc.robot.commands.allign.AimToHubCommand;
+import frc.robot.commands.vision.GetCameraDisplacement;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -32,6 +36,9 @@ import com.ctre.phoenix6.CANBus;
 // import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -41,6 +48,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -74,13 +82,12 @@ public class RobotContainer {
   private final FlywheelSubsystem flywheelSubsystem = new FlywheelSubsystem(mechCAN);
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
 
-  // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-  //   VisionConstants.cameraConfigs[0]
-  // );
+  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+    VisionConstants.cameraConfig11
+  );
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
-
+    visionStuff();
     constructController();
     configureBindings();
     configureAutoChooser();
@@ -264,6 +271,20 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  //vision shit
+  public void visionStuff(){
+    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+
+    CommandScheduler.getInstance().schedule(
+    new GetCameraDisplacement(visionSubsystem1,
+        new Transform3d(
+          Units.inchesToMeters(0),
+          Units.inchesToMeters(-43-15),
+          Units.inchesToMeters(44.25),
+          new Rotation3d(0,0,Math.PI/2))));
+
   }
 
 }
