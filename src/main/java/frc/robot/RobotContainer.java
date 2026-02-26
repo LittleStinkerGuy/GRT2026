@@ -19,10 +19,12 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 //import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
 import frc.robot.commands.intake.ManualIntakePivotCommand;
+import frc.robot.commands.allign.AimToHubCommand;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -62,6 +64,7 @@ public class RobotContainer {
   private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
   private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
+  private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
 
   private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
   //private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
@@ -137,8 +140,10 @@ public class RobotContainer {
             swerveSubsystem.resetDriverHeading();
           },
           swerveSubsystem);
-    }
 
+      new AimToHubCommand(swerveSubsystem, fmsSubsystem);
+      new Trigger(driveController::getLeftTrigger).onTrue(Commands.defer(() -> AimToHubCommand.Aim(() -> swerveSubsystem.getCurrentCommand()!= null), java.util.Set.of(swerveSubsystem)));
+    }
     if (Constants.MECH_ENABLED){
     // bind semi auto commands
     // var crossTrigger = mechController.cross();

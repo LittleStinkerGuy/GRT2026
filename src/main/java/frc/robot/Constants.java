@@ -276,13 +276,12 @@ public final class Constants {
   // ==================== ALIGNMENT ====================
 
   public static class AlignToHubConstants {
-    public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4.03479);
+    public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4);
   }
 
   public static class AlignConstants {
-    public static final double distanceTolerance = 0.5; // meters
-    public static final List<String> reefPathList = List.of();
-    public static final List<ChassisSpeeds> reefdirectionList = List.of();
+    public static final Translation2d BLUE_HUB_TRANS = new Translation2d(4.625, 4);
+    public static final Translation2d RED_HUB_TRANS = new Translation2d(11.9, 4);
   }
 
 
