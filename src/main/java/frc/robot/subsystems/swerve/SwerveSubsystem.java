@@ -143,7 +143,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //update the poseestimator with curent gyro reading      
+        //update the poseestimator with curent gyro reading
+        // Pigeon is flipped, so negate to match vision coordinate system
         Rotation2d gyroAngle = getGyroHeading().times(-1);
         estimatedPose = poseEstimator.update(
             gyroAngle,
@@ -356,7 +357,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d currentPose) {
-        Rotation2d gyroAngle = getGyroHeading();
+        // Pigeon is flipped, so negate to match vision coordinate system
+        Rotation2d gyroAngle = getGyroHeading().times(-1);
         poseEstimator.resetPosition(
             gyroAngle,
             getModulePositions(),

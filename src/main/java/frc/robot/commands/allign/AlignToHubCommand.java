@@ -22,6 +22,9 @@ public class AlignToHubCommand {
             double deltaY = AlignToHubConstants.HUB_POSITION.getY() - robotPose.getY();
             double targetDegrees = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
+            // Add 90° because shooter is on the right side of the robot, not the front
+            targetDegrees += 90;
+
             return new RotateToAngleCommand(swerve, targetDegrees, cancelCondition);
         }, Set.of(swerve));
     }

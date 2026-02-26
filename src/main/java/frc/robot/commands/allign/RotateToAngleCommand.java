@@ -47,13 +47,30 @@ public class RotateToAngleCommand extends Command {
 
     @Override
     public void execute() {
-        double currentAngle = swerve.getDriverHeading().getDegrees();
-        double rotationPower = pid.calculate(currentAngle, targetDegrees);
-        swerve.setDrivePowers(0, 0, -rotationPower);
+        // Use field-absolute rotation from pose, not driver heading
+        double currentAngle = normalizeAngle(swerve.getRobotPosition().getRotation().getDegrees());
+        double normalizedTarget = normalizeAngle(targetDegrees);
+        double rotationPower = pid.calculate(currentAngle, normalizedTarget);
+        // Don't negate rotation power - Pigeon negation in pose estimator already accounts for direction
+        swerve.setDrivePowers(0, 0, rotationPower);
 
-        SmartDashboard.putNumber("RotateToAngle/Goal", targetDegrees);
+        SmartDashboard.putNumber("RotateToAngle/Goal", normalizedTarget);
         SmartDashboard.putNumber("RotateToAngle/Actual", currentAngle);
-        SmartDashboard.putNumber("RotateToAngle/Error", targetDegrees - currentAngle);
+        // Calculate error with wrap-around
+        double error = normalizedTarget - currentAngle;
+        if (error > 180) error -= 360;
+        if (error < -180) error += 360;
+        SmartDashboard.putNumber("RotateToAngle/Error", error);
+    }
+
+    /**
+     * Normalizes an angle to the range [-180, 180]
+     */
+    private double normalizeAngle(double degrees) {
+        double angle = degrees % 360;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+        return angle;
     }
 
     @Override

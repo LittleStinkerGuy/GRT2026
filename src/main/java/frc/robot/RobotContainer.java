@@ -147,9 +147,6 @@ public class RobotContainer {
             swerveSubsystem.resetDriverHeading();
           },
           swerveSubsystem);
-
-      AimToHubCommand aimToHubCommand = new AimToHubCommand(swerveSubsystem, fmsSubsystem);
-      new Trigger(driveController::getLeftTrigger).onTrue(Commands.defer(() -> aimToHubCommand.createAimCommand(() -> swerveSubsystem.getCurrentCommand()!= null), java.util.Set.of(swerveSubsystem)));
     }
     if (Constants.MECH_ENABLED){
     // bind semi auto commands
@@ -228,8 +225,12 @@ public class RobotContainer {
       // Options button = reset pose to starting position (in front of red hub)
       driveController.options().onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
 
-      // L1 = align to hub
+      // L1 = align to hub (simple alignment)
       new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
+
+      // L2 = aim to hub (with shooter offset calculation)
+      AimToHubCommand aimToHubCommand = new AimToHubCommand(swerveSubsystem, fmsSubsystem);
+      new Trigger(driveController::getLeftTrigger).onTrue(Commands.defer(() -> aimToHubCommand.createAimCommand(driverInput), java.util.Set.of(swerveSubsystem)));
 
       // D-pad steer speed limiting (scales MotionMagic cruise velocity)
       // Up = 100%, Right = 75%, Down = 50%, Left = 25%

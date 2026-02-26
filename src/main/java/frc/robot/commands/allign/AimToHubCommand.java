@@ -45,7 +45,9 @@ public class AimToHubCommand extends Command{
         // Get the angle we need to point at
         Rotation2d targetAngle = shooterToHub.getAngle();
 
-        return targetAngle.getDegrees();
+        // Add 90° because shooter is on the right side of the robot, not the front
+        // So we need to rotate the robot 90° from where the shooter needs to point
+        return targetAngle.getDegrees() + 90;
     }
 
     public Command createAimCommand(BooleanSupplier cancelCondition){
