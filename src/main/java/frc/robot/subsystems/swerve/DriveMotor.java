@@ -5,6 +5,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -27,6 +28,8 @@ import frc.robot.util.GRTUtil;
 import static frc.robot.Constants.LoggingConstants.SWERVE_TABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_MAX_ACCELERATION;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_MAX_VELOCITY_RPS;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_CURRENT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_STATOR_CURRENT_LIMIT;
@@ -157,6 +160,10 @@ public class DriveMotor {
 
         // By Default Robot will not move
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        // Configure MotionMagic for velocity control with acceleration limiting
+        motorConfig.MotionMagic.MotionMagicCruiseVelocity = DRIVE_MAX_VELOCITY_RPS;
+        motorConfig.MotionMagic.MotionMagicAcceleration = DRIVE_MAX_ACCELERATION;
 
         // Apply motor config with retries (max 5 attempts)
         for (int i = 0; i < 5; i++) {

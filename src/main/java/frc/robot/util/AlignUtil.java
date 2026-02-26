@@ -60,15 +60,12 @@ public class AlignUtil {
 
             PathPlannerPath path = getAlignPath(pathName);
             if (path == null) {
-                System.out.println("NOOO00000000000000O");
                 return Commands.none();
 
             }
             Command alignPath = AutoBuilder.pathfindThenFollowPath(
                 path,
                 constraints);
-
-            System.out.println("XXXXXXXXXXXXXXXXXX");
             alignPath.addRequirements(swerveSubsystem);
 
             runAlignPath = (Command) new SequentialCommandGroup(
@@ -82,11 +79,9 @@ public class AlignUtil {
         else {
             PathPlannerPath path = getAlignPath(pathName);
             if (path == null) {
-                System.out.println("NOOOOOOOOPOOOOOOO");
                 return Commands.none();
             }
 
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
             runAlignPath = AutoBuilder.pathfindThenFollowPath(
                 path,
                 constraints);

@@ -303,7 +303,6 @@ public class SteerMotor extends SubsystemBase{
         mmConfigs.MotionMagicCruiseVelocity = velocity;
         mmConfigs.MotionMagicAcceleration = STEER_ACCELERATION;
         motor.getConfigurator().apply(mmConfigs);
-        System.out.println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
     }
 
     public void setCruiseVelocity(double velocity, double acceleration) {

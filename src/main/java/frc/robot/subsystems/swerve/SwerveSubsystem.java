@@ -33,6 +33,8 @@ import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
+import static frc.robot.Constants.SwerveConstants.MAX_LINEAR_ACCELERATION;
+import static frc.robot.Constants.SwerveConstants.MAX_ANGULAR_ACCELERATION;
 
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveConstants;
@@ -58,6 +60,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private final CANBus canivore;
     private Timer lockTimer;
     private double currentCruiseVelocityRPM = STEER_CRUISE_VELOCITY * STEER_GEAR_REDUCTION * 60.0;
+
+    // Acceleration limiting fields
+    private ChassisSpeeds previousSpeeds = new ChassisSpeeds();
+    private double lastUpdateTime = 0.0;
 
     // DataLog entries
     private StructLogEntry<Pose2d> poseLogEntry;
@@ -188,20 +194,78 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param angularPower [-1, 1] The rotational power.
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-            xPower * MAX_VEL, 
-            yPower * MAX_VEL, 
+        ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+            xPower * MAX_VEL,
+            yPower * MAX_VEL,
             angularPower * MAX_OMEGA,
             getDriverHeading()
         );
+
+        // Apply acceleration limiting (only limit acceleration, not deceleration)
+        ChassisSpeeds speeds = limitAcceleration(desiredSpeeds);
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
             states, speeds,
             MAX_VEL, MAX_VEL, MAX_OMEGA
         );
-        
-        
+
+
+    }
+
+    /**
+     * Limits acceleration but allows full deceleration
+     * @param desiredSpeeds The desired chassis speeds
+     * @return Limited chassis speeds
+     */
+    private ChassisSpeeds limitAcceleration(ChassisSpeeds desiredSpeeds) {
+        double currentTime = Timer.getFPGATimestamp();
+        double dt = currentTime - lastUpdateTime;
+
+        // If this is the first update or dt is too large, don't limit
+        if (lastUpdateTime == 0.0 || dt > 0.1 || dt <= 0.0) {
+            lastUpdateTime = currentTime;
+            previousSpeeds = desiredSpeeds;
+            return desiredSpeeds;
+        }
+
+        // Calculate current linear velocity magnitude
+        double currentLinearVel = Math.hypot(previousSpeeds.vxMetersPerSecond, previousSpeeds.vyMetersPerSecond);
+        double desiredLinearVel = Math.hypot(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond);
+
+        // Only limit if we're accelerating (increasing speed), not decelerating
+        double vx = desiredSpeeds.vxMetersPerSecond;
+        double vy = desiredSpeeds.vyMetersPerSecond;
+
+        if (desiredLinearVel > currentLinearVel) {
+            // We're accelerating - apply limits
+            double maxDeltaV = MAX_LINEAR_ACCELERATION * dt;
+            double deltaV = desiredLinearVel - currentLinearVel;
+
+            if (deltaV > maxDeltaV) {
+                // Scale down the desired velocity to respect acceleration limit
+                double limitedLinearVel = currentLinearVel + maxDeltaV;
+                double scale = limitedLinearVel / desiredLinearVel;
+                vx = desiredSpeeds.vxMetersPerSecond * scale;
+                vy = desiredSpeeds.vyMetersPerSecond * scale;
+            }
+        }
+
+        // Limit angular acceleration (both acceleration and deceleration for rotation)
+        double omega = desiredSpeeds.omegaRadiansPerSecond;
+        double deltaOmega = omega - previousSpeeds.omegaRadiansPerSecond;
+        double maxDeltaOmega = MAX_ANGULAR_ACCELERATION * dt;
+
+        if (Math.abs(deltaOmega) > maxDeltaOmega) {
+            omega = previousSpeeds.omegaRadiansPerSecond + Math.signum(deltaOmega) * maxDeltaOmega;
+        }
+
+        ChassisSpeeds limitedSpeeds = new ChassisSpeeds(vx, vy, omega);
+
+        lastUpdateTime = currentTime;
+        previousSpeeds = limitedSpeeds;
+
+        return limitedSpeeds;
     }
 
         /** Executes swerve X locking, putting swerve's wheels into an X configuration to prevent motion.
