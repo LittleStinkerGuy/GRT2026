@@ -138,7 +138,7 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //update the poseestimator with curent gyro reading      
-        Rotation2d gyroAngle = getGyroHeading();
+        Rotation2d gyroAngle = getGyroHeading().times(-1);
         estimatedPose = poseEstimator.update(
             gyroAngle,
             getModulePositions()

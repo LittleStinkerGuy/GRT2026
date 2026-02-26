@@ -79,13 +79,12 @@ public class RobotContainer {
   private final FlywheelSubsystem flywheelSubsystem = new FlywheelSubsystem(mechCAN);
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
 
-  // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-  //   VisionConstants.cameraConfigs[0]
-  // );
+  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+    VisionConstants.cameraConfig11
+  );
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
-
+    visionStuff();
     constructController();
     configureBindings();
     configureAutoChooser();
@@ -272,9 +271,6 @@ public class RobotContainer {
   }
 
   //vision shit
-  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    VisionConstants.cameraConfig11
-  );
   public void visionStuff(){
     visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
