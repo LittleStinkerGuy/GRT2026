@@ -6,8 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.Vision.VisionConstants;
 // import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.allign.AlignToHubCommand;
-import frc.robot.commands.allign.RotateToAngleCommand;
+import frc.robot.commands.allign.RotateByAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -219,14 +218,11 @@ public class RobotContainer {
           Math.abs(driveController.getRotatePower()) > 0;
 
       // Triangle = rotate to 0°, Circle = rotate to 90°
-      driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
-      driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
+      driveController.triangle().onTrue(new RotateByAngleCommand(swerveSubsystem, 0, driverInput));
+      driveController.circle().onTrue(new RotateByAngleCommand(swerveSubsystem, 90, driverInput));
 
       // Options button = reset pose to starting position (in front of red hub)
       driveController.options().onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
-
-      // L1 = align to hub (simple alignment)
-      new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
 
       // L2 = aim to hub (with shooter offset calculation)
       AimToHubCommand aimToHubCommand = new AimToHubCommand(swerveSubsystem, fmsSubsystem);
