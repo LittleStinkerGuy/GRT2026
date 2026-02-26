@@ -22,7 +22,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     private final TalonFX hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
-    private CANdi limit;
+    // private CANdi limit;
 
     private double commandedDutyCycle = 0.0;
     private static final String LOG_PREFIX = "Shooter/Hood/";
@@ -30,7 +30,7 @@ public class HoodSubsystem extends SubsystemBase {
     public HoodSubsystem(CANBus cn) {
         // Construct motors directly on the CAN bus
         hoodMotor = new TalonFX(ShooterConstants.HOOD_CAN_ID, cn);
-        limit = new CANdi(ShooterConstants.FLYWHEEL_ENCODER_ID, cn);
+        // limit = new CANdi(ShooterConstants.FLYWHEEL_ENCODER_ID, cn);
 
         // Initialize hood to starting angle
         hoodMotor.setPosition(ShooterConstants.INIT_HOOD_ANGLE);
@@ -75,14 +75,14 @@ public class HoodSubsystem extends SubsystemBase {
     boolean prevPress = false;
     @Override
     public void periodic(){
-        if(limit.getS1Closed().refresh().getValue() && !prevPress){
-            hoodMotor.setPosition(ShooterConstants.INIT_HOOD_ANGLE);
-            prevPress = true;
-        }
-        
-        if(!limit.getS1Closed().refresh().getValue()){
-            prevPress = false;
-        }
+        // if(limit.getS1Closed().refresh().getValue() && !prevPress){
+        //     hoodMotor.setPosition(ShooterConstants.INIT_HOOD_ANGLE);
+        //     prevPress = true;
+        // }
+
+        // if(!limit.getS1Closed().refresh().getValue()){
+        //     prevPress = false;
+        // }
         sendData();
     }
 

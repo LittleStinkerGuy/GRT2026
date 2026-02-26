@@ -107,4 +107,8 @@ public class PS5DriveController extends BaseDriveController {
     public Trigger getAlignToSource() {
         return square;
     }
+
+    public CommandPS5Controller getController() {
+        return driveController;
+    }
 }

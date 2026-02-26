@@ -162,10 +162,6 @@ public class RobotContainer {
       if (mechController.povDown().getAsBoolean()) {
         winchDutyCycle--;
       }
-      System.out.print(armDutyCycle);
-      System.out.print(" ");
-      System.out.println(winchDutyCycle);
-
       m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
       m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
     }, m_ClimbSubsystem));
@@ -201,10 +197,9 @@ public class RobotContainer {
     }, flywheelSubsystem));
 
     hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-      //double hoodInput = -mechController.getLeftY();
       if (mechController.L3().getAsBoolean()) {
         hoodSubsystem.hoodSpeed(0.05);
-      }else if(mechController.R3().getAsBoolean()){
+      } else if (mechController.R3().getAsBoolean()) {
         hoodSubsystem.hoodSpeed(-0.05);
       } else {
         hoodSubsystem.hoodSpeed(0);
@@ -248,7 +243,7 @@ public class RobotContainer {
    */
   private void constructController() {
     driveController = new PS5DriveController();
-    driveController.setDeadZone(0.05);
+    driveController.setDeadZone(0.03);
     mechController = new CommandPS5Controller(1);
   }
 

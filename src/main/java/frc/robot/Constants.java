@@ -75,7 +75,10 @@ public final class Constants {
 
     // Manual control
     public static final double HOOD_MANUAL_SPEED = 0.15;
-    public static final double FLYWHEEL_MANUAL_SPEED = 0.5;
+    public static final double FLYWHEEL_MANUAL_SPEED = 1;
+
+    // Flywheel max duty cycle (0.0 to 1.0)
+    public static final double FLYWHEEL_MAX_DUTY_CYCLE = 0.65; // Limit to 85% for safety
   }
 
   // ==================== DRIVETRAIN ====================
@@ -94,6 +97,10 @@ public final class Constants {
     public static final double DRIVE_WHEEL_RADIUS = 2.0; // inches
     public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
     public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
+
+    // MotionMagic parameters for drive motors
+    public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
+    public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
   }
 
   public static class SwerveSteerConstants {
@@ -167,6 +174,10 @@ public final class Constants {
     // Kinematic Limits
     public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0 * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
     public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
+
+    // Chassis Acceleration Limits (m/s^2)
+    public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
+    public static final double MAX_ANGULAR_ACCELERATION = 8.0; // radians per second squared
   }
 
   public static class RotateToAngleConstants {

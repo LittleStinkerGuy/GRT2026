@@ -39,8 +39,11 @@ public class FlywheelSubsystem extends SubsystemBase {
     }
 
     public void flySpeed(double speed){
-        commandedDutyCycle = speed;
-        upperMotor.setControl(dutyCycl.withOutput(speed));
+        // Clamp speed to max duty cycle limit
+        double clampedSpeed = Math.max(-ShooterConstants.FLYWHEEL_MAX_DUTY_CYCLE,
+                                       Math.min(speed, ShooterConstants.FLYWHEEL_MAX_DUTY_CYCLE));
+        commandedDutyCycle = clampedSpeed;
+        upperMotor.setControl(dutyCycl.withOutput(clampedSpeed));
     }
 
     @Override
