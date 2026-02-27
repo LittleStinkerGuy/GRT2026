@@ -2,9 +2,9 @@ package frc.robot.subsystems.Intake;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import static edu.wpi.first.units.Units.Amps;
@@ -18,7 +18,7 @@ import frc.robot.Constants.IntakeConstants;
 
 public class RollerIntakeSubsystem extends SubsystemBase {
     private TalonFX rollerMotor;
-    private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
+    private final VelocityTorqueCurrentFOC velocityFOCRequest = new VelocityTorqueCurrentFOC(0);
 
     private TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
@@ -50,8 +50,12 @@ public class RollerIntakeSubsystem extends SubsystemBase {
                         .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT))
         );
 
-        config.withOpenLoopRamps(new OpenLoopRampsConfigs()
-                .withDutyCycleOpenLoopRampPeriod(IntakeConstants.ROLLER_OPEN_LOOP_RAMP)
+        // Velocity PID configuration
+        config.withSlot0(new Slot0Configs()
+                .withKP(IntakeConstants.ROLLER_P)
+                .withKI(IntakeConstants.ROLLER_I)
+                .withKD(IntakeConstants.ROLLER_D)
+                .withKV(IntakeConstants.ROLLER_V)
         );
 
         rollerMotor.getConfigurator().apply(config);
@@ -73,18 +77,18 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Run intake rollers at specified duty cycle (percent output)
-     * @param dutyCycle value between -1.0 and 1.0
+     * Run intake rollers at specified velocity
+     * @param velocity target velocity in rotations per second
      */
-    public void setDutyCycle(double dutyCycle) {
-        rollerMotor.setControl(dutyCycleRequest.withOutput(dutyCycle));
+    public void setVelocity(double velocity) {
+        rollerMotor.setControl(velocityFOCRequest.withVelocity(velocity));
     }
 
     /**
      * Stop the intake rollers
      */
     public void stop() {
-        rollerMotor.setControl(dutyCycleRequest.withOutput(0));
+        rollerMotor.setControl(velocityFOCRequest.withVelocity(0));
     }
 
     /**
@@ -92,7 +96,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
      */
     public void runIn() {
         inSpeed = SmartDashboard.getNumber("Intake/Roller/InSpeed", IntakeConstants.ROLLER_IN_SPEED);
-        setDutyCycle(inSpeed);
+        setVelocity(inSpeed);
     }
 
     /**
@@ -100,7 +104,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
      */
     public void runOut() {
         outSpeed = SmartDashboard.getNumber("Intake/Roller/OutSpeed", Math.abs(IntakeConstants.ROLLER_OUT_SPEED));
-        setDutyCycle(-outSpeed);
+        setVelocity(-outSpeed);
     }
 
     //Check if the roller is currently running
