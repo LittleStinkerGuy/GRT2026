@@ -1,55 +1,84 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+
 import org.littletonrobotics.junction.Logger;
 
-public class FlywheelSubsystem extends SubsystemBase {
+public class flywheel extends SubsystemBase {
 
     private final TalonFX upperMotor;
-    private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
+    private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
+    private DutyCycleOut dutyCycl = new DutyCycleOut(0);
 
-    private double commandedDutyCycle = 0.0;
-    private static final String LOG_PREFIX = "Shooter/Flywheel/";
+    private double wantedVe = 0;
 
-    public FlywheelSubsystem(CANBus cn) {
-        // Construct motors directly on the CAN bus
-        upperMotor = new TalonFX(ShooterConstants.FLYWHEEL_CAN_ID, cn);
+    private static final String LOG_PREFIX = "FlyWheel/";
+
+    public flywheel(CANBus cn) {
+        upperMotor = new TalonFX(railgunConstants.upperId, cn);
         config();
-       
     }
 
     public void config(){
         TalonFXConfiguration cfg = new TalonFXConfiguration();
-        cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        cfg.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO_FLYWHEEL;
-        //CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(40.0).withStatorCurrentLimitEnable(true);
-        //cfg.withCurrentLimits(currLim);
+        cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        cfg.MotionMagic.MotionMagicCruiseVelocity = 120;   // target RPS cap
+        cfg.MotionMagic.MotionMagicAcceleration = 10;    // RPS per second
+        cfg.MotionMagic.MotionMagicJerk = 150;            // optional, smoothness
+
+        cfg.Slot0.kP = 0.05;
+        cfg.Slot0.kI = 0.0;
+        cfg.Slot0.kD = 0.0;
+        cfg.Slot0.kS = 0.2;
+        cfg.Slot0.kV = 0.14;
+        cfg.Slot0.kA = 0.0;
+
+        cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
+
         upperMotor.getConfigurator().apply(cfg);
-       
     }
 
+    public void shoot(double rps){
+        wantedVe = rps;
+        upperMotor.setControl(spinner.withVelocity(rps));
+    }
+
+    public double getRPS(){
+        return upperMotor.getVelocity().getValueAsDouble();
+    }
+
+    public boolean wantedVel(){
+        if(Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < 5){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public void dontShoot(){
+        wantedVe = 0;
+        upperMotor.setControl(spinner.withVelocity(0));
+    }
+
+    double commandedDutyCycle = 0;
     public void flySpeed(double speed){
-        // Clamp speed to max duty cycle limit
-        double clampedSpeed = Math.max(-ShooterConstants.FLYWHEEL_MAX_DUTY_CYCLE,
-                                       Math.min(speed, ShooterConstants.FLYWHEEL_MAX_DUTY_CYCLE));
-        commandedDutyCycle = clampedSpeed;
-        upperMotor.setControl(dutyCycl.withOutput(clampedSpeed));
+        commandedDutyCycle = 0;
+        upperMotor.setControl(dutyCycl.withOutput(speed));
     }
 
     @Override
     public void periodic(){
         sendData();
-        
     }
 
     public void sendData(){
@@ -58,9 +87,6 @@ public class FlywheelSubsystem extends SubsystemBase {
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
             upperMotor.getVelocity().getValueAsDouble());
-
-        Logger.recordOutput(LOG_PREFIX + "VelocityRPM",
-           (60* upperMotor.getVelocity().getValueAsDouble()));
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
             upperMotor.getMotorVoltage().getValueAsDouble());
@@ -82,8 +108,6 @@ public class FlywheelSubsystem extends SubsystemBase {
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
             upperMotor.isConnected());
-
-        Logger.recordOutput(LOG_PREFIX + "RPS", upperMotor.getVelocity().getValueAsDouble());
-        Logger.recordOutput(LOG_PREFIX + "Linear_Velocity_mPs", upperMotor.getVelocity().getValueAsDouble()*0.0762/2);
     }
+
 }

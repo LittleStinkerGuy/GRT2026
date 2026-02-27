@@ -46,41 +46,25 @@ public final class Constants {
   public static final boolean SWERVE_ENABLED = true;
   public static final boolean MECH_ENABLED = true;
   // ==================== SHOOTER ====================
-  public static class ShooterConstants {
-    // CAN IDs (: Hood=16, Flywheel=17, Flywheel Encoder=18)
-    public static final int HOOD_CAN_ID = 16;
-    public static final int FLYWHEEL_CAN_ID = 17;
-    public static final int FLYWHEEL_ENCODER_ID = 18;
+  public static class railgunConstants {
+        
+    //Everything in metric pls
+    public static int upperId = 17;
+    public static int hoodId = 16;
+    public static int upperEncoderId = 18;
+    public static int hoodEncoderId = 3;
+    public static int limitId = 3;
 
-    // Physics constants
-    public static final double g = 9.8;
-    public static final double tan75 = 3.73205;
-    public static final double cos75 = 0.258819;
-    public static final double height = 1.83;
-    public static final double radius = 0.0508;
+    public static double gearRatioUpper = 1.5;
+    public static double gearRatioHood = 50;
 
-    // Gear ratios
-    public static final double GEAR_RATIO_FLYWHEEL = 1.5;
-    public static final double GEAR_RATIO_HOOD = 50;
+    public static double upperAngle = 0;
+    public static double lowerAngle = -0.328;
+    public static double initHoodAngle = upperAngle;
 
-    // Angles
-    public static final double UPPER_ANGLE = 0.45;
-    public static final double LOWER_ANGLE = -1.25;
-    public static final double MAX_VELO = 1;
-    public static final double INIT_HOOD_ANGLE = -1.25;
-    public static final double HOOD_MAGNET_OFFSET = 0.5;
+    public static double flyDia = 0.127;
 
-    // Hub position
-    public static final Pose2d HUB_POS = new Pose2d(4.03479, 4.0288, null);
-
-    // Manual control
-    public static final double HOOD_MANUAL_SPEED = 0.15;
-    public static final double FLYWHEEL_MANUAL_SPEED = 1;
-
-    // Flywheel max duty cycle (0.0 to 1.0)
-    public static final double FLYWHEEL_MAX_DUTY_CYCLE = 0.65; // Limit to 85% for safety
   }
-
   // ==================== DRIVETRAIN ====================
 
   public static class SwerveDriveConstants {
@@ -216,23 +200,29 @@ public final class Constants {
   }
 
   public static class HopperConstants {
-    // Motor Configuration
     public static final int KRAKEN_CAN_ID = 15;
-    public static final InvertedValue HOPPERINVERTED = InvertedValue.Clockwise_Positive;
 
-    // Current Limits
+    // Velocity control PID
+    public static final double TARGET_RPM = 12;
+    public static final double HOPPER_KP = 0.5;
+    public static final double HOPPER_KI = 0.0;
+    public static final double HOPPER_KD = 0.0;
+    public static final double HOPPER_KS = 0.0;
+    public static final double HOPPER_KV = 0.12;
+
+    // Current limits
     public static final int SUPPLY_CURRENT_LIMIT = 80;
     public static final int STATOR_CURRENT_LIMIT = 60;
     public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
     public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
-    // Ramp Rates
+    // Voltage and ramping
     public static final int VOLTAGE_COMPENSATION = 12;
-    public static final double OPEN_LOOP_RAMP = 0.2;
+    public static final double OPEN_LOOP_RAMP = 0.5;
     public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
-    // Manual Control
-    public static final double MANUAL_SPEED = 0.5;
+    // Motor config
+    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
   }
 
   // ==================== VISION ====================

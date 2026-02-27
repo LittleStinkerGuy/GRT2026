@@ -10,8 +10,8 @@ import frc.robot.commands.allign.RotateToFieldAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.shooter.hood;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
@@ -78,8 +78,8 @@ public class RobotContainer {
   private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
   private final Field2d m_field = new Field2d();
   private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-  private final FlywheelSubsystem flywheelSubsystem = new FlywheelSubsystem(mechCAN);
-  private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
+  private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+  private final hood hoodSubsystem = new hood(mechCAN);
 
   private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     VisionConstants.cameraConfig11
@@ -189,8 +189,6 @@ public class RobotContainer {
 
     // ==================== HOPPER ====================
     // L1 = hopper in
-    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
-    HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
 
     // ==================== SHOOTER ====================
     // R2 = flywheel (analog speed control)

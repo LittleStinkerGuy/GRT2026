@@ -36,7 +36,6 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveConstants.MAX_LINEAR_ACCELERATION;
 import static frc.robot.Constants.SwerveConstants.MAX_ANGULAR_ACCELERATION;
 
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
@@ -124,22 +123,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final PIDController ROTATION_PID = new PIDController(4.0, 0.0, 0.2);
 
-    public void facePose() {
-        Pose2d currentPose = getRobotPosition();
-
-        double dx = ShooterConstants.HUB_POS.getX() - currentPose.getX();
-        double dy = ShooterConstants.HUB_POS.getY() - currentPose.getY();
-
-        Rotation2d targetHeading = new Rotation2d(Math.atan2(dy, dx));
-
-        Rotation2d headingError =
-            targetHeading.minus(currentPose.getRotation());
-
-        double omega =
-            ROTATION_PID.calculate(headingError.getRadians(), 0.0);
-
-        setDrivePowers(0.0, 0.0, omega);
-    }
 
     @Override
     public void periodic() {
