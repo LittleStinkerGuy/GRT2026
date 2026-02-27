@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FMS.FieldManagementSubsystem;
@@ -15,6 +16,7 @@ public class AimToHubCommand extends Command{
     private final FieldManagementSubsystem fmsSubsystem;
     // Shooter offset relative to robot center (x: forward/back, y: left/right in meters)
     private static final Translation2d SHOOTER_OFFSET = new Translation2d(-0.08, 0.073);
+    private static final Rotation2d SHOOTER_ANGLE = new Rotation2d(-Math.PI);
 
     // Link to dimensions https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
     public AimToHubCommand (SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fmsSubsystem){
@@ -33,22 +35,12 @@ public class AimToHubCommand extends Command{
         } else {
             hubTrans = AlignConstants.BLUE_HUB_TRANS;
         }
-
-        // Apply shooter offset to robot pose to get shooter position
-        // Rotate the offset by the robot's heading, then add to robot position
-        Translation2d shooterPosition = robotPose.getTranslation()
-            .plus(SHOOTER_OFFSET.rotateBy(robotPose.getRotation()));
-
-        // Calculate vector from shooter to hub
-        Translation2d shooterToHub = hubTrans.minus(shooterPosition);
-
-        // Get the angle we need to point at
-        Rotation2d targetAngle = shooterToHub.getAngle();
-
-        // Add 90° because shooter is on the right side of the robot, not the front
-        // So we need to rotate the robot 90° from where the shooter needs to point
-        return targetAngle.getDegrees() + 90;
-    }
+       Translation2d shooterPosition = robotPose.getTranslation().plus(SHOOTER_OFFSET);
+       Translation2d shooterToHub = hubTrans.minus(shooterPosition);   
+       Rotation2d targetAngle = shooterToHub.getAngle().minus(SHOOTER_ANGLE);
+       
+       return targetAngle.getDegrees() - robotPose.getRotation().getDegrees();
+   }
 
     public Command createAimCommand(BooleanSupplier cancelCondition){
         double targetAngle = calculateTargetAngle();
