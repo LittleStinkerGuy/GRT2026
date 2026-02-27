@@ -21,12 +21,10 @@ import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
-// Commands
-import frc.robot.commands.intake.ManualIntakePivotCommand;
-
 import com.ctre.phoenix6.CANBus;
 
-import frc.robot.commands.intake.SetIntakePivotCommand;
+import frc.robot.commands.intake.pivot.ManualIntakePivotCommand;
+import frc.robot.commands.intake.pivot.SetIntakePivotCommand;
 import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
