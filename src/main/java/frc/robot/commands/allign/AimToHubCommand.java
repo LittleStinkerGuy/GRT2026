@@ -52,7 +52,7 @@ public class AimToHubCommand extends Command{
 
     public Command createAimCommand(BooleanSupplier cancelCondition){
         double targetAngle = calculateTargetAngle();
-        return new RotateByAngleCommand(swerveSubsystem, targetAngle, cancelCondition);
+        return new RotateToFieldAngleCommand(swerveSubsystem, targetAngle, cancelCondition);
     }
 
     public double getDistanceToHub(){

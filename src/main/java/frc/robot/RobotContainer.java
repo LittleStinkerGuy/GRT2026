@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.Vision.VisionConstants;
 // import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.allign.RotateByAngleCommand;
+import frc.robot.commands.allign.RotateToFieldAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -218,8 +218,8 @@ public class RobotContainer {
           Math.abs(driveController.getRotatePower()) > 0;
 
       // Triangle = rotate to 0°, Circle = rotate to 90°
-      driveController.triangle().onTrue(new RotateByAngleCommand(swerveSubsystem, 0, driverInput));
-      driveController.circle().onTrue(new RotateByAngleCommand(swerveSubsystem, 90, driverInput));
+      driveController.triangle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 0, driverInput));
+      driveController.circle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 90, driverInput));
 
       // Options button = reset pose to starting position (in front of red hub)
       driveController.options().onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
