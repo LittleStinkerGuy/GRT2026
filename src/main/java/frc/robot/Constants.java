@@ -181,12 +181,18 @@ public final class Constants {
   public static class IntakeConstants {
     // Roller Motor
     public static final int ROLLER_CAN_ID = 14;
-    public static final double ROLLER_IN_SPEED = -1;
-    public static final double ROLLER_OUT_SPEED = 1;
+    public static final double ROLLER_IN_SPEED = -50.0; // rotations per second
+    public static final double ROLLER_OUT_SPEED = 50.0; // rotations per second
     public static final double ROLLER_CURRENT_LIMIT = 120.0;
     public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
-    public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
+    public static final double ROLLER_OPEN_LOOP_RAMP = 0.1;
     public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
+
+    // Roller Velocity PID
+    public static final double ROLLER_P = 0.5;
+    public static final double ROLLER_I = 0.0;
+    public static final double ROLLER_D = 0.0;
+    public static final double ROLLER_V = 0.12; // Feedforward velocity gain
 
     // Pivot Motor
     public static final int PIVOT_MOTOR_ID = 12;
@@ -194,6 +200,7 @@ public final class Constants {
     public static final double MANUAL_PIVOT_SPEED = 0.15;
     public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
     public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
+    public static final double PIVOT_PEAK_TORQUE_CURRENT = 40.0;
 
     // Pivot PID
     public static final double PIVOT_P = 24.0;
@@ -201,16 +208,21 @@ public final class Constants {
     public static final double PIVOT_D = 0.0;
     public static final double PIVOT_F = 0.0;
 
-    // Pivot Positions (in degrees)
-    public static final double STOWED_POS = 0.0;
-    public static final double EXTENDED_POS = 90.0;
+    // Motion Magic Config
+    public static final double PIVOT_MAX_VELOCITY = 2.0;
+    public static final double PIVOT_MAX_ACCELERATION = 4.0; 
+    public static final double PIVOT_CRUISE_VELOCITY = PIVOT_MAX_VELOCITY;
+    public static final double PIVOT_ACCELERATION = PIVOT_MAX_ACCELERATION;
+
+    // Pivot Positions 
+    public static final double PIVOT_IN_POS = 0.0;
+    public static final double PIVOT_OUT_POS = 0.25;
+    public static final double PIVOT_MID_POS = 0.125;
     public static final double GEAR_RATIO = 1.0; // TODO: Update with actual gear ratio
 
-    // Limit Switches
-    public static final int TOP_LIMIT_SWITCH_DIO = 0;
-    public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
-    public static final Angle TOP_LIMIT = Rotations.of(0.25);
-    public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);
+    
+    //public static final double STOWED_POS = 0.0;
+    //public static final double EXTENDED_POS = 90.0;
 
     // CANdle
     public static final int CANDLE_ID = 13;
@@ -236,7 +248,7 @@ public final class Constants {
     public static final double MANUAL_SPEED = 0.5;
 
     // Velocity Control
-    public static final double TARGET_RPM = 3000.0; // TODO: Tune this value
+    public static final double TARGET_RPM = 3000.0; // TODO: Tune ts value
     public static final double HOPPER_P = 0.1;
     public static final double HOPPER_I = 0.0;
     public static final double HOPPER_D = 0.0;
