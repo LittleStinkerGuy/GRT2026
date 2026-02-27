@@ -8,14 +8,15 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
@@ -27,14 +28,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
   private final CANcoder canCoder;
   private final CANdle candle;
 
-  private final DigitalInput bottomLimitSwitch = new DigitalInput(IntakeConstants.BOTTOM_LIMIT_SWITCH_DIO);
-  private final DigitalInput topLimitSwitch = new DigitalInput(IntakeConstants.TOP_LIMIT_SWITCH_DIO);
-
   private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-  private final PositionVoltage positionControl = new PositionVoltage(0);
-
-  private boolean previousBottomLimitState = false;
-  private boolean previousTopLimitState = false;
+// private final PositionVoltage positionControl = new PositionVoltage(0);
+  private final MotionMagicTorqueCurrentFOC motionMagicControl = new MotionMagicTorqueCurrentFOC(0);
 
   public PivotIntakeSubsystem(CANBus canBus) {
     pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
@@ -48,21 +44,29 @@ public class PivotIntakeSubsystem extends SubsystemBase {
   private void configMotors() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
+    // PID Config
     config.Slot0.kP = IntakeConstants.PIVOT_P;
     config.Slot0.kI = IntakeConstants.PIVOT_I;
     config.Slot0.kD = IntakeConstants.PIVOT_D;
     config.Slot0.kV = IntakeConstants.PIVOT_F;
-
+    // Motor Output Config
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    // Config current limits
+    // FOCTorqueCurrent Limits
+    config.TorqueCurrent.PeakForwardTorqueCurrent = IntakeConstants.PIVOT_PEAK_TORQUE_CURRENT;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -IntakeConstants.PIVOT_PEAK_TORQUE_CURRENT;
+    // StatorCurrent Limits
     config.withCurrentLimits(
       new CurrentLimitsConfigs()
           .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
           .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE)
     );
-
-    // Config software limits 
+    // Motion Magic Config
+    config.withMotionMagic(
+      new MotionMagicConfigs()
+          .withMotionMagicCruiseVelocity(IntakeConstants.PIVOT_CRUISE_VELOCITY)
+          .withMotionMagicAcceleration(IntakeConstants.PIVOT_ACCELERATION)
+    );
+    // Software Limits
     config.withSoftwareLimitSwitch(
       new SoftwareLimitSwitchConfigs()
           .withForwardSoftLimitEnable(true)
@@ -92,11 +96,23 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     return canCoder.getAbsolutePosition().getValueAsDouble();
   }
 
+  /**
+   * Set pivot angle using Motion Magic with FOC torque current control
+   * @param angleDegrees Target angle in degrees
+   */
   public void setAngle(double angleDegrees) {
     angleDegrees = Math.max(IntakeConstants.STOWED_POS,
                            Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
     double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
-    pivotMotor.setControl(positionControl.withPosition(motorRotations));
+    pivotMotor.setControl(motionMagicControl.withPosition(motorRotations));
+  }
+
+  /**
+   * Set pivot position using Motion Magic with FOC torque current control
+   * @param rotations Target position in rotations
+   */
+  public void setPosition(double rotations) {
+    pivotMotor.setControl(motionMagicControl.withPosition(rotations));
   }
 
   public void zeroEncoder() {
@@ -108,27 +124,13 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     canCoder.setPosition(maxRotations);
   }
 
-  public boolean isAtTopLimit() {
-    return !topLimitSwitch.get();
-  }
-
-  public boolean isAtBottomLimit() {
-    return !bottomLimitSwitch.get();
-  }
-
   /**
    * Manually controls the pivot at a specific speed
-   * Prevents pivot from moving past top & bottom limits
+   * Software limits will prevent movement past configured bounds
    *
    * @param speed Desired speed from -1.0 to 1.0
    */
   public void setManualSpeed(double speed) {
-    if (isAtTopLimit() && speed > 0) {
-      speed = 0;
-    }
-    if (isAtBottomLimit() && speed < 0) {
-      speed = 0;
-    }
     pivotMotor.setControl(dutyCycleControl.withOutput(speed));
   }
 
@@ -138,25 +140,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    boolean topLimit = isAtTopLimit();
-    boolean bottomLimit = isAtBottomLimit();
-
-    // Encoder reset on limit switch
-    if (bottomLimit && !previousBottomLimitState) {
-      zeroEncoder();
-    }
-    previousBottomLimitState = bottomLimit;
-
-    if (topLimit && !previousTopLimitState) {
-      setEncoderToMax();
-    }
-    previousTopLimitState = topLimit;
-
     // SmartDashboard
     SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
     SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
-    SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
-    SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
 
     SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
     SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
