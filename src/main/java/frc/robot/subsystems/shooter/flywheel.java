@@ -34,7 +34,7 @@ public class flywheel extends SubsystemBase {
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         cfg.MotionMagic.MotionMagicCruiseVelocity = 120;   // target RPS cap
-        cfg.MotionMagic.MotionMagicAcceleration = 10;    // RPS per second
+        cfg.MotionMagic.MotionMagicAcceleration = 30;    // RPS per second
         cfg.MotionMagic.MotionMagicJerk = 150;            // optional, smoothness
 
         cfg.Slot0.kP = 0.05;

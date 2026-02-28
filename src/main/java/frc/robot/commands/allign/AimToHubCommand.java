@@ -1,5 +1,6 @@
 package frc.robot.commands.allign;
 
+import java.lang.reflect.Field;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,12 +16,11 @@ public class AimToHubCommand extends Command{
     private final FieldManagementSubsystem fmsSubsystem;
     // Shooter offset relative to robot center (x: forward/back, y: left/right in meters)
     private static final Translation2d SHOOTER_OFFSET = new Translation2d(-0.08, 0.073);
-
     // Link to dimensions https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
-    public AimToHubCommand (SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fmsSubsystem){
+    public AimToHubCommand (SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms){
         this.swerveSubsystem = swerveSubsystem;
-        this.fmsSubsystem = fmsSubsystem;
-        addRequirements(swerveSubsystem);
+        this.fmsSubsystem = fms;
+        addRequirements(swerveSubsystem, fms);
     }
 
     public double calculateTargetAngle() {

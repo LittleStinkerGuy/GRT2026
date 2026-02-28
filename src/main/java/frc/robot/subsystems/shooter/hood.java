@@ -6,7 +6,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -17,7 +17,7 @@ public class hood extends SubsystemBase {
 
     private final TalonFX hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
-    private PositionTorqueCurrentFOC focThing = new PositionTorqueCurrentFOC(0);
+    private PositionVoltage focThing = new PositionVoltage(0);
     //private final CANcoder hoodCoder;
 
     private double wantedAngle = 0;
@@ -66,9 +66,10 @@ public class hood extends SubsystemBase {
 
     public void setHoodAngle(double rotationAngle){
         wantedAngle = rotationAngle;
-        if(rotationAngle >= railgunConstants.lowerAngle && rotationAngle <= railgunConstants.upperAngle){
+        // if(rotationAngle >= railgunConstants.lowerAngle && rotationAngle <= railgunConstants.upperAngle){
             hoodMotor.setControl(focThing.withPosition(rotationAngle));
-        }
+            System.out.println("HoodControl" + rotationAngle);
+        // }
     }
 
     public boolean wantedAngl(){

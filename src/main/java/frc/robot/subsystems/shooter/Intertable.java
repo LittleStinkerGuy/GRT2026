@@ -2,12 +2,12 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
-public class table {
+public class Intertable {
 
     private static InterpolatingDoubleTreeMap shooterAngle = new InterpolatingDoubleTreeMap();
     private static InterpolatingDoubleTreeMap shooterRPS = new InterpolatingDoubleTreeMap();
 
-    public table() {
+    public Intertable() {
         shooterAngle.put(1.524, -0.3);
         shooterAngle.put(1.651, -0.3);
         shooterAngle.put(1.981, -0.3);
@@ -23,11 +23,11 @@ public class table {
         
     }
 
-    public static double getRPS(double dis){
+    public double getRPS(double dis){
         return shooterRPS.get(dis);
     }
 
-    public static double getAngle(double dis){
+    public double getAngle(double dis){
         return shooterAngle.get(dis);
     }
 }

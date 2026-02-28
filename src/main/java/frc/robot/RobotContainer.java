@@ -26,8 +26,10 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 
 // Commands
 import frc.robot.commands.intake.ManualIntakePivotCommand;
+import frc.robot.commands.shooter.rampDownFlywheel;
 import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.vision.GetCameraDisplacement;
+import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -49,6 +51,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -80,6 +83,7 @@ public class RobotContainer {
   private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
   private final flywheel flywheelSubsystem = new flywheel(mechCAN);
   private final hood hoodSubsystem = new hood(mechCAN);
+  private boolean shootSeq = false;
 
   private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     VisionConstants.cameraConfig11
@@ -190,6 +194,10 @@ public class RobotContainer {
     // ==================== HOPPER ====================
     // L1 = hopper in
 
+    mechController.circle().toggleOnTrue(Commands.defer(()->new ShooterSequence(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem)
+    , java.util.Set.of(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem)));   
+    
+    mechController.circle().toggleOnFalse(new rampDownFlywheel(flywheelSubsystem));
     // ==================== SHOOTER ====================
     // R2 = flywheel (analog speed control)
     // Left stick Y = hood manual control

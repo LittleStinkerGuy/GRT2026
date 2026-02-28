@@ -7,33 +7,22 @@ import com.google.flatbuffers.Table;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class rampFlywheel extends Command{
+public class rampDownFlywheel extends Command{
     
     private flywheel fly;
-    private double dist = 0;
-    private Intertable tableThing = new Intertable();
-
-    public rampFlywheel(flywheel h, double d){
+    
+    public rampDownFlywheel(flywheel h){
         this.fly = h;
-        this.dist = d;
-        System.out.println("FlywheelDist " + dist);
         addRequirements(fly);
     }
-    @Override
-    public void initialize(){
-        double RPS = tableThing.getRPS(dist);
-        fly.shoot(RPS);
 
-    }
-    @Override
-    public void execute() {
-    }
     @Override
     public boolean isFinished(){
         return true;
     }
     @Override
     public void end(boolean interrupted){
+        fly.dontShoot();
     }
 
 }
