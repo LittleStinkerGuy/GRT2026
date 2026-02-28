@@ -39,7 +39,7 @@ public class ShooterSequence extends SequentialCommandGroup {
             new rampFlywheel(fly, dist),
             new hoodCommand(hood, dist),
 
-            Commands.defer(() -> aimToHubCommand.createAimCommand(() -> timer.hasElapsed(4.0)), java.util.Set.of(swerve)),
+            Commands.defer(() -> aimToHubCommand.createAimCommand(() -> timer.hasElapsed(2.0)), java.util.Set.of(swerve)),
             // Then shoot
             new ParallelCommandGroup( 
                 new indexerRun(hopper)
