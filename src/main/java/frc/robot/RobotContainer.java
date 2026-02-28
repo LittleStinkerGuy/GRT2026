@@ -256,7 +256,7 @@ public class RobotContainer {
    */
   private void constructController() {
     driveController = new PS5DriveController();
-    driveController.setDeadZone(0.03);
+    driveController.setDeadZone(0.035);
     mechController = new CommandPS5Controller(1);
   }
 
