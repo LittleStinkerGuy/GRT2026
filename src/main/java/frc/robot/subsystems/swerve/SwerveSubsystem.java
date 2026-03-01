@@ -33,8 +33,6 @@ import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
-import static frc.robot.Constants.SwerveConstants.MAX_LINEAR_ACCELERATION;
-import static frc.robot.Constants.SwerveConstants.MAX_ANGULAR_ACCELERATION;
 
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
@@ -86,6 +84,11 @@ public class SwerveSubsystem extends SubsystemBase {
     //         Pose2d.struct
     //     );
 
+    // NT Accel Config
+    public double maxLinearAcceleration = MAX_LINEAR_ACCELERATION; // meters per second squared
+    public double maxLinearDeceleration = MAX_LINEAR_DECELERATION; // meters per second squared
+    public double maxAngularAcceleration = MAX_ANGULAR_ACCELERATION; // meters per second squared
+
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
         ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
@@ -119,6 +122,8 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         lockTimer = new Timer();
+
+        initAccelValues();
     }
 
     private final PIDController ROTATION_PID = new PIDController(4.0, 0.0, 0.2);
@@ -188,6 +193,8 @@ public class SwerveSubsystem extends SubsystemBase {
         // Apply acceleration limiting (only limit acceleration, not deceleration)
         ChassisSpeeds speeds = limitAcceleration(desiredSpeeds);
 
+
+
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
             states, speeds,
@@ -196,6 +203,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
     }
+    private void initAccelValues(){
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+    }
+    private void updateAccelValues(){
+        maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+        maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+        maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+    }
 
     /**
      * Limits acceleration but allows full deceleration
@@ -203,6 +220,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return Limited chassis speeds
      */
     private ChassisSpeeds limitAcceleration(ChassisSpeeds desiredSpeeds) {
+        updateAccelValues();
         double currentTime = Timer.getFPGATimestamp();
         double dt = currentTime - lastUpdateTime;
 
@@ -217,28 +235,44 @@ public class SwerveSubsystem extends SubsystemBase {
         double currentLinearVel = Math.hypot(previousSpeeds.vxMetersPerSecond, previousSpeeds.vyMetersPerSecond);
         double desiredLinearVel = Math.hypot(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond);
 
-        // Only limit if we're accelerating (increasing speed), not decelerating
+        // Limit both acceleration and deceleration
         double vx = desiredSpeeds.vxMetersPerSecond;
         double vy = desiredSpeeds.vyMetersPerSecond;
+        double deltaV = desiredLinearVel - currentLinearVel;
 
-        if (desiredLinearVel > currentLinearVel) {
-            // We're accelerating - apply limits
-            double maxDeltaV = MAX_LINEAR_ACCELERATION * dt;
-            double deltaV = desiredLinearVel - currentLinearVel;
-
+        if (deltaV > 0) {
+            // We're accelerating - apply acceleration limits
+            double maxDeltaV = maxLinearAcceleration * dt;
             if (deltaV > maxDeltaV) {
-                // Scale down the desired velocity to respect acceleration limit
                 double limitedLinearVel = currentLinearVel + maxDeltaV;
                 double scale = limitedLinearVel / desiredLinearVel;
                 vx = desiredSpeeds.vxMetersPerSecond * scale;
                 vy = desiredSpeeds.vyMetersPerSecond * scale;
+            }
+        } else if (deltaV < 0) {
+            // We're decelerating - apply deceleration limits
+            double maxDeltaV = maxLinearDeceleration * dt;
+            if (-deltaV > maxDeltaV) {
+                double limitedLinearVel = currentLinearVel - maxDeltaV;
+                if (desiredLinearVel > 0.001) {
+                    double scale = limitedLinearVel / desiredLinearVel;
+                    vx = desiredSpeeds.vxMetersPerSecond * scale;
+                    vy = desiredSpeeds.vyMetersPerSecond * scale;
+                } else {
+                    // Decelerating toward zero - use direction from previous speeds
+                    double prevMag = Math.hypot(previousSpeeds.vxMetersPerSecond, previousSpeeds.vyMetersPerSecond);
+                    if (prevMag > 0.001) {
+                        vx = (previousSpeeds.vxMetersPerSecond / prevMag) * limitedLinearVel;
+                        vy = (previousSpeeds.vyMetersPerSecond / prevMag) * limitedLinearVel;
+                    }
+                }
             }
         }
 
         // Limit angular acceleration (both acceleration and deceleration for rotation)
         double omega = desiredSpeeds.omegaRadiansPerSecond;
         double deltaOmega = omega - previousSpeeds.omegaRadiansPerSecond;
-        double maxDeltaOmega = MAX_ANGULAR_ACCELERATION * dt;
+        double maxDeltaOmega = maxAngularAcceleration * dt;
 
         if (Math.abs(deltaOmega) > maxDeltaOmega) {
             omega = previousSpeeds.omegaRadiansPerSecond + Math.signum(deltaOmega) * maxDeltaOmega;
