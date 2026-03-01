@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.List;
 
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -201,7 +202,9 @@ public final class Constants {
     public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
     public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
     public static final double PIVOT_PEAK_TORQUE_CURRENT = 40.0;
-
+    public static final double TOP_LIMIT = 3.0;
+    public static final double BOTTOM_LIMIT = 0.0;
+    
     // Pivot PID
     public static final double PIVOT_P = 24.0;
     public static final double PIVOT_I = 0.0;
@@ -219,6 +222,7 @@ public final class Constants {
     public static final double PIVOT_OUT_POS = 0.25;
     public static final double PIVOT_MID_POS = 0.125;
     public static final double GEAR_RATIO = 1.0; // TODO: Update with actual gear ratio
+
 
     
     //public static final double STOWED_POS = 0.0;

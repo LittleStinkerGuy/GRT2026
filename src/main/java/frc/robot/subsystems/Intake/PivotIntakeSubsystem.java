@@ -101,8 +101,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
    * @param angleDegrees Target angle in degrees
    */
   public void setAngle(double angleDegrees) {
-    angleDegrees = Math.max(IntakeConstants.STOWED_POS,
-                           Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
+    angleDegrees = Math.max(IntakeConstants.PIVOT_IN_POS,
+                           Math.min(IntakeConstants.PIVOT_OUT_POS, angleDegrees));
     double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
     pivotMotor.setControl(motionMagicControl.withPosition(motorRotations));
   }
@@ -120,7 +120,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
   }
 
   public void setEncoderToMax() {
-    double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
+    double maxRotations = IntakeConstants.PIVOT_OUT_POS / 360.0;
     canCoder.setPosition(maxRotations);
   }
 
