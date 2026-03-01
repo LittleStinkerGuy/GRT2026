@@ -26,7 +26,7 @@ public class RotateToFieldAngleCommand extends Command {
     private static final NetworkTableEntry errorEntry = table.getEntry("Error");
     private static final NetworkTableEntry outputEntry = table.getEntry("Output");
 
-    private static boolean initialized = false;
+    // private static boolean initialized = false;
 
     public RotateToFieldAngleCommand(SwerveSubsystem swerve, double targetDegrees, BooleanSupplier cancelCondition) {
         this.swerve = swerve;
@@ -42,13 +42,13 @@ public class RotateToFieldAngleCommand extends Command {
         pid.setTolerance(RotateToAngleConstants.TOLERANCE_DEGREES);
         addRequirements(swerve);
 
-        if (!initialized) {
-            kPEntry.setDouble(RotateToAngleConstants.kP);
-            kIEntry.setDouble(RotateToAngleConstants.kI);
-            kDEntry.setDouble(RotateToAngleConstants.kD);
-            toleranceEntry.setDouble(RotateToAngleConstants.TOLERANCE_DEGREES);
-            initialized = true;
-        }
+        // if (!initialized) {
+        //     kPEntry.setDouble(RotateToAngleConstants.kP);
+        //     kIEntry.setDouble(RotateToAngleConstants.kI);
+        //     kDEntry.setDouble(RotateToAngleConstants.kD);
+        //     toleranceEntry.setDouble(RotateToAngleConstants.TOLERANCE_DEGREES);
+        //     initialized = true;
+        // }
     }
 
     @Override
