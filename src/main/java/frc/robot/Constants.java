@@ -161,7 +161,8 @@ public final class Constants {
 
     // Chassis Acceleration Limits (m/s^2)
     public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
-    public static final double MAX_ANGULAR_ACCELERATION = 8.0; // radians per second squared
+    public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
+    public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
   }
 
   public static class RotateToAngleConstants {
