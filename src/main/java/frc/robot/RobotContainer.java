@@ -202,7 +202,11 @@ public class RobotContainer {
     // R2 = flywheel (analog speed control)
     // Left stick Y = hood manual control
     flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-      if(DriverStation.isJoystickConnected(1)) flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
+      if (DriverStation.isJoystickConnected(1)) {
+        flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
+      } else {
+        flywheelSubsystem.flySpeed(0);
+      }
     }, flywheelSubsystem));
 
     hoodSubsystem.setDefaultCommand(Commands.run(() -> {

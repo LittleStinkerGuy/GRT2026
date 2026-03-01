@@ -47,6 +47,11 @@ public class RotateToFieldAngleCommand extends Command {
             kIEntry.setDouble(RotateToAngleConstants.kI);
             kDEntry.setDouble(RotateToAngleConstants.kD);
             toleranceEntry.setDouble(RotateToAngleConstants.TOLERANCE_DEGREES);
+
+            goalEntry.setDouble(Double.NaN);
+            actualEntry.setDouble(Double.NaN);
+            errorEntry.setDouble(Double.NaN);
+            outputEntry.setDouble(Double.NaN);
             initialized = true;
         }
     }
