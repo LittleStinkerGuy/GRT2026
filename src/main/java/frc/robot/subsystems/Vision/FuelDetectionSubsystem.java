@@ -308,6 +308,10 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         return Optional.ofNullable(bestDistance);
     }
 
+    public Optional<Distance> getClosestDistance(){
+        return filteredMinDistance;
+    }
+
     private void publishTelemetry() {
         SmartDashboard.putNumber(key("count"), latestDetections.size());
 
