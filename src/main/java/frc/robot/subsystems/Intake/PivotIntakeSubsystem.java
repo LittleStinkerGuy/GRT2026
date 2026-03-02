@@ -51,26 +51,24 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
     // Config current limits
     config.withCurrentLimits(
-      new CurrentLimitsConfigs()
-          .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
-          .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE)
-    );
+        new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+            .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
 
-    // Config software limits 
+    // Config software limits
     config.withSoftwareLimitSwitch(
-      new SoftwareLimitSwitchConfigs()
-          .withForwardSoftLimitEnable(true)
-          .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
-          .withReverseSoftLimitEnable(true)
-          .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT)
-    );
+        new SoftwareLimitSwitchConfigs()
+            .withForwardSoftLimitEnable(true)
+            .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+            .withReverseSoftLimitEnable(true)
+            .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
 
     pivotMotor.getConfigurator().apply(config);
   }
 
   // private void configEncoder() {
-  //   CANcoderConfiguration config = new CANcoderConfiguration();
-  //   canCoder.getConfigurator().apply(config);
+  // CANcoderConfiguration config = new CANcoderConfiguration();
+  // canCoder.getConfigurator().apply(config);
   // }
 
   private void configCANdle() {
@@ -80,27 +78,27 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
   // --- Position control methods (commented out for now) ---
   // public double getAngleDegrees() {
-  //   return canCoder.getPosition().getValueAsDouble() * 360.0;
+  // return canCoder.getPosition().getValueAsDouble() * 360.0;
   // }
   //
   // public double getAbsolutePosition() {
-  //   return canCoder.getAbsolutePosition().getValueAsDouble();
+  // return canCoder.getAbsolutePosition().getValueAsDouble();
   // }
   //
   // public void setAngle(double angleDegrees) {
-  //   angleDegrees = Math.max(IntakeConstants.STOWED_POS,
-  //                          Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
-  //   double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
-  //   pivotMotor.setControl(positionControl.withPosition(motorRotations));
+  // angleDegrees = Math.max(IntakeConstants.STOWED_POS,
+  // Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
+  // double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
+  // pivotMotor.setControl(positionControl.withPosition(motorRotations));
   // }
   //
   // public void zeroEncoder() {
-  //   canCoder.setPosition(0.0);
+  // canCoder.setPosition(0.0);
   // }
   //
   // public void setEncoderToMax() {
-  //   double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
-  //   canCoder.setPosition(maxRotations);
+  // double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
+  // canCoder.setPosition(maxRotations);
   // }
 
   public boolean isAtTopLimit() {
@@ -138,12 +136,12 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
     // --- Encoder reset on limit switch (commented out for now) ---
     // if (bottomLimit && !previousBottomLimitState) {
-    //   zeroEncoder();
+    // zeroEncoder();
     // }
     // previousBottomLimitState = bottomLimit;
     //
     // if (topLimit && !previousTopLimitState) {
-    //   setEncoderToMax();
+    // setEncoderToMax();
     // }
     // previousTopLimitState = topLimit;
 
