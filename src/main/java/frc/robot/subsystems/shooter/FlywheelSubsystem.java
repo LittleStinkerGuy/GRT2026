@@ -24,63 +24,65 @@ public class FlywheelSubsystem extends SubsystemBase {
         // Construct motors directly on the CAN bus
         upperMotor = new TalonFX(ShooterConstants.FLYWHEEL_CAN_ID, cn);
         config();
-       
+
     }
 
-    public void config(){
+    public void config() {
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO_FLYWHEEL;
-        //CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(40.0).withStatorCurrentLimitEnable(true);
-        //cfg.withCurrentLimits(currLim);
+        // CurrentLimitsConfigs currLim = new
+        // CurrentLimitsConfigs().withStatorCurrentLimit(40.0).withStatorCurrentLimitEnable(true);
+        // cfg.withCurrentLimits(currLim);
         upperMotor.getConfigurator().apply(cfg);
-       
+
     }
 
-    public void flySpeed(double speed){
+    public void flySpeed(double speed) {
         commandedDutyCycle = speed;
         upperMotor.setControl(dutyCycl.withOutput(speed));
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         sendData();
-        
+
     }
 
-    public void sendData(){
+    public void sendData() {
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-            upperMotor.getPosition().getValueAsDouble());
+                upperMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-            upperMotor.getVelocity().getValueAsDouble());
+                upperMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPM",
-           (60* upperMotor.getVelocity().getValueAsDouble()));
+                (60 * upperMotor.getVelocity().getValueAsDouble()));
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-            upperMotor.getMotorVoltage().getValueAsDouble());
+                upperMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-            upperMotor.getSupplyVoltage().getValueAsDouble());
+                upperMotor.getSupplyVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-            upperMotor.getStatorCurrent().getValueAsDouble());
+                upperMotor.getStatorCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-            upperMotor.getSupplyCurrent().getValueAsDouble());
+                upperMotor.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-            upperMotor.getDeviceTemp().getValueAsDouble());
+                upperMotor.getDeviceTemp().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
-            commandedDutyCycle);
+                commandedDutyCycle);
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
-            upperMotor.isConnected());
+                upperMotor.isConnected());
 
         Logger.recordOutput(LOG_PREFIX + "RPS", upperMotor.getVelocity().getValueAsDouble());
-        Logger.recordOutput(LOG_PREFIX + "Linear_Velocity_mPs", upperMotor.getVelocity().getValueAsDouble()*0.0762/2);
+        Logger.recordOutput(LOG_PREFIX + "Linear_Velocity_mPs",
+                upperMotor.getVelocity().getValueAsDouble() * 0.0762 / 2);
     }
 }

@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.LoggingConstants;
 
 public class LoggedBooleanSensor {
-    
+
     private final DigitalInput sensor;
 
     private NetworkTableInstance ntInstance;
@@ -18,7 +18,7 @@ public class LoggedBooleanSensor {
 
     private BooleanLogEntry sensorReadingLogEntry;
 
-    public LoggedBooleanSensor(String name, int port){
+    public LoggedBooleanSensor(String name, int port) {
         sensor = new DigitalInput(port);
         initNT(name);
         initLogs(name);
@@ -26,31 +26,33 @@ public class LoggedBooleanSensor {
 
     /**
      * Get the reading of the sensor
+     * 
      * @return
      */
-    public boolean get(){
+    public boolean get() {
         return sensor.get();
     }
 
     /**
      * Publish sensor reading to NT
      */
-    public void publishStats(){
+    public void publishStats() {
         sensorReadingPublisher.set(sensor.get());
     }
 
     /**
      * Logs sensor reading
      */
-    public void logStats(){
+    public void logStats() {
         sensorReadingLogEntry.append(sensor.get());
     }
 
     /**
      * Initialize networktables
+     * 
      * @param name
      */
-    private void initNT(String name){
+    private void initNT(String name) {
         ntInstance = NetworkTableInstance.getDefault();
         sensorStatsTable = ntInstance.getTable(LoggingConstants.SENSOR_TABLE);
         sensorReadingPublisher = sensorStatsTable.getBooleanTopic(name).publish();
@@ -58,11 +60,11 @@ public class LoggedBooleanSensor {
 
     /**
      * Initialize logs
+     * 
      * @param name
      */
-    private void initLogs(String name){
+    private void initLogs(String name) {
         sensorReadingLogEntry = new BooleanLogEntry(
-            DataLogManager.getLog(), name
-        );
+                DataLogManager.getLog(), name);
     }
 }

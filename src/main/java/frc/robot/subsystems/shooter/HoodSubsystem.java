@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,81 +36,85 @@ public class HoodSubsystem extends SubsystemBase {
         config();
     }
 
-    public void config(){
+    public void config() {
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         cfg.Feedback.SensorToMechanismRatio = ShooterConstants.GEAR_RATIO_HOOD;
-        CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0).withStatorCurrentLimitEnable(true);
+        CurrentLimitsConfigs currLim = new CurrentLimitsConfigs().withStatorCurrentLimit(50.0)
+                .withStatorCurrentLimitEnable(true);
         cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
         cfg.withSoftwareLimitSwitch(
-            new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitEnable(true)
-                .withForwardSoftLimitThreshold(ShooterConstants.UPPER_ANGLE)
-                .withReverseSoftLimitEnable(true)
-                .withReverseSoftLimitThreshold(ShooterConstants.LOWER_ANGLE)
-            );
+                new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitEnable(true)
+                        .withForwardSoftLimitThreshold(ShooterConstants.UPPER_ANGLE)
+                        .withReverseSoftLimitEnable(true)
+                        .withReverseSoftLimitThreshold(ShooterConstants.LOWER_ANGLE));
     }
 
-    public void hoodSpeed(double speed){
-        
-       /*  if(hoodMotor.getPosition().getValueAsDouble() >= ShooterConstants.INIT_HOOD_ANGLE && speed >0){
-            hoodMotor.setControl(dutyCycl.withOutput(0));
-            commandedDutyCycle = 0;
-        }else if(hoodMotor.getPosition().getValueAsDouble() <= ShooterConstants.LOWER_ANGLE && speed <0){
-            hoodMotor.setControl(dutyCycl.withOutput(0));
-            commandedDutyCycle = 0;
-        }else{
-            hoodMotor.setControl(dutyCycl.withOutput(speed));
-            commandedDutyCycle = speed;
-        }
-            */
-            commandedDutyCycle = speed;
-            hoodMotor.setControl(dutyCycl.withOutput(speed));
-        
+    public void hoodSpeed(double speed) {
+
+        /*
+         * if(hoodMotor.getPosition().getValueAsDouble() >=
+         * ShooterConstants.INIT_HOOD_ANGLE && speed >0){
+         * hoodMotor.setControl(dutyCycl.withOutput(0));
+         * commandedDutyCycle = 0;
+         * }else if(hoodMotor.getPosition().getValueAsDouble() <=
+         * ShooterConstants.LOWER_ANGLE && speed <0){
+         * hoodMotor.setControl(dutyCycl.withOutput(0));
+         * commandedDutyCycle = 0;
+         * }else{
+         * hoodMotor.setControl(dutyCycl.withOutput(speed));
+         * commandedDutyCycle = speed;
+         * }
+         */
+        commandedDutyCycle = speed;
+        hoodMotor.setControl(dutyCycl.withOutput(speed));
+
     }
 
     boolean prevPress = false;
+
     @Override
-    public void periodic(){
-        if(limit.getS1Closed().refresh().getValue() && !prevPress){
+    public void periodic() {
+        if (limit.getS1Closed().refresh().getValue() && !prevPress) {
             hoodMotor.setPosition(ShooterConstants.INIT_HOOD_ANGLE);
             prevPress = true;
         }
-        
-        if(!limit.getS1Closed().refresh().getValue()){
+
+        if (!limit.getS1Closed().refresh().getValue()) {
             prevPress = false;
         }
         sendData();
     }
 
-    public void sendData(){
+    public void sendData() {
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-            hoodMotor.getPosition().getValueAsDouble());
+                hoodMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-            hoodMotor.getVelocity().getValueAsDouble());
+                hoodMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-            hoodMotor.getMotorVoltage().getValueAsDouble());
+                hoodMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-            hoodMotor.getSupplyVoltage().getValueAsDouble());
+                hoodMotor.getSupplyVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-            hoodMotor.getStatorCurrent().getValueAsDouble());
+                hoodMotor.getStatorCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-            hoodMotor.getSupplyCurrent().getValueAsDouble());
+                hoodMotor.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-            hoodMotor.getDeviceTemp().getValueAsDouble());
+                hoodMotor.getDeviceTemp().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
-            commandedDutyCycle);
+                commandedDutyCycle);
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
-            hoodMotor.isConnected());
+                hoodMotor.isConnected());
     }
 }
