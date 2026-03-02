@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.VisionConstants;
 import frc.robot.util.PolynomialRegression;
+
 public class VisionSubsystem extends SubsystemBase {
     private final PhotonCamera camera;
     private final PhotonPoseEstimator photonPoseEstimator;
@@ -46,8 +47,9 @@ public class VisionSubsystem extends SubsystemBase {
     private DoubleArrayLogEntry tagDistanceLogEntry;
     private IntegerArrayLogEntry tagIDLogEntry;
 
-    private Consumer<TimestampedVisionUpdate> visionConsumer = (x) -> {};
-    
+    private Consumer<TimestampedVisionUpdate> visionConsumer = (x) -> {
+    };
+
     private PolynomialRegression xStdDevModel = VisionConstants.xStdDevModel;
     private PolynomialRegression yStdDevModel = VisionConstants.yStdDevModel;
     private PolynomialRegression oStdDevModel = VisionConstants.oStdDevModel;
@@ -55,26 +57,25 @@ public class VisionSubsystem extends SubsystemBase {
     private boolean connected;
     private Transform3d latestTransform3d = new Transform3d();
     private String camID;
+
     public VisionSubsystem(CameraConfig cameraConfig) {
         // Initialize the camera with its name
         camera = new PhotonCamera(cameraConfig.getCameraName());
         camID = cameraConfig.getCameraName();
-        // Load AprilTag field layout 
-        try{
+        // Load AprilTag field layout
+        try {
             aprilTagFieldLayout = new AprilTagFieldLayout(
-                Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json"
-            );
-        }
-        catch (Exception e){
+                    Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json");
+        } catch (Exception e) {
             throw new RuntimeException("Failed to load field layout", e);
         }
 
         // Create pose estimator
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, cameraConfig.getCameraPose());
         // photonPoseEstimator = new PhotonPoseEstimator(
-        //     aprilTagFieldLayout,
-        //     cameraConfig.getPoseStrategy(),
-        //     cameraConfig.getCameraPose()
+        // aprilTagFieldLayout,
+        // cameraConfig.getPoseStrategy(),
+        // cameraConfig.getCameraPose()
         // );
 
         initNT(cameraConfig);
@@ -85,33 +86,31 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         connected = camera.isConnected();
 
-        // Get all unread results in the queue from the camera 
+        // Get all unread results in the queue from the camera
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        //Loops through all unread results
-        for (PhotonPipelineResult result : results){
-            
-            //checks if the camera detected any apriltags
-            if (!result.hasTargets()){
+        // Loops through all unread results
+        for (PhotonPipelineResult result : results) {
+
+            // checks if the camera detected any apriltags
+            if (!result.hasTargets()) {
                 continue;
             }
 
             double minDistance = Double.MAX_VALUE;
             long[] tagIDs = new long[result.getTargets().size()];
             double[] tagDistances = new double[result.getTargets().size()];
-            //loops through all detected targets from the camera
-            for(int i = 0; i < result.getTargets().size(); i++){
+            // loops through all detected targets from the camera
+            for (int i = 0; i < result.getTargets().size(); i++) {
                 PhotonTrackedTarget target = result.getTargets().get(i);
 
-                Translation3d translation = 
-                    target.getBestCameraToTarget().getTranslation();
+                Translation3d translation = target.getBestCameraToTarget().getTranslation();
                 latestTransform3d = target.getBestCameraToTarget();
 
                 double distance = Math.sqrt(
-                    Math.pow(translation.getX(),2) +
-                    Math.pow(translation.getY(),2) +
-                    Math.pow(translation.getZ(),2) 
-                );
-                if (distance < minDistance){
+                        Math.pow(translation.getX(), 2) +
+                                Math.pow(translation.getY(), 2) +
+                                Math.pow(translation.getZ(), 2));
+                if (distance < minDistance) {
                     minDistance = distance;
                 }
                 tagIDs[i] = target.getFiducialId();
@@ -123,53 +122,53 @@ public class VisionSubsystem extends SubsystemBase {
             tagIDLogEntry.append(tagIDs);
             visionDistPublisher.set(minDistance);
 
-            //Don't use vision measurement if tags are too far
-            if(minDistance > 4) continue;
-                
+            // Don't use vision measurement if tags are too far
+            if (minDistance > 4)
+                continue;
+
             Optional<EstimatedRobotPose> estimatedPose = photonPoseEstimator.estimateAverageBestTargetsPose(result);
 
-            if(!estimatedPose.isPresent()) continue;
+            if (!estimatedPose.isPresent())
+                continue;
             Pose2d estimatedPose2d = estimatedPose.get().estimatedPose.toPose2d();
 
             // double x = estimatedPose2d.getTranslation().getX();
             // double y = estimatedPose2d.getTranslation().getY();
             // if (x - VisionConstants.ROBOT_RADIUS < 0 ||
-            //     x + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_X || 
-            //     y - VisionConstants.ROBOT_RADIUS < 0 ||
-            //     y + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_Y
+            // x + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_X ||
+            // y - VisionConstants.ROBOT_RADIUS < 0 ||
+            // y + VisionConstants.ROBOT_RADIUS > VisionConstants.FIELD_Y
             // ){
-            //     continue;
+            // continue;
             // }
-                
+
             visionConsumer.accept(
-                new TimestampedVisionUpdate(
-                    result.getTimestampSeconds(),
-                    estimatedPose2d,
-                    VecBuilder.fill(//standard deviation matrix
-                        xStdDevModel.predict(minDistance),
-                        yStdDevModel.predict(minDistance),
-                        oStdDevModel.predict(minDistance))
-                )
-            );
+                    new TimestampedVisionUpdate(
+                            result.getTimestampSeconds(),
+                            estimatedPose2d,
+                            VecBuilder.fill(// standard deviation matrix
+                                    xStdDevModel.predict(minDistance),
+                                    yStdDevModel.predict(minDistance),
+                                    oStdDevModel.predict(minDistance))));
             visionPosePublisher.set(estimatedPose2d);
             estimatedPoseLogEntry.update(estimatedPose2d);
-                            }
-        
-        
+        }
+
     }
 
     /**
      * Sets up interfaces between swerve subsystem and vision subsystem
+     * 
      * @param consumer consumer to receive vision updates
      */
-    public void setInterface(Consumer<TimestampedVisionUpdate> consumer){
-        visionConsumer = consumer;//thiing for vision to interface with the swerve subsystem
+    public void setInterface(Consumer<TimestampedVisionUpdate> consumer) {
+        visionConsumer = consumer;// thiing for vision to interface with the swerve subsystem
     }
 
     /**
      * Initializes Networktables.
      */
-    private void initNT(CameraConfig cameraConfig){
+    private void initNT(CameraConfig cameraConfig) {
         ntInstance = NetworkTableInstance.getDefault();
         visionStatsTable = ntInstance.getTable("Vision Debug " + cameraConfig.getCameraName());
         visionPosePublisher = visionStatsTable.getStructTopic("estimated pose", Pose2d.struct).publish();
@@ -181,33 +180,33 @@ public class VisionSubsystem extends SubsystemBase {
 
     /**
      * Initializes data logging.
+     * 
      * @param cameraConfig configuration for the camera
      */
-    private void initLog(CameraConfig cameraConfig){
+    private void initLog(CameraConfig cameraConfig) {
         tagIDLogEntry = new IntegerArrayLogEntry(
-            DataLogManager.getLog(),
-            cameraConfig.getCameraName() + " Tag IDs"
-        );
+                DataLogManager.getLog(),
+                cameraConfig.getCameraName() + " Tag IDs");
         tagDistanceLogEntry = new DoubleArrayLogEntry(
-            DataLogManager.getLog(),
-            cameraConfig.getCameraName() + " Tag Distances"
+                DataLogManager.getLog(),
+                cameraConfig.getCameraName() + " Tag Distances"
 
         );
         estimatedPoseLogEntry = StructLogEntry.create(
-            DataLogManager.getLog(),
-            cameraConfig.getCameraName() + " Estimated Pose",
-            Pose2d.struct
-        );
+                DataLogManager.getLog(),
+                cameraConfig.getCameraName() + " Estimated Pose",
+                Pose2d.struct);
     }
-    public void snapShot(){//download image from 
+
+    public void snapShot() {// download image from
         camera.takeOutputSnapshot();
     }
 
-    
-    public Transform3d cameraToApriltag(){
+    public Transform3d cameraToApriltag() {
         return latestTransform3d;
     }
-    public String getCamID(){
+
+    public String getCamID() {
         return camID;
     }
 }
