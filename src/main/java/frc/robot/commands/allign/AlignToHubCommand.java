@@ -11,18 +11,18 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class AlignToHubCommand {
 
-    /**
-     * Creates a command that calculates the angle from the robot's current position
-     * to the hub, then rotates to face it.
-     */
-    public static Command create(SwerveSubsystem swerve, BooleanSupplier cancelCondition) {
-        return new DeferredCommand(() -> {
-            Pose2d robotPose = swerve.getRobotPosition();
-            double deltaX = AlignToHubConstants.HUB_POSITION.getX() - robotPose.getX();
-            double deltaY = AlignToHubConstants.HUB_POSITION.getY() - robotPose.getY();
-            double targetDegrees = Math.toDegrees(Math.atan2(deltaY, deltaX));
+  /**
+   * Creates a command that calculates the angle from the robot's current position
+   * to the hub, then rotates to face it.
+   */
+  public static Command create(SwerveSubsystem swerve, BooleanSupplier cancelCondition) {
+    return new DeferredCommand(() -> {
+      Pose2d robotPose = swerve.getRobotPosition();
+      double deltaX = AlignToHubConstants.HUB_POSITION.getX() - robotPose.getX();
+      double deltaY = AlignToHubConstants.HUB_POSITION.getY() - robotPose.getY();
+      double targetDegrees = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
-            return new RotateToAngleCommand(swerve, targetDegrees, cancelCondition);
-        }, Set.of(swerve));
-    }
+      return new RotateToAngleCommand(swerve, targetDegrees, cancelCondition);
+    }, Set.of(swerve));
+  }
 }

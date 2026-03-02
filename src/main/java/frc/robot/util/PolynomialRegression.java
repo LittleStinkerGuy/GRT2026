@@ -16,7 +16,8 @@ import Jama.QRDecomposition;
  * residuals of the multiple regression model. It also computes associated the coefficient of
  * determination <em>R</em><sup>2</sup>.
  *
- * <p>This implementation performs a QR-decomposition of the underlying Vandermonde matrix, so it is
+ * <p>
+ * This implementation performs a QR-decomposition of the underlying Vandermonde matrix, so it is
  * neither the fastest nor the most numerically stable way to perform the polynomial regression.
  *
  * @author Robert Sedgewick
@@ -74,7 +75,8 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
 
       // find least squares solution
       qr = new QRDecomposition(matrixX);
-      if (qr.isFullRank()) break;
+      if (qr.isFullRank())
+        break;
 
       // decrease degree and try again
       this.degree--;
@@ -88,7 +90,8 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
 
     // mean of y[] values
     double sum = 0.0;
-    for (int i = 0; i < n; i++) sum += y[i];
+    for (int i = 0; i < n; i++)
+      sum += y[i];
     double mean = sum / n;
 
     // total variation to be accounted for
@@ -110,7 +113,8 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
    */
   public double beta(int j) {
     // to make -0.0 print as 0.0
-    if (Math.abs(beta.get(j, 0)) < 1E-4) return 0.0;
+    if (Math.abs(beta.get(j, 0)) < 1E-4)
+      return 0.0;
     return beta.get(j, 0);
   }
 
@@ -127,10 +131,11 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
    * Returns the coefficient of determination <em>R</em><sup>2</sup>.
    *
    * @return the coefficient of determination <em>R</em><sup>2</sup>, which is a real number between
-   *     0 and 1
+   *         0 and 1
    */
   public double R2() {
-    if (sst == 0.0) return 1.0; // constant function
+    if (sst == 0.0)
+      return 1.0; // constant function
     return 1.0 - sse / sst;
   }
 
@@ -143,7 +148,8 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
   public double predict(double x) {
     // horner's method
     double y = 0.0;
-    for (int j = degree; j >= 0; j--) y = beta(j) + (x * y);
+    for (int j = degree; j >= 0; j--)
+      y = beta(j) + (x * y);
     return y;
   }
 
@@ -151,20 +157,24 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
    * Returns a string representation of the polynomial regression model.
    *
    * @return a string representation of the polynomial regression model, including the best-fit
-   *     polynomial and the coefficient of determination <em>R</em><sup>2</sup>
+   *         polynomial and the coefficient of determination <em>R</em><sup>2</sup>
    */
   public String toString() {
     StringBuilder s = new StringBuilder();
     int j = degree;
 
     // ignoring leading zero coefficients
-    while (j >= 0 && Math.abs(beta(j)) < 1E-5) j--;
+    while (j >= 0 && Math.abs(beta(j)) < 1E-5)
+      j--;
 
     // create remaining terms
     while (j >= 0) {
-      if (j == 0) s.append(String.format("%.10f ", beta(j)));
-      else if (j == 1) s.append(String.format("%.10f %s + ", beta(j), variableName));
-      else s.append(String.format("%.10f %s^%d + ", beta(j), variableName, j));
+      if (j == 0)
+        s.append(String.format("%.10f ", beta(j)));
+      else if (j == 1)
+        s.append(String.format("%.10f %s + ", beta(j), variableName));
+      else
+        s.append(String.format("%.10f %s^%d + ", beta(j), variableName, j));
       j--;
     }
     s = s.append("  (R^2 = " + String.format("%.3f", R2()) + ")");
@@ -180,12 +190,18 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     for (int j = maxDegree; j >= 0; j--) {
       double term1 = 0.0;
       double term2 = 0.0;
-      if (this.degree() >= j) term1 = this.beta(j);
-      if (that.degree() >= j) term2 = that.beta(j);
-      if (Math.abs(term1) < EPSILON) term1 = 0.0;
-      if (Math.abs(term2) < EPSILON) term2 = 0.0;
-      if (term1 < term2) return -1;
-      else if (term1 > term2) return +1;
+      if (this.degree() >= j)
+        term1 = this.beta(j);
+      if (that.degree() >= j)
+        term2 = that.beta(j);
+      if (Math.abs(term1) < EPSILON)
+        term1 = 0.0;
+      if (Math.abs(term2) < EPSILON)
+        term2 = 0.0;
+      if (term1 < term2)
+        return -1;
+      else if (term1 > term2)
+        return +1;
     }
     return 0;
   }
