@@ -23,12 +23,11 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.util.PolynomialRegression;
 
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
  * constants. This class should not be used for any other purpose. All constants
- * should be declared                                                                                                                         
+ * should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
  * <p>
@@ -45,10 +44,11 @@ public final class Constants {
   // Subsystem Enable/Disable
   public static final boolean SWERVE_ENABLED = true;
   public static final boolean MECH_ENABLED = true;
+
   // ==================== SHOOTER ====================
   public static class railgunConstants {
-        
-    //Everything in metric pls
+
+    // Everything in metric pls
     public static int upperId = 17;
     public static int hoodId = 16;
     public static int upperEncoderId = 18;
@@ -73,8 +73,8 @@ public final class Constants {
     public static final double DRIVE_RAMP_RATE = 0;
 
     // Current Limits (optimized for Kraken motors)
-    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 50;     // Prevents brownouts
-    public static final double DRIVE_STATOR_CURRENT_LIMIT = 100;    // Allows burst torque for acceleration
+    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 50; // Prevents brownouts
+    public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
     public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
     // Physical Measurements
@@ -93,8 +93,8 @@ public final class Constants {
     public static final double STEER_RAMP_RATE = 0;
 
     // Current Limits (optimized for Kraken motors - steer needs less current)
-    public static final double STEER_SUPPLY_CURRENT_LIMIT = 25;     // Prevents brownouts
-    public static final double STEER_STATOR_CURRENT_LIMIT = 50;     // Sufficient for steering
+    public static final double STEER_SUPPLY_CURRENT_LIMIT = 25; // Prevents brownouts
+    public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
     public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
 
     // Physical Measurements
@@ -110,17 +110,17 @@ public final class Constants {
 
   public static class SwerveConstants {
     // Drive PID (Velocity Control)
-    public static final double[] DRIVE_P = {9.5, 9.5, 9.5, 9.5};
-    public static final double[] DRIVE_I = {0, 0, 0, 0};
-    public static final double[] DRIVE_D = {0.1, 0.1, 0.1, 0.1};
-    public static final double[] DRIVE_S = {0.5, 0.5, 0.5, 0.5};
-    public static final double[] DRIVE_V = {0.12, 0.12, 0.12, 0.12};
+    public static final double[] DRIVE_P = { 9.5, 9.5, 9.5, 9.5 };
+    public static final double[] DRIVE_I = { 0, 0, 0, 0 };
+    public static final double[] DRIVE_D = { 0.1, 0.1, 0.1, 0.1 };
+    public static final double[] DRIVE_S = { 0.5, 0.5, 0.5, 0.5 };
+    public static final double[] DRIVE_V = { 0.12, 0.12, 0.12, 0.12 };
 
     // Steer PID (Position Control)
-    public static final double[] STEER_P = {190, 190, 190, 190};
-    public static final double[] STEER_I = {0, 0, 0, 0};
-    public static final double[] STEER_D = {7, 7, 7, 7};
-    public static final double[] STEER_S = {1, 1, 1, 1};
+    public static final double[] STEER_P = { 190, 190, 190, 190 };
+    public static final double[] STEER_I = { 0, 0, 0, 0 };
+    public static final double[] STEER_D = { 7, 7, 7, 7 };
+    public static final double[] STEER_S = { 1, 1, 1, 1 };
 
     // ID
     public static final int PigeonID = 24;
@@ -150,13 +150,18 @@ public final class Constants {
     public static final double MODULE_LEFTRIGHT_SPACING = 25.45;
 
     // Module Positions (relative to robot center)
-    public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0, MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0, -MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0, MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0, -MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
+        MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
+        -MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
+        MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
+        -MODULE_LEFTRIGHT_SPACING / 2.0);
 
     // Kinematic Limits
-    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0 * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
+        * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
     public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
 
     // Chassis Acceleration Limits (m/s^2)
@@ -228,9 +233,6 @@ public final class Constants {
 
   // ==================== VISION ====================
 
-
-
-
   // ==================== ALIGNMENT ====================
 
   public static class AlignToHubConstants {
@@ -241,7 +243,6 @@ public final class Constants {
     public static final Translation2d BLUE_HUB_TRANS = new Translation2d(4.625, 4);
     public static final Translation2d RED_HUB_TRANS = new Translation2d(11.9, 4);
   }
-
 
   // ==================== LOGGING & DEBUG ====================
 
@@ -260,7 +261,7 @@ public final class Constants {
   public static final class ClimbConstants {
     // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
     public static final int WINCH_MOTOR_CAN_ID = 21;
-    public static final int ARM_MOTOR_CAN_ID = 19;  // Doornob
+    public static final int ARM_MOTOR_CAN_ID = 19; // Doornob
     public static final int CANDI_CAN_ID = 22;
 
     public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
