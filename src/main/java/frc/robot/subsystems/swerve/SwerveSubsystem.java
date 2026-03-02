@@ -89,6 +89,9 @@ public class SwerveSubsystem extends SubsystemBase {
     public double maxLinearDeceleration = MAX_LINEAR_DECELERATION; // meters per second squared
     public double maxAngularAcceleration = MAX_ANGULAR_ACCELERATION; // meters per second squared
 
+    // Boost mode flag
+    private boolean boostModeEnabled = false;
+
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
         ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
@@ -181,10 +184,18 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param angularPower [-1, 1] The rotational power.
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
+        // Determine max velocity based on boost mode and speed limit
+        double baseMaxVel = boostModeEnabled ? BOOST_MAX_VEL : MAX_VEL;
+        double baseMaxOmega = boostModeEnabled ? (BOOST_MAX_VEL / FL_POS.getNorm()) : MAX_OMEGA;
+
+        // Apply drive speed limit (controlled by left trigger)
+        double limitedMaxVel = baseMaxVel * driveSpeedLimit;
+        double limitedMaxOmega = baseMaxOmega * driveSpeedLimit;
+
         ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                xPower * MAX_VEL,
-                yPower * MAX_VEL,
-                angularPower * MAX_OMEGA,
+                xPower * limitedMaxVel,
+                yPower * limitedMaxVel,
+                angularPower * limitedMaxOmega,
                 getDriverHeading());
 
         // Apply acceleration limiting (only limit acceleration, not deceleration)
@@ -193,8 +204,7 @@ public class SwerveSubsystem extends SubsystemBase {
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 states, speeds,
-                MAX_VEL, MAX_VEL, MAX_OMEGA);
-
+                limitedMaxVel, limitedMaxVel, limitedMaxOmega);
     }
 
     private void initAccelValues() {
@@ -204,9 +214,34 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private void updateAccelValues() {
-        maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
-        maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
-        maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+        if (boostModeEnabled) {
+            // Use boost mode acceleration values
+            maxLinearAcceleration = BOOST_MAX_LINEAR_ACCELERATION;
+            maxLinearDeceleration = MAX_LINEAR_DECELERATION; // Keep decel the same
+            maxAngularAcceleration = BOOST_MAX_ANGULAR_ACCELERATION;
+        } else {
+            // Use normal values from SmartDashboard
+            maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+            maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+            maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+        }
+    }
+
+    /**
+     * Enables or disables boost mode.
+     * When enabled, uses higher max velocity and acceleration values.
+     * @param enabled true to enable boost mode, false to disable
+     */
+    public void setBoostMode(boolean enabled) {
+        this.boostModeEnabled = enabled;
+    }
+
+    /**
+     * Gets whether boost mode is currently enabled.
+     * @return true if boost mode is enabled
+     */
+    public boolean isBoostModeEnabled() {
+        return boostModeEnabled;
     }
 
     /**
@@ -431,9 +466,28 @@ public class SwerveSubsystem extends SubsystemBase {
                 MAX_VEL, MAX_VEL, MAX_OMEGA);
     }
 
+    // Drive speed limit multiplier (controlled by left trigger)
+    private double driveSpeedLimit = 1.0;
+
+    /**
+     * Sets the drive speed limit multiplier. This scales max velocity and acceleration.
+     * @param limit [0, 1] fraction of max speed. 1.0 = full speed, 0.0 = stopped.
+     */
+    public void setDriveSpeedLimit(double limit) {
+        this.driveSpeedLimit = Math.max(0.0, Math.min(1.0, limit));
+    }
+
+    /**
+     * Gets the current drive speed limit.
+     * @return The current speed limit multiplier [0, 1]
+     */
+    public double getDriveSpeedLimit() {
+        return driveSpeedLimit;
+    }
+
     /**
      * Limits all steer motor speeds by scaling the MotionMagic cruise velocity.
-     * 
+     *
      * @param limit [0, 1] fraction of max cruise velocity. 1.0 = full speed, 0.25 =
      *              quarter speed.
      */

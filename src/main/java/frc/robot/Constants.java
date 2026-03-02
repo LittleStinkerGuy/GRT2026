@@ -168,6 +168,11 @@ public final class Constants {
     public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
     public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
     public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
+
+    // Boost Mode Constants (L1 held)
+    public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
+    public static final double BOOST_MAX_LINEAR_ACCELERATION = 6.0; // meters per second squared
+    public static final double BOOST_MAX_ANGULAR_ACCELERATION = 4.0; // radians per second squared
   }
 
   public static class RotateToAngleConstants {

@@ -27,7 +27,6 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 // Commands
 import frc.robot.commands.intake.ManualIntakePivotCommand;
 import frc.robot.commands.shooter.rampDownFlywheel;
-import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.commands.ShooterSequence;
 
@@ -127,6 +126,14 @@ public class RobotContainer {
     if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
       swerveSubsystem.setDefaultCommand(
           new RunCommand(() -> {
+            // L1 = boost mode (higher accel/velocity)
+            swerveSubsystem.setBoostMode(driveController.getLeftBumper());
+
+            // Left trigger controls speed limit: fully released = full speed, fully pressed = stopped
+            double leftTrigger = driveController.getLeftTriggerAxis();
+            double speedLimit = 1.0 - leftTrigger; // Invert so more trigger = slower
+            swerveSubsystem.setDriveSpeedLimit(speedLimit);
+
             swerveSubsystem.setDrivePowers(
                 driveController.getForwardPower(),
                 driveController.getLeftPower(),
@@ -234,9 +241,7 @@ public class RobotContainer {
       // Options button = reset pose to starting position (in front of red hub)
       driveController.options().onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
 
-      // L2 = aim to hub (with shooter offset calculation)
-      AimToHubCommand aimToHubCommand = new AimToHubCommand(swerveSubsystem, fmsSubsystem);
-      new Trigger(driveController::getLeftTrigger).onTrue(Commands.defer(() -> aimToHubCommand.createAimCommand(driverInput), java.util.Set.of(swerveSubsystem)));
+      // Note: L2 (left trigger) is now used for speed limiting in the default command
 
       // D-pad steer speed limiting (scales MotionMagic cruise velocity)
       // Up = 100%, Right = 75%, Down = 50%, Left = 25%
