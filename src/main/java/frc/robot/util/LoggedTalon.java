@@ -22,393 +22,375 @@ import edu.wpi.first.wpilibj.DataLogManager;
 
 import static edu.wpi.first.units.Units.Rotation;
 import static frc.robot.Constants.DebugConstants.MASTER_DEBUG;
-public class LoggedTalon{
 
-    private final TalonFX motor;
+public class LoggedTalon {
 
-    private final int canId;
-    private double[] pidsvg = new double[6];
+  private final TalonFX motor;
 
-    private NetworkTableInstance ntInstance;
-    private NetworkTable motorStatsTable;
+  private final int canId;
+  private double[] pidsvg = new double[6];
 
-    private DoublePublisher positionPublisher;
-    private DoublePublisher veloPublisher;
-    private DoublePublisher appliedVlotsPublisher;
-    private DoublePublisher supplyCurrentPublisher;
-    private DoublePublisher statorCurrentPublisher;
-    private DoublePublisher temperaturePublisher;
-    private DoublePublisher targetPositionPublisher;
-    private DoublePublisher targetVelocityPublisher;
-    private DoublePublisher targetVoltagePublisher;
-    private DoublePublisher targetDutyCyclePublisher; 
-    private DoublePublisher closedLoopErrorPublisher;
+  private NetworkTableInstance ntInstance;
+  private NetworkTable motorStatsTable;
 
-    private DoubleLogEntry positionLogEntry;
-    private DoubleLogEntry veloLogEntry;
-    private DoubleLogEntry appliedVoltsLogEntry;
-    private DoubleLogEntry supplyCurrLogEntry;
-    private DoubleLogEntry statorCurrLogEntry;
-    private DoubleLogEntry temperatureLogEntry;
-    private DoubleLogEntry targetPositionLogEntry; 
-    private DoubleLogEntry targetVelocityLogEntry;
-    private DoubleLogEntry targetVoltageLogEntry;
-    private DoubleLogEntry targetDutyCycleLogEntry; 
-    private DoubleLogEntry closedLoopErrorLogEntry;
+  private DoublePublisher positionPublisher;
+  private DoublePublisher veloPublisher;
+  private DoublePublisher appliedVlotsPublisher;
+  private DoublePublisher supplyCurrentPublisher;
+  private DoublePublisher statorCurrentPublisher;
+  private DoublePublisher temperaturePublisher;
+  private DoublePublisher targetPositionPublisher;
+  private DoublePublisher targetVelocityPublisher;
+  private DoublePublisher targetVoltagePublisher;
+  private DoublePublisher targetDutyCyclePublisher;
+  private DoublePublisher closedLoopErrorPublisher;
 
-    private double targetPosition;
-    private double targetVelocity;
-    private double targetVoltage;
-    private double targetDutyCycle;
+  private DoubleLogEntry positionLogEntry;
+  private DoubleLogEntry veloLogEntry;
+  private DoubleLogEntry appliedVoltsLogEntry;
+  private DoubleLogEntry supplyCurrLogEntry;
+  private DoubleLogEntry statorCurrLogEntry;
+  private DoubleLogEntry temperatureLogEntry;
+  private DoubleLogEntry targetPositionLogEntry;
+  private DoubleLogEntry targetVelocityLogEntry;
+  private DoubleLogEntry targetVoltageLogEntry;
+  private DoubleLogEntry targetDutyCycleLogEntry;
+  private DoubleLogEntry closedLoopErrorLogEntry;
 
-    public LoggedTalon(
-        int canId, String canBusName, TalonFXConfiguration talonConfig
-    ){
-        motor = new TalonFX(canId, canBusName);
-        for (int i = 0; i < 4; i++) {
-            boolean error =
-                motor.getConfigurator()
-                .apply(talonConfig, 0.1)
-                == StatusCode.OK;
-            if (!error) break;
-        }
-        this.canId = canId;
-        pidsvg = new double[] {
-            talonConfig.Slot0.kP,
-            talonConfig.Slot0.kI,
-            talonConfig.Slot0.kD,
-            talonConfig.Slot0.kS,
-            talonConfig.Slot0.kV,
-            talonConfig.Slot0.kG
-        };
-        initNT(canId);
-        initLogs(canId);
-        if(MASTER_DEBUG){
-            enableDebug();
-        }
+  private double targetPosition;
+  private double targetVelocity;
+  private double targetVoltage;
+  private double targetDutyCycle;
+
+  public LoggedTalon(
+      int canId, String canBusName, TalonFXConfiguration talonConfig) {
+    motor = new TalonFX(canId, canBusName);
+    for (int i = 0; i < 4; i++) {
+      boolean error =
+          motor.getConfigurator()
+              .apply(talonConfig, 0.1) == StatusCode.OK;
+      if (!error)
+        break;
     }
-
-    /**
-     * Sets the motor's position reference
-     * @param position position reference
-     */
-    public void setPositionReference(double position){
-        targetPosition = position;
-        motor.setControl(new PositionVoltage(position));
+    this.canId = canId;
+    pidsvg = new double[] {
+        talonConfig.Slot0.kP,
+        talonConfig.Slot0.kI,
+        talonConfig.Slot0.kD,
+        talonConfig.Slot0.kS,
+        talonConfig.Slot0.kV,
+        talonConfig.Slot0.kG
+    };
+    initNT(canId);
+    initLogs(canId);
+    if (MASTER_DEBUG) {
+      enableDebug();
     }
+  }
 
-    public void setSpeed(double speed) {
-        motor.set(speed);
+  /**
+   * Sets the motor's position reference
+   * 
+   * @param position position reference
+   */
+  public void setPositionReference(double position) {
+    targetPosition = position;
+    motor.setControl(new PositionVoltage(position));
+  }
+
+  public void setSpeed(double speed) {
+    motor.set(speed);
+  }
+
+  /**
+   * Sets the motor's position reference with voltage
+   * 
+   * @param position position reference
+   */
+  public void setPositionReferenceWithVoltage(double position, double arbFF) {
+    targetPosition = position;
+    motor.setControl(new PositionVoltage(position).withFeedForward(arbFF));
+  }
+
+  /**
+   * Sets the motor's position reference with feedforward
+   * 
+   * @param position position reference
+   * @param arbFF arbitrary feedforward
+   */
+  public void setPositionReferenceWithArbFF(double position, double arbFF) {
+    targetPosition = position;
+    motor.setControl(
+        new PositionVoltage(position).withSlot(0).withFeedForward(arbFF));
+  }
+
+  /**
+   * Set the motor's velocity reference
+   * 
+   * @param velocity velocity reference
+   */
+  public void setVelocityReference(double velocity) {
+    targetVelocity = velocity;
+    motor.setControl(new VelocityVoltage(velocity));
+  }
+
+  /**
+   * Sets the motor's velocity reference with voltage
+   * 
+   * @param velocity velocity reference
+   */
+  public void setVelocityReferenceWithVoltage(double velocity) {
+    targetVelocity = velocity;
+    motor.setControl(new VelocityVoltage(velocity));
+  }
+
+  /**
+   * Set the current of the motor directly
+   * 
+   * @param current target current output
+   */
+  public void setVoltage(double current) {
+    targetVoltage = current;
+    motor.setControl(new VoltageOut(current));
+  }
+
+  /**
+   * Set duty cycle output
+   * 
+   * @param output duty cycle output from -1.0 to 1.0
+   */
+  public void setDutyCycle(double output) {
+    targetDutyCycle = output;
+    motor.setControl(new DutyCycleOut(output));
+  }
+
+  /**
+   * Sets the motor's position to a certain value
+   * 
+   * @param position mechanisam position after taking the position conversion
+   *        into account
+   */
+  public void setPosition(double position) {
+    for (int i = 0; i < 4; i++) {
+      boolean error = motor.setPosition(position) == StatusCode.OK;
+      if (!error)
+        break;
     }
+  }
 
-    /**
-     * Sets the motor's position reference with voltage
-     * @param position position reference
-     */
-    public void setPositionReferenceWithVoltage(double position, double arbFF){
-        targetPosition = position;
-        motor.setControl(new PositionVoltage(position).withFeedForward(arbFF));
-    }
+  public void setPower(double power) {
+    motor.set(power);
+  }
 
-    /**
-     * Sets the motor's position reference with feedforward
-     * @param position position reference
-     * @param arbFF arbitrary feedforward
-     */
-    public void setPositionReferenceWithArbFF(double position, double arbFF){
-        targetPosition = position;
-        motor.setControl(
-            new PositionVoltage(position).withSlot(0).withFeedForward(arbFF)
-        );
-    }
+  /**
+   * Resets the encoder position to zero
+   */
+  public void resetEncoder() {
+    motor.setPosition(0.0);
+  }
 
-    /**
-     * Set the motor's velocity reference
-     * @param velocity velocity reference
-     */
-    public void setVelocityReference(double velocity){
-        targetVelocity = velocity;
-        motor.setControl(new VelocityVoltage(velocity));
-    }
-    /**
-     * Sets the motor's velocity reference with voltage
-     * @param velocity velocity reference
-     */
-    public void setVelocityReferenceWithVoltage(double velocity){
-        targetVelocity = velocity;
-        motor.setControl(new VelocityVoltage(velocity));
-    }
+  /**
+   * Configures drive motor's PIDSV
+   * 
+   * @param p kP
+   * @param i kI
+   * @param d kD
+   * @param s kS for static friction
+   * @param v kV Voltage feed forward
+   */
+  public void configurePIDSVG(double p, double i, double d, double s, double v,
+      double g) {
+    Slot0Configs slot0Configs = new Slot0Configs();
 
-    /**
-     * Set the current of the motor directly
-     * @param current target current output
-     */
-    public void setVoltage(double current){
-        targetVoltage = current;
-        motor.setControl(new VoltageOut(current));
-    } 
+    slot0Configs.kP = p;
+    slot0Configs.kI = i;
+    slot0Configs.kD = d;
+    slot0Configs.kS = s;
+    slot0Configs.kV = v;
+    slot0Configs.kG = g;
 
-    /**
-     * Set duty cycle output
-     * @param output duty cycle output from -1.0 to 1.0
-     */
-    public void setDutyCycle(double output){
-        targetDutyCycle = output;
-        motor.setControl(new DutyCycleOut(output));
-    }
+    motor.getConfigurator().apply(slot0Configs);
+  }
 
-    /**
-     * Sets the motor's position to a certain value
-     * @param position mechanisam position after taking the position conversion
-     * into account
-     */
-    public void setPosition(double position){
-        for (int i = 0; i < 4; i++) {
-            boolean error = motor.setPosition(position) == StatusCode.OK;
-            if (!error) break;
-        }
-    }
+  /**
+   * initializes network table and entries
+   * 
+   * @param canId motor's CAN ID
+   */
+  private void initNT(int canId) {
+    ntInstance = NetworkTableInstance.getDefault();
+    motorStatsTable = ntInstance.getTable("MotorStats");
 
-    public void setPower(double power) {
-        motor.set(power);
-    }
+    positionPublisher = motorStatsTable.getDoubleTopic(
+        canId + "position").publish();
 
-    /**
-     * Resets the encoder position to zero
-     */
-    public void resetEncoder() {
-        motor.setPosition(0.0);
-    }
+    veloPublisher = motorStatsTable.getDoubleTopic(canId + "velo").publish();
 
-    /**
-     * Configures drive motor's PIDSV
-     * @param p kP
-     * @param i kI
-     * @param d kD
-     * @param s kS for static friction
-     * @param v kV Voltage feed forward
-     */
-    public void configurePIDSVG(double p, double i, double d, double s, double v,
-        double g
-    ) {
-        Slot0Configs slot0Configs = new Slot0Configs();
+    appliedVlotsPublisher = motorStatsTable.getDoubleTopic(
+        canId + "appliedVolts").publish();
 
-        slot0Configs.kP = p;
-        slot0Configs.kI = i;
-        slot0Configs.kD = d;
-        slot0Configs.kS = s;
-        slot0Configs.kV = v;
-        slot0Configs.kG = g;
+    supplyCurrentPublisher = motorStatsTable.getDoubleTopic(
+        canId + "supplyCurrent").publish();
 
-        motor.getConfigurator().apply(slot0Configs);
-    }
+    statorCurrentPublisher = motorStatsTable.getDoubleTopic(
+        canId + "statorCurrent").publish();
 
-    /**
-     * initializes network table and entries
-     * @param canId motor's CAN ID
-     */
-    private void initNT(int canId){
-        ntInstance = NetworkTableInstance.getDefault();
-        motorStatsTable = ntInstance.getTable("MotorStats");
+    temperaturePublisher = motorStatsTable.getDoubleTopic(
+        canId + "temperature").publish();
 
-        positionPublisher = motorStatsTable.getDoubleTopic(
-            canId + "position"
-        ).publish();
+    targetPositionPublisher = motorStatsTable.getDoubleTopic(
+        canId + "targetPosition").publish();
 
-        veloPublisher = motorStatsTable.getDoubleTopic(canId + "velo").publish();
+    targetVelocityPublisher = motorStatsTable.getDoubleTopic(
+        canId + "targetVelocity").publish();
 
-        appliedVlotsPublisher = motorStatsTable.getDoubleTopic(
-            canId + "appliedVolts"
-        ).publish();
+    targetVoltagePublisher = motorStatsTable.getDoubleTopic(
+        canId + "targetVoltage").publish();
 
-        supplyCurrentPublisher = motorStatsTable.getDoubleTopic(
-            canId + "supplyCurrent"
-        ).publish();
+    targetDutyCyclePublisher = motorStatsTable.getDoubleTopic(
+        canId + "targetDutyCycle").publish();
 
-        statorCurrentPublisher = motorStatsTable.getDoubleTopic(
-            canId + "statorCurrent"
-        ).publish();
+    closedLoopErrorPublisher = motorStatsTable.getDoubleTopic(
+        canId + "closedLoopError").publish();
+  }
 
-        temperaturePublisher = motorStatsTable.getDoubleTopic(
-            canId + "temperature"
-        ).publish();
+  /**
+   * Initializes log entries
+   * 
+   * @param canId drive motor's CAN ID
+   */
+  private void initLogs(int canId) {
+    positionLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "position");
 
-        targetPositionPublisher = motorStatsTable.getDoubleTopic(
-            canId + "targetPosition"
-        ).publish();
+    veloLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "velo");
 
-        targetVelocityPublisher = motorStatsTable.getDoubleTopic(
-            canId + "targetVelocity"
-        ).publish();
+    appliedVoltsLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "appliedVolts");
 
-        targetVoltagePublisher = motorStatsTable.getDoubleTopic(
-            canId + "targetVoltage"
-        ).publish();
+    supplyCurrLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "supplyCurrent");
 
-        targetDutyCyclePublisher = motorStatsTable.getDoubleTopic(
-            canId + "targetDutyCycle"
-        ).publish();
+    statorCurrLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "statorCurrent");
 
-        closedLoopErrorPublisher = motorStatsTable.getDoubleTopic(
-            canId + "closedLoopError"
-        ).publish();
-    }
+    temperatureLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "temperature");
 
-    /**
-     * Initializes log entries
-     * @param canId drive motor's CAN ID
-     */
-    private void initLogs(int canId){
-        positionLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "position"
-        );
+    targetPositionLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "targetPosition");
 
-        veloLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "velo"
-        );
+    targetVelocityLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "targetVelocity");
 
-        appliedVoltsLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "appliedVolts"
-        );
+    targetVoltageLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "targetVoltage");
 
-        supplyCurrLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "supplyCurrent"
-        );
+    targetDutyCycleLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "targetDutyCycle");
 
-        statorCurrLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "statorCurrent"
-        );
+    closedLoopErrorLogEntry = new DoubleLogEntry(
+        DataLogManager.getLog(), canId + "closedLoopError");
+  }
 
-        temperatureLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "temperature"
-        );
+  /**
+   * Allows changing PID through NT
+   */
+  public void enableDebug() {
+    motorStatsTable.getDoubleArrayTopic(canId + "PIDSVG").publish().set(
+        pidsvg);
+    motorStatsTable.addListener(canId + "PIDSVG",
+        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+        (table, key, event) -> {
+          configurePIDSVG(
+              event.valueData.value.getDoubleArray()[0],
+              event.valueData.value.getDoubleArray()[1],
+              event.valueData.value.getDoubleArray()[2],
+              event.valueData.value.getDoubleArray()[3],
+              event.valueData.value.getDoubleArray()[4],
+              event.valueData.value.getDoubleArray()[5]);
+        });
+  }
 
-        targetPositionLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "targetPosition"
-        );
+  /**
+   * Gets motor's position in rotations after taking the
+   * SensorToMechanismRatio into account
+   * 
+   * @return position of the motor in rotations
+   */
+  public double getPosition() {
+    return motor.getPosition().getValue().in(Rotation);
+  }
 
-        targetVelocityLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "targetVelocity"
-        );
+  /**
+   * Gets motor's velocity in RPS after taking the SensorToMechanismRatio into
+   * account
+   * 
+   * @return velocity of the motor in RPS
+   */
+  public double getVelocity() {
+    return motor.getVelocity().getValueAsDouble();
+  }
 
-        targetVoltageLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "targetVoltage"
-        );
+  /**
+   * Gets motor's closed loop error
+   * 
+   * @return closed loop error
+   */
+  public double getClosedLoopError() {
+    return motor.getClosedLoopError().getValueAsDouble();
+  }
 
-        targetDutyCycleLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "targetDutyCycle"
-        );
-        
-        closedLoopErrorLogEntry = new DoubleLogEntry(
-            DataLogManager.getLog(), canId + "closedLoopError"
-        );
-    }
+  /**
+   * Publishes motor stats to NT for logging
+   */
+  public void publishStats() {
+    positionPublisher.set(motor.getPosition().getValueAsDouble());
+    veloPublisher.set(motor.getVelocity().getValueAsDouble());
+    appliedVlotsPublisher.set(motor.getMotorVoltage().getValueAsDouble());
+    supplyCurrentPublisher.set(motor.getSupplyCurrent().getValueAsDouble());
+    statorCurrentPublisher.set(motor.getStatorCurrent().getValueAsDouble());
+    temperaturePublisher.set(motor.getDeviceTemp().getValueAsDouble());
+    targetPositionPublisher.set(targetPosition);
+    targetVelocityPublisher.set(targetVelocity);
+    targetDutyCyclePublisher.set(targetDutyCycle);
+    targetVoltagePublisher.set(targetVoltage);
+    closedLoopErrorPublisher.set(motor.getClosedLoopError().getValueAsDouble());
+  }
 
-    /**
-     * Allows changing PID through NT
-     */
-    public void enableDebug(){
-        motorStatsTable.getDoubleArrayTopic(canId + "PIDSVG").publish().set(
-            pidsvg
-        );
-        motorStatsTable.addListener(canId + "PIDSVG", 
-            EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-            (table, key, event) -> {
-                configurePIDSVG(
-                    event.valueData.value.getDoubleArray()[0],
-                    event.valueData.value.getDoubleArray()[1],
-                    event.valueData.value.getDoubleArray()[2],
-                    event.valueData.value.getDoubleArray()[3],
-                    event.valueData.value.getDoubleArray()[4],
-                    event.valueData.value.getDoubleArray()[5]
-                );
-            }
-        );
-    }
+  /**
+   * Loggs motor stats into log file
+   */
+  public void logStats() {
+    positionLogEntry.append(
+        motor.getPosition().getValueAsDouble(), GRTUtil.getFPGATime());
 
-    /**
-     * Gets motor's position in rotations after taking the 
-     * SensorToMechanismRatio into account 
-     * @return position of the motor in rotations
-     */
-    public double getPosition(){
-        return motor.getPosition().getValue().in(Rotation);
-    }
+    veloLogEntry.append(
+        motor.getVelocity().getValueAsDouble(), GRTUtil.getFPGATime());
 
-    /**
-     * Gets motor's velocity in RPS after taking the SensorToMechanismRatio into
-     * account
-     * @return velocity of the motor in RPS
-     */
-    public double getVelocity(){
-        return motor.getVelocity().getValueAsDouble();
-    }
+    appliedVoltsLogEntry.append(
+        motor.getMotorVoltage().getValueAsDouble(), GRTUtil.getFPGATime());
 
-    /**
-     * Gets motor's closed loop error
-     * @return closed loop error
-     */
-    public double getClosedLoopError(){
-        return motor.getClosedLoopError().getValueAsDouble();
-    }
+    supplyCurrLogEntry.append(
+        motor.getSupplyCurrent().getValueAsDouble(), GRTUtil.getFPGATime());
 
-    /**
-     * Publishes motor stats to NT for logging
-     */
-    public void publishStats(){
-        positionPublisher.set(motor.getPosition().getValueAsDouble());
-        veloPublisher.set(motor.getVelocity().getValueAsDouble());
-        appliedVlotsPublisher.set(motor.getMotorVoltage().getValueAsDouble());
-        supplyCurrentPublisher.set(motor.getSupplyCurrent().getValueAsDouble());
-        statorCurrentPublisher.set(motor.getStatorCurrent().getValueAsDouble());
-        temperaturePublisher.set(motor.getDeviceTemp().getValueAsDouble());
-        targetPositionPublisher.set(targetPosition);
-        targetVelocityPublisher.set(targetVelocity);
-        targetDutyCyclePublisher.set(targetDutyCycle);
-        targetVoltagePublisher.set(targetVoltage);
-        closedLoopErrorPublisher.set(motor.getClosedLoopError().getValueAsDouble());
-    }    
+    statorCurrLogEntry.append(
+        motor.getStatorCurrent().getValueAsDouble(), GRTUtil.getFPGATime());
 
-    /**
-     * Loggs motor stats into log file
-     */
-    public void logStats(){
-        positionLogEntry.append(
-            motor.getPosition().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
+    temperatureLogEntry.append(
+        motor.getDeviceTemp().getValueAsDouble(), GRTUtil.getFPGATime());
 
-        veloLogEntry.append(
-            motor.getVelocity().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
+    targetPositionLogEntry.append(targetPosition, GRTUtil.getFPGATime());
 
-        appliedVoltsLogEntry.append(
-            motor.getMotorVoltage().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
+    targetVelocityLogEntry.append(targetVelocity, GRTUtil.getFPGATime());
 
-        supplyCurrLogEntry.append(
-            motor.getSupplyCurrent().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
+    targetVoltageLogEntry.append(
+        targetVoltage, GRTUtil.getFPGATime());
 
-        statorCurrLogEntry.append(
-            motor.getStatorCurrent().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
+    targetDutyCycleLogEntry.append(targetDutyCycle, GRTUtil.getFPGATime());
 
-        temperatureLogEntry.append(
-            motor.getDeviceTemp().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
-
-        targetPositionLogEntry.append(targetPosition, GRTUtil.getFPGATime());
-
-        targetVelocityLogEntry.append(targetVelocity, GRTUtil.getFPGATime());
-
-        targetVoltageLogEntry.append(
-            targetVoltage, GRTUtil.getFPGATime()
-        );
-
-        targetDutyCycleLogEntry.append(targetDutyCycle, GRTUtil.getFPGATime());
-
-        closedLoopErrorLogEntry.append(
-            motor.getClosedLoopError().getValueAsDouble(), GRTUtil.getFPGATime()
-        );
-    }
+    closedLoopErrorLogEntry.append(
+        motor.getClosedLoopError().getValueAsDouble(), GRTUtil.getFPGATime());
+  }
 }
