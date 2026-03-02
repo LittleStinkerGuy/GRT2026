@@ -69,11 +69,11 @@ public final class Constants {
 
   public static class SwerveDriveConstants {
     // Motor Configuration
-    public static final double DRIVE_PEAK_CURRENT = 80;
-    public static final double DRIVE_RAMP_RATE = 0;
+    public static final double DRIVE_PEAK_STATOR_CURRENT = 80;
+    public static final double DRIVE_RAMP_RATE = 0.0;
 
     // Current Limits (optimized for Kraken motors)
-    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 50; // Prevents brownouts
+    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 60; // Prevents brownouts
     public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
     public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
@@ -89,7 +89,7 @@ public final class Constants {
 
   public static class SwerveSteerConstants {
     // Motor Configuration
-    public static final double STEER_PEAK_CURRENT = 40;
+    public static final double STEER_PEAK_STATOR_CURRENT = 40;
     public static final double STEER_RAMP_RATE = 0;
 
     // Current Limits (optimized for Kraken motors - steer needs less current)
@@ -168,6 +168,7 @@ public final class Constants {
     public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
     public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
     public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
+    public static final double MAX_ANGULAR_DECELERATION = 12.0; // radians per second squared
 
     // Boost Mode Constants (L1 held)
     public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
@@ -235,8 +236,6 @@ public final class Constants {
     // Motor config
     public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
   }
-
-  // ==================== VISION ====================
 
   // ==================== ALIGNMENT ====================
 

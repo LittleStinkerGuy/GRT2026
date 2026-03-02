@@ -30,7 +30,7 @@ import static frc.robot.Constants.SwerveDriveConstants.DRIVE_CURRENT_LIMIT_ENABL
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_MAX_ACCELERATION;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_MAX_VELOCITY_RPS;
-import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_CURRENT;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_STATOR_CURRENT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_SUPPLY_CURRENT_LIMIT;
@@ -144,8 +144,8 @@ public class DriveMotor {
     public void configureMotor() {
 
         // Set peak current for torque limiting for stall prevention
-        motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = DRIVE_PEAK_CURRENT;
-        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DRIVE_PEAK_CURRENT;
+        motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = DRIVE_PEAK_STATOR_CURRENT;
+        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DRIVE_PEAK_STATOR_CURRENT;
 
         // Current limits (optimized for swerve drive)
         motorConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_SUPPLY_CURRENT_LIMIT;

@@ -87,7 +87,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // NT Accel Config
     public double maxLinearAcceleration = MAX_LINEAR_ACCELERATION; // meters per second squared
     public double maxLinearDeceleration = MAX_LINEAR_DECELERATION; // meters per second squared
-    public double maxAngularAcceleration = MAX_ANGULAR_ACCELERATION; // meters per second squared
+    public double maxAngularAcceleration = MAX_ANGULAR_ACCELERATION; // radians per second squared
+    public double maxAngularDeceleration = MAX_ANGULAR_DECELERATION; // radians per second squared
 
     // Boost mode flag
     private boolean boostModeEnabled = false;
@@ -211,6 +212,7 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
         SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
         SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
     }
 
     private void updateAccelValues() {
@@ -219,11 +221,13 @@ public class SwerveSubsystem extends SubsystemBase {
             maxLinearAcceleration = BOOST_MAX_LINEAR_ACCELERATION;
             maxLinearDeceleration = MAX_LINEAR_DECELERATION; // Keep decel the same
             maxAngularAcceleration = BOOST_MAX_ANGULAR_ACCELERATION;
+            maxAngularDeceleration = MAX_ANGULAR_DECELERATION; // Keep decel the same
         } else {
             // Use normal values from SmartDashboard
             maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
             maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
             maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+            maxAngularDeceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
         }
     }
 
@@ -300,10 +304,13 @@ public class SwerveSubsystem extends SubsystemBase {
             }
         }
 
-        // Limit angular acceleration (both acceleration and deceleration for rotation)
+        // Limit angular acceleration and deceleration separately
         double omega = desiredSpeeds.omegaRadiansPerSecond;
         double deltaOmega = omega - previousSpeeds.omegaRadiansPerSecond;
-        double maxDeltaOmega = maxAngularAcceleration * dt;
+
+        // Determine if we're accelerating or decelerating (speeding up or slowing down rotation)
+        boolean isAngularAccelerating = Math.abs(omega) > Math.abs(previousSpeeds.omegaRadiansPerSecond);
+        double maxDeltaOmega = (isAngularAccelerating ? maxAngularAcceleration : maxAngularDeceleration) * dt;
 
         if (Math.abs(deltaOmega) > maxDeltaOmega) {
             omega = previousSpeeds.omegaRadiansPerSecond + Math.signum(deltaOmega) * maxDeltaOmega;
