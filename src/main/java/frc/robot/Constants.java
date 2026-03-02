@@ -186,7 +186,7 @@ public final class Constants {
 
   public static class IntakeConstants {
     // Roller Motor
-    public static final int ROLLER_CAN_ID = 14;
+    public static final int ROLLER_CAN_ID = 35;
     public static final double ROLLER_IN_SPEED = -50.0; // rotations per second
     public static final double ROLLER_OUT_SPEED = 50.0; // rotations per second
     public static final double ROLLER_CURRENT_LIMIT = 120.0;
@@ -201,7 +201,7 @@ public final class Constants {
     public static final double ROLLER_V = 0.12; // Feedforward velocity gain
 
     // Pivot Motor
-    public static final int PIVOT_MOTOR_ID = 12;
+    public static final int PIVOT_MOTOR_ID = 36;
     public static final int PIVOT_CANCODER_ID = 11;
     public static final double MANUAL_PIVOT_SPEED = 0.15;
     public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;

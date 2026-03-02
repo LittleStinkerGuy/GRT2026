@@ -25,6 +25,10 @@ import com.ctre.phoenix6.CANBus;
 
 import frc.robot.commands.intake.pivot.ManualIntakePivotCommand;
 import frc.robot.commands.intake.pivot.SetIntakePivotCommand;
+import frc.robot.commands.intake.pivot.PivotInCommand;
+import frc.robot.commands.intake.pivot.PivotOutCommand;
+import frc.robot.commands.intake.roller.RollerInCommand;
+import frc.robot.commands.intake.roller.RollerOutCommand;
 import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -169,12 +173,17 @@ public class RobotContainer {
       }, m_ClimbSubsystem));
 
       // ==================== INTAKE ROLLER ====================
-      // R1 = intake in
-      mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+      // R1 = roller in, L2 = roller out
+      mechController.R1().whileTrue(new RollerInCommand(intakeSubsystem));
+      mechController.L2().whileTrue(new RollerOutCommand(intakeSubsystem));
       intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
       // ==================== INTAKE PIVOT ====================
+      // Cross = pivot to IN position, Square = pivot to OUT position
       // Right stick Y controls pivot manually
+      mechController.cross().whileTrue(new PivotInCommand(pivotIntake));
+      mechController.square().whileTrue(new PivotOutCommand(pivotIntake));
+
       pivotIntake.setDefaultCommand(Commands.run(() -> {
         double pivotInput = -mechController.getRightY();
         if (Math.abs(pivotInput) > 0.1) {
