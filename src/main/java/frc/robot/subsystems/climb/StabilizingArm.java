@@ -98,7 +98,6 @@ public class StabilizingArm extends SubsystemBase {
         setEncoder(Rotations.of(0));
     }
 
-
     public Optional<Boolean> getForwardLimit() {
         boolean forwardLimit = forwardLimitSignal.refresh().getValue();
         if (!forwardLimitSignal.hasUpdated()) {
@@ -151,6 +150,5 @@ public class StabilizingArm extends SubsystemBase {
         SmartDashboard.putBoolean("Climb/Arm/ForwardLimitHit", getForwardLimit().orElse(false));
         SmartDashboard.putBoolean("Climb/Arm/ForwardLimitAccurate", getForwardLimit().isPresent());
         SmartDashboard.putBoolean("Climb/Arm/ReverseLimitHit", reverseLimitSignal.getValue());
-     }
+    }
 }
-

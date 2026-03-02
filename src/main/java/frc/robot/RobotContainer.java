@@ -70,9 +70,11 @@ public class RobotContainer {
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
 
   // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-  //   VisionConstants.cameraConfigs[0]
+  // VisionConstants.cameraConfigs[0]
   // );
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
@@ -99,6 +101,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private boolean mechEnabled = false;
+
   private void configureBindings() {
     /*
      * Driving -- One joystick controls translation, the other rotation. If the
@@ -137,102 +140,102 @@ public class RobotContainer {
           swerveSubsystem);
     }
 
-    if (Constants.MECH_ENABLED){
-    // bind semi auto commands
-    // var crossTrigger = mechController.cross();
-    // var triangleTrigger = mechController.triangle();
-    // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
-    // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
+    if (Constants.MECH_ENABLED) {
+      // bind semi auto commands
+      // var crossTrigger = mechController.cross();
+      // var triangleTrigger = mechController.triangle();
+      // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() ->
+      // crossTrigger.getAsBoolean()));
+      // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() ->
+      // triangleTrigger.getAsBoolean()));
 
-    // Manual control with d-pad for winch and left stick for arm
-    m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-      var armDutyCycle = mechController.getLeftY();
-      double winchDutyCycle = 0;
+      // Manual control with d-pad for winch and left stick for arm
+      m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
+        var armDutyCycle = mechController.getLeftY();
+        double winchDutyCycle = 0;
 
-      if (mechController.povUp().getAsBoolean()) {
-        winchDutyCycle++;
+        if (mechController.povUp().getAsBoolean()) {
+          winchDutyCycle++;
+        }
+        if (mechController.povDown().getAsBoolean()) {
+          winchDutyCycle--;
+        }
+        System.out.print(armDutyCycle);
+        System.out.print(" ");
+        System.out.println(winchDutyCycle);
+
+        m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
+        m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+      }, m_ClimbSubsystem));
+
+      // ==================== INTAKE ROLLER ====================
+      // R1 = intake in
+      mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+      intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+
+      // ==================== INTAKE PIVOT ====================
+      // Right stick Y controls pivot manually
+      pivotIntake.setDefaultCommand(Commands.run(() -> {
+        double pivotInput = -mechController.getRightY();
+        if (Math.abs(pivotInput) > 0.1) {
+          pivotIntake.setManualSpeed(pivotInput * 0.3);
+        } else {
+          pivotIntake.stop();
+        }
+      }, pivotIntake));
+
+      // ==================== HOPPER ====================
+      // L1 = hopper in
+      mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
+      HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
+
+      // ==================== SHOOTER ====================
+      // R2 = flywheel (analog speed control)
+      // Left stick Y = hood manual control
+      flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+        if (DriverStation.isJoystickConnected(1))
+          flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
+      }, flywheelSubsystem));
+
+      hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+        // double hoodInput = -mechController.getLeftY();
+        if (mechController.L3().getAsBoolean()) {
+          hoodSubsystem.hoodSpeed(0.05);
+        } else if (mechController.R3().getAsBoolean()) {
+          hoodSubsystem.hoodSpeed(-0.05);
+        } else {
+          hoodSubsystem.hoodSpeed(0);
+        }
+      }, hoodSubsystem));
+
+      // Swerve-dependent drive controller commands
+      if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+        // Cancel rotate command if driver touches any stick
+        BooleanSupplier driverInput = () -> Math.abs(driveController.getForwardPower()) > 0 ||
+            Math.abs(driveController.getLeftPower()) > 0 ||
+            Math.abs(driveController.getRotatePower()) > 0;
+
+        // Triangle = rotate to 0°, Circle = rotate to 90°
+        driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
+        driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
+
+        // L1 = align to hub
+        new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
+
+        // D-pad steer speed limiting (scales MotionMagic cruise velocity)
+        // Up = 100%, Right = 75%, Down = 50%, Left = 25%
+        new Trigger(() -> driveController.getPOV() == 0)
+            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+        new Trigger(() -> driveController.getPOV() == 90)
+            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+        new Trigger(() -> driveController.getPOV() == 180)
+            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+        new Trigger(() -> driveController.getPOV() == 270)
+            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
       }
-      if (mechController.povDown().getAsBoolean()) {
-        winchDutyCycle--;
-      }
-      System.out.print(armDutyCycle);
-      System.out.print(" ");
-      System.out.println(winchDutyCycle);
-
-      m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-      m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-    }, m_ClimbSubsystem));
-
-    // ==================== INTAKE ROLLER ====================
-    // R1 = intake in
-    mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-    intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
-
-    // ==================== INTAKE PIVOT ====================
-    // Right stick Y controls pivot manually
-    pivotIntake.setDefaultCommand(Commands.run(() -> {
-      double pivotInput = -mechController.getRightY();
-      if (Math.abs(pivotInput) > 0.1) {
-        pivotIntake.setManualSpeed(pivotInput * 0.3);
-      } else {
-        pivotIntake.stop();
-      }
-    }, pivotIntake));
-    
-
-    // ==================== HOPPER ====================
-    // L1 = hopper in
-    mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
-    HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
-
-    // ==================== SHOOTER ====================
-    // R2 = flywheel (analog speed control)
-    // Left stick Y = hood manual control
-    flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-      if(DriverStation.isJoystickConnected(1)) flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
-    }, flywheelSubsystem));
-
-    hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-      //double hoodInput = -mechController.getLeftY();
-      if (mechController.L3().getAsBoolean()) {
-        hoodSubsystem.hoodSpeed(0.05);
-      }else if(mechController.R3().getAsBoolean()){
-        hoodSubsystem.hoodSpeed(-0.05);
-      } else {
-        hoodSubsystem.hoodSpeed(0);
-      }
-    }, hoodSubsystem));
-
-    // Swerve-dependent drive controller commands
-    if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
-      // Cancel rotate command if driver touches any stick
-      BooleanSupplier driverInput = () ->
-          Math.abs(driveController.getForwardPower()) > 0 ||
-          Math.abs(driveController.getLeftPower()) > 0 ||
-          Math.abs(driveController.getRotatePower()) > 0;
-
-      // Triangle = rotate to 0°, Circle = rotate to 90°
-      driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
-      driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
-
-      // L1 = align to hub
-      new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
-
-      // D-pad steer speed limiting (scales MotionMagic cruise velocity)
-      // Up = 100%, Right = 75%, Down = 50%, Left = 25%
-      new Trigger(() -> driveController.getPOV() == 0)
-          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
-      new Trigger(() -> driveController.getPOV() == 90)
-          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
-      new Trigger(() -> driveController.getPOV() == 180)
-          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
-      new Trigger(() -> driveController.getPOV() == 270)
-          .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
-    }
     }
 
   }
-    
 
   /**
    * Constructs the drive controller based on the name of the controller at port
@@ -243,8 +246,6 @@ public class RobotContainer {
     driveController.setDeadZone(0.05);
     mechController = new CommandPS5Controller(1);
   }
-
-
 
   /**
    * Config the autonomous command chooser
@@ -261,4 +262,3 @@ public class RobotContainer {
   }
 
 }
- 
