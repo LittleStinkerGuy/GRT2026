@@ -2,7 +2,7 @@ package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Millimeters;
-
+import java.util.Optional;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
@@ -162,12 +162,28 @@ public class WinchSubsystem extends SubsystemBase {
     motor.setPosition(ClimbConstants.WINCH_HOME_POS);
   }
 
+  public Optional<Boolean> getForwardLimit() {
+    boolean forwardLimit = forwardLimitSignal.refresh().getValue();
+    if (!forwardLimitSignal.hasUpdated() || forwardLimitSignal.getStatus() != StatusCode.OK) {
+      return Optional.empty();
+    }
+    return Optional.of(forwardLimit);
+  }
+
+  public Optional<Boolean> getReverseLimit() {
+    boolean reverseLimit = reverseLimitSignal.refresh().getValue();
+    if (!reverseLimitSignal.hasUpdated() || reverseLimitSignal.getStatus() != StatusCode.OK) {
+      return Optional.empty();
+    }
+    return Optional.of(reverseLimit);
+  }
+
   public boolean isForwardLimitActive() {
-    return forwardLimitSignal.refresh().getValue();
+    return getForwardLimit().orElse(false);
   }
 
   public boolean isReverseLimitActive() {
-    return reverseLimitSignal.refresh().getValue();
+    return getReverseLimit().orElse(false);
   }
 
   public CLIMB_MECH_STATE getWinchState() {

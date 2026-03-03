@@ -164,20 +164,28 @@ public class StabilizingArmSubsystem extends SubsystemBase {
     return motor.getPosition().getValue();
   }
 
-  // returns false if can't refresh
   public Optional<Boolean> getForwardLimit() {
-    if (!forwardLimitSignal.refresh().getValue()) {
+    boolean forwardLimit = forwardLimitSignal.refresh().getValue();
+    if (!forwardLimitSignal.hasUpdated() || forwardLimitSignal.getStatus() != StatusCode.OK) {
       return Optional.empty();
     }
-    return Optional.of(forwardLimitSignal.getValue());
+    return Optional.of(forwardLimit);
   }
 
-  // returns false if can't refresh
   public Optional<Boolean> getReverseLimit() {
-    if (!reverseLimitSignal.refresh().getValue()) {
+    boolean reverseLimit = reverseLimitSignal.refresh().getValue();
+    if (!reverseLimitSignal.hasUpdated() || reverseLimitSignal.getStatus() != StatusCode.OK) {
       return Optional.empty();
     }
-    return Optional.of(reverseLimitSignal.getValue());
+    return Optional.of(reverseLimit);
+  }
+
+  public boolean isForwardLimitActive() {
+    return getForwardLimit().orElse(false);
+  }
+
+  public boolean isReverseLimitActive() {
+    return getReverseLimit().orElse(false);
   }
 
   public CLIMB_MECH_STATE getArmState() {
@@ -188,14 +196,6 @@ public class StabilizingArmSubsystem extends SubsystemBase {
     } else {
       return CLIMB_MECH_STATE.FLOATING;
     }
-  }
-
-  public boolean isForwardLimitActive() {
-    return getForwardLimit().orElse(false);
-  }
-
-  public boolean isReverseLimitActive() {
-    return getReverseLimit().orElse(false);
   }
 
   private void logToDashboard() {
