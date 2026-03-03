@@ -259,7 +259,7 @@ public final class Constants {
             "6",
             new Transform3d(
                 -0.1016, 0, 0.5842,
-                new Rotation3d(0, Math.toRadians(30), 0)),
+                new Rotation3d(0, -Math.toRadians(30), 0)),
             PoseStrategy.LOWEST_AMBIGUITY)
     };
 
