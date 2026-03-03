@@ -16,9 +16,7 @@ public class RunHopperUntilNoBallCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-    hopper.runForward();
-  }
+  public void initialize() {}
 
   @Override
   public void execute() {

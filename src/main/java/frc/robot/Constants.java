@@ -256,7 +256,7 @@ public final class Constants {
 
     public static final CameraConfig[] cameraConfigs = new CameraConfig[] { // back top
         new CameraConfig(
-            "7",
+            "6",
             new Transform3d(
                 0.28, 0, 0,
                 new Rotation3d(0, -Math.toRadians(5), 0)),
