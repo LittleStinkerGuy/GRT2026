@@ -258,12 +258,14 @@ public final class Constants {
         new CameraConfig(
             "6",
             new Transform3d(
-                0.28, 0, 0,
-                new Rotation3d(0, -Math.toRadians(5), 0)),
+                -0.1016, 0, 0.5842,
+                new Rotation3d(0, Math.toRadians(30), 0)),
             PoseStrategy.LOWEST_AMBIGUITY)
     };
+
     public static final Distance FUEL_TARGET_HEIGHT = Inches.of(3);
     public static final int FUEL_PIPELINE_INDEX = 0;
+
     public static final FuelDetectionConfig fuelDetectionConfig =
         new FuelDetectionSubsystem.FuelDetectionConfig(
             cameraConfigs[0].getCameraName(),
@@ -271,6 +273,7 @@ public final class Constants {
             FUEL_TARGET_HEIGHT,
             Radians.of(cameraConfigs[0].getCameraPose().getRotation().getY()),
             FUEL_PIPELINE_INDEX);
+
     public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
         VisionConstants.STD_DEV_DIST, VisionConstants.X_STD_DEV, 2);
     public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
