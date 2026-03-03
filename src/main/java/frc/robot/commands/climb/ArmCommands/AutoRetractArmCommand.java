@@ -18,6 +18,11 @@ public class AutoRetractArmCommand extends Command {
   }
 
   @Override
+  public void end(boolean interrupted) {
+    climbSubsystem.stopArm();
+  }
+
+  @Override
   public boolean isFinished() {
     return climbSubsystem.isArmAtSetPosition();
   }

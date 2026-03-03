@@ -52,9 +52,6 @@ public class WinchSubsystem extends SubsystemBase {
     reverseLimitSignal = motor.getFault_ReverseSoftLimit();
     BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
 
-    // When CANrange leaves home distance, the winch actually started moving —
-    // set the rotor position to the known home position so soft limits stay
-    // calibrated
     homeTrigger = new Trigger(() -> isAtDistance(ClimbConstants.WINCH_HOME_DISTANCE));
     homeTrigger.onTrue(this.runOnce(this::homeEncoder).ignoringDisable(true));
 
