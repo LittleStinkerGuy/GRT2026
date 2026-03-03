@@ -16,7 +16,7 @@ public class ManualDeployArmCommand extends Command {
   }
 
   @Override
-  public void initialize() {
+  public void execute() {
     m_climbSubsystem.setArmDutyCycle(-1);
   }
 
