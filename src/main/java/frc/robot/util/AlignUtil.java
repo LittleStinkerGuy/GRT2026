@@ -3,8 +3,6 @@ package frc.robot.util;
 
 import java.util.List;
 
-import javax.print.attribute.standard.PresentationDirection;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
@@ -58,7 +56,7 @@ public class AlignUtil {
 
     if (Math.abs(currentTrans.getDistance(pathStartTrans)) <= AlignConstants.distanceTolerance) {
       int index = AlignConstants.reefPathList.indexOf(pathName) / 2;
-      ChassisSpeeds drivePower = AlignConstants.reefdirectionList.get(index);
+      ChassisSpeeds drivePower = AlignConstants.reefDirectionList.get(index);
 
       PathPlannerPath path = getAlignPath(pathName);
       if (path == null) {
@@ -141,6 +139,4 @@ public class AlignUtil {
     return getAlignPath;
   }
 
-
 }
-
