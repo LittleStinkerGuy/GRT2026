@@ -1,32 +1,29 @@
 package frc.robot.commands.climb.WinchCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
-public class AutoPullUpClawCommand extends SequentialCommandGroup {
-    private Command setWinchPositionSetpoint;
-    private Command waitForHardstop;
-    private Command runIntoHardstop;
+public class AutoPullUpClawCommand extends Command {
+  private final ClimbSubsystem climbSubsystem;
 
-    public AutoPullUpClawCommand(ClimbSubsystem climbSubsystem) {
-        setWinchPositionSetpoint = Commands.runOnce(
-                () -> climbSubsystem.setWinchPositionSetpoint(
-                        ClimbConstants.WINCH_HOME_POS),
-                climbSubsystem);
-        waitForHardstop = Commands.waitUntil(climbSubsystem::isWinchHardstopPressed)
-                .withTimeout(ClimbConstants.WINCH_POS_TIMEOUT);
-        runIntoHardstop = new RunClawIntoLimitCommand(climbSubsystem,
-                -ClimbConstants.WINCH_MAX_SAFETY_DUTY_CYCLE);
+  public AutoPullUpClawCommand(ClimbSubsystem climbSubsystem) {
+    this.climbSubsystem = climbSubsystem;
+    addRequirements(climbSubsystem);
+  }
 
-        addCommands(
-                setWinchPositionSetpoint,
-                waitForHardstop,
-                Commands.either(
-                        Commands.none(),
-                        runIntoHardstop,
-                        climbSubsystem::isWinchHardstopPressed));
-    }
+  @Override
+  public void initialize() {
+    climbSubsystem.setWinchTorqueCurrent(-ClimbConstants.WINCH_TORQUE_CURRENT);
+  }
+
+  @Override
+  public boolean isFinished() {
+    return climbSubsystem.isWinchAtDistance(ClimbConstants.WINCH_HOME_DISTANCE);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    climbSubsystem.stopWinch();
+  }
 }
