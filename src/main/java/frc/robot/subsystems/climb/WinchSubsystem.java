@@ -56,7 +56,7 @@ public class WinchSubsystem extends SubsystemBase {
     // set the rotor position to the known home position so soft limits stay
     // calibrated
     homeTrigger = new Trigger(() -> isAtDistance(ClimbConstants.WINCH_HOME_DISTANCE));
-    homeTrigger.onFalse(this.runOnce(this::homeEncoder).ignoringDisable(true));
+    homeTrigger.onTrue(this.runOnce(this::homeEncoder).ignoringDisable(true));
 
     homeEncoder();
   }
