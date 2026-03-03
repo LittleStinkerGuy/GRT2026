@@ -19,9 +19,11 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 // import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
+import frc.robot.commands.RunHopperUntilNoBallCommand;
 import frc.robot.commands.intake.ManualIntakePivotCommand;
 
 import com.ctre.phoenix6.CANBus;
@@ -70,6 +72,8 @@ public class RobotContainer {
   private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
   private final FlywheelSubsystem flywheelSubsystem = new FlywheelSubsystem(mechCAN);
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
+  private final FuelDetectionSubsystem fuelDetectionSubsystem =
+      new FuelDetectionSubsystem(Constants.VisionConstants.fuelDetectionConfig);
 
   // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
   // VisionConstants.cameraConfigs[0]
@@ -188,6 +192,8 @@ public class RobotContainer {
       // ==================== HOPPER ====================
       // L1 = hopper in
       mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
+      // Cross = run hopper until no ball detected
+      mechController.cross().onTrue(new RunHopperUntilNoBallCommand(fuelDetectionSubsystem, HopperSubsystem));
       HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
 
       // ==================== SHOOTER ====================
