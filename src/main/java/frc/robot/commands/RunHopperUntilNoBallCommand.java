@@ -8,6 +8,8 @@ public class RunHopperUntilNoBallCommand extends Command {
   private final FuelDetectionSubsystem fuelDetection;
   private final HopperSubsystem hopper;
 
+  private boolean finished = false;
+
   public RunHopperUntilNoBallCommand(FuelDetectionSubsystem fuelDetection, HopperSubsystem hopper) {
     this.fuelDetection = fuelDetection;
     this.hopper = hopper;
@@ -16,7 +18,12 @@ public class RunHopperUntilNoBallCommand extends Command {
   }
 
   @Override
-  public void initialize() {}
+  public void initialize() {
+    finished = false;
+    if (!fuelDetection.isBallDetected()) {
+      finished = true;
+    }
+  }
 
   @Override
   public void execute() {
@@ -30,6 +37,6 @@ public class RunHopperUntilNoBallCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return !fuelDetection.isBallDetected();
+    return finished || !fuelDetection.isBallDetected();
   }
 }

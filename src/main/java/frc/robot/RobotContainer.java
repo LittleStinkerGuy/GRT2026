@@ -193,7 +193,7 @@ public class RobotContainer {
       // L1 = hopper in
       mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
       // Cross = run hopper until no ball detected
-      mechController.cross().onTrue(new RunHopperUntilNoBallCommand(fuelDetectionSubsystem, HopperSubsystem));
+      mechController.cross().toggleOnTrue(new RunHopperUntilNoBallCommand(fuelDetectionSubsystem, HopperSubsystem));
       HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
 
       // ==================== SHOOTER ====================
