@@ -39,7 +39,7 @@ public class RunIntakeWithVisionCommand extends Command {
       closestDistance = distance;
     });
 
-    if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Feet.of(.5))) {
+    if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Meters.of(.5))) {
       intake.runForward(); // TODO: SWITCH TO intake.runIn() WHEN USING ACTUAL INTAKE SUBSYSTEM
     } else {
       intake.stop();
