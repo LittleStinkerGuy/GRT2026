@@ -162,23 +162,23 @@ public class RobotContainer {
 
     // --- Intake pivot set-position controls (commented out for now) ---
     // mechController.square().onTrue(
-    //     new SetIntakePivotCommand(pivotIntake, IntakeConstants .STOWED_POS));
+    // new SetIntakePivotCommand(pivotIntake, IntakeConstants .STOWED_POS));
     // mechController.cross().onTrue(
-    //     new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS));
+    // new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS));
 
     // // circle for the manual hopper
     // mechController.circle().whileTrue(
-    //     new RunCommand(
-    //         () -> HopperSubsystem.setManualControl(1.0),
-    //         HopperSubsystem))
-    //     .onFalse(
-    //         new InstantCommand(
-    //             () -> HopperSubsystem.stop(),
-    //             HopperSubsystem));
+    // new RunCommand(
+    // () -> HopperSubsystem.setManualControl(1.0),
+    // HopperSubsystem))
+    // .onFalse(
+    // new InstantCommand(
+    // () -> HopperSubsystem.stop(),
+    // HopperSubsystem));
 
     // --- Hopper RPM control (commented out for now) ---
     // mechController.triangle().onTrue(
-    //     new HopperSetRPMCommand(HopperSubsystem));
+    // new HopperSetRPMCommand(HopperSubsystem));
 
     /* Intake Controls - Hold button to run rollers */
     // R1 - intake in

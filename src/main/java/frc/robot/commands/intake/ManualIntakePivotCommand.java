@@ -13,7 +13,7 @@ public class ManualIntakePivotCommand extends Command {
   private final PivotIntakeSubsystem pivotIntake;
   private final DoubleSupplier speedSupplier;
 
-   /**
+  /**
    * Creates a new ManualPivot command
    *
    * @param pivotIntake Pivot subsystem
@@ -27,8 +27,7 @@ public class ManualIntakePivotCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   @Override
   public void execute() {
