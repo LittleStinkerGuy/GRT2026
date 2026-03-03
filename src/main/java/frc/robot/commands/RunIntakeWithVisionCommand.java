@@ -12,13 +12,13 @@ import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 
-public class RunIntakeWithVisionCommand extends Command{
-    private FuelDetectionSubsystem fuelDetection;
-    private RollerIntakeSubsystem intake;
+public class RunIntakeWithVisionCommand extends Command {
+  private FuelDetectionSubsystem fuelDetection;
+  private RollerIntakeSubsystem intake;
 
-    private Distance closestDistance = Meters.of(-1);
+  private Distance closestDistance = Meters.of(-1);
 
-    public RunIntakeWithVisionCommand(FuelDetectionSubsystem fuelDetectionSubsystem, RollerIntakeSubsystem rollerSubsystem) {
+  public RunIntakeWithVisionCommand(FuelDetectionSubsystem fuelDetectionSubsystem, RollerIntakeSubsystem rollerSubsystem) {
     this.fuelDetection = fuelDetectionSubsystem;
     this.intake = rollerSubsystem;
 
@@ -27,17 +27,17 @@ public class RunIntakeWithVisionCommand extends Command{
 
   @Override
   public void initialize() {
-    intake.stop();        
+    intake.stop();
   }
 
   @Override
   public void execute() {
-    fuelDetection.getClosestDistance().ifPresent((distance)->{
-        closestDistance = distance;
+    fuelDetection.getClosestDistance().ifPresent((distance) -> {
+      closestDistance = distance;
     });
 
-    if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Feet.of(.5))){
-        intake. .runIn();
+    if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Feet.of(.5))) {
+      intake.runIn();
     }
   }
 
