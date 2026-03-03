@@ -159,6 +159,10 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     return bestDetection;
   }
 
+  public boolean isBallDetected() {
+    return getClosestDistance().isPresent();
+  }
+
   private void handleResult(PhotonPipelineResult result, Time robotTimestamp) {
     List<Detection> processed = new ArrayList<>();
 
