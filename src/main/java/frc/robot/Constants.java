@@ -23,7 +23,6 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.util.PolynomialRegression;
 
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -45,6 +44,7 @@ public final class Constants {
   // Subsystem Enable/Disable
   public static final boolean SWERVE_ENABLED = true;
   public static final boolean MECH_ENABLED = true;
+
   // ==================== SHOOTER ====================
   public static class ShooterConstants {
     // CAN IDs (: Hood=16, Flywheel=17, Flywheel Encoder=18)
@@ -86,8 +86,8 @@ public final class Constants {
     public static final double DRIVE_RAMP_RATE = 0;
 
     // Current Limits (optimized for Kraken motors)
-    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 50;     // Prevents brownouts
-    public static final double DRIVE_STATOR_CURRENT_LIMIT = 100;    // Allows burst torque for acceleration
+    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 50; // Prevents brownouts
+    public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
     public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
     // Physical Measurements
@@ -102,8 +102,8 @@ public final class Constants {
     public static final double STEER_RAMP_RATE = 0;
 
     // Current Limits (optimized for Kraken motors - steer needs less current)
-    public static final double STEER_SUPPLY_CURRENT_LIMIT = 25;     // Prevents brownouts
-    public static final double STEER_STATOR_CURRENT_LIMIT = 50;     // Sufficient for steering
+    public static final double STEER_SUPPLY_CURRENT_LIMIT = 25; // Prevents brownouts
+    public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
     public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
 
     // Physical Measurements
@@ -159,13 +159,18 @@ public final class Constants {
     public static final double MODULE_LEFTRIGHT_SPACING = 25.45;
 
     // Module Positions (relative to robot center)
-    public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0, MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0, -MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0, MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0, -MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
+        MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
+        -MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
+        MODULE_LEFTRIGHT_SPACING / 2.0);
+    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
+        -MODULE_LEFTRIGHT_SPACING / 2.0);
 
     // Kinematic Limits
-    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0 * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
+        * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
     public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
   }
 
@@ -231,34 +236,32 @@ public final class Constants {
     public static final double FIELD_Y = 8.07;
     public static final double ROBOT_RADIUS = 0.762;
     public static final double[] STD_DEV_DIST = new double[] {
-      0.75, 1.00, 1.3, 1.69, 2., 2.51, 2.78, 3.07, 3.54, 4.1, 4.52
+        0.75, 1.00, 1.3, 1.69, 2., 2.51, 2.78, 3.07, 3.54, 4.1, 4.52
     };
     public static final double[] X_STD_DEV = new double[] {
-      0.002, 0.005, 0.007, 0.014, 0.029, 0.074, 0.101, 0.12, 0.151, 0.204, 0.287
+        0.002, 0.005, 0.007, 0.014, 0.029, 0.074, 0.101, 0.12, 0.151, 0.204, 0.287
     };
     public static final double[] Y_STD_DEV = new double[] {
-      0.002, 0.005, 0.013, 0.020, 0.067, 0.080, 0.095, 0.160, 0.206, 0.259, 0.288
+        0.002, 0.005, 0.013, 0.020, 0.067, 0.080, 0.095, 0.160, 0.206, 0.259, 0.288
     };
     public static final double[] O_STD_DEV = new double[] {
-      0.002, 0.004, 0.005, 0.011, 0.031, 0.4, 1.72, 1.89, 2.05, 2.443, 2.804
+        0.002, 0.004, 0.005, 0.011, 0.031, 0.4, 1.72, 1.89, 2.05, 2.443, 2.804
     };
 
-    public static final CameraConfig[] cameraConfigs = new CameraConfig[]{//back top
-      new CameraConfig(
-        "7",
-        new Transform3d(
-          0.28, 0, 0,
-          new Rotation3d(0, -Math.toRadians(5), 0)
-        ),
-        PoseStrategy.LOWEST_AMBIGUITY
-      )
+    public static final CameraConfig[] cameraConfigs = new CameraConfig[] { // back top
+        new CameraConfig(
+            "7",
+            new Transform3d(
+                0.28, 0, 0,
+                new Rotation3d(0, -Math.toRadians(5), 0)),
+            PoseStrategy.LOWEST_AMBIGUITY)
     };
     public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
-      VisionConstants.STD_DEV_DIST,VisionConstants.X_STD_DEV,2);
+        VisionConstants.STD_DEV_DIST, VisionConstants.X_STD_DEV, 2);
     public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
-      VisionConstants.STD_DEV_DIST,VisionConstants.Y_STD_DEV,2);
+        VisionConstants.STD_DEV_DIST, VisionConstants.Y_STD_DEV, 2);
     public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
-      VisionConstants.STD_DEV_DIST,VisionConstants.O_STD_DEV,1);
+        VisionConstants.STD_DEV_DIST, VisionConstants.O_STD_DEV, 1);
 
   }
 
@@ -271,9 +274,8 @@ public final class Constants {
   public static class AlignConstants {
     public static final double distanceTolerance = 0.5; // meters
     public static final List<String> reefPathList = List.of();
-    public static final List<ChassisSpeeds> reefdirectionList = List.of();
+    public static final List<ChassisSpeeds> reefDirectionList = List.of();
   }
-
 
   // ==================== LOGGING & DEBUG ====================
 
@@ -292,7 +294,7 @@ public final class Constants {
   public static final class ClimbConstants {
     // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
     public static final int WINCH_MOTOR_CAN_ID = 21;
-    public static final int ARM_MOTOR_CAN_ID = 19;  // Doornob
+    public static final int ARM_MOTOR_CAN_ID = 19; // Doornob
     public static final int CANDI_CAN_ID = 22;
 
     public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;

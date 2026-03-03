@@ -8,7 +8,6 @@ import edu.wpi.first.math.numbers.N3;
 public record TimestampedVisionUpdate(
     double timestamp,
     Pose2d pose,
-    Matrix<N3, N1> stdDevs
-){
+    Matrix<N3, N1> stdDevs) {
 
 }
