@@ -51,6 +51,8 @@ public class StabilizingArmSubsystem extends SubsystemBase {
     // Change soft limit signal update frequency
     // idk why this is necessary but it makes code work
     BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
+
+    homeEncoder();
   }
 
   private void configureMotor() {
@@ -114,7 +116,6 @@ public class StabilizingArmSubsystem extends SubsystemBase {
       setpoint = ClimbConstants.ARM_REVERSE_LIMIT;
     }
 
-    System.out.println(setpoint);
     posControl.withPosition(setpoint);
     motor.setControl(posControl);
   }
