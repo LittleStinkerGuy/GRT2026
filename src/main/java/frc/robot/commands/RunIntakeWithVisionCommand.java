@@ -10,15 +10,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 
+// WARNING: THIS COMMAND CURRENTLY USES THE HOPPER INSTEAD OF THE INTAKE
+// THIS IS A TEMPORARY WORKAROUND WHILE THE ACTUAL INTAKE IS NOT WORKING
 public class RunIntakeWithVisionCommand extends Command {
   private FuelDetectionSubsystem fuelDetection;
-  private RollerIntakeSubsystem intake;
+  private HopperSubsystem intake;
 
   private Distance closestDistance = Meters.of(-1);
 
-  public RunIntakeWithVisionCommand(FuelDetectionSubsystem fuelDetectionSubsystem, RollerIntakeSubsystem rollerSubsystem) {
+  public RunIntakeWithVisionCommand(FuelDetectionSubsystem fuelDetectionSubsystem, HopperSubsystem rollerSubsystem) {
     this.fuelDetection = fuelDetectionSubsystem;
     this.intake = rollerSubsystem;
 
@@ -37,7 +40,9 @@ public class RunIntakeWithVisionCommand extends Command {
     });
 
     if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Feet.of(.5))) {
-      intake.runIn();
+      intake.runForward(); // TODO: SWITCH TO intake.runIn() WHEN USING ACTUAL INTAKE SUBSYSTEM
+    } else {
+      intake.stop();
     }
   }
 

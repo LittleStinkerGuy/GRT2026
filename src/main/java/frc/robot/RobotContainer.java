@@ -24,6 +24,7 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 
 // Commands
 import frc.robot.commands.RunHopperUntilNoBallCommand;
+import frc.robot.commands.RunIntakeWithVisionCommand;
 import frc.robot.commands.intake.ManualIntakePivotCommand;
 
 import com.ctre.phoenix6.CANBus;
@@ -194,7 +195,7 @@ public class RobotContainer {
       mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
       // Cross = run hopper until no ball detected
       mechController.cross().toggleOnTrue(new RunHopperUntilNoBallCommand(fuelDetectionSubsystem, HopperSubsystem));
-      HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.stop(), HopperSubsystem));
+      HopperSubsystem.setDefaultCommand(new RunIntakeWithVisionCommand(fuelDetectionSubsystem, HopperSubsystem));
 
       // ==================== SHOOTER ====================
       // R2 = flywheel (analog speed control)
