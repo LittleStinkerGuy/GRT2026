@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -14,6 +15,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 // Units library:
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -116,18 +118,18 @@ public final class Constants {
     public static class SwerveConstants {
 
         // Swerve Drive PID values (Velocity Control)
-        public static final double[] DRIVE_P = new double[] { 9.5, 9.5, 9.5, 9.5 };
-        public static final double[] DRIVE_I = new double[] { 0, 0, 0, 0 };
-        public static final double[] DRIVE_D = new double[] { 0.1, 0.1, 0.1, 0.1 };
-        public static final double[] DRIVE_S = new double[] { 0.5, 0.5, 0.5, 0.5 }; // Static friction
-                                                                                    // compensation
-        public static final double[] DRIVE_V = new double[] { 0.12, 0.12, 0.12, 0.12 }; // Velocity feedforward
+        public static final double[] DRIVE_P = new double[] {9.5, 9.5, 9.5, 9.5};
+        public static final double[] DRIVE_I = new double[] {0, 0, 0, 0};
+        public static final double[] DRIVE_D = new double[] {0.1, 0.1, 0.1, 0.1};
+        public static final double[] DRIVE_S = new double[] {0.5, 0.5, 0.5, 0.5}; // Static friction
+                                                                                  // compensation
+        public static final double[] DRIVE_V = new double[] {0.12, 0.12, 0.12, 0.12}; // Velocity feedforward
 
         // Swerve Steer PID values (Position Control)
-        public static final double[] STEER_P = new double[] { 35, 35, 35, 35 };
-        public static final double[] STEER_I = new double[] { 0, 0, 0, 0 };
-        public static final double[] STEER_D = new double[] { 0.1, 0.1, 0.1, 0.1 };
-        public static final double[] STEER_S = new double[] { 0.25, 0.25, 0.25, 0.25 };
+        public static final double[] STEER_P = new double[] {35, 35, 35, 35};
+        public static final double[] STEER_I = new double[] {0, 0, 0, 0};
+        public static final double[] STEER_D = new double[] {0.1, 0.1, 0.1, 0.1};
+        public static final double[] STEER_S = new double[] {0.25, 0.25, 0.25, 0.25};
 
         // Front Left Module
         public static final int FL_DRIVE = 0;
@@ -409,7 +411,7 @@ public final class Constants {
     public static final class ClimbConstants {
         public static final int WINCH_MOTOR_CAN_ID = 20;
         public static final int ARM_MOTOR_CAN_ID = 19;
-        public static final int CANDI_CAN_ID = 22; // might be 23
+        public static final int CANRANGE_CAN_ID = 24; // TODO: REPLACE WITH REAL VALUE WHEN ASSIGNED
         public static final int ARM_ENCODER_CAN_ID = 20;
 
         public static enum CLIMB_MECH_STATE {
@@ -428,7 +430,6 @@ public final class Constants {
         public static final double WINCH_MAX_OUTPUT = 0.1;
 
         public static final Angle ARM_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
-        public static final Angle WINCH_ACCEPTABLE_POSITION_ERROR = Degrees.of(10);
 
         public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.05);
         public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.25);
@@ -437,24 +438,21 @@ public final class Constants {
 
         public static final Angle ARM_HOME_POS = Rotations.of(0.25);
         public static final Angle WINCH_HOME_POS = Rotations.of(-0.25);
-
-        public static final Angle WINCH_DEPLOYED_POS = Rotations.of(0.25);
         public static final Angle ARM_DEPLOYED_POS = Rotations.of(0);
 
         public static final Time ARM_POS_TIMEOUT = Seconds.of(5);
         public static final Time WINCH_POS_TIMEOUT = Seconds.of(5);
 
         public static final Angle ENCODER_OFFSET = Rotations.of(0);
-        public static final Angle ENCODER_DISCONTINUITY_POINT = ((ARM_HOME_POS.plus(ARM_DEPLOYED_POS)).div(2)).plus(Rotations.of(0.5)); // docs for less than one rotation of travel: mean(lowerLimit, upperLimit) + 0.5
+        public static final Angle ENCODER_DISCONTINUITY_POINT = ((ARM_HOME_POS.plus(ARM_DEPLOYED_POS)).div(2))
+                .plus(Rotations.of(0.5)); // docs for less than one rotation of travel:
+                                          // mean(lowerLimit,upperLimit) + 0.5
 
-
-        public static final double WINCH_MAX_SAFETY_DUTY_CYCLE = 0.01;
-
-        public static final double WINCH_kP = 25;
-        public static final double WINCH_kI = 0.0;
-        public static final double WINCH_kD = 1;
-        public static final double WINCH_kG = 0.0;
-        public static final double WINCH_kS = 0.5;
+        // Winch CANrange + torque current control
+        public static final double WINCH_TORQUE_CURRENT = 10.0; // amps, placeholder to tune
+        public static final Distance WINCH_HOME_DISTANCE = Millimeters.of(50); // placeholder to tune
+        public static final Distance WINCH_DEPLOYED_DISTANCE = Millimeters.of(300); // placeholder to tune
+        public static final Distance WINCH_DISTANCE_TOLERANCE = Millimeters.of(15); // placeholder to tune
 
         public static final double ARM_kP = 15;
         public static final double ARM_kI = 0.0;
