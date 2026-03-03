@@ -444,9 +444,7 @@ public final class Constants {
         public static final Time WINCH_POS_TIMEOUT = Seconds.of(5);
 
         public static final Angle ENCODER_OFFSET = Rotations.of(0);
-        public static final Angle ENCODER_DISCONTINUITY_POINT = ((ARM_HOME_POS.plus(ARM_DEPLOYED_POS)).div(2))
-                .plus(Rotations.of(0.5)); // docs for less than one rotation of travel:
-                                          // mean(lowerLimit,upperLimit) + 0.5
+        public static final Angle ENCODER_DISCONTINUITY_POINT = ((ARM_HOME_POS.plus(ARM_DEPLOYED_POS)).div(2)).plus(Rotations.of(0.5)); // docs for less than one rotation of travel: mean(lowerLimit,upperLimit) + 0.5
 
         // Winch CANrange + torque current control
         public static final double WINCH_TORQUE_CURRENT = 10.0; // amps, placeholder to tune
