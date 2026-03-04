@@ -28,16 +28,14 @@ public class ShooterSequence extends SequentialCommandGroup {
 
     public ShooterSequence(SwerveSubsystem swerve, flywheel fly, hood hood, HopperSubsystem hopper, FieldManagementSubsystem fms) {
 
-        double dist = swerve.getRobotPosition().getTranslation().getDistance(AlignToHubConstants.HUB_POSITION);
         AimToHubCommand aimToHubCommand = new AimToHubCommand(swerve, fms);
         Timer timer = new Timer();
         timer.start();
-        System.out.println("Dist " + dist);
         
         addCommands(
             // Aim first
-            new rampFlywheel(fly, dist),
-            new hoodCommand(hood, dist),
+            new rampFlywheel(fly),
+            new hoodCommand(hood),
 
             Commands.defer(() -> aimToHubCommand.createAimCommand(() -> timer.hasElapsed(2.0)), java.util.Set.of(swerve)),
             // Then shoot
