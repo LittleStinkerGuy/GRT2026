@@ -1,6 +1,7 @@
 package frc.robot.commands.hopper;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import java.util.function.DoubleSupplier;
 
@@ -31,7 +32,7 @@ public class HopperManualCommand extends Command {
     
     @Override
     public void end(boolean interrupted) {
-        HopperSubsystem.stop();
+        HopperSubsystem.setHopper(HOPPER_INTAKE.STOP);
     }
     
     @Override

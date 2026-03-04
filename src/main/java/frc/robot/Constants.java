@@ -45,6 +45,45 @@ public final class Constants {
   public static final boolean SWERVE_ENABLED = true;
   public static final boolean MECH_ENABLED = true;
 
+  public static class TowerConstants {
+    public static final int KRAKEN_CAN_ID = 15;
+
+    public enum TOWER_INTAKE {
+      BALLUP,
+      BALLDOWN,
+      STOP
+    }
+
+    // maths
+    public static final double GEAR_REDUCTION = 4.0;
+
+    public static final double TARGET_BPS = 4.0;// frequency
+    public static final double WHEEL_RADIUS = 1.0;// distance
+    public static final double BALL_DIAMETER = 6.0;// distance
+    public static final double TARGET_RPS = TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+
+    // Velocity control PID
+    public static final double KP = 0.5;
+    public static final double KI = 0.0;
+    public static final double KD = 0.0;
+    public static final double KS = 0.0;
+    public static final double KV = 0.12;
+
+    // Current limits
+    public static final int SUPPLY_CURRENT_LIMIT = 80;
+    public static final int STATOR_CURRENT_LIMIT = 60;
+    public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
+    public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+
+    // // Voltage and ramping
+    // public static final int VOLTAGE_COMPENSATION = 12;
+    // public static final double OPEN_LOOP_RAMP = 0.5;
+    // public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+
+    // Motor config
+    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+  }
+
   // ==================== SHOOTER ====================
   public static class railgunConstants {
 
@@ -214,13 +253,23 @@ public final class Constants {
   public static class HopperConstants {
     public static final int KRAKEN_CAN_ID = 15;
 
+    public enum HOPPER_INTAKE {
+      BALLIN,
+      BALLOUT,
+      STOP
+    }
+
     // Velocity control PID
-    public static final double TARGET_RPM = 12;
-    public static final double HOPPER_KP = 0.5;
-    public static final double HOPPER_KI = 0.0;
-    public static final double HOPPER_KD = 0.0;
-    public static final double HOPPER_KS = 0.0;
-    public static final double HOPPER_KV = 0.12;
+    public static final double KP = 0.5;
+    public static final double KI = 0.0;
+    public static final double KD = 0.0;
+    public static final double KS = 0.0;
+    public static final double KV = 0.12;
+
+    // balls stuff
+    public static final double TARGET_BPS = 4.0;// frequency
+    public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
+    public static final double TARGET_RPS = TARGET_BPS / 4;// divided by 4 cuz 4 vains on spinner
 
     // Current limits
     public static final int SUPPLY_CURRENT_LIMIT = 80;

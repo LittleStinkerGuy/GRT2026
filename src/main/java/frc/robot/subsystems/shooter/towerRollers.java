@@ -1,4 +1,4 @@
-package frc.robot.subsystems.hopper;
+package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 
@@ -23,11 +23,11 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.HopperConstants;
-import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
+import frc.robot.Constants.TowerConstants;
+import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.util.LoggedTalon;
 
-public class HopperSubsystem extends SubsystemBase {
+public class towerRollers extends SubsystemBase {
 
     private final LoggedTalon krakenMotor;
     private final MotionMagicVelocityTorqueCurrentFOC velocityControl;
@@ -38,8 +38,8 @@ public class HopperSubsystem extends SubsystemBase {
     private TalonFXConfiguration config = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
-    public HopperSubsystem(CANBus canBus) {
-        krakenMotor = new LoggedTalon(HopperConstants.KRAKEN_CAN_ID, canBus);
+    public towerRollers(CANBus canBus) {
+        krakenMotor = new LoggedTalon(TowerConstants.KRAKEN_CAN_ID, canBus);
         velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0);
         dutyCycleControl = new DutyCycleOut(0);
         configureMotor();
@@ -76,11 +76,11 @@ public class HopperSubsystem extends SubsystemBase {
     private void configThruNT() {
         NTinst = NetworkTableInstance.getDefault();
         NTtable = NTinst.getTable("tower");
-        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), HopperConstants.KP);
-        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), HopperConstants.KI);
-        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), HopperConstants.KD);
-        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), HopperConstants.KS);
-        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), HopperConstants.KV);
+        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), TowerConstants.KP);
+        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), TowerConstants.KI);
+        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), TowerConstants.KD);
+        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), TowerConstants.KS);
+        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), TowerConstants.KV);
         // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
         // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
         yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(dutyCycleControl.withOutput(val)), 0);
@@ -90,8 +90,7 @@ public class HopperSubsystem extends SubsystemBase {
         yoTuneThis("MMJerk", val -> config.MotionMagic.MotionMagicJerk = val, 1000);
         yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, 100);
 
-        yoTuneThis("GearReduction", val -> config.Feedback.SensorToMechanismRatio = val,
-                HopperConstants.GEAR_REDUCTION);
+        yoTuneThis("GearReduction", val -> config.Feedback.SensorToMechanismRatio = val, TowerConstants.GEAR_REDUCTION);
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
     }
 
@@ -99,35 +98,35 @@ public class HopperSubsystem extends SubsystemBase {
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Coast)
-                .withInverted(HopperConstants.HOPPERINVERTED));
+                .withInverted(TowerConstants.HOPPERINVERTED));
 
         // Current limits
         config.withCurrentLimits(
                 new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                        .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
+                        .withStatorCurrentLimitEnable(TowerConstants.STATOR_CURRENT_LIMIT_ENABLE)
+                        .withStatorCurrentLimit(Amps.of(TowerConstants.STATOR_CURRENT_LIMIT_AMPS)));
         config.MotionMagic.MotionMagicCruiseVelocity = 300; // rotations/sec^2
         config.MotionMagic.MotionMagicAcceleration = 100; // rotations/sec^2
         config.MotionMagic.MotionMagicJerk = 1000; // optional
-        config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
+        config.Feedback.SensorToMechanismRatio = TowerConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
         config.withSlot0(new Slot0Configs()
-                .withKP(HopperConstants.KP)
-                .withKI(HopperConstants.KI)
-                .withKD(HopperConstants.KD)
-                .withKS(HopperConstants.KS)
-                .withKV(HopperConstants.KV));
+                .withKP(TowerConstants.KP)
+                .withKI(TowerConstants.KI)
+                .withKD(TowerConstants.KD)
+                .withKS(TowerConstants.KS)
+                .withKV(TowerConstants.KV));
 
         krakenMotor.getConfigurator().apply(config);
     }
 
-    public void setHopper(HOPPER_INTAKE state) {
+    public void setTower(TOWER_INTAKE state) {
         switch (state) {
-            case BALLIN:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(HopperConstants.TARGET_RPS));
+            case BALLUP:
+                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(TowerConstants.TARGET_RPS));
                 break;
-            case BALLOUT:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(-HopperConstants.TARGET_RPS));
+            case BALLDOWN:
+                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(-TowerConstants.TARGET_RPS));
                 break;
             case STOP:
                 krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(0.0));

@@ -18,6 +18,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.Vision.VisionSubsystem;
+import frc.robot.subsystems.shooter.towerRollers;
 
 //import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
@@ -74,6 +75,7 @@ public class RobotContainer {
 
   private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
   private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
+  private towerRollers tower = new towerRollers(mechCAN);
 
   private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
   //private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
@@ -201,8 +203,8 @@ public class RobotContainer {
     // ==================== HOPPER ====================
     // L1 = hopper in
 
-    driveController.square().toggleOnTrue(Commands.defer(()->new ShooterSequence(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem)
-    , java.util.Set.of(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem)));
+    driveController.square().toggleOnTrue(Commands.defer(()->new ShooterSequence(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem, tower)
+    , java.util.Set.of(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem, tower)));
 
     driveController.square().toggleOnFalse(new rampDownFlywheel(flywheelSubsystem));
     // ==================== SHOOTER ====================
