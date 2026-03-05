@@ -5,17 +5,16 @@
 package frc.robot.subsystems.Intake;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANdle;
-import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,134 +23,179 @@ import frc.robot.Constants.IntakeConstants;
 import com.ctre.phoenix6.CANBus;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
-  private final TalonFX pivotMotor;
-  private final CANcoder canCoder;
-  private final CANdle candle;
+    private final TalonFX pivotMotor;
+    private final CANcoder canCoder;
 
-  private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-// private final PositionVoltage positionControl = new PositionVoltage(0);
-  private final MotionMagicTorqueCurrentFOC motionMagicControl = new MotionMagicTorqueCurrentFOC(0);
+    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
 
-  public PivotIntakeSubsystem(CANBus canBus) {
-    pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
-    canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
-    candle = new CANdle(IntakeConstants.CANDLE_ID);
-    configEncoder();
-    configCANdle();
-    configMotors();
-  }
+    // Tunable PID values
+    private double kP = IntakeConstants.PIVOT_P;
+    private double kI = IntakeConstants.PIVOT_I;
+    private double kD = IntakeConstants.PIVOT_D;
+    private double kV = IntakeConstants.PIVOT_F;
+    private double cruiseVelocity = IntakeConstants.PIVOT_CRUISE_VELOCITY;
+    private double acceleration = IntakeConstants.PIVOT_ACCELERATION;
 
-  private void configMotors() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
+    public PivotIntakeSubsystem(CANBus canBus) {
+        pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
+        canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
+        configEncoder();
+        configMotors();
+        SmartDashboard.putNumber("Intake/Pivot/kP", kP);
+        SmartDashboard.putNumber("Intake/Pivot/kI", kI);
+        SmartDashboard.putNumber("Intake/Pivot/kD", kD);
+        SmartDashboard.putNumber("Intake/Pivot/kV", kV);
+        SmartDashboard.putNumber("Intake/Pivot/CruiseVelocity", cruiseVelocity);
+        SmartDashboard.putNumber("Intake/Pivot/Acceleration", acceleration);
+        SmartDashboard.putNumber("Intake/Pivot/TargetPosition", 0);
+        SmartDashboard.putNumber("Intake/Pivot/ManualSpeed", IntakeConstants.MANUAL_PIVOT_SPEED);
+    }
 
-    // PID Config
-    config.Slot0.kP = IntakeConstants.PIVOT_P;
-    config.Slot0.kI = IntakeConstants.PIVOT_I;
-    config.Slot0.kD = IntakeConstants.PIVOT_D;
-    config.Slot0.kV = IntakeConstants.PIVOT_F;
-    // Motor Output Config
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // FOCTorqueCurrent Limits
-    config.TorqueCurrent.PeakForwardTorqueCurrent = IntakeConstants.PIVOT_PEAK_TORQUE_CURRENT;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -IntakeConstants.PIVOT_PEAK_TORQUE_CURRENT;
-    // StatorCurrent Limits
-    config.withCurrentLimits(
-      new CurrentLimitsConfigs()
-          .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
-          .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE)
-    );
-    // Motion Magic Config
-    config.withMotionMagic(
-      new MotionMagicConfigs()
-          .withMotionMagicCruiseVelocity(IntakeConstants.PIVOT_CRUISE_VELOCITY)
-          .withMotionMagicAcceleration(IntakeConstants.PIVOT_ACCELERATION)
-    );
-    // Software Limits
-    config.withSoftwareLimitSwitch(
-      new SoftwareLimitSwitchConfigs()
-          .withForwardSoftLimitEnable(true)
-          .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
-          .withReverseSoftLimitEnable(true)
-          .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT)
-    );
+    private void configMotors() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
 
-    pivotMotor.getConfigurator().apply(config);
-  }
+        // PID Config
+        config.Slot0.kP = kP;
+        config.Slot0.kI = kI;
+        config.Slot0.kD = kD;
+        config.Slot0.kV = kV;
 
-  private void configEncoder() {
-    CANcoderConfiguration config = new CANcoderConfiguration();
-    canCoder.getConfigurator().apply(config);
-  }
+        // Motor Output Config
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-  private void configCANdle() {
-    CANdleConfiguration config = new CANdleConfiguration();
-    candle.getConfigurator().apply(config);
-  }
+        // Using FusedCANcoder! (basically combines combines the cancoder position abs w the internal encoder)
+                        new FeedbackConfigs()
+                                        .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+                                        .withFeedbackRemoteSensorID(IntakeConstants.PIVOT_CANCODER_ID)
+                                        .withSensorToMechanismRatio(1.0) // CANcoder is 1:1 with mechanism
+                                        .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO) // Motor to CANcoder ratio
+        );
 
-  public double getAngleDegrees() {
-    return canCoder.getPosition().getValueAsDouble() * 360.0;
-  }
+        // StatorCurrent Limits
+        config.withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                        .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+                                        .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
 
-  public double getAbsolutePosition() {
-    return canCoder.getAbsolutePosition().getValueAsDouble();
-  }
+        // Motion Magic Config
+        config.withMotionMagic(
+                        new MotionMagicConfigs()
+                                        .withMotionMagicCruiseVelocity(cruiseVelocity)
+                                        .withMotionMagicAcceleration(acceleration));
 
-  /**
-   * Set pivot angle using Motion Magic with FOC torque current control
-   * @param angleDegrees Target angle in degrees
-   */
-  public void setAngle(double angleDegrees) {
-    angleDegrees = Math.max(IntakeConstants.PIVOT_IN_POS,
-                           Math.min(IntakeConstants.PIVOT_OUT_POS, angleDegrees));
-    double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
-    pivotMotor.setControl(motionMagicControl.withPosition(motorRotations));
-  }
+        // Software Limits (disabled for tuning)
+        config.withSoftwareLimitSwitch(
+                        new SoftwareLimitSwitchConfigs()
+                                        .withForwardSoftLimitEnable(false)
+                                        .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+                                        .withReverseSoftLimitEnable(false)
+                                        .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
 
-  /**
-   * Set pivot position using Motion Magic with FOC torque current control
-   * @param rotations Target position in rotations
-   */
-  public void setPosition(double rotations) {
-    pivotMotor.setControl(motionMagicControl.withPosition(rotations));
-  }
+        pivotMotor.getConfigurator().apply(config);
+    }
 
-  public void zeroEncoder() {
-    canCoder.setPosition(0.0);
-  }
+    private void configEncoder() {
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        config.MagnetSensor.MagnetOffset = 0.0; 
+        canCoder.getConfigurator().apply(config);
+    }
 
-  public void setEncoderToMax() {
-    double maxRotations = IntakeConstants.PIVOT_OUT_POS / 360.0;
-    canCoder.setPosition(maxRotations);
-  }
+ 
+    public void updateTunableValues() {
+        double newP = SmartDashboard.getNumber("Intake/Pivot/kP", kP);
+        double newI = SmartDashboard.getNumber("Intake/Pivot/kI", kI);
+        double newD = SmartDashboard.getNumber("Intake/Pivot/kD", kD);
+        double newV = SmartDashboard.getNumber("Intake/Pivot/kV", kV);
+        double newCruise = SmartDashboard.getNumber("Intake/Pivot/CruiseVelocity", cruiseVelocity);
+        double newAccel = SmartDashboard.getNumber("Intake/Pivot/Acceleration", acceleration);
 
-  /**
-   * Manually controls the pivot at a specific speed
-   * Software limits will prevent movement past configured bounds
-   *
-   * @param speed Desired speed from -1.0 to 1.0
-   */
-  public void setManualSpeed(double speed) {
-    pivotMotor.setControl(dutyCycleControl.withOutput(speed));
-  }
+        // Only reconfig if values changed
+        if (newP != kP || newI != kI || newD != kD || newV != kV ||
+                        newCruise != cruiseVelocity || newAccel != acceleration) {
+            kP = newP;
+            kI = newI;
+            kD = newD;
+            kV = newV;
+            cruiseVelocity = newCruise;
+            acceleration = newAccel;
+            configMotors();
+        }
+    }
 
-  public void stop() {
-    pivotMotor.setControl(dutyCycleControl.withOutput(0));
-  }
+    public double getAngleDegrees() {
+        return canCoder.getPosition().getValueAsDouble() * 360.0;
+    }
 
-  @Override
-  public void periodic() {
-    // SmartDashboard
-    SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
-    SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
+    public double getAbsolutePosition() {
+        return canCoder.getAbsolutePosition().getValueAsDouble();
+    }
 
-    SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
-    SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/SupplyVoltage", pivotMotor.getSupplyVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putBoolean("Intake/Pivot/Connected", pivotMotor.isConnected());
-  }
+    /**
+     * Get motor position in rotations (fused with CANcoder)
+     */
+    public double getMotorPosition() {
+        return pivotMotor.getPosition().getValueAsDouble();
+    }
+
+    /**
+     * Set pivot position using Motion Magic
+     * 
+     * @param rotations Target position in mechanism rotations (as read by CANcoder)
+     */
+    public void setPosition(double rotations) {
+        pivotMotor.setControl(motionMagicControl.withPosition(rotations));
+    }
+
+    /**
+     * Go to target position from SmartDashboard
+     */
+    public void goToTunableTarget() {
+        double target = SmartDashboard.getNumber("Intake/Pivot/TargetPosition", 0);
+        setPosition(target);
+    }
+
+    public void zeroEncoder() {
+        canCoder.setPosition(0.0);
+        pivotMotor.setPosition(0.0);
+    }
+
+    public void setEncoderToMax() {
+        double maxRotations = IntakeConstants.PIVOT_OUT_POS;
+        canCoder.setPosition(maxRotations);
+        pivotMotor.setPosition(maxRotations);
+    }
+
+    /**
+     * Manually controls the pivot at a specific speed
+     * Software limits will prevent movement past configured bounds
+     *
+     * @param speed Desired speed from -1.0 to 1.0
+     */
+    public void setManualSpeed(double speed) {
+        pivotMotor.setControl(dutyCycleControl.withOutput(speed));
+    }
+
+    public void stop() {
+        pivotMotor.setControl(dutyCycleControl.withOutput(0));
+    }
+
+    @Override
+    public void periodic() {
+        // SmartDashboard!
+        SmartDashboard.putNumber("Intake/Pivot/CANcoder/AngleDegrees", getAngleDegrees());
+        SmartDashboard.putNumber("Intake/Pivot/CANcoder/AbsolutePosition", getAbsolutePosition());
+        SmartDashboard.putNumber("Intake/Pivot/CANcoder/Position", canCoder.getPosition().getValueAsDouble());
+
+        SmartDashboard.putNumber("Intake/Pivot/Motor/DutyCycle", pivotMotor.get());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/Position", pivotMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/Velocity", pivotMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/ClosedLoopError", pivotMotor.getClosedLoopError().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Motor/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Intake/Pivot/Motor/Connected", pivotMotor.isConnected());
+        SmartDashboard.putBoolean("Intake/Pivot/CANcoder/Connected", canCoder.getPosition().getStatus().isOK());
+    }
 }

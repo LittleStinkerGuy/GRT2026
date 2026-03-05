@@ -36,9 +36,9 @@ public class KrakenSwerveModule {
     /**
      * Constructs a Swerve Module.
      *
-     * @param drivePort    The CAN ID of the drive motor
-     * @param steerPort    The CAN ID of the steer motor
-     * @param offsetRads   The offset of the absolute encoder (0 for our cases)
+     * @param drivePort The CAN ID of the drive motor
+     * @param steerPort The CAN ID of the steer motor
+     * @param offsetRads The offset of the absolute encoder (0 for our cases)
      * @param canCoderPort The CAN ID of the steer motor encoder
      */
     public KrakenSwerveModule(int drivePort, int steerPort, double offsetRads, int canCoderPort, CANBus canivore) {
@@ -59,18 +59,18 @@ public class KrakenSwerveModule {
         // );
         steerMotor = new SteerMotor(steerPort, canCoderPort, canivore);
         steerMotor.configPID(
-                STEER_P[steerIndex],
-                STEER_I[steerIndex],
-                STEER_D[steerIndex],
-                STEER_S[steerIndex]);
+                        STEER_P[steerIndex],
+                        STEER_I[steerIndex],
+                        STEER_D[steerIndex],
+                        STEER_S[steerIndex]);
 
         driveMotor = new DriveMotor(drivePort, canivore);
         driveMotor.configPID(
-                DRIVE_P[driveIndex],
-                DRIVE_I[driveIndex],
-                DRIVE_D[driveIndex],
-                DRIVE_S[driveIndex],
-                DRIVE_V[driveIndex]);
+                        DRIVE_P[driveIndex],
+                        DRIVE_I[driveIndex],
+                        DRIVE_D[driveIndex],
+                        DRIVE_S[driveIndex],
+                        DRIVE_V[driveIndex]);
 
         this.offsetRads = offsetRads;
     }
@@ -112,8 +112,8 @@ public class KrakenSwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                driveMotor.getDistance(),
-                getWrappedAngle());
+                        driveMotor.getDistance(),
+                        getWrappedAngle());
     }
 
     /**
@@ -123,8 +123,8 @@ public class KrakenSwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                driveMotor.getVelocity(),
-                getWrappedAngle());
+                        driveMotor.getVelocity(),
+                        getWrappedAngle());
     }
 
     /**
@@ -163,41 +163,41 @@ public class KrakenSwerveModule {
 
     public void steerDebug() {
         NetworkTableInstance.getDefault().getTable("steerDebug")
-                .getEntry(steerPort + "PIDF")
-                .setDoubleArray(
-                        new double[] {
-                                STEER_P[steerIndex],
-                                STEER_I[steerIndex],
-                                STEER_D[steerIndex],
-                                STEER_S[steerIndex]
-                        });
+                        .getEntry(steerPort + "PIDF")
+                        .setDoubleArray(
+                                        new double[] {
+                                                STEER_P[steerIndex],
+                                                STEER_I[steerIndex],
+                                                STEER_D[steerIndex],
+                                                STEER_S[steerIndex]
+                                        });
         NetworkTableInstance.getDefault().getTable("steerDebug").addListener(
-                steerPort + "PIDF",
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                (table, key, event) -> {
-                    double[] pidf = event.valueData.value.getDoubleArray();
-                    steerMotor.configPID(pidf[0], pidf[1], pidf[2], pidf[3]);
-                });
+                        steerPort + "PIDF",
+                        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                        (table, key, event) -> {
+                            double[] pidf = event.valueData.value.getDoubleArray();
+                            steerMotor.configPID(pidf[0], pidf[1], pidf[2], pidf[3]);
+                        });
     }
 
     public void driveDebug() {
         NetworkTableInstance.getDefault().getTable("driveDebug")
-                .getEntry(drivePort + "PIDSV")
-                .setDoubleArray(
-                        new double[] {
-                                DRIVE_P[driveIndex],
-                                DRIVE_I[driveIndex],
-                                DRIVE_D[driveIndex],
-                                DRIVE_S[driveIndex],
-                                DRIVE_V[driveIndex]
-                        });
+                        .getEntry(drivePort + "PIDSV")
+                        .setDoubleArray(
+                                        new double[] {
+                                                DRIVE_P[driveIndex],
+                                                DRIVE_I[driveIndex],
+                                                DRIVE_D[driveIndex],
+                                                DRIVE_S[driveIndex],
+                                                DRIVE_V[driveIndex]
+                                        });
         NetworkTableInstance.getDefault().getTable("driveDebug").addListener(
-                drivePort + "PIDSV",
-                EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                (table, key, event) -> {
-                    double[] pidsv = event.valueData.value.getDoubleArray();
-                    driveMotor.configPID(pidsv[0], pidsv[1], pidsv[2], pidsv[3], pidsv[4]);
-                });
+                        drivePort + "PIDSV",
+                        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+                        (table, key, event) -> {
+                            double[] pidsv = event.valueData.value.getDoubleArray();
+                            driveMotor.configPID(pidsv[0], pidsv[1], pidsv[2], pidsv[3], pidsv[4]);
+                        });
     }
 
     /**

@@ -17,13 +17,12 @@ public class RotateToAngleCommand extends Command {
     public RotateToAngleCommand(SwerveSubsystem swerve, double targetDegrees, BooleanSupplier cancelCondition) {
         this.swerve = swerve;
         this.targetDegrees = targetDegrees;
-        
+
         this.cancelCondition = cancelCondition;
         this.pid = new PIDController(
-            RotateToAngleConstants.kP,
-            RotateToAngleConstants.kI,
-            RotateToAngleConstants.kD
-        );
+                        RotateToAngleConstants.kP,
+                        RotateToAngleConstants.kI,
+                        RotateToAngleConstants.kD);
         pid.enableContinuousInput(-180, 180);
         pid.setTolerance(RotateToAngleConstants.TOLERANCE_DEGREES);
         addRequirements(swerve);
@@ -65,6 +64,6 @@ public class RotateToAngleCommand extends Command {
     public void end(boolean interrupted) {
         swerve.setDrivePowers(0, 0, 0);
     }
-    
+
 
 }

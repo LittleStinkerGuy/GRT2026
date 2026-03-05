@@ -4,31 +4,36 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 
 public class SetIntakePivotCommand extends Command {
-  private final PivotIntakeSubsystem pivotIntake;
-  private final double targetAngle;
+    private final PivotIntakeSubsystem pivotIntake;
+    private final double targetPosition;
 
-  public SetIntakePivotCommand(PivotIntakeSubsystem pivotIntake, double targetAngle) {
-    this.pivotIntake = pivotIntake;
-    this.targetAngle = targetAngle;
-    addRequirements(pivotIntake);
-  }
+    /**
+     * Set pivot to a specific position in rotations
+     * 
+     * @param pivotIntake the pivot subsystem
+     * @param targetPosition target position in mechanism rotations
+     */
+    public SetIntakePivotCommand(PivotIntakeSubsystem pivotIntake, double targetPosition) {
+        this.pivotIntake = pivotIntake;
+        this.targetPosition = targetPosition;
+        addRequirements(pivotIntake);
+    }
 
-  @Override
-  public void initialize() {
-    pivotIntake.setAngle(targetAngle);
-  }
+    @Override
+    public void initialize() {
+        pivotIntake.setPosition(targetPosition);
+    }
 
-  @Override
-  public void execute() {
-    pivotIntake.setAngle(targetAngle);
-  }
+    @Override
+    public void execute() {
+        pivotIntake.setPosition(targetPosition);
+    }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-  }
+    @Override
+    public void end(boolean interrupted) {}
 }

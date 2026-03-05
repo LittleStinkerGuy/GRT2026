@@ -37,7 +37,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.GRTUtil;
 
-public class SteerMotor extends SubsystemBase {    
+public class SteerMotor extends SubsystemBase {
     // For NT
 
     // test two
@@ -77,8 +77,8 @@ public class SteerMotor extends SubsystemBase {
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private final CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
     private PositionTorqueCurrentFOC posTorqueCurrentFOCRequest = new PositionTorqueCurrentFOC(0)
-            .withSlot(0)
-            .withUpdateFreqHz(100.0);
+                    .withSlot(0)
+                    .withUpdateFreqHz(100.0);
 
     private void configureMotor() {
         // Set peak current for torque limiting for stall prevention
@@ -196,9 +196,9 @@ public class SteerMotor extends SubsystemBase {
         gurtMotorPos1.set(0.0);
         positionControlPositionPublisher = steerStatsTable.getDoubleTopic(canId + "positionControlPosition").publish();
         steerStatsTable.addListener(canId + "motorPosThing", EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                (table, key, event) -> {
-                    gurtMotorPos = event.valueData.value.getDouble();
-                });
+                        (table, key, event) -> {
+                            gurtMotorPos = event.valueData.value.getDouble();
+                        });
 
     }
 
@@ -279,7 +279,7 @@ public class SteerMotor extends SubsystemBase {
     /**
      * 
      * @param targetWheelPosition wheel position in radians, pi = 180 degrees CCW
-     *                            looking from the top
+     *        looking from the top
      */
     double controllerTargetRotations;
 
@@ -324,7 +324,7 @@ public class SteerMotor extends SubsystemBase {
         mmConfigs.MotionMagicAcceleration = STEER_ACCELERATION;
         motor.getConfigurator().apply(mmConfigs);
         System.out
-                .println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
+                        .println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
     }
 
     public void setCruiseVelocity(double velocity, double acceleration) {

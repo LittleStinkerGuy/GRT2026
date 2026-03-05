@@ -50,20 +50,20 @@ public class StabilizingArm extends SubsystemBase {
 
     private void configureMotor() {
         motorConfig.withCurrentLimits(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(true)
-                        .withStatorCurrentLimit(Amps.of(120)))
-                .withMotorOutput(new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(ClimbConstants.ARM_MOTOR_INVERTED))
-                .withFeedback(new FeedbackConfigs()
-                        .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                        .withSensorToMechanismRatio(ClimbConstants.ARM_GR))
-                .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
-                        .withForwardSoftLimitEnable(true)
-                        .withForwardSoftLimitThreshold(ClimbConstants.ARM_FORWARD_LIMIT)
-                        .withReverseSoftLimitEnable(true)
-                        .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT));
+                        new CurrentLimitsConfigs()
+                                        .withStatorCurrentLimitEnable(true)
+                                        .withStatorCurrentLimit(Amps.of(120)))
+                        .withMotorOutput(new MotorOutputConfigs()
+                                        .withNeutralMode(NeutralModeValue.Brake)
+                                        .withInverted(ClimbConstants.ARM_MOTOR_INVERTED))
+                        .withFeedback(new FeedbackConfigs()
+                                        .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                                        .withSensorToMechanismRatio(ClimbConstants.ARM_GR))
+                        .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
+                                        .withForwardSoftLimitEnable(true)
+                                        .withForwardSoftLimitThreshold(ClimbConstants.ARM_FORWARD_LIMIT)
+                                        .withReverseSoftLimitEnable(true)
+                                        .withReverseSoftLimitThreshold(ClimbConstants.ARM_REVERSE_LIMIT));
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
@@ -119,11 +119,11 @@ public class StabilizingArm extends SubsystemBase {
     // rotate motor and stop it when boolean is true
     private Command moveArmWithStop(double dutyCycle, BooleanSupplier stopMotor) {
         return this.startEnd(
-                () -> {
-                    setMotorDutyCycle(dutyCycle);
-                }, () -> {
-                    setMotorDutyCycle(0);
-                }).until(stopMotor);
+                        () -> {
+                            setMotorDutyCycle(dutyCycle);
+                        }, () -> {
+                            setMotorDutyCycle(0);
+                        }).until(stopMotor);
     }
 
     // make arm go down and stop with boolean supplier

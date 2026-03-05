@@ -5,29 +5,28 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 
 public class PivotInCommand extends Command {
-  private final PivotIntakeSubsystem pivotIntake;
+    private final PivotIntakeSubsystem pivotIntake;
 
-  public PivotInCommand(PivotIntakeSubsystem pivotIntake) {
-    this.pivotIntake = pivotIntake;
-    addRequirements(pivotIntake);
-  }
+    public PivotInCommand(PivotIntakeSubsystem pivotIntake) {
+        this.pivotIntake = pivotIntake;
+        addRequirements(pivotIntake);
+    }
 
-  @Override
-  public void initialize() {
-    pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
-  }
+    @Override
+    public void initialize() {
+        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
+    }
 
-  @Override
-  public void execute() {
-    pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
-  }
+    @Override
+    public void execute() {
+        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
+    }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-  }
+    @Override
+    public void end(boolean interrupted) {}
 }

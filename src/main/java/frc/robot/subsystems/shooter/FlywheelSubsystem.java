@@ -52,37 +52,37 @@ public class FlywheelSubsystem extends SubsystemBase {
 
     public void sendData() {
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-                upperMotor.getPosition().getValueAsDouble());
+                        upperMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-                upperMotor.getVelocity().getValueAsDouble());
+                        upperMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPM",
-                (60 * upperMotor.getVelocity().getValueAsDouble()));
+                        (60 * upperMotor.getVelocity().getValueAsDouble()));
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-                upperMotor.getMotorVoltage().getValueAsDouble());
+                        upperMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-                upperMotor.getSupplyVoltage().getValueAsDouble());
+                        upperMotor.getSupplyVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-                upperMotor.getStatorCurrent().getValueAsDouble());
+                        upperMotor.getStatorCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-                upperMotor.getSupplyCurrent().getValueAsDouble());
+                        upperMotor.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-                upperMotor.getDeviceTemp().getValueAsDouble());
+                        upperMotor.getDeviceTemp().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
-                commandedDutyCycle);
+                        commandedDutyCycle);
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
-                upperMotor.isConnected());
+                        upperMotor.isConnected());
 
         Logger.recordOutput(LOG_PREFIX + "RPS", upperMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput(LOG_PREFIX + "Linear_Velocity_mPs",
-                upperMotor.getVelocity().getValueAsDouble() * 0.0762 / 2);
+                        upperMotor.getVelocity().getValueAsDouble() * 0.0762 / 2);
     }
 }

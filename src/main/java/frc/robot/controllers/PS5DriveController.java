@@ -71,11 +71,11 @@ public class PS5DriveController extends BaseDriveController {
 
     @Override
     public void bindDriverHeadingReset(
-            Runnable command, Subsystem requiredSubsystem) {
+                    Runnable command, Subsystem requiredSubsystem) {
         // EventLoop eventLoop = new EventLoop();
         InstantCommand instantCommand = new InstantCommand(
-                command,
-                requiredSubsystem);
+                        command,
+                        requiredSubsystem);
         // eventLoop.bind(command);
         // driveController.L1(eventLoop);
         new Trigger(this::getDriverHeadingResetButton).onTrue(instantCommand);
