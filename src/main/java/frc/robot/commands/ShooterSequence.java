@@ -22,21 +22,19 @@ public class ShooterSequence extends SequentialCommandGroup {
     public ShooterSequence(SwerveSubsystem swerve, flywheel fly, hood hood, HopperSubsystem hopper, FieldManagementSubsystem fms, towerRollers b) {
 
         
-        AimBot aimToHubCommand = new AimBot(swerve, fms);
-        Aim
+        AimBot aimToHubCommand = new AimBot(swerve, fms, fms.isRedAlliance());
         boolean redTeam = fms.isRedAlliance();
 
         addCommands(
 
             new ParallelCommandGroup(
+                aimToHubCommand,
                 new rampFlywheel(fly, redTeam),
                 new hoodCommand(hood, redTeam),
                 new towerRoll(b),
 
                 new indexerRun(hopper)
-                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl() && b.correctRoll())),
-
-                aimToHubCommand
+                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl() && b.correctRoll()))
             )
         );
     }

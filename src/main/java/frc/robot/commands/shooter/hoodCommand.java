@@ -1,6 +1,8 @@
 package frc.robot.commands.shooter;
 
 import frc.robot.Constants.AlignConstants;
+import frc.robot.commands.allign.AimToHubCommand;
+import frc.robot.commands.allign.AimToPointCommand;
 import frc.robot.subsystems.shooter.Intertable;
 import frc.robot.subsystems.shooter.hood;
 
@@ -33,11 +35,28 @@ public class hoodCommand extends Command{
     @Override
     public void execute() {
         double ang;
-        
-        if(redTeam){
-            ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
+
+         if(redTeam){
+            if(poseSub.get().getX() > AlignConstants.RED_WALL_X){
+                ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
+            }else{
+                if(poseSub.get().getY() > AlignConstants.HUB_Y){
+                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_TOP));
+                }else{
+                     ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_BOTTOM));
+                }
+            }
+
         }else{
-            ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
+            if(poseSub.get().getX() < AlignConstants.BLUE_WALL_X){
+                 ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
+            }else{
+                if(poseSub.get().getY() > AlignConstants.HUB_Y){
+                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_TOP));
+                }else{
+                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_BOTTOM));
+                }
+            }
         }
 
         System.out.println("hood angle: " + ang );
@@ -47,7 +66,7 @@ public class hoodCommand extends Command{
 
     @Override
     public boolean isFinished(){
-        return true;
+        return false;
     }
     
     @Override
