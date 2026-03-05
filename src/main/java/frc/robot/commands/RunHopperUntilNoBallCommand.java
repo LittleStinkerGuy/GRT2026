@@ -5,38 +5,38 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 
 public class RunHopperUntilNoBallCommand extends Command {
-  private final FuelDetectionSubsystem fuelDetection;
-  private final HopperSubsystem hopper;
+    private final FuelDetectionSubsystem fuelDetection;
+    private final HopperSubsystem hopper;
 
-  private boolean finished = false;
+    private boolean finished = false;
 
-  public RunHopperUntilNoBallCommand(FuelDetectionSubsystem fuelDetection, HopperSubsystem hopper) {
-    this.fuelDetection = fuelDetection;
-    this.hopper = hopper;
+    public RunHopperUntilNoBallCommand(FuelDetectionSubsystem fuelDetection, HopperSubsystem hopper) {
+        this.fuelDetection = fuelDetection;
+        this.hopper = hopper;
 
-    addRequirements(hopper);
-  }
-
-  @Override
-  public void initialize() {
-    finished = false;
-    if (!fuelDetection.isBallDetected()) {
-      finished = true;
+        addRequirements(hopper);
     }
-  }
 
-  @Override
-  public void execute() {
-    hopper.runForward();
-  }
+    @Override
+    public void initialize() {
+        finished = false;
+        if (!fuelDetection.isBallDetected()) {
+            finished = true;
+        }
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-    hopper.stop();
-  }
+    @Override
+    public void execute() {
+        hopper.runForward();
+    }
 
-  @Override
-  public boolean isFinished() {
-    return finished || !fuelDetection.isBallDetected();
-  }
+    @Override
+    public void end(boolean interrupted) {
+        hopper.stop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return finished || !fuelDetection.isBallDetected();
+    }
 }
