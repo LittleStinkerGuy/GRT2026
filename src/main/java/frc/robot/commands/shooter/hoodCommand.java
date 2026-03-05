@@ -1,6 +1,6 @@
 package frc.robot.commands.shooter;
 
-import frc.robot.Constants.AlignToHubConstants;
+import frc.robot.Constants.AlignConstants;
 import frc.robot.subsystems.shooter.Intertable;
 import frc.robot.subsystems.shooter.hood;
 
@@ -16,10 +16,12 @@ public class hoodCommand extends Command{
 
     private hood hd;
     private Intertable tableThing = new Intertable();
+    private boolean redTeam = false;
     NetworkTable table = NetworkTableInstance.getDefault().getTable("SWERVE_TABLE_NAME");
     StructSubscriber<Pose2d> poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
 
-    public hoodCommand(hood h){
+    public hoodCommand(hood h, boolean red){
+        redTeam = red;
         this.hd = h;
         addRequirements(hd);
     }
@@ -30,7 +32,14 @@ public class hoodCommand extends Command{
 
     @Override
     public void execute() {
-        double ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignToHubConstants.HUB_POSITION));
+        double ang;
+        
+        if(redTeam){
+            ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
+        }else{
+            ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
+        }
+
         System.out.println("hood angle: " + ang );
         hd.setHoodAngle(ang);
 

@@ -1,22 +1,32 @@
 package frc.robot.subsystems.shooter;
 
+import frc.robot.Constants.TowerConstants;
 import frc.robot.Constants.railgunConstants;
+import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.util.LoggedTalon;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+
+import java.util.EnumSet;
+import java.util.function.Consumer;
 
 import org.littletonrobotics.junction.Logger;
 
 public class flywheel extends SubsystemBase {
 
-    private final TalonFX upperMotor;
+    private final LoggedTalon upperMotor;
+    private final LoggedTalon secondMotor;
     private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
 
@@ -25,7 +35,8 @@ public class flywheel extends SubsystemBase {
     private static final String LOG_PREFIX = "FlyWheel/";
 
     public flywheel(CANBus cn) {
-        upperMotor = new TalonFX(railgunConstants.upperId, cn);
+        upperMotor = new LoggedTalon(railgunConstants.upperId, cn);
+        secondMotor = new LoggedTalon(railgunConstants.secondId, cn);
         config();
     }
 
@@ -33,7 +44,7 @@ public class flywheel extends SubsystemBase {
         TalonFXConfiguration cfg = new TalonFXConfiguration();
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        cfg.MotionMagic.MotionMagicCruiseVelocity = 120;   // target RPS cap
+        cfg.MotionMagic.MotionMagicCruiseVelocity = 500;   // target RPS cap
         cfg.MotionMagic.MotionMagicAcceleration = 30;    // RPS per second
         cfg.MotionMagic.MotionMagicJerk = 150;            // optional, smoothness
 
@@ -47,6 +58,9 @@ public class flywheel extends SubsystemBase {
         cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
 
         upperMotor.getConfigurator().apply(cfg);
+        secondMotor.getConfigurator().apply(cfg);
+
+        secondMotor.setControl(new Follower(railgunConstants.upperId, MotorAlignmentValue.Opposed));
     }
 
     public void shoot(double rps){
@@ -59,7 +73,7 @@ public class flywheel extends SubsystemBase {
     }
 
     public boolean wantedVel(){
-        if(Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < 5){
+        if(Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < 2){
             return true;
         }else{
             return false;
@@ -84,6 +98,8 @@ public class flywheel extends SubsystemBase {
 
     @Override
     public void periodic(){
+        upperMotor.updateDashboard();
+        secondMotor.updateDashboard();
         sendData();
     }
 

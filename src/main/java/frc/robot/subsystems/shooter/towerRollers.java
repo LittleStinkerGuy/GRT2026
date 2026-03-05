@@ -134,6 +134,14 @@ public class towerRollers extends SubsystemBase {
         }
     }
 
+    public boolean correctRoll(){
+        if(Math.abs(TowerConstants.TARGET_RPS-krakenMotor.getVelocity().getValueAsDouble()) < 2){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     public void setManualControl(double percentOutput) {
         percentOutput = Math.max(-1.0, Math.min(1.0, percentOutput));
         krakenMotor.setControl(dutyCycleControl.withOutput(percentOutput));

@@ -11,7 +11,8 @@ import frc.robot.commands.shooter.rampFlywheel;
 import frc.robot.commands.shooter.hoodCommand;
 import frc.robot.commands.hopper.indexerRun;
 import frc.robot.commands.shooter.towerRollers.towerRoll;
-import frc.robot.commands.allign.AimToHubCommand;
+import frc.robot.commands.allign.AimBot;
+import frc.robot.commands.allign.RotateToFieldAngleCommand;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -20,17 +21,20 @@ public class ShooterSequence extends SequentialCommandGroup {
 
     public ShooterSequence(SwerveSubsystem swerve, flywheel fly, hood hood, HopperSubsystem hopper, FieldManagementSubsystem fms, towerRollers b) {
 
-        AimToHubCommand aimToHubCommand = new AimToHubCommand(swerve, fms);
+        
+        AimBot aimToHubCommand = new AimBot(swerve, fms);
+        Aim
+        boolean redTeam = fms.isRedAlliance();
 
         addCommands(
 
             new ParallelCommandGroup(
-                new rampFlywheel(fly),
-                new hoodCommand(hood),
+                new rampFlywheel(fly, redTeam),
+                new hoodCommand(hood, redTeam),
                 new towerRoll(b),
 
                 new indexerRun(hopper)
-                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl())),
+                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl() && b.correctRoll())),
 
                 aimToHubCommand
             )

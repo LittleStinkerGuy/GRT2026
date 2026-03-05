@@ -90,7 +90,8 @@ public final class Constants {
     // Everything in metric pls
     public static int upperId = 17;
     public static int hoodId = 16;
-    public static int upperEncoderId = 18;
+    public static int secondId = 20;
+    
     public static int hoodEncoderId = 3;
     public static int limitId = 3;
 
@@ -295,6 +296,13 @@ public final class Constants {
   public static class AlignConstants {
     public static final Translation2d BLUE_HUB_TRANS = new Translation2d(4.625, 4);
     public static final Translation2d RED_HUB_TRANS = new Translation2d(11.9, 4);
+    public static final double RED_WALL_X = 11.9;
+    public static final double BLUE_WALL_X = 4.625;
+    public static final double HUB_Y = 4;
+    public static final Translation2d BLUE_AIM_TOP = new Translation2d(2.4, 6);
+    public static final Translation2d BLUE_AIM_BOTTOM = new Translation2d(2.4, 2);
+    public static final Translation2d RED_AIM_TOP = new Translation2d(14.3, 6);
+    public static final Translation2d RED_AIM_BOTTOM = new Translation2d(14.3, 2);
   }
 
   // ==================== LOGGING & DEBUG ====================

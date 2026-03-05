@@ -31,6 +31,7 @@ public class shooterLearner {
 
     public void reset(){
         offset = 0;
+        offsetEntry.setDouble(offset);
     }
     
 }

@@ -2,7 +2,6 @@ package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -12,10 +11,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.util.LoggedTalon;
 
 public class hood extends SubsystemBase {
 
-    private final TalonFX hoodMotor;
+    private final LoggedTalon hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
     private PositionVoltage focThing = new PositionVoltage(0);
     //private final CANcoder hoodCoder;
@@ -26,7 +26,7 @@ public class hood extends SubsystemBase {
     private static final String LOG_PREFIX = "Hood/";
 
     public hood(CANBus cn) {
-        hoodMotor = new TalonFX(railgunConstants.hoodId, cn);
+        hoodMotor = new LoggedTalon(railgunConstants.hoodId, cn);
         //hoodCoder = new CANcoder(railgunConstants.hoodEncoderId, cn);
         config();
     }
@@ -66,14 +66,14 @@ public class hood extends SubsystemBase {
 
     public void setHoodAngle(double rotationAngle){
         wantedAngle = rotationAngle;
-        // if(rotationAngle >= railgunConstants.lowerAngle && rotationAngle <= railgunConstants.upperAngle){
+        if(rotationAngle >= railgunConstants.lowerAngle && rotationAngle <= railgunConstants.upperAngle){
             hoodMotor.setControl(focThing.withPosition(rotationAngle));
             System.out.println("HoodControl" + rotationAngle);
-        // }
+        }
     }
 
     public boolean wantedAngl(){
-        if(Math.abs(wantedAngle-hoodMotor.getPosition().getValueAsDouble()) <0.5){
+        if(Math.abs(wantedAngle-hoodMotor.getPosition().getValueAsDouble()) <0.1){
             return true;
         }else{
             return false;
@@ -100,6 +100,7 @@ public class hood extends SubsystemBase {
 
     @Override
     public void periodic(){
+        hoodMotor.updateDashboard();
         sendData();   
     }
 

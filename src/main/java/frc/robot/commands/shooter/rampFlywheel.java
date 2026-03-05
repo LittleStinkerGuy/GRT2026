@@ -1,6 +1,7 @@
 package frc.robot.commands.shooter;
 
 import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.AlignToHubConstants;
 import frc.robot.subsystems.shooter.Intertable;
 
@@ -15,13 +16,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class rampFlywheel extends Command{
     
+    private boolean redTeam = false;
     private flywheel fly;
     private Intertable tableThing = new Intertable();
     NetworkTable table = NetworkTableInstance.getDefault().getTable("SWERVE_TABLE_NAME");
     StructSubscriber<Pose2d> poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
     private final NetworkTableEntry offsetEntry;
 
-    public rampFlywheel(flywheel h){
+    public rampFlywheel(flywheel h, boolean red){
+        redTeam = red;
         this.fly = h;
         addRequirements(fly);
 
@@ -35,8 +38,15 @@ public class rampFlywheel extends Command{
 
     @Override
     public void execute() {
-        double RPS = tableThing.getRPS(poseSub.get().getTranslation().getDistance(AlignToHubConstants.HUB_POSITION));
-        fly.shoot(RPS+offsetEntry.getDouble(0.0));
+        double RPS = 0;
+        
+        if(redTeam){
+            tableThing.getRPS(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
+        }else{
+            tableThing.getRPS(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
+        }
+
+        fly.shoot(RPS + offsetEntry.getDouble(0.0));
     }
 
     @Override
@@ -46,6 +56,7 @@ public class rampFlywheel extends Command{
 
     @Override
     public void end(boolean interrupted){
+        fly.dontShoot();
     }
 
 }
