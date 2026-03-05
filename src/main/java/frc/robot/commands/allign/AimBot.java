@@ -11,6 +11,9 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.Constants.AlignConstants;
 
+import frc.robot.commands.allign.AimToHubCommand;
+import frc.robot.commands.allign.AimToPointCommand;
+
 public class AimBot extends Command{
 
     private SwerveSubsystem swerve;
@@ -25,12 +28,42 @@ public class AimBot extends Command{
 
      @Override
     public void initialize(){
+        if(redTeam){
+            if(swerve.getRobotPosition().getX() > AlignConstants.RED_WALL_X){
+                new AimToHubCommand(swerve, field).schedule();
+            }else{
+                if(swerve.getRobotPosition().getY() > AlignConstants.HUB_Y){
+                    new AimToPointCommand(swerve, field, AlignConstants.RED_AIM_TOP).schedule();
+                }else{
+                    new AimToPointCommand(swerve, field, AlignConstants.RED_AIM_BOTTOM).schedule();
+                }
+            }
+
+        }else{
+            if(swerve.getRobotPosition().getX() < AlignConstants.BLUE_WALL_X){
+                new AimToHubCommand(swerve, field).schedule();
+            }else{
+                if(swerve.getRobotPosition().getY() > AlignConstants.HUB_Y){
+                    new AimToPointCommand(swerve, field, AlignConstants.BLUE_AIM_TOP).schedule();
+                }else{
+                    new AimToPointCommand(swerve, field, AlignConstants.BLUE_AIM_BOTTOM).schedule();
+                }
+            }
+        }
     }
 
     @Override
     public void execute() {
         
-        
+    }
+
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
+
+    @Override
+    public void end(boolean interrupted){
 
     }
 
