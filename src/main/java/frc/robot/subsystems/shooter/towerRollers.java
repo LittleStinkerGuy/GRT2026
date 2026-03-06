@@ -61,6 +61,9 @@ public class towerRollers extends SubsystemBase {
      */
 
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
+        // configSetter.accept(defaultVal);
+        // config.withSlot0(pidSlots);
+        krakenMotor.getConfigurator().apply(config);
 
         NTtable.getEntry(valueName).setDouble(defaultVal);
         NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
@@ -113,13 +116,7 @@ public class towerRollers extends SubsystemBase {
         pidSlots.withKP(TowerConstants.KD);
         pidSlots.withKP(TowerConstants.KS);
         pidSlots.withKP(TowerConstants.KV);
-
-        config.withSlot0(new Slot0Configs()
-                .withKP(TowerConstants.KP)
-                .withKI(TowerConstants.KI)
-                .withKD(TowerConstants.KD)
-                .withKS(TowerConstants.KS)
-                .withKV(TowerConstants.KV));
+        config.withSlot0(pidSlots);
 
         krakenMotor.getConfigurator().apply(config);
     }
@@ -138,14 +135,14 @@ public class towerRollers extends SubsystemBase {
         }
     }
 
-    public boolean correctRoll(){
-        if(Math.abs(TowerConstants.TARGET_RPS-krakenMotor.getVelocity().getValueAsDouble()) < 2){
+    public boolean correctRoll() {
+        if (Math.abs(TowerConstants.TARGET_RPS - krakenMotor.getVelocity().getValueAsDouble()) < 2) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    
+
     public void setManualControl(double percentOutput) {
         percentOutput = Math.max(-1.0, Math.min(1.0, percentOutput));
         krakenMotor.setControl(dutyCycleControl.withOutput(percentOutput));

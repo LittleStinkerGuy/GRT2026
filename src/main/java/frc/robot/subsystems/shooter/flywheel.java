@@ -1,9 +1,10 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants.TowerConstants;
-import frc.robot.Constants.TowerConstants;
 import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTable;
+
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -44,8 +45,10 @@ public class flywheel extends SubsystemBase {
         NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
             configSetter.accept(event.valueData.value.getDouble());
 
-            config.withSlot0(pidSlots);
-            krakenMotor.getConfigurator().apply(config);
+            cfg.withSlot0(pidSlots);
+            upperMotor.getConfigurator().apply(cfg);
+            secondMotor.getConfigurator().apply(cfg);
+
             System.out.println("Updated: " + valueName + " to this: " + event.valueData.value.getDouble() + "!");
         });
     }
@@ -73,7 +76,9 @@ public class flywheel extends SubsystemBase {
     public flywheel(CANBus cn) {
         upperMotor = new LoggedTalon(railgunConstants.upperId, cn);
         secondMotor = new LoggedTalon(railgunConstants.secondId, cn);
+
         config();
+        configThruNT();
     }
 
     public void config() {
@@ -83,12 +88,12 @@ public class flywheel extends SubsystemBase {
         cfg.MotionMagic.MotionMagicAcceleration = 30; // RPS per second
         cfg.MotionMagic.MotionMagicJerk = 150; // optional, smoothness
 
-        cfg.Slot0.kP = 0.05;
-        cfg.Slot0.kI = 0.0;
-        cfg.Slot0.kD = 0.0;
-        cfg.Slot0.kS = 0.2;
-        cfg.Slot0.kV = 0.14;
-        cfg.Slot0.kA = 0.0;
+        pidSlots.withKP(TowerConstants.KP);
+        pidSlots.withKP(TowerConstants.KI);
+        pidSlots.withKP(TowerConstants.KD);
+        pidSlots.withKP(TowerConstants.KS);
+        pidSlots.withKP(TowerConstants.KV);
+        cfg.withSlot0(pidSlots);
 
         cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
 
