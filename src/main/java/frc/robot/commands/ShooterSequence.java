@@ -37,7 +37,6 @@ public class ShooterSequence extends SequentialCommandGroup {
             new AimWhileDrivingCommand(
                 swerve,
                 fms,
-                redTeam,
                 xSpeed,
                 ySpeed
             );
