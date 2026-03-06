@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants.TowerConstants;
+import frc.robot.Constants.TowerConstants;
 import frc.robot.Constants.railgunConstants;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -11,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.util.LoggedTalon;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -24,15 +26,49 @@ import java.util.function.Consumer;
 import org.littletonrobotics.junction.Logger;
 
 public class flywheel extends SubsystemBase {
+    private NetworkTable NTtable;
 
     private final LoggedTalon upperMotor;
     private final LoggedTalon secondMotor;
     private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
+    private TalonFXConfiguration cfg;
+    private Slot0Configs pidSlots = new Slot0Configs();
 
     private double wantedVe = 0;
 
     private static final String LOG_PREFIX = "FlyWheel/";
+
+    private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
+        NTtable.getEntry(valueName).setDouble(defaultVal);
+        NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
+            configSetter.accept(event.valueData.value.getDouble());
+
+            config.withSlot0(pidSlots);
+            krakenMotor.getConfigurator().apply(config);
+            System.out.println("Updated: " + valueName + " to this: " + event.valueData.value.getDouble() + "!");
+        });
+    }
+
+    private void configThruNT() {
+        NTtable = NetworkTableInstance.getDefault().getTable("tuneFlywheel");
+        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), railgunConstants.KP);
+        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), railgunConstants.KI);
+        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), railgunConstants.KD);
+        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), railgunConstants.KS);
+        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), railgunConstants.KV);
+        // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
+        // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
+        yoTuneThis("setDutyCyclePercent", val -> upperMotor.setControl(new DutyCycleOut(val)), 0);
+        yoTuneThis("setMMVTCF", val -> upperMotor.setControl(new VelocityVoltage(val)), 0);
+
+        yoTuneThis("MMAccel", val -> cfg.MotionMagic.MotionMagicAcceleration = val, TowerConstants.MM_ACCEL);
+        yoTuneThis("MMJerk", val -> cfg.MotionMagic.MotionMagicJerk = val, TowerConstants.MM_JERK);
+        yoTuneThis("MMMaxVelo", val -> cfg.MotionMagic.MotionMagicCruiseVelocity = val, TowerConstants.MM_MAXVELO);
+
+        yoTuneThis("GearReduction", val -> cfg.Feedback.SensorToMechanismRatio = val, railgunConstants.gearRatioUpper);
+        yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
+    }
 
     public flywheel(CANBus cn) {
         upperMotor = new LoggedTalon(railgunConstants.upperId, cn);
@@ -40,13 +76,12 @@ public class flywheel extends SubsystemBase {
         config();
     }
 
-    public void config(){
-        TalonFXConfiguration cfg = new TalonFXConfiguration();
+    public void config() {
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        cfg.MotionMagic.MotionMagicCruiseVelocity = 500;   // target RPS cap
-        cfg.MotionMagic.MotionMagicAcceleration = 30;    // RPS per second
-        cfg.MotionMagic.MotionMagicJerk = 150;            // optional, smoothness
+        cfg.MotionMagic.MotionMagicCruiseVelocity = 500; // target RPS cap
+        cfg.MotionMagic.MotionMagicAcceleration = 30; // RPS per second
+        cfg.MotionMagic.MotionMagicJerk = 150; // optional, smoothness
 
         cfg.Slot0.kP = 0.05;
         cfg.Slot0.kI = 0.0;
@@ -63,30 +98,31 @@ public class flywheel extends SubsystemBase {
         secondMotor.setControl(new Follower(railgunConstants.upperId, MotorAlignmentValue.Opposed));
     }
 
-    public void shoot(double rps){
+    public void shoot(double rps) {
         wantedVe = rps;
         upperMotor.setControl(spinner.withVelocity(rps));
     }
 
-    public double getRPS(){
+    public double getRPS() {
         return upperMotor.getVelocity().getValueAsDouble();
     }
 
-    public boolean wantedVel(){
-        if(Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < 2){
+    public boolean wantedVel() {
+        if (Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < 2) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    public void dontShoot(){
+
+    public void dontShoot() {
         wantedVe = 0;
         upperMotor.setControl(spinner.withVelocity(0));
     }
 
     double commandedDutyCycle = 0;
 
-    public void flySpeed(double speed){
+    public void flySpeed(double speed) {
         if (speed > 0.75) {
             commandedDutyCycle = 0.65;
             upperMotor.setControl(dutyCycl.withOutput(commandedDutyCycle));
@@ -97,39 +133,39 @@ public class flywheel extends SubsystemBase {
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         upperMotor.updateDashboard();
         secondMotor.updateDashboard();
         sendData();
     }
 
-    public void sendData(){
+    public void sendData() {
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-            upperMotor.getPosition().getValueAsDouble());
+                upperMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-            upperMotor.getVelocity().getValueAsDouble());
+                upperMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-            upperMotor.getMotorVoltage().getValueAsDouble());
+                upperMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-            upperMotor.getSupplyVoltage().getValueAsDouble());
+                upperMotor.getSupplyVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-            upperMotor.getStatorCurrent().getValueAsDouble());
+                upperMotor.getStatorCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-            upperMotor.getSupplyCurrent().getValueAsDouble());
+                upperMotor.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-            upperMotor.getDeviceTemp().getValueAsDouble());
+                upperMotor.getDeviceTemp().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
-            commandedDutyCycle);
+                commandedDutyCycle);
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
-            upperMotor.isConnected());
+                upperMotor.isConnected());
     }
 
 }

@@ -32,7 +32,6 @@ public class towerRollers extends SubsystemBase {
     private final LoggedTalon krakenMotor;
     private final MotionMagicVelocityTorqueCurrentFOC velocityControl;
     private final DutyCycleOut dutyCycleControl;
-    private NetworkTableInstance NTinst;
     private NetworkTable NTtable;
     private DoubleSubscriber sub;
     private TalonFXConfiguration config = new TalonFXConfiguration();
@@ -62,6 +61,7 @@ public class towerRollers extends SubsystemBase {
      */
 
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
+
         NTtable.getEntry(valueName).setDouble(defaultVal);
         NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
             configSetter.accept(event.valueData.value.getDouble());
@@ -70,12 +70,10 @@ public class towerRollers extends SubsystemBase {
             krakenMotor.getConfigurator().apply(config);
             System.out.println("Updated: " + valueName + " to this: " + event.valueData.value.getDouble() + "!");
         });
-
     }
 
     private void configThruNT() {
-        NTinst = NetworkTableInstance.getDefault();
-        NTtable = NTinst.getTable("tower");
+        NTtable = NetworkTableInstance.getDefault().getTable("tuneTower");
         yoTuneThis("Pids/P", val -> pidSlots.withKP(val), TowerConstants.KP);
         yoTuneThis("Pids/I", val -> pidSlots.withKI(val), TowerConstants.KI);
         yoTuneThis("Pids/D", val -> pidSlots.withKD(val), TowerConstants.KD);
@@ -83,12 +81,12 @@ public class towerRollers extends SubsystemBase {
         yoTuneThis("Pids/V", val -> pidSlots.withKV(val), TowerConstants.KV);
         // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
         // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
-        yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(dutyCycleControl.withOutput(val)), 0);
+        yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(new DutyCycleOut(val)), 0);
         yoTuneThis("setMMVTCF", val -> krakenMotor.setControl(new VelocityVoltage(val)), 0);
 
-        yoTuneThis("MMAccel", val -> config.MotionMagic.MotionMagicAcceleration = val, 100);
-        yoTuneThis("MMJerk", val -> config.MotionMagic.MotionMagicJerk = val, 1000);
-        yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, 100);
+        yoTuneThis("MMAccel", val -> config.MotionMagic.MotionMagicAcceleration = val, TowerConstants.MM_ACCEL);
+        yoTuneThis("MMJerk", val -> config.MotionMagic.MotionMagicJerk = val, TowerConstants.MM_JERK);
+        yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, TowerConstants.MM_MAXVELO);
 
         yoTuneThis("GearReduction", val -> config.Feedback.SensorToMechanismRatio = val, TowerConstants.GEAR_REDUCTION);
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
@@ -105,11 +103,17 @@ public class towerRollers extends SubsystemBase {
                 new CurrentLimitsConfigs()
                         .withStatorCurrentLimitEnable(TowerConstants.STATOR_CURRENT_LIMIT_ENABLE)
                         .withStatorCurrentLimit(Amps.of(TowerConstants.STATOR_CURRENT_LIMIT_AMPS)));
-        config.MotionMagic.MotionMagicCruiseVelocity = 300; // rotations/sec^2
-        config.MotionMagic.MotionMagicAcceleration = 100; // rotations/sec^2
-        config.MotionMagic.MotionMagicJerk = 1000; // optional
+        config.MotionMagic.MotionMagicCruiseVelocity = TowerConstants.MM_MAXVELO; // rotations/sec^2
+        config.MotionMagic.MotionMagicAcceleration = TowerConstants.MM_ACCEL; // rotations/sec^2
+        config.MotionMagic.MotionMagicJerk = TowerConstants.MM_JERK; // optional
         config.Feedback.SensorToMechanismRatio = TowerConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
+        pidSlots.withKP(TowerConstants.KP);
+        pidSlots.withKP(TowerConstants.KI);
+        pidSlots.withKP(TowerConstants.KD);
+        pidSlots.withKP(TowerConstants.KS);
+        pidSlots.withKP(TowerConstants.KV);
+
         config.withSlot0(new Slot0Configs()
                 .withKP(TowerConstants.KP)
                 .withKI(TowerConstants.KI)

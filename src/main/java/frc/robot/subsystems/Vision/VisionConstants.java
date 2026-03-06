@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.util.PolynomialRegression;
 
 public final class VisionConstants {
-
+  public static final doube 
   public static final double FIELD_X = 16.54;
   public static final double FIELD_Y = 8.07;
   public static final double ROBOT_RADIUS = 0.762;

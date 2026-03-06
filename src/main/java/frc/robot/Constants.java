@@ -40,7 +40,7 @@ public final class Constants {
   // ==================== GLOBAL ====================
   public static final String Swerve_CAN_BUS = "swerveCAN";
   public static final String Mech_CAN_BUS = "mechCAN";
-
+  // debug mode / pushing hella stuff to NT tables
   // Subsystem Enable/Disable
   public static final boolean SWERVE_ENABLED = true;
   public static final boolean MECH_ENABLED = true;
@@ -68,6 +68,11 @@ public final class Constants {
     public static final double KD = 0.0;
     public static final double KS = 0.0;
     public static final double KV = 0.12;
+
+    // motion magic
+    public static final double MM_ACCEL = 6.0;// distance
+    public static final double MM_JERK = 6.0;// distance
+    public static final double MM_MAXVELO = 6.0;// distance
 
     // Current limits
     public static final int SUPPLY_CURRENT_LIMIT = 80;
@@ -97,6 +102,12 @@ public final class Constants {
 
     public static double gearRatioUpper = 1.5;
     public static double gearRatioHood = 50;
+    // Velocity control PID
+    public static final double KP = 0.5;
+    public static final double KI = 0.0;
+    public static final double KD = 0.0;
+    public static final double KS = 0.0;
+    public static final double KV = 0.12;
 
     public static double upperAngle = 0;
     public static double lowerAngle = -0.328;
