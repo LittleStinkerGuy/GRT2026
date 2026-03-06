@@ -98,7 +98,6 @@ public final class Constants {
     public static int secondId = 20;
 
     public static int hoodEncoderId = 3;
-    public static int limitId = 3;
 
     public static double gearRatioUpper = 1.5;
     public static double gearRatioHood = 50;
@@ -109,9 +108,9 @@ public final class Constants {
     public static final double KS = 0.0;
     public static final double KV = 0.12;
     // motion magic
-    public static final double MM_ACCEL = 6.0;// distance
-    public static final double MM_JERK = 6.0;// distance
-    public static final double MM_MAXVELO = 6.0;// distance
+    public static final double MM_ACCEL = 30;// distance
+    public static final double MM_JERK = 150;// distance
+    public static final double MM_MAXVELO = 500;// distance
 
     public static double upperAngle = 0;
     public static double lowerAngle = -0.328;
