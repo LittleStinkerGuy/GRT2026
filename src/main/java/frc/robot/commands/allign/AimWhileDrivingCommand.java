@@ -49,7 +49,7 @@ public class AimWhileDrivingCommand extends Command {
         if (redTeam) {
 
             if (pose.getX() > AlignConstants.RED_WALL_X) {
-                return AlignConstants.RED_HUB;
+                return AlignConstants.RED_HUB_TRANS;
             }
 
             if (pose.getY() > AlignConstants.HUB_Y) {
@@ -61,7 +61,7 @@ public class AimWhileDrivingCommand extends Command {
         } else {
 
             if (pose.getX() < AlignConstants.BLUE_WALL_X) {
-                return AlignConstants.BLUE_HUB;
+                return AlignConstants.BLUE_HUB_TRANS;
             }
 
             if (pose.getY() > AlignConstants.HUB_Y) {
