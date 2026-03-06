@@ -1,0 +1,77 @@
+package frc.robot.commands.align;
+
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.wpilibj2.command.Command;
+
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+
+public class AimWhileDrivingCommand extends Command {
+
+    private final SwerveSubsystem swerve;
+
+    private final DoubleSupplier xSupplier;
+    private final DoubleSupplier ySupplier;
+
+    private final Translation2d target;
+
+    // shooter position relative to robot center
+    private static final Translation2d SHOOTER_OFFSET = new Translation2d(-0.08, 0.073);
+
+    private final PIDController rotationPID = new PIDController(5.0, 0.0, 0.2);
+
+    public AimWhileDrivingCommand(
+        SwerveSubsystem swerve,
+        DoubleSupplier xSupplier,
+        DoubleSupplier ySupplier,
+        Translation2d target
+    ) {
+
+        this.swerve = swerve;
+        this.xSupplier = xSupplier;
+        this.ySupplier = ySupplier;
+        this.target = target;
+
+        rotationPID.enableContinuousInput(-Math.PI, Math.PI);
+
+        addRequirements(swerve);
+    }
+
+    private Rotation2d getTargetRotation() {
+
+        Pose2d robotPose = swerve.getRobotPosition();
+
+        Translation2d shooterPosition =
+            robotPose.getTranslation().plus(
+                SHOOTER_OFFSET.rotateBy(robotPose.getRotation())
+            );
+
+        Translation2d toTarget = target.minus(shooterPosition);
+
+        return toTarget.getAngle().plus(Rotation2d.fromDegrees(90));
+    }
+
+    @Override
+    public void execute() {
+
+        double x = xSupplier.getAsDouble();
+        double y = ySupplier.getAsDouble();
+
+        Rotation2d currentHeading = swerve.getRobotPosition().getRotation();
+        Rotation2d targetHeading = getTargetRotation();
+
+        double omega = rotationPID.calculate(
+            currentHeading.getRadians(),
+            targetHeading.getRadians()
+        );
+
+        swerve.setDrivePowers(x, y, omega);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        swerve.setDrivePowers(0, 0, 0);
+    }
+}
