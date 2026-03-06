@@ -33,7 +33,7 @@ public class flywheel extends SubsystemBase {
     private final LoggedTalon secondMotor;
     private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
-    private TalonFXConfiguration cfg;
+    private TalonFXConfiguration cfg = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
     private double wantedVe = 0;
