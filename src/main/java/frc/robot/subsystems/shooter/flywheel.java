@@ -78,15 +78,15 @@ public class flywheel extends SubsystemBase {
         secondMotor = new LoggedTalon(railgunConstants.secondId, cn);
 
         config();
-        // configThruNT();
+        configThruNT();
     }
 
     public void config() {
-        // cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        // cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        cfg.MotionMagic.MotionMagicCruiseVelocity = 500; // target RPS cap
-        cfg.MotionMagic.MotionMagicAcceleration = 30; // RPS per second
-        cfg.MotionMagic.MotionMagicJerk = 150; // optional, smoothness
+        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        cfg.MotionMagic.MotionMagicCruiseVelocity = railgunConstants.MM_MAXVELO; // target RPS cap
+        cfg.MotionMagic.MotionMagicAcceleration = railgunConstants.MM_ACCEL; // RPS per second
+        cfg.MotionMagic.MotionMagicJerk = railgunConstants.MM_JERK; // optional, smoothness
 
         pidSlots.withKP(railgunConstants.KP);
         pidSlots.withKP(railgunConstants.KI);
