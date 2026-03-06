@@ -65,9 +65,9 @@ public class flywheel extends SubsystemBase {
         yoTuneThis("setDutyCyclePercent", val -> upperMotor.setControl(new DutyCycleOut(val)), 0);
         yoTuneThis("setMMVTCF", val -> upperMotor.setControl(new VelocityVoltage(val)), 0);
 
-        yoTuneThis("MMAccel", val -> cfg.MotionMagic.MotionMagicAcceleration = val, TowerConstants.MM_ACCEL);
-        yoTuneThis("MMJerk", val -> cfg.MotionMagic.MotionMagicJerk = val, TowerConstants.MM_JERK);
-        yoTuneThis("MMMaxVelo", val -> cfg.MotionMagic.MotionMagicCruiseVelocity = val, TowerConstants.MM_MAXVELO);
+        yoTuneThis("MMAccel", val -> cfg.MotionMagic.MotionMagicAcceleration = val, railgunConstants.MM_ACCEL);
+        yoTuneThis("MMJerk", val -> cfg.MotionMagic.MotionMagicJerk = val, railgunConstants.MM_JERK);
+        yoTuneThis("MMMaxVelo", val -> cfg.MotionMagic.MotionMagicCruiseVelocity = val, railgunConstants.MM_MAXVELO);
 
         yoTuneThis("GearReduction", val -> cfg.Feedback.SensorToMechanismRatio = val, railgunConstants.gearRatioUpper);
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
@@ -78,21 +78,21 @@ public class flywheel extends SubsystemBase {
         secondMotor = new LoggedTalon(railgunConstants.secondId, cn);
 
         config();
-        configThruNT();
+        // configThruNT();
     }
 
     public void config() {
-        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        // cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         cfg.MotionMagic.MotionMagicCruiseVelocity = 500; // target RPS cap
         cfg.MotionMagic.MotionMagicAcceleration = 30; // RPS per second
         cfg.MotionMagic.MotionMagicJerk = 150; // optional, smoothness
 
-        pidSlots.withKP(TowerConstants.KP);
-        pidSlots.withKP(TowerConstants.KI);
-        pidSlots.withKP(TowerConstants.KD);
-        pidSlots.withKP(TowerConstants.KS);
-        pidSlots.withKP(TowerConstants.KV);
+        pidSlots.withKP(railgunConstants.KP);
+        pidSlots.withKP(railgunConstants.KI);
+        pidSlots.withKP(railgunConstants.KD);
+        pidSlots.withKP(railgunConstants.KS);
+        pidSlots.withKP(railgunConstants.KV);
         cfg.withSlot0(pidSlots);
 
         cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;

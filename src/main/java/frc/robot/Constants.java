@@ -96,7 +96,7 @@ public final class Constants {
     public static int upperId = 17;
     public static int hoodId = 16;
     public static int secondId = 20;
-    
+
     public static int hoodEncoderId = 3;
     public static int limitId = 3;
 
@@ -108,6 +108,10 @@ public final class Constants {
     public static final double KD = 0.0;
     public static final double KS = 0.0;
     public static final double KV = 0.12;
+    // motion magic
+    public static final double MM_ACCEL = 6.0;// distance
+    public static final double MM_JERK = 6.0;// distance
+    public static final double MM_MAXVELO = 6.0;// distance
 
     public static double upperAngle = 0;
     public static double lowerAngle = -0.328;
