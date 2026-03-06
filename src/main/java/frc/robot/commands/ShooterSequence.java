@@ -11,24 +11,41 @@ import frc.robot.commands.shooter.rampFlywheel;
 import frc.robot.commands.shooter.hoodCommand;
 import frc.robot.commands.hopper.indexerRun;
 import frc.robot.commands.shooter.towerRollers.towerRoll;
-import frc.robot.commands.allign.AimBot;
-import frc.robot.commands.allign.RotateToFieldAngleCommand;
+import frc.robot.commands.allign.AimWhileDrivingCommand;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
+import java.util.function.DoubleSupplier;
+
 public class ShooterSequence extends SequentialCommandGroup {
 
-    public ShooterSequence(SwerveSubsystem swerve, flywheel fly, hood hood, HopperSubsystem hopper, FieldManagementSubsystem fms, towerRollers b) {
+    public ShooterSequence(
+        SwerveSubsystem swerve,
+        flywheel fly,
+        hood hood,
+        HopperSubsystem hopper,
+        FieldManagementSubsystem fms,
+        towerRollers b,
+        DoubleSupplier xSpeed,
+        DoubleSupplier ySpeed
+    ) {
 
-        
-        AimBot aimToHubCommand = new AimBot(swerve, fms, fms.isRedAlliance());
         boolean redTeam = fms.isRedAlliance();
+
+        AimWhileDrivingCommand aimWhileDriving =
+            new AimWhileDrivingCommand(
+                swerve,
+                fms,
+                redTeam,
+                xSpeed,
+                ySpeed
+            );
 
         addCommands(
 
             new ParallelCommandGroup(
-                aimToHubCommand,
+                aimWhileDriving,
                 new rampFlywheel(fly, redTeam),
                 new hoodCommand(hood, redTeam),
                 new towerRoll(b),
