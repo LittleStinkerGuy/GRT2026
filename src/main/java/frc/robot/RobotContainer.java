@@ -203,10 +203,34 @@ public class RobotContainer {
     // ==================== HOPPER ====================
     // L1 = hopper in
 
-    driveController.square().toggleOnTrue(Commands.defer(()->new ShooterSequence(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem, tower)
-    , java.util.Set.of(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, fmsSubsystem, tower)));
+   driveController.square().toggleOnTrue(
+    Commands.defer(
+        () -> new ShooterSequence(
+            swerveSubsystem,
+            flywheelSubsystem,
+            hoodSubsystem,
+            HopperSubsystem,
+            fmsSubsystem,
+            tower,
 
-    driveController.square().toggleOnFalse(new rampDownFlywheel(flywheelSubsystem));
+            () -> -driveController.getLeftY(), // forward/back
+            () -> -driveController.getLeftX()  // strafe
+        ),
+        java.util.Set.of(
+            swerveSubsystem,
+            flywheelSubsystem,
+            hoodSubsystem,
+            HopperSubsystem,
+            fmsSubsystem,
+            tower
+        )
+      )
+  );
+
+  driveController.square().toggleOnFalse(
+      new rampDownFlywheel(flywheelSubsystem)
+  );
+
     // ==================== SHOOTER ====================
     // R2 = flywheel (analog speed control)
     // Left stick Y = hood manual control
