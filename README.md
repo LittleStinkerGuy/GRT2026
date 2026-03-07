@@ -72,7 +72,7 @@
 | **Hopper**      | Hopper           | Kraken x44  | -        | 15           |
 | **Shooter**     | Hood             | Kraken x44  | -        | 16           |
 |                 | Flywheel         | Kraken x44  | -        | 17           |
-|                 | Flywheel Encoder | Throughbore | -        | 18           |
+|                 | Hood Encoder     | Throughbore | -        | 18           |
 | **Climb**       | Doornob          | Kraken x44  | -        | 19           |
 |                 | Doornob Encoder  | Throughbore | -        | 20           |
 |                 | Winch            | Kraken x60  | -        | 21           |
@@ -81,6 +81,8 @@
 |                 | CANivore         | CANivore    | -        | "swerve-can" |
 |                 | CANivore         | CANivore    | -        | "mech-can"   |
 |                 | Pigeon           | Pigeon 2.0  | -        | 24           |
+| **Extra**       | Second Flywheel  | X60         | -        | 25           |
+|                 | Tower Roller     | X40         | -        | 26           |
 
 ## **Motor Configuration**
 
