@@ -46,7 +46,7 @@ public final class Constants {
   public static final boolean MECH_ENABLED = true;
 
   public static class TowerConstants {
-    public static final int KRAKEN_CAN_ID = 15;
+    public static final int KRAKEN_CAN_ID = 26;
 
     public enum TOWER_INTAKE {
       BALLUP,
@@ -95,9 +95,9 @@ public final class Constants {
     // Everything in metric pls
     public static int upperId = 17;
     public static int hoodId = 16;
-    public static int secondId = 20;
+    public static int secondId = 25;
 
-    public static int hoodEncoderId = 3;
+    public static int hoodEncoderId = 18;
 
     public static double gearRatioUpper = 1.5;
     public static double gearRatioHood = 50;
