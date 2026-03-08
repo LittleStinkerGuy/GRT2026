@@ -28,8 +28,7 @@ public class ShooterSequence extends SequentialCommandGroup {
         FieldManagementSubsystem fms,
         towerRollers b,
         DoubleSupplier xSpeed,
-        DoubleSupplier ySpeed
-    ) {
+        DoubleSupplier ySpeed) {
 
         boolean redTeam = fms.isRedAlliance();
 
@@ -38,8 +37,7 @@ public class ShooterSequence extends SequentialCommandGroup {
                 swerve,
                 fms,
                 xSpeed,
-                ySpeed
-            );
+                ySpeed);
 
         addCommands(
 
@@ -50,8 +48,6 @@ public class ShooterSequence extends SequentialCommandGroup {
                 new towerRoll(b),
 
                 new indexerRun(hopper)
-                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl() && b.correctRoll()))
-            )
-        );
+                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl() && b.correctRoll()))));
     }
 }

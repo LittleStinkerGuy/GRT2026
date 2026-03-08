@@ -23,32 +23,32 @@ public final class VisionConstants {
     };
 
     public static final CameraConfig cameraConfig7 = new CameraConfig(
-            "7",
-            new Transform3d(
-                    0.28, 0, 0,
-                    new Rotation3d(0, -Math.toRadians(5), 0)));
+        "7",
+        new Transform3d(
+            0.28, 0, 0,
+            new Rotation3d(0, -Math.toRadians(5), 0)));
     public static final CameraConfig cameraConfig12 = new CameraConfig(
-            "12",
-            new Transform3d(
-                    0.28, 0, 0,
-                    new Rotation3d(0, -Math.toRadians(5), 0)));
+        "12",
+        new Transform3d(
+            0.28, 0, 0,
+            new Rotation3d(0, -Math.toRadians(5), 0)));
     public static final CameraConfig cameraConfig11 = new CameraConfig(
-            "11",
-            new Transform3d(
-                    -0.25, -0.313, 0.339,
-                    new Rotation3d(
-                            new Quaternion(-0.6919944799721134, 0.1678468872622234, 0.15463356158232774,
-                                    0.6848792037701769))));
+        "11",
+        new Transform3d(
+            -0.25, -0.313, 0.339,
+            new Rotation3d(
+                new Quaternion(-0.6919944799721134, 0.1678468872622234, 0.15463356158232774,
+                    0.6848792037701769))));
     public static final CameraConfig cameraConfig6 = new CameraConfig(
-            "6",
-            new Transform3d(
-                    0.28, 0, 0,
-                    new Rotation3d(0, -Math.toRadians(5), 0)));
+        "6",
+        new Transform3d(
+            0.28, 0, 0,
+            new Rotation3d(0, -Math.toRadians(5), 0)));
     public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
-            STD_DEV_DIST, X_STD_DEV, 2);
+        STD_DEV_DIST, X_STD_DEV, 2);
     public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
-            STD_DEV_DIST, Y_STD_DEV, 2);
+        STD_DEV_DIST, Y_STD_DEV, 2);
     public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
-            STD_DEV_DIST, O_STD_DEV, 1);
+        STD_DEV_DIST, O_STD_DEV, 1);
 
 }

@@ -14,27 +14,26 @@ public class HopperManualCommand extends Command {
         this.speedSupplier = speedSupplier;
         addRequirements(subsystem);
     }
-    
+
     @Override
-    public void initialize() {
-    }
-    
+    public void initialize() {}
+
     @Override
     public void execute() {
         double speed = speedSupplier.getAsDouble();
-        
+
         if (Math.abs(speed) < 0.1) {
             speed = 0.0;
         }
-        
+
         HopperSubsystem.setManualControl(speed);
     }
-    
+
     @Override
     public void end(boolean interrupted) {
         HopperSubsystem.setHopper(HOPPER_INTAKE.STOP);
     }
-    
+
     @Override
     public boolean isFinished() {
         return false;

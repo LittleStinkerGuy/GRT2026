@@ -51,14 +51,14 @@ public class HopperSubsystem extends SubsystemBase {
      * 
      * 
      * 
-     * @param valueName    The name of the value in NetworkTables (ex: "P", "I",
-     *                     "D").
+     * @param valueName The name of the value in NetworkTables (ex: "P", "I",
+     *        "D").
      * @param configSetter A Consumer that takes the new double value and applies it
-     *                     to the
+     *        to the
      * 
      * 
-     *                     s.withKP(value)).
-     * @param defaultVal   The default value to publish to NetworkTables on startup.
+     *        s.withKP(value)).
+     * @param defaultVal The default value to publish to NetworkTables on startup.
      */
 
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
@@ -91,32 +91,32 @@ public class HopperSubsystem extends SubsystemBase {
         yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, 100);
 
         yoTuneThis("GearReduction", val -> config.Feedback.SensorToMechanismRatio = val,
-                HopperConstants.GEAR_REDUCTION);
+            HopperConstants.GEAR_REDUCTION);
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
     }
 
     private void configureMotor() {
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Coast)
-                .withInverted(HopperConstants.HOPPERINVERTED));
+            .withNeutralMode(NeutralModeValue.Coast)
+            .withInverted(HopperConstants.HOPPERINVERTED));
 
         // Current limits
         config.withCurrentLimits(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                        .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
+                .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
         config.MotionMagic.MotionMagicCruiseVelocity = 300; // rotations/sec^2
         config.MotionMagic.MotionMagicAcceleration = 100; // rotations/sec^2
         config.MotionMagic.MotionMagicJerk = 1000; // optional
         config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
         config.withSlot0(new Slot0Configs()
-                .withKP(HopperConstants.KP)
-                .withKI(HopperConstants.KI)
-                .withKD(HopperConstants.KD)
-                .withKS(HopperConstants.KS)
-                .withKV(HopperConstants.KV));
+            .withKP(HopperConstants.KP)
+            .withKI(HopperConstants.KI)
+            .withKD(HopperConstants.KD)
+            .withKS(HopperConstants.KS)
+            .withKV(HopperConstants.KV));
 
         krakenMotor.getConfigurator().apply(config);
     }
