@@ -29,6 +29,7 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.commands.intake.ManualIntakePivotCommand;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import frc.robot.commands.vision.GetCameraDisplacement;
+import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
@@ -244,6 +245,14 @@ public class RobotContainer {
           flywheelSubsystem.flySpeed(0);
         }
       }, flywheelSubsystem));
+
+      tower.setDefaultCommand(Commands.run(() -> {
+        if (DriverStation.isJoystickConnected(1) && mechController.getR2Axis() > -0.7) {
+          tower.setTower(TOWER_INTAKE.BALLUP);
+        } else {
+          tower.setTower(TOWER_INTAKE.STOP);
+        }
+      }, tower));
 
       hoodSubsystem.setDefaultCommand(Commands.run(() -> {
         if (mechController.L3().getAsBoolean()) {

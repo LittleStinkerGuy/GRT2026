@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "com.diffplug.spotless" version "7.0.2"
 }
 
 java {
@@ -109,3 +110,12 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+// Auto-format code on build using Eclipse formatter
+spotless {
+    java {
+        eclipse().configFile('eclipse-java-formatter.xml')
+        target 'src/**/*.java'
+    }
+}
+compileJava.dependsOn spotlessApply

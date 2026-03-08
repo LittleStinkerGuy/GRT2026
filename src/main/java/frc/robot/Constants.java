@@ -60,7 +60,7 @@ public final class Constants {
     public static final double TARGET_BPS = 4.0;// frequency
     public static final double WHEEL_RADIUS = 1.0;// distance
     public static final double BALL_DIAMETER = 6.0;// distance
-    public static final double TARGET_RPS = TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+    public static final double TARGET_RPS = 10;//TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS; 
 
     // Velocity control PID
     public static final double KP = 0.5;
