@@ -24,7 +24,7 @@ public class hood extends SubsystemBase {
     private PositionVoltage focThing = new PositionVoltage(0);
     private final CANcoder hoodCoder;
 
-    private double wantedAngle = 0;
+    private double wantedAngle = 0.1;
 
     private double commandedDutyCycle = 0.0;
     private static final String LOG_PREFIX = "Hood/";
@@ -49,7 +49,7 @@ public class hood extends SubsystemBase {
         cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = railgunConstants.upperAngle;
         cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = railgunConstants.lowerAngle;
-        cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
+        cfg.Feedback.RotorToSensorRatio = railgunConstants.gearRatioHood;
 
         cfg.Slot0.kP = 8;
         cfg.Slot0.kI = 3;
@@ -63,16 +63,16 @@ public class hood extends SubsystemBase {
         cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         cfg.Feedback.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
 
-        cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioHood;
+        cfg.Feedback.SensorToMechanismRatio = 1;
 
         hoodMotor.getConfigurator().apply(cfg);
     }
 
     public void setHoodAngle(double rotationAngle) {
-        wantedAngle = rotationAngle;
         if (rotationAngle >= railgunConstants.lowerAngle && rotationAngle <= railgunConstants.upperAngle) {
             hoodMotor.setControl(focThing.withPosition(rotationAngle));
             System.out.println("HoodControl" + rotationAngle);
+            wantedAngle = rotationAngle;
         }
     }
 
