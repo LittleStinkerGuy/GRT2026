@@ -65,12 +65,12 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         // Using FusedCANcoder! (basically combines combines the cancoder position abs w the internal encoder)
-        new FeedbackConfigs()
+        config.withFeedback(new FeedbackConfigs()
                         .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
                         .withFeedbackRemoteSensorID(IntakeConstants.PIVOT_CANCODER_ID)
                         .withSensorToMechanismRatio(1.0) // CANcoder is 1:1 with mechanism
                         .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO) // Motor to CANcoder ratio
-        ;
+        );
 
         // StatorCurrent Limits
         config.withCurrentLimits(
