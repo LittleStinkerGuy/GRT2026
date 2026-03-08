@@ -20,9 +20,9 @@ public class RotateToAngleCommand extends Command {
 
         this.cancelCondition = cancelCondition;
         this.pid = new PIDController(
-                        RotateToAngleConstants.kP,
-                        RotateToAngleConstants.kI,
-                        RotateToAngleConstants.kD);
+            RotateToAngleConstants.kP,
+            RotateToAngleConstants.kI,
+            RotateToAngleConstants.kD);
         pid.enableContinuousInput(-180, 180);
         pid.setTolerance(RotateToAngleConstants.TOLERANCE_DEGREES);
         addRequirements(swerve);

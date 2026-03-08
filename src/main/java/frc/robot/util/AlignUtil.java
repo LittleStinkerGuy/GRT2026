@@ -36,10 +36,10 @@ public class AlignUtil {
         this.currentPosition = currentPosition;
 
         this.constraints = new PathConstraints(
-                        4.6,
-                        3,
-                        Units.degreesToRadians(540),
-                        Units.degreesToRadians(720));
+            4.6,
+            3,
+            Units.degreesToRadians(540),
+            Units.degreesToRadians(720));
 
     }
 
@@ -65,17 +65,17 @@ public class AlignUtil {
 
             }
             Command alignPath = AutoBuilder.pathfindThenFollowPath(
-                            path,
-                            constraints);
+                path,
+                constraints);
 
             System.out.println("XXXXXXXXXXXXXXXXXX");
             alignPath.addRequirements(swerveSubsystem);
 
             runAlignPath = (Command) new SequentialCommandGroup(
-                            new DriveBackwardsCommand(swerveSubsystem, drivePower).until(
-                                            () -> Math.abs(swerveSubsystem.getRobotPosition().getTranslation()
-                                                            .getDistance(pathStartTrans)) > AlignConstants.distanceTolerance),
-                            alignPath);
+                new DriveBackwardsCommand(swerveSubsystem, drivePower).until(
+                    () -> Math.abs(swerveSubsystem.getRobotPosition().getTranslation()
+                        .getDistance(pathStartTrans)) > AlignConstants.distanceTolerance),
+                alignPath);
 
         } else {
             PathPlannerPath path = getAlignPath(pathName);
@@ -86,8 +86,8 @@ public class AlignUtil {
 
             System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
             runAlignPath = AutoBuilder.pathfindThenFollowPath(
-                            path,
-                            constraints);
+                path,
+                constraints);
         }
 
         // TESTING PATHFIND TO PATH VS ON THE FLY PATH
@@ -132,10 +132,10 @@ public class AlignUtil {
     public PathPlannerPath getAlignPath(List<Waypoint> pathWaypoints, GoalEndState goalEndState) {
 
         PathPlannerPath getAlignPath = new PathPlannerPath(
-                        pathWaypoints,
-                        constraints,
-                        null,
-                        goalEndState);
+            pathWaypoints,
+            constraints,
+            null,
+            goalEndState);
         return getAlignPath;
     }
 

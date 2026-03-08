@@ -66,31 +66,31 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
         // Using FusedCANcoder! (basically combines combines the cancoder position abs w the internal encoder)
         config.withFeedback(new FeedbackConfigs()
-                        .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
-                        .withFeedbackRemoteSensorID(IntakeConstants.PIVOT_CANCODER_ID)
-                        .withSensorToMechanismRatio(1.0) // CANcoder is 1:1 with mechanism
-                        .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO) // Motor to CANcoder ratio
+            .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+            .withFeedbackRemoteSensorID(IntakeConstants.PIVOT_CANCODER_ID)
+            .withSensorToMechanismRatio(1.0) // CANcoder is 1:1 with mechanism
+            .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO) // Motor to CANcoder ratio
         );
 
         // StatorCurrent Limits
         config.withCurrentLimits(
-                        new CurrentLimitsConfigs()
-                                        .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
-                                        .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
 
         // Motion Magic Config
         config.withMotionMagic(
-                        new MotionMagicConfigs()
-                                        .withMotionMagicCruiseVelocity(cruiseVelocity)
-                                        .withMotionMagicAcceleration(acceleration));
+            new MotionMagicConfigs()
+                .withMotionMagicCruiseVelocity(cruiseVelocity)
+                .withMotionMagicAcceleration(acceleration));
 
         // Software Limits (disabled for tuning)
         config.withSoftwareLimitSwitch(
-                        new SoftwareLimitSwitchConfigs()
-                                        .withForwardSoftLimitEnable(false)
-                                        .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
-                                        .withReverseSoftLimitEnable(false)
-                                        .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
+            new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(false)
+                .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+                .withReverseSoftLimitEnable(false)
+                .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
 
         pivotMotor.getConfigurator().apply(config);
     }
@@ -112,7 +112,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
         // Only reconfig if values changed
         if (newP != kP || newI != kI || newD != kD || newV != kV ||
-                        newCruise != cruiseVelocity || newAccel != acceleration) {
+            newCruise != cruiseVelocity || newAccel != acceleration) {
             kP = newP;
             kI = newI;
             kD = newD;

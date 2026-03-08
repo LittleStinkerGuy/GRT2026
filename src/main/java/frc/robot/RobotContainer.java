@@ -118,30 +118,30 @@ public class RobotContainer {
          */
         if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
             swerveSubsystem.setDefaultCommand(
-                            new RunCommand(() -> {
-                                swerveSubsystem.setDrivePowers(
-                                                driveController.getForwardPower(),
-                                                driveController.getLeftPower(),
-                                                driveController.getRotatePower());
-                            },
-                                            swerveSubsystem));
+                new RunCommand(() -> {
+                    swerveSubsystem.setDrivePowers(
+                        driveController.getForwardPower(),
+                        driveController.getLeftPower(),
+                        driveController.getRotatePower());
+                },
+                    swerveSubsystem));
 
             driveController.getRelativeMode().whileTrue(
-                            new RunCommand(
-                                            () -> {
-                                                swerveSubsystem.setRobotRelativeDrivePowers(
-                                                                driveController.getForwardPower(),
-                                                                driveController.getLeftPower(),
-                                                                driveController.getRotatePower());
-                                                driveController.getRotatePower();
-                                            }, swerveSubsystem));
+                new RunCommand(
+                    () -> {
+                        swerveSubsystem.setRobotRelativeDrivePowers(
+                            driveController.getForwardPower(),
+                            driveController.getLeftPower(),
+                            driveController.getRotatePower());
+                        driveController.getRotatePower();
+                    }, swerveSubsystem));
 
             /* Pressing the button resets the field axes to the current robot axes. */
             driveController.bindDriverHeadingReset(
-                            () -> {
-                                swerveSubsystem.resetDriverHeading();
-                            },
-                            swerveSubsystem);
+                () -> {
+                    swerveSubsystem.resetDriverHeading();
+                },
+                swerveSubsystem);
         }
 
         if (Constants.MECH_ENABLED) {
@@ -215,8 +215,8 @@ public class RobotContainer {
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
                 // Cancel rotate command if driver touches any stick
                 BooleanSupplier driverInput = () -> Math.abs(driveController.getForwardPower()) > 0 ||
-                                Math.abs(driveController.getLeftPower()) > 0 ||
-                                Math.abs(driveController.getRotatePower()) > 0;
+                    Math.abs(driveController.getLeftPower()) > 0 ||
+                    Math.abs(driveController.getRotatePower()) > 0;
 
                 // Triangle = rotate to 0°, Circle = rotate to 90°
                 driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
@@ -228,13 +228,13 @@ public class RobotContainer {
                 // D-pad steer speed limiting (scales MotionMagic cruise velocity)
                 // Up = 100%, Right = 75%, Down = 50%, Left = 25%
                 new Trigger(() -> driveController.getPOV() == 0)
-                                .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
                 new Trigger(() -> driveController.getPOV() == 90)
-                                .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
                 new Trigger(() -> driveController.getPOV() == 180)
-                                .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
                 new Trigger(() -> driveController.getPOV() == 270)
-                                .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
             }
         }
 

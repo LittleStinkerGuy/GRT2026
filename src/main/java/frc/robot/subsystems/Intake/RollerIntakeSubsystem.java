@@ -46,21 +46,21 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(IntakeConstants.ROLLER_INVERTED));
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(IntakeConstants.ROLLER_INVERTED));
 
         // Current limits
         config.withCurrentLimits(
-                        new CurrentLimitsConfigs()
-                                        .withStatorCurrentLimitEnable(true)
-                                        .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT)));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(true)
+                .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT)));
 
         // Velocity PID configuration
         config.withSlot0(new Slot0Configs()
-                        .withKP(kP)
-                        .withKI(kI)
-                        .withKD(kD)
-                        .withKV(kV));
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKV(kV));
 
         rollerMotor.getConfigurator().apply(config);
     }

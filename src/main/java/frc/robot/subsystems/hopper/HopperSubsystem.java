@@ -41,17 +41,17 @@ public class HopperSubsystem extends SubsystemBase {
 
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(HopperConstants.HOPPERINVERTED));
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(HopperConstants.HOPPERINVERTED));
 
         // Current limits
         config.withCurrentLimits(
-                        new CurrentLimitsConfigs()
-                                        .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                                        .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
+                .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
 
         config.withOpenLoopRamps(new OpenLoopRampsConfigs()
-                        .withDutyCycleOpenLoopRampPeriod(HopperConstants.DUTY_CYCLE_OPEN_LOOP_RAMP));
+            .withDutyCycleOpenLoopRampPeriod(HopperConstants.DUTY_CYCLE_OPEN_LOOP_RAMP));
 
         // Velocity PID
         config.Slot0.kP = HopperConstants.HOPPER_P;

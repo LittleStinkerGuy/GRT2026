@@ -64,11 +64,11 @@ public class LoggedTalon {
     private double targetDutyCycle;
 
     public LoggedTalon(
-                    int canId, CANBus canBus, TalonFXConfiguration talonConfig) {
+        int canId, CANBus canBus, TalonFXConfiguration talonConfig) {
         motor = new TalonFX(canId, canBus);
         for (int i = 0; i < 4; i++) {
             boolean error = motor.getConfigurator()
-                            .apply(talonConfig, 0.1) == StatusCode.OK;
+                .apply(talonConfig, 0.1) == StatusCode.OK;
             if (!error)
                 break;
         }
@@ -121,7 +121,7 @@ public class LoggedTalon {
     public void setPositionReferenceWithArbFF(double position, double arbFF) {
         targetPosition = position;
         motor.setControl(
-                        new PositionVoltage(position).withSlot(0).withFeedForward(arbFF));
+            new PositionVoltage(position).withSlot(0).withFeedForward(arbFF));
     }
 
     /**
@@ -199,7 +199,7 @@ public class LoggedTalon {
      * @param v kV Voltage feed forward
      */
     public void configurePIDSVG(double p, double i, double d, double s, double v,
-                    double g) {
+        double g) {
         Slot0Configs slot0Configs = new Slot0Configs();
 
         slot0Configs.kP = p;
@@ -222,36 +222,36 @@ public class LoggedTalon {
         motorStatsTable = ntInstance.getTable("MotorStats");
 
         positionPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "position").publish();
+            canId + "position").publish();
 
         veloPublisher = motorStatsTable.getDoubleTopic(canId + "velo").publish();
 
         appliedVlotsPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "appliedVolts").publish();
+            canId + "appliedVolts").publish();
 
         supplyCurrentPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "supplyCurrent").publish();
+            canId + "supplyCurrent").publish();
 
         statorCurrentPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "statorCurrent").publish();
+            canId + "statorCurrent").publish();
 
         temperaturePublisher = motorStatsTable.getDoubleTopic(
-                        canId + "temperature").publish();
+            canId + "temperature").publish();
 
         targetPositionPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "targetPosition").publish();
+            canId + "targetPosition").publish();
 
         targetVelocityPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "targetVelocity").publish();
+            canId + "targetVelocity").publish();
 
         targetVoltagePublisher = motorStatsTable.getDoubleTopic(
-                        canId + "targetVoltage").publish();
+            canId + "targetVoltage").publish();
 
         targetDutyCyclePublisher = motorStatsTable.getDoubleTopic(
-                        canId + "targetDutyCycle").publish();
+            canId + "targetDutyCycle").publish();
 
         closedLoopErrorPublisher = motorStatsTable.getDoubleTopic(
-                        canId + "closedLoopError").publish();
+            canId + "closedLoopError").publish();
     }
 
     /**
@@ -261,37 +261,37 @@ public class LoggedTalon {
      */
     private void initLogs(int canId) {
         positionLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "position");
+            DataLogManager.getLog(), canId + "position");
 
         veloLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "velo");
+            DataLogManager.getLog(), canId + "velo");
 
         appliedVoltsLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "appliedVolts");
+            DataLogManager.getLog(), canId + "appliedVolts");
 
         supplyCurrLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "supplyCurrent");
+            DataLogManager.getLog(), canId + "supplyCurrent");
 
         statorCurrLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "statorCurrent");
+            DataLogManager.getLog(), canId + "statorCurrent");
 
         temperatureLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "temperature");
+            DataLogManager.getLog(), canId + "temperature");
 
         targetPositionLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "targetPosition");
+            DataLogManager.getLog(), canId + "targetPosition");
 
         targetVelocityLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "targetVelocity");
+            DataLogManager.getLog(), canId + "targetVelocity");
 
         targetVoltageLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "targetVoltage");
+            DataLogManager.getLog(), canId + "targetVoltage");
 
         targetDutyCycleLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "targetDutyCycle");
+            DataLogManager.getLog(), canId + "targetDutyCycle");
 
         closedLoopErrorLogEntry = new DoubleLogEntry(
-                        DataLogManager.getLog(), canId + "closedLoopError");
+            DataLogManager.getLog(), canId + "closedLoopError");
     }
 
     /**
@@ -299,18 +299,18 @@ public class LoggedTalon {
      */
     public void enableDebug() {
         motorStatsTable.getDoubleArrayTopic(canId + "PIDSVG").publish().set(
-                        pidsvg);
+            pidsvg);
         motorStatsTable.addListener(canId + "PIDSVG",
-                        EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-                        (table, key, event) -> {
-                            configurePIDSVG(
-                                            event.valueData.value.getDoubleArray()[0],
-                                            event.valueData.value.getDoubleArray()[1],
-                                            event.valueData.value.getDoubleArray()[2],
-                                            event.valueData.value.getDoubleArray()[3],
-                                            event.valueData.value.getDoubleArray()[4],
-                                            event.valueData.value.getDoubleArray()[5]);
-                        });
+            EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+            (table, key, event) -> {
+                configurePIDSVG(
+                    event.valueData.value.getDoubleArray()[0],
+                    event.valueData.value.getDoubleArray()[1],
+                    event.valueData.value.getDoubleArray()[2],
+                    event.valueData.value.getDoubleArray()[3],
+                    event.valueData.value.getDoubleArray()[4],
+                    event.valueData.value.getDoubleArray()[5]);
+            });
     }
 
     /**
@@ -364,33 +364,33 @@ public class LoggedTalon {
      */
     public void logStats() {
         positionLogEntry.append(
-                        motor.getPosition().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getPosition().getValueAsDouble(), GRTUtil.getFPGATime());
 
         veloLogEntry.append(
-                        motor.getVelocity().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getVelocity().getValueAsDouble(), GRTUtil.getFPGATime());
 
         appliedVoltsLogEntry.append(
-                        motor.getMotorVoltage().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getMotorVoltage().getValueAsDouble(), GRTUtil.getFPGATime());
 
         supplyCurrLogEntry.append(
-                        motor.getSupplyCurrent().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getSupplyCurrent().getValueAsDouble(), GRTUtil.getFPGATime());
 
         statorCurrLogEntry.append(
-                        motor.getStatorCurrent().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getStatorCurrent().getValueAsDouble(), GRTUtil.getFPGATime());
 
         temperatureLogEntry.append(
-                        motor.getDeviceTemp().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getDeviceTemp().getValueAsDouble(), GRTUtil.getFPGATime());
 
         targetPositionLogEntry.append(targetPosition, GRTUtil.getFPGATime());
 
         targetVelocityLogEntry.append(targetVelocity, GRTUtil.getFPGATime());
 
         targetVoltageLogEntry.append(
-                        targetVoltage, GRTUtil.getFPGATime());
+            targetVoltage, GRTUtil.getFPGATime());
 
         targetDutyCycleLogEntry.append(targetDutyCycle, GRTUtil.getFPGATime());
 
         closedLoopErrorLogEntry.append(
-                        motor.getClosedLoopError().getValueAsDouble(), GRTUtil.getFPGATime());
+            motor.getClosedLoopError().getValueAsDouble(), GRTUtil.getFPGATime());
     }
 }

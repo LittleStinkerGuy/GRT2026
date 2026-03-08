@@ -66,15 +66,15 @@ public class Winch extends SubsystemBase {
 
     private void configureMotor() {
         motorConfig.withCurrentLimits(
-                        new CurrentLimitsConfigs()
-                                        .withStatorCurrentLimitEnable(true)
-                                        .withStatorCurrentLimit(Amps.of(120)))
-                        .withMotorOutput(new MotorOutputConfigs()
-                                        .withNeutralMode(NeutralModeValue.Brake)
-                                        .withInverted(ClimbConstants.WINCH_MOTOR_INVERTED))
-                        .withFeedback(new FeedbackConfigs()
-                                        .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                                        .withSensorToMechanismRatio(ClimbConstants.WINCH_GR));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(true)
+                .withStatorCurrentLimit(Amps.of(120)))
+            .withMotorOutput(new MotorOutputConfigs()
+                .withNeutralMode(NeutralModeValue.Brake)
+                .withInverted(ClimbConstants.WINCH_MOTOR_INVERTED))
+            .withFeedback(new FeedbackConfigs()
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                .withSensorToMechanismRatio(ClimbConstants.WINCH_GR));
         // .withHardwareLimitSwitch(new HardwareLimitSwitchConfigs()
         // .withReverseLimitEnable(true)
         // .withReverseLimitRemoteCANdiS1(hardstopCANdi))
@@ -156,11 +156,11 @@ public class Winch extends SubsystemBase {
     // rotate motor and stop it when boolean is true
     private Command rotateWinchWithStop(double dutyCycle, BooleanSupplier stopMotor) {
         return this.startEnd(
-                        () -> {
-                            setMotorDutyCycle(dutyCycle);
-                        }, () -> {
-                            setMotorDutyCycle(0);
-                        }).until(stopMotor);
+            () -> {
+                setMotorDutyCycle(dutyCycle);
+            }, () -> {
+                setMotorDutyCycle(0);
+            }).until(stopMotor);
     }
 
     // make claw go up and stop with boolean supplier
