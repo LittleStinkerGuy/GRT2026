@@ -25,6 +25,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private NetworkTableEntry isEStoppedEntry;
     private NetworkTableEntry isEnabledEntry;
     private NetworkTableEntry isDSAttachedEntry;
+
     /**
      * Initializes subsystem to handle information related to the Field Management System (such as our alliance color).
      */
@@ -45,7 +46,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         isEnabledEntry = FMSNTTable.getEntry("IsEnabled");
         isDSAttachedEntry = FMSNTTable.getEntry("IsDSAttached");
     }
-  
+
     public void periodic() {
         boolean incomingIsRed;
         try {
@@ -53,7 +54,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         } catch (Exception e) {
             incomingIsRed = isRed;
         }
-        
+
         if (incomingIsRed != isRed) {
             if (incomingIsRed) {
                 System.out.println("Alliance color switched to Red.");
@@ -73,30 +74,25 @@ public class FieldManagementSubsystem extends SubsystemBase {
         }
         connectedToFMS = incomingFMSstatus;
 
-        if (DriverStation.isAutonomous()) { 
-            matchStatus = MatchStatus.AUTON; 
+        if (DriverStation.isAutonomous()) {
+            matchStatus = MatchStatus.AUTON;
             matchStarted = true;
-        }
-        else if (DriverStation.isTeleop()) { 
-            matchStatus = MatchStatus.TELEOP; 
-        }
-        else if (DriverStation.isTeleopEnabled() && (DriverStation.getMatchTime() < 30)) { 
+        } else if (DriverStation.isTeleop()) {
+            matchStatus = MatchStatus.TELEOP;
+        } else if (DriverStation.isTeleopEnabled() && (DriverStation.getMatchTime() < 30)) {
             matchStatus = MatchStatus.ENDGAME; // without an FMS, we will be in 'endgame' for the first 30 sec.
-        }
-        else if(DriverStation.getMatchTime() == 0 && matchStarted){
+        } else if (DriverStation.getMatchTime() == 0 && matchStarted) {
             matchStatus = MatchStatus.ENDED;
         }
 
-        if(DriverStation.isEnabled()){
+        if (DriverStation.isEnabled()) {
             robotStatus = RobotStatus.ENABLED;
-        }
-        else if(DriverStation.isEStopped()){
+        } else if (DriverStation.isEStopped()) {
             robotStatus = RobotStatus.ESTOPPED;
-        }
-        else if(DriverStation.isDisabled()){
+        } else if (DriverStation.isDisabled()) {
             robotStatus = RobotStatus.DISABLED;
         }
-        
+
         stationNumberEntry.setInteger(DriverStation.getLocation().orElse(-1));
         matchNumberEntry.setInteger(DriverStation.getMatchNumber());
         matchTypeEntry.setString(DriverStation.getMatchType().toString());
@@ -109,17 +105,17 @@ public class FieldManagementSubsystem extends SubsystemBase {
 
     /**
      * Identifies whether or not we are Red Alliance.
-
+     * 
      * @return isRed boolean
      */
     public boolean isRedAlliance() {
 
         return isRed;
     }
-    
+
     /**
      * Identifies whether or not we are connected to an FRC Field Management System.
-
+     * 
      * @return connectedToFMS boolean
      */
     public boolean isConnectedToFMS() {
@@ -129,7 +125,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
 
     /**
      * Returns current match status (AUTON, TELEOP, ENDGAME).
-
+     * 
      * @return current MatchStatus
      */
     public MatchStatus getMatchStatus() {
@@ -139,9 +135,10 @@ public class FieldManagementSubsystem extends SubsystemBase {
 
     /**
      * Returns current robot status (ENABLED, DISABLED, ESTOPPED).
+     * 
      * @return current robot status
      */
-    public RobotStatus getRobotStatus(){
+    public RobotStatus getRobotStatus() {
 
         return robotStatus;
     }

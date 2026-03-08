@@ -37,321 +37,321 @@ import frc.robot.util.PolynomialRegression;
  */
 public final class Constants {
 
-  // ==================== GLOBAL ====================
-  public static final String Swerve_CAN_BUS = "swerveCAN";
-  public static final String Mech_CAN_BUS = "mechCAN";
-  // debug mode / pushing hella stuff to NT tables
-  // Subsystem Enable/Disable
-  public static final boolean SWERVE_ENABLED = true;
-  public static final boolean MECH_ENABLED = true;
+    // ==================== GLOBAL ====================
+    public static final String Swerve_CAN_BUS = "swerveCAN";
+    public static final String Mech_CAN_BUS = "mechCAN";
+    // debug mode / pushing hella stuff to NT tables
+    // Subsystem Enable/Disable
+    public static final boolean SWERVE_ENABLED = true;
+    public static final boolean MECH_ENABLED = true;
 
-  public static class TowerConstants {
-    public static final int KRAKEN_CAN_ID = 26;
+    public static class TowerConstants {
+        public static final int KRAKEN_CAN_ID = 26;
 
-    public enum TOWER_INTAKE {
-      BALLUP,
-      BALLDOWN,
-      STOP
+        public enum TOWER_INTAKE {
+            BALLUP,
+            BALLDOWN,
+            STOP
+        }
+
+        // maths
+        public static final double GEAR_REDUCTION = 4.0;
+
+        public static final double TARGET_BPS = 4.0;// frequency
+        public static final double WHEEL_RADIUS = 1.0;// distance
+        public static final double BALL_DIAMETER = 6.0;// distance
+        public static final double TARGET_RPS = TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+
+        // Velocity control PID
+        public static final double KP = 0.5;
+        public static final double KI = 0.0;
+        public static final double KD = 0.0;
+        public static final double KS = 0.0;
+        public static final double KV = 0.12;
+
+        // motion magic
+        public static final double MM_ACCEL = 6.0;// distance
+        public static final double MM_JERK = 6.0;// distance
+        public static final double MM_MAXVELO = 6.0;// distance
+
+        // Current limits
+        public static final int SUPPLY_CURRENT_LIMIT = 80;
+        public static final int STATOR_CURRENT_LIMIT = 60;
+        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
+        public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+
+        // // Voltage and ramping
+        // public static final int VOLTAGE_COMPENSATION = 12;
+        // public static final double OPEN_LOOP_RAMP = 0.5;
+        // public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+
+        // Motor config
+        public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
-    // maths
-    public static final double GEAR_REDUCTION = 4.0;
+    // ==================== SHOOTER ====================
+    public static class railgunConstants {
 
-    public static final double TARGET_BPS = 4.0;// frequency
-    public static final double WHEEL_RADIUS = 1.0;// distance
-    public static final double BALL_DIAMETER = 6.0;// distance
-    public static final double TARGET_RPS = TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+        // Everything in metric pls
+        public static int upperId = 17;
+        public static int hoodId = 16;
+        public static int secondId = 25;
 
-    // Velocity control PID
-    public static final double KP = 0.5;
-    public static final double KI = 0.0;
-    public static final double KD = 0.0;
-    public static final double KS = 0.0;
-    public static final double KV = 0.12;
+        public static int hoodEncoderId = 18;
 
-    // motion magic
-    public static final double MM_ACCEL = 6.0;// distance
-    public static final double MM_JERK = 6.0;// distance
-    public static final double MM_MAXVELO = 6.0;// distance
+        public static double gearRatioUpper = 1.5;
+        public static double gearRatioHood = 50;
+        // Velocity control PID
+        public static final double KP = 0.5;
+        public static final double KI = 0.0;
+        public static final double KD = 0.0;
+        public static final double KS = 0.0;
+        public static final double KV = 0.12;
+        // motion magic
+        public static final double MM_ACCEL = 30;// distance
+        public static final double MM_JERK = 150;// distance
+        public static final double MM_MAXVELO = 500;// distance
 
-    // Current limits
-    public static final int SUPPLY_CURRENT_LIMIT = 80;
-    public static final int STATOR_CURRENT_LIMIT = 60;
-    public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
-    public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+        public static double upperAngle = 0;
+        public static double lowerAngle = -0.328;
+        public static double initHoodAngle = upperAngle;
 
-    // // Voltage and ramping
-    // public static final int VOLTAGE_COMPENSATION = 12;
-    // public static final double OPEN_LOOP_RAMP = 0.5;
-    // public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+        public static double flyDia = 0.127;
 
-    // Motor config
-    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
-  }
+    }
+    // ==================== DRIVETRAIN ====================
 
-  // ==================== SHOOTER ====================
-  public static class railgunConstants {
+    public static class SwerveDriveConstants {
+        // Motor Configuration
+        public static final double DRIVE_PEAK_STATOR_CURRENT = 80;
+        public static final double DRIVE_RAMP_RATE = 0.0;
 
-    // Everything in metric pls
-    public static int upperId = 17;
-    public static int hoodId = 16;
-    public static int secondId = 25;
+        // Current Limits (optimized for Kraken motors)
+        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 60; // Prevents brownouts
+        public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
+        public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
-    public static int hoodEncoderId = 18;
+        // Physical Measurements
+        public static final double DRIVE_WHEEL_RADIUS = 2.0; // inches
+        public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
+        public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
 
-    public static double gearRatioUpper = 1.5;
-    public static double gearRatioHood = 50;
-    // Velocity control PID
-    public static final double KP = 0.5;
-    public static final double KI = 0.0;
-    public static final double KD = 0.0;
-    public static final double KS = 0.0;
-    public static final double KV = 0.12;
-    // motion magic
-    public static final double MM_ACCEL = 30;// distance
-    public static final double MM_JERK = 150;// distance
-    public static final double MM_MAXVELO = 500;// distance
-
-    public static double upperAngle = 0;
-    public static double lowerAngle = -0.328;
-    public static double initHoodAngle = upperAngle;
-
-    public static double flyDia = 0.127;
-
-  }
-  // ==================== DRIVETRAIN ====================
-
-  public static class SwerveDriveConstants {
-    // Motor Configuration
-    public static final double DRIVE_PEAK_STATOR_CURRENT = 80;
-    public static final double DRIVE_RAMP_RATE = 0.0;
-
-    // Current Limits (optimized for Kraken motors)
-    public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 60; // Prevents brownouts
-    public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
-    public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
-
-    // Physical Measurements
-    public static final double DRIVE_WHEEL_RADIUS = 2.0; // inches
-    public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
-    public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
-
-    // MotionMagic parameters for drive motors
-    public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
-    public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
-  }
-
-  public static class SwerveSteerConstants {
-    // Motor Configuration
-    public static final double STEER_PEAK_STATOR_CURRENT = 40;
-    public static final double STEER_RAMP_RATE = 0;
-
-    // Current Limits (optimized for Kraken motors - steer needs less current)
-    public static final double STEER_SUPPLY_CURRENT_LIMIT = 25; // Prevents brownouts
-    public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
-    public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
-
-    // Physical Measurements
-    public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // ~22.86:1
-    public static final double STEER_FREE_SPEED_RPM = 7530.0; // Kraken X44
-
-    // Motion Magic
-    public static final double STEER_MAX_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0; // ~5.49 rot/sec
-    public static final double STEER_MAX_ACCELERATION = STEER_MAX_VELOCITY * 10.0; // ~54.9 rot/sec^2
-    public static final double STEER_CRUISE_VELOCITY = STEER_MAX_VELOCITY;
-    public static final double STEER_ACCELERATION = STEER_MAX_ACCELERATION;
-  }
-
-  public static class SwerveConstants {
-    // Drive PID (Velocity Control)
-    public static final double[] DRIVE_P = { 9.5, 9.5, 9.5, 9.5 };
-    public static final double[] DRIVE_I = { 0, 0, 0, 0 };
-    public static final double[] DRIVE_D = { 0.1, 0.1, 0.1, 0.1 };
-    public static final double[] DRIVE_S = { 0.5, 0.5, 0.5, 0.5 };
-    public static final double[] DRIVE_V = { 0.12, 0.12, 0.12, 0.12 };
-
-    // Steer PID (Position Control)
-    public static final double[] STEER_P = { 190, 190, 190, 190 };
-    public static final double[] STEER_I = { 0, 0, 0, 0 };
-    public static final double[] STEER_D = { 7, 7, 7, 7 };
-    public static final double[] STEER_S = { 1, 1, 1, 1 };
-
-    // ID
-    public static final int PigeonID = 24;
-    // Module CAN IDs and Offsets (per README)
-    public static final int FL_DRIVE = 0;
-    public static final int FL_STEER = 1;
-    public static final int FL_ENCODER = 8;
-    public static final double FL_OFFSET = 0;
-
-    public static final int FR_DRIVE = 2;
-    public static final int FR_STEER = 3;
-    public static final int FR_ENCODER = 9;
-    public static final double FR_OFFSET = 0;
-
-    public static final int BL_DRIVE = 4;
-    public static final int BL_STEER = 5;
-    public static final int BL_ENCODER = 10;
-    public static final double BL_OFFSET = 0;
-
-    public static final int BR_DRIVE = 6;
-    public static final int BR_STEER = 7;
-    public static final int BR_ENCODER = 11;
-    public static final double BR_OFFSET = 0;
-
-    // Module Geometry (inches)
-    public static final double MODULE_FRONT_BACK_SPACING = 20.45;
-    public static final double MODULE_LEFTRIGHT_SPACING = 25.45;
-
-    // Module Positions (relative to robot center)
-    public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-        MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-        -MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-        MODULE_LEFTRIGHT_SPACING / 2.0);
-    public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-        -MODULE_LEFTRIGHT_SPACING / 2.0);
-
-    // Kinematic Limits
-    public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
-        * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
-    public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
-
-    // Chassis Acceleration Limits (m/s^2)
-    public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
-    public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
-    public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
-    public static final double MAX_ANGULAR_DECELERATION = 12.0; // radians per second squared
-
-    // Boost Mode Constants (L1 held)
-    public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
-    public static final double BOOST_MAX_LINEAR_ACCELERATION = 6.0; // meters per second squared
-    public static final double BOOST_MAX_ANGULAR_ACCELERATION = 4.0; // radians per second squared
-  }
-
-  public static class RotateToAngleConstants {
-    public static final double kP = 0.009;
-    public static final double kI = 0.0;
-    public static final double kD = 0.0005;
-    public static final double TOLERANCE_DEGREES = 0.0;
-  }
-
-  // ==================== SUBSYSTEMS ====================
-
-  public static class IntakeConstants {
-    // Roller Motor
-    public static final int ROLLER_CAN_ID = 14;
-    public static final double ROLLER_IN_SPEED = -1;
-    public static final double ROLLER_OUT_SPEED = 1;
-    public static final double ROLLER_CURRENT_LIMIT = 120.0;
-    public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
-    public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
-    public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
-
-    // Pivot Motor
-    public static final int PIVOT_MOTOR_ID = 12;
-    public static final double MANUAL_PIVOT_SPEED = 0.15;
-    public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
-    public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
-
-    // Limit Switches
-    public static final int TOP_LIMIT_SWITCH_DIO = 0;
-    public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
-    public static final Angle TOP_LIMIT = Rotations.of(0.25);
-    public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);
-
-    // CANdle
-    public static final int CANDLE_ID = 13;
-  }
-
-  public static class HopperConstants {
-    public static final int KRAKEN_CAN_ID = 15;
-
-    public enum HOPPER_INTAKE {
-      BALLIN,
-      BALLOUT,
-      STOP
+        // MotionMagic parameters for drive motors
+        public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
+        public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
     }
 
-    // Velocity control PID
-    public static final double KP = 0.5;
-    public static final double KI = 0.0;
-    public static final double KD = 0.0;
-    public static final double KS = 0.0;
-    public static final double KV = 0.12;
+    public static class SwerveSteerConstants {
+        // Motor Configuration
+        public static final double STEER_PEAK_STATOR_CURRENT = 40;
+        public static final double STEER_RAMP_RATE = 0;
 
-    // balls stuff
-    public static final double TARGET_BPS = 4.0;// frequency
-    public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
-    public static final double TARGET_RPS = TARGET_BPS / 4;// divided by 4 cuz 4 vains on spinner
+        // Current Limits (optimized for Kraken motors - steer needs less current)
+        public static final double STEER_SUPPLY_CURRENT_LIMIT = 25; // Prevents brownouts
+        public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
+        public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
 
-    // Current limits
-    public static final int SUPPLY_CURRENT_LIMIT = 80;
-    public static final int STATOR_CURRENT_LIMIT = 60;
-    public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
-    public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+        // Physical Measurements
+        public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // ~22.86:1
+        public static final double STEER_FREE_SPEED_RPM = 7530.0; // Kraken X44
 
-    // Voltage and ramping
-    public static final int VOLTAGE_COMPENSATION = 12;
-    public static final double OPEN_LOOP_RAMP = 0.5;
-    public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+        // Motion Magic
+        public static final double STEER_MAX_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0; // ~5.49 rot/sec
+        public static final double STEER_MAX_ACCELERATION = STEER_MAX_VELOCITY * 10.0; // ~54.9 rot/sec^2
+        public static final double STEER_CRUISE_VELOCITY = STEER_MAX_VELOCITY;
+        public static final double STEER_ACCELERATION = STEER_MAX_ACCELERATION;
+    }
 
-    // Motor config
-    public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
-  }
+    public static class SwerveConstants {
+        // Drive PID (Velocity Control)
+        public static final double[] DRIVE_P = {9.5, 9.5, 9.5, 9.5};
+        public static final double[] DRIVE_I = {0, 0, 0, 0};
+        public static final double[] DRIVE_D = {0.1, 0.1, 0.1, 0.1};
+        public static final double[] DRIVE_S = {0.5, 0.5, 0.5, 0.5};
+        public static final double[] DRIVE_V = {0.12, 0.12, 0.12, 0.12};
 
-  // ==================== ALIGNMENT ====================
+        // Steer PID (Position Control)
+        public static final double[] STEER_P = {190, 190, 190, 190};
+        public static final double[] STEER_I = {0, 0, 0, 0};
+        public static final double[] STEER_D = {7, 7, 7, 7};
+        public static final double[] STEER_S = {1, 1, 1, 1};
 
-  public static class AlignToHubConstants {
-    public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4);
-  }
+        // ID
+        public static final int PigeonID = 24;
+        // Module CAN IDs and Offsets (per README)
+        public static final int FL_DRIVE = 0;
+        public static final int FL_STEER = 1;
+        public static final int FL_ENCODER = 8;
+        public static final double FL_OFFSET = 0;
 
-  public static class AlignConstants {
-    public static final Translation2d BLUE_HUB_TRANS = new Translation2d(4.625, 4);
-    public static final Translation2d RED_HUB_TRANS = new Translation2d(11.9, 4);
-    public static final double RED_WALL_X = 11.9;
-    public static final double BLUE_WALL_X = 4.625;
-    public static final double HUB_Y = 4;
-    public static final Translation2d BLUE_AIM_TOP = new Translation2d(2.4, 6);
-    public static final Translation2d BLUE_AIM_BOTTOM = new Translation2d(2.4, 2);
-    public static final Translation2d RED_AIM_TOP = new Translation2d(14.3, 6);
-    public static final Translation2d RED_AIM_BOTTOM = new Translation2d(14.3, 2);
-  }
+        public static final int FR_DRIVE = 2;
+        public static final int FR_STEER = 3;
+        public static final int FR_ENCODER = 9;
+        public static final double FR_OFFSET = 0;
 
-  // ==================== LOGGING & DEBUG ====================
+        public static final int BL_DRIVE = 4;
+        public static final int BL_STEER = 5;
+        public static final int BL_ENCODER = 10;
+        public static final double BL_OFFSET = 0;
 
-  public static class LoggingConstants {
-    public static final String SWERVE_TABLE = "SwerveStats";
-    public static final String SENSOR_TABLE = "Sensors";
-  }
+        public static final int BR_DRIVE = 6;
+        public static final int BR_STEER = 7;
+        public static final int BR_ENCODER = 11;
+        public static final double BR_OFFSET = 0;
 
-  public static class DebugConstants {
-    public static final boolean MASTER_DEBUG = true;
-    public static final boolean DRIVE_DEBUG = true;
-    public static final boolean STEER_DEBUG = true;
-    public static final boolean STATE_DEBUG = true;
-  }
+        // Module Geometry (inches)
+        public static final double MODULE_FRONT_BACK_SPACING = 20.45;
+        public static final double MODULE_LEFTRIGHT_SPACING = 25.45;
 
-  public static final class ClimbConstants {
-    // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
-    public static final int WINCH_MOTOR_CAN_ID = 21;
-    public static final int ARM_MOTOR_CAN_ID = 19; // Doornob
-    public static final int CANDI_CAN_ID = 22;
+        // Module Positions (relative to robot center)
+        public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
+            MODULE_LEFTRIGHT_SPACING / 2.0);
+        public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
+            -MODULE_LEFTRIGHT_SPACING / 2.0);
+        public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
+            MODULE_LEFTRIGHT_SPACING / 2.0);
+        public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
+            -MODULE_LEFTRIGHT_SPACING / 2.0);
 
-    public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
-    public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
+        // Kinematic Limits
+        public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
+            * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+        public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
 
-    public static final double ARM_GR = 1.0;
-    public static final double WINCH_GR = 1.0;
+        // Chassis Acceleration Limits (m/s^2)
+        public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
+        public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
+        public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
+        public static final double MAX_ANGULAR_DECELERATION = 12.0; // radians per second squared
 
-    public static final double ARM_MAX_OUTPUT = 0.5;
-    public static final double WINCH_MAX_OUTPUT = 1;
+        // Boost Mode Constants (L1 held)
+        public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
+        public static final double BOOST_MAX_LINEAR_ACCELERATION = 6.0; // meters per second squared
+        public static final double BOOST_MAX_ANGULAR_ACCELERATION = 4.0; // radians per second squared
+    }
 
-    public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.19);
-    public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0);
+    public static class RotateToAngleConstants {
+        public static final double kP = 0.009;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0005;
+        public static final double TOLERANCE_DEGREES = 0.0;
+    }
 
-    public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
-    public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
-  }
+    // ==================== SUBSYSTEMS ====================
+
+    public static class IntakeConstants {
+        // Roller Motor
+        public static final int ROLLER_CAN_ID = 14;
+        public static final double ROLLER_IN_SPEED = -1;
+        public static final double ROLLER_OUT_SPEED = 1;
+        public static final double ROLLER_CURRENT_LIMIT = 120.0;
+        public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
+        public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
+        public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
+
+        // Pivot Motor
+        public static final int PIVOT_MOTOR_ID = 12;
+        public static final double MANUAL_PIVOT_SPEED = 0.15;
+        public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
+        public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
+
+        // Limit Switches
+        public static final int TOP_LIMIT_SWITCH_DIO = 0;
+        public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
+        public static final Angle TOP_LIMIT = Rotations.of(0.25);
+        public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);
+
+        // CANdle
+        public static final int CANDLE_ID = 13;
+    }
+
+    public static class HopperConstants {
+        public static final int KRAKEN_CAN_ID = 15;
+
+        public enum HOPPER_INTAKE {
+            BALLIN,
+            BALLOUT,
+            STOP
+        }
+
+        // Velocity control PID
+        public static final double KP = 0.5;
+        public static final double KI = 0.0;
+        public static final double KD = 0.0;
+        public static final double KS = 0.0;
+        public static final double KV = 0.12;
+
+        // balls stuff
+        public static final double TARGET_BPS = 4.0;// frequency
+        public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
+        public static final double TARGET_RPS = TARGET_BPS / 4;// divided by 4 cuz 4 vains on spinner
+
+        // Current limits
+        public static final int SUPPLY_CURRENT_LIMIT = 80;
+        public static final int STATOR_CURRENT_LIMIT = 60;
+        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
+        public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+
+        // Voltage and ramping
+        public static final int VOLTAGE_COMPENSATION = 12;
+        public static final double OPEN_LOOP_RAMP = 0.5;
+        public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+
+        // Motor config
+        public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+    }
+
+    // ==================== ALIGNMENT ====================
+
+    public static class AlignToHubConstants {
+        public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4);
+    }
+
+    public static class AlignConstants {
+        public static final Translation2d BLUE_HUB_TRANS = new Translation2d(4.625, 4);
+        public static final Translation2d RED_HUB_TRANS = new Translation2d(11.9, 4);
+        public static final double RED_WALL_X = 11.9;
+        public static final double BLUE_WALL_X = 4.625;
+        public static final double HUB_Y = 4;
+        public static final Translation2d BLUE_AIM_TOP = new Translation2d(2.4, 6);
+        public static final Translation2d BLUE_AIM_BOTTOM = new Translation2d(2.4, 2);
+        public static final Translation2d RED_AIM_TOP = new Translation2d(14.3, 6);
+        public static final Translation2d RED_AIM_BOTTOM = new Translation2d(14.3, 2);
+    }
+
+    // ==================== LOGGING & DEBUG ====================
+
+    public static class LoggingConstants {
+        public static final String SWERVE_TABLE = "SwerveStats";
+        public static final String SENSOR_TABLE = "Sensors";
+    }
+
+    public static class DebugConstants {
+        public static final boolean MASTER_DEBUG = true;
+        public static final boolean DRIVE_DEBUG = true;
+        public static final boolean STEER_DEBUG = true;
+        public static final boolean STATE_DEBUG = true;
+    }
+
+    public static final class ClimbConstants {
+        // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
+        public static final int WINCH_MOTOR_CAN_ID = 21;
+        public static final int ARM_MOTOR_CAN_ID = 19; // Doornob
+        public static final int CANDI_CAN_ID = 22;
+
+        public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
+
+        public static final double ARM_GR = 1.0;
+        public static final double WINCH_GR = 1.0;
+
+        public static final double ARM_MAX_OUTPUT = 0.5;
+        public static final double WINCH_MAX_OUTPUT = 1;
+
+        public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.19);
+        public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0);
+
+        public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
+        public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
+    }
 }

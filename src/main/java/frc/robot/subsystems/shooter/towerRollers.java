@@ -50,14 +50,14 @@ public class towerRollers extends SubsystemBase {
      * 
      * 
      * 
-     * @param valueName    The name of the value in NetworkTables (ex: "P", "I",
-     *                     "D").
+     * @param valueName The name of the value in NetworkTables (ex: "P", "I",
+     *        "D").
      * @param configSetter A Consumer that takes the new double value and applies it
-     *                     to the
+     *        to the
      * 
      * 
-     *                     s.withKP(value)).
-     * @param defaultVal   The default value to publish to NetworkTables on startup.
+     *        s.withKP(value)).
+     * @param defaultVal The default value to publish to NetworkTables on startup.
      */
 
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
@@ -98,14 +98,14 @@ public class towerRollers extends SubsystemBase {
     private void configureMotor() {
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Coast)
-                .withInverted(TowerConstants.HOPPERINVERTED));
+            .withNeutralMode(NeutralModeValue.Coast)
+            .withInverted(TowerConstants.HOPPERINVERTED));
 
         // Current limits
         config.withCurrentLimits(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(TowerConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                        .withStatorCurrentLimit(Amps.of(TowerConstants.STATOR_CURRENT_LIMIT_AMPS)));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(TowerConstants.STATOR_CURRENT_LIMIT_ENABLE)
+                .withStatorCurrentLimit(Amps.of(TowerConstants.STATOR_CURRENT_LIMIT_AMPS)));
         config.MotionMagic.MotionMagicCruiseVelocity = TowerConstants.MM_MAXVELO; // rotations/sec^2
         config.MotionMagic.MotionMagicAcceleration = TowerConstants.MM_ACCEL; // rotations/sec^2
         config.MotionMagic.MotionMagicJerk = TowerConstants.MM_JERK; // optional

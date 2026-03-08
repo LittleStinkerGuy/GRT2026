@@ -9,29 +9,29 @@ public class shooterLearner {
     private final NetworkTableEntry offsetEntry;
     private double offset = 0;
 
-    public shooterLearner(){
+    public shooterLearner() {
         NetworkTable table = NetworkTableInstance.getDefault().getTable("ShooterLearner");
         offsetEntry = table.getEntry("offset");
         offsetEntry.setDouble(offset);
     }
 
-    public double getRPM(double baseRPM){
+    public double getRPM(double baseRPM) {
         return baseRPM + offset;
     }
 
-    public void updateUP(){
+    public void updateUP() {
         offset += 5;
         offsetEntry.setDouble(offset);
     }
 
-    public void updateDOWN(){
+    public void updateDOWN() {
         offset -= 5;
         offsetEntry.setDouble(offset);
     }
 
-    public void reset(){
+    public void reset() {
         offset = 0;
         offsetEntry.setDouble(offset);
     }
-    
+
 }

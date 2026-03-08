@@ -11,7 +11,7 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.Constants.AlignConstants;
 
-public class AimToPointCommand extends Command{
+public class AimToPointCommand extends Command {
     private final SwerveSubsystem swerveSubsystem;
     private final FieldManagementSubsystem fmsSubsystem;
     // Shooter offset relative to robot center (x: forward/back, y: left/right in meters)
@@ -20,7 +20,7 @@ public class AimToPointCommand extends Command{
     private Translation2d target;
 
     // Link to dimensions https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
-    public AimToPointCommand (SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms, Translation2d point){
+    public AimToPointCommand(SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms, Translation2d point) {
         this.swerveSubsystem = swerveSubsystem;
         this.fmsSubsystem = fms;
         addRequirements(swerveSubsystem, fms);
@@ -49,12 +49,12 @@ public class AimToPointCommand extends Command{
         return targetAngle.getDegrees() + 90;
     }
 
-    public Command createAimCommand(BooleanSupplier cancelCondition){
+    public Command createAimCommand(BooleanSupplier cancelCondition) {
         double targetAngle = calculateTargetAngle();
         return new RotateToFieldAngleCommand(swerveSubsystem, targetAngle, cancelCondition);
     }
 
-    public double getDistanceToHub(){
+    public double getDistanceToHub() {
         Translation2d robotPosition = swerveSubsystem.getRobotPosition().getTranslation();
 
         // Get the hub position based on alliance

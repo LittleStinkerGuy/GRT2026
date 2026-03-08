@@ -7,21 +7,22 @@ import com.google.flatbuffers.Table;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class rampDownFlywheel extends Command{
-    
+public class rampDownFlywheel extends Command {
+
     private flywheel fly;
-    
-    public rampDownFlywheel(flywheel h){
+
+    public rampDownFlywheel(flywheel h) {
         this.fly = h;
         addRequirements(fly);
     }
 
     @Override
-    public boolean isFinished(){
+    public boolean isFinished() {
         return true;
     }
+
     @Override
-    public void end(boolean interrupted){
+    public void end(boolean interrupted) {
         fly.dontShoot();
     }
 

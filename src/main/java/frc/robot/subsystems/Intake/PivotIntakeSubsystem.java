@@ -23,145 +23,143 @@ import frc.robot.Constants.IntakeConstants;
 import com.ctre.phoenix6.CANBus;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
-  private final TalonFX pivotMotor;
-  private final CANdle candle;
+    private final TalonFX pivotMotor;
+    private final CANdle candle;
 
-  private final DigitalInput bottomLimitSwitch = new DigitalInput(IntakeConstants.BOTTOM_LIMIT_SWITCH_DIO);
-  private final DigitalInput topLimitSwitch = new DigitalInput(IntakeConstants.TOP_LIMIT_SWITCH_DIO);
+    private final DigitalInput bottomLimitSwitch = new DigitalInput(IntakeConstants.BOTTOM_LIMIT_SWITCH_DIO);
+    private final DigitalInput topLimitSwitch = new DigitalInput(IntakeConstants.TOP_LIMIT_SWITCH_DIO);
 
-  private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
 
-  public PivotIntakeSubsystem(CANBus canBus) {
-    pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
-    candle = new CANdle(IntakeConstants.CANDLE_ID);
-    configCANdle();
-    configMotors();
-  }
-
-  private void configMotors() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    // --- PID config (commented out for now) ---
-    // config.Slot0.kP = IntakeConstants.PIVOT_P;
-    // config.Slot0.kI = IntakeConstants.PIVOT_I;
-    // config.Slot0.kD = IntakeConstants.PIVOT_D;
-    // config.Slot0.kV = IntakeConstants.PIVOT_F;
-
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    // Config current limits
-    config.withCurrentLimits(
-      new CurrentLimitsConfigs()
-          .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
-          .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE)
-    );
-
-    // Config software limits 
-    config.withSoftwareLimitSwitch(
-      new SoftwareLimitSwitchConfigs()
-          .withForwardSoftLimitEnable(true)
-          .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
-          .withReverseSoftLimitEnable(true)
-          .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT)
-    );
-
-    pivotMotor.getConfigurator().apply(config);
-  }
-
-  // private void configEncoder() {
-  //   CANcoderConfiguration config = new CANcoderConfiguration();
-  //   canCoder.getConfigurator().apply(config);
-  // }
-
-  private void configCANdle() {
-    CANdleConfiguration config = new CANdleConfiguration();
-    candle.getConfigurator().apply(config);
-  }
-
-  // --- Position control methods (commented out for now) ---
-  // public double getAngleDegrees() {
-  //   return canCoder.getPosition().getValueAsDouble() * 360.0;
-  // }
-  //
-  // public double getAbsolutePosition() {
-  //   return canCoder.getAbsolutePosition().getValueAsDouble();
-  // }
-  //
-  // public void setAngle(double angleDegrees) {
-  //   angleDegrees = Math.max(IntakeConstants.STOWED_POS,
-  //                          Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
-  //   double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
-  //   pivotMotor.setControl(positionControl.withPosition(motorRotations));
-  // }
-  //
-  // public void zeroEncoder() {
-  //   canCoder.setPosition(0.0);
-  // }
-  //
-  // public void setEncoderToMax() {
-  //   double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
-  //   canCoder.setPosition(maxRotations);
-  // }
-
-  public boolean isAtTopLimit() {
-    return !topLimitSwitch.get();
-  }
-
-  public boolean isAtBottomLimit() {
-    return !bottomLimitSwitch.get();
-  }
-
-  /**
-   * Manually controls the pivot at a specific speed
-   * Prevents pivot from moving past top & bottom limits
-   *
-   * @param speed Desired speed from -1.0 to 1.0
-   */
-  public void setManualSpeed(double speed) {
-    if (isAtTopLimit() && speed > 0) {
-      speed = 0;
+    public PivotIntakeSubsystem(CANBus canBus) {
+        pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
+        candle = new CANdle(IntakeConstants.CANDLE_ID);
+        configCANdle();
+        configMotors();
     }
-    if (isAtBottomLimit() && speed < 0) {
-      speed = 0;
+
+    private void configMotors() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+
+        // --- PID config (commented out for now) ---
+        // config.Slot0.kP = IntakeConstants.PIVOT_P;
+        // config.Slot0.kI = IntakeConstants.PIVOT_I;
+        // config.Slot0.kD = IntakeConstants.PIVOT_D;
+        // config.Slot0.kV = IntakeConstants.PIVOT_F;
+
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        // Config current limits
+        config.withCurrentLimits(
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
+
+        // Config software limits
+        config.withSoftwareLimitSwitch(
+            new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
+
+        pivotMotor.getConfigurator().apply(config);
     }
-    pivotMotor.setControl(dutyCycleControl.withOutput(speed));
-  }
 
-  public void stop() {
-    pivotMotor.setControl(dutyCycleControl.withOutput(0));
-  }
-
-  @Override
-  public void periodic() {
-    boolean topLimit = isAtTopLimit();
-    boolean bottomLimit = isAtBottomLimit();
-
-    // --- Encoder reset on limit switch (commented out for now) ---
-    // if (bottomLimit && !previousBottomLimitState) {
-    //   zeroEncoder();
+    // private void configEncoder() {
+    // CANcoderConfiguration config = new CANcoderConfiguration();
+    // canCoder.getConfigurator().apply(config);
     // }
-    // previousBottomLimitState = bottomLimit;
+
+    private void configCANdle() {
+        CANdleConfiguration config = new CANdleConfiguration();
+        candle.getConfigurator().apply(config);
+    }
+
+    // --- Position control methods (commented out for now) ---
+    // public double getAngleDegrees() {
+    // return canCoder.getPosition().getValueAsDouble() * 360.0;
+    // }
     //
-    // if (topLimit && !previousTopLimitState) {
-    //   setEncoderToMax();
+    // public double getAbsolutePosition() {
+    // return canCoder.getAbsolutePosition().getValueAsDouble();
     // }
-    // previousTopLimitState = topLimit;
+    //
+    // public void setAngle(double angleDegrees) {
+    // angleDegrees = Math.max(IntakeConstants.STOWED_POS,
+    // Math.min(IntakeConstants.EXTENDED_POS, angleDegrees));
+    // double motorRotations = (angleDegrees / 360.0) / IntakeConstants.GEAR_RATIO;
+    // pivotMotor.setControl(positionControl.withPosition(motorRotations));
+    // }
+    //
+    // public void zeroEncoder() {
+    // canCoder.setPosition(0.0);
+    // }
+    //
+    // public void setEncoderToMax() {
+    // double maxRotations = IntakeConstants.EXTENDED_POS / 360.0;
+    // canCoder.setPosition(maxRotations);
+    // }
 
-    // SmartDashboard
-    // SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
-    // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
+    public boolean isAtTopLimit() {
+        return !topLimitSwitch.get();
+    }
 
-    SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
-    SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
+    public boolean isAtBottomLimit() {
+        return !bottomLimitSwitch.get();
+    }
 
-    SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
-    SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/SupplyVoltage", pivotMotor.getSupplyVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake/Pivot/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putBoolean("Intake/Pivot/Connected", pivotMotor.isConnected());
-  }
+    /**
+     * Manually controls the pivot at a specific speed
+     * Prevents pivot from moving past top & bottom limits
+     *
+     * @param speed Desired speed from -1.0 to 1.0
+     */
+    public void setManualSpeed(double speed) {
+        if (isAtTopLimit() && speed > 0) {
+            speed = 0;
+        }
+        if (isAtBottomLimit() && speed < 0) {
+            speed = 0;
+        }
+        pivotMotor.setControl(dutyCycleControl.withOutput(speed));
+    }
+
+    public void stop() {
+        pivotMotor.setControl(dutyCycleControl.withOutput(0));
+    }
+
+    @Override
+    public void periodic() {
+        boolean topLimit = isAtTopLimit();
+        boolean bottomLimit = isAtBottomLimit();
+
+        // --- Encoder reset on limit switch (commented out for now) ---
+        // if (bottomLimit && !previousBottomLimitState) {
+        // zeroEncoder();
+        // }
+        // previousBottomLimitState = bottomLimit;
+        //
+        // if (topLimit && !previousTopLimitState) {
+        // setEncoderToMax();
+        // }
+        // previousTopLimitState = topLimit;
+
+        // SmartDashboard
+        // SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
+        // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
+
+        SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
+        SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);
+
+        SmartDashboard.putNumber("Intake/Pivot/DutyCycle", pivotMotor.get());
+        SmartDashboard.putNumber("Intake/Pivot/Position", pivotMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Velocity", pivotMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/StatorCurrent", pivotMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/SupplyCurrent", pivotMotor.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/AppliedVolts", pivotMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/SupplyVoltage", pivotMotor.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Pivot/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
+        SmartDashboard.putBoolean("Intake/Pivot/Connected", pivotMotor.isConnected());
+    }
 }

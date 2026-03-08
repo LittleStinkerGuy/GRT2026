@@ -7,7 +7,7 @@ public class CameraConfig {
     private Transform3d cameraPose;
 
     public CameraConfig(
-            String cameraName, Transform3d cameraPose) {
+        String cameraName, Transform3d cameraPose) {
         this.cameraName = cameraName;
         this.cameraPose = cameraPose;
     }
