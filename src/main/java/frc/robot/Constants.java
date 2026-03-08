@@ -60,7 +60,7 @@ public final class Constants {
     public static final double TARGET_BPS = 4.0;// frequency
     public static final double WHEEL_RADIUS = 1.0;// distance
     public static final double BALL_DIAMETER = 6.0;// distance
-    public static final double TARGET_RPS = 10;//TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS; 
+    public static final double TARGET_RPS = 10;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
     // Velocity control PID
     public static final double KP = 0.5;
@@ -99,8 +99,8 @@ public final class Constants {
 
     public static int hoodEncoderId = 18;
 
-    public static double gearRatioUpper = 1.5;
-    public static double gearRatioHood = 50;
+    public static double gearRatioUpper = 1;
+    public static double gearRatioHood = 244.411765;
     // Velocity control PID
     public static final double KP = 0.5;
     public static final double KI = 0.0;
@@ -112,11 +112,9 @@ public final class Constants {
     public static final double MM_JERK = 150;// distance
     public static final double MM_MAXVELO = 500;// distance
 
-    public static double upperAngle = 0;
-    public static double lowerAngle = -0.328;
+    public static double upperAngle = 0.169;
+    public static double lowerAngle = 0.06;
     public static double initHoodAngle = upperAngle;
-
-    public static double flyDia = 0.127;
 
   }
   // ==================== DRIVETRAIN ====================
@@ -164,17 +162,17 @@ public final class Constants {
 
   public static class SwerveConstants {
     // Drive PID (Velocity Control)
-    public static final double[] DRIVE_P = { 9.5, 9.5, 9.5, 9.5 };
-    public static final double[] DRIVE_I = { 0, 0, 0, 0 };
-    public static final double[] DRIVE_D = { 0.1, 0.1, 0.1, 0.1 };
-    public static final double[] DRIVE_S = { 0.5, 0.5, 0.5, 0.5 };
-    public static final double[] DRIVE_V = { 0.12, 0.12, 0.12, 0.12 };
+    public static final double[] DRIVE_P = {9.5, 9.5, 9.5, 9.5};
+    public static final double[] DRIVE_I = {0, 0, 0, 0};
+    public static final double[] DRIVE_D = {0.1, 0.1, 0.1, 0.1};
+    public static final double[] DRIVE_S = {0.5, 0.5, 0.5, 0.5};
+    public static final double[] DRIVE_V = {0.12, 0.12, 0.12, 0.12};
 
     // Steer PID (Position Control)
-    public static final double[] STEER_P = { 190, 190, 190, 190 };
-    public static final double[] STEER_I = { 0, 0, 0, 0 };
-    public static final double[] STEER_D = { 7, 7, 7, 7 };
-    public static final double[] STEER_S = { 1, 1, 1, 1 };
+    public static final double[] STEER_P = {190, 190, 190, 190};
+    public static final double[] STEER_I = {0, 0, 0, 0};
+    public static final double[] STEER_D = {7, 7, 7, 7};
+    public static final double[] STEER_S = {1, 1, 1, 1};
 
     // ID
     public static final int PigeonID = 24;
@@ -205,17 +203,17 @@ public final class Constants {
 
     // Module Positions (relative to robot center)
     public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-        MODULE_LEFTRIGHT_SPACING / 2.0);
+      MODULE_LEFTRIGHT_SPACING / 2.0);
     public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-        -MODULE_LEFTRIGHT_SPACING / 2.0);
+      -MODULE_LEFTRIGHT_SPACING / 2.0);
     public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-        MODULE_LEFTRIGHT_SPACING / 2.0);
+      MODULE_LEFTRIGHT_SPACING / 2.0);
     public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-        -MODULE_LEFTRIGHT_SPACING / 2.0);
+      -MODULE_LEFTRIGHT_SPACING / 2.0);
 
     // Kinematic Limits
     public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
-        * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+      * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
     public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
 
     // Chassis Acceleration Limits (m/s^2)
