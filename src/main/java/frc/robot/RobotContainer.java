@@ -4,35 +4,55 @@
 
 package frc.robot;
 
-import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.Vision.VisionConstants;
+// import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.allign.RotateToFieldAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
+import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.shooter.hood;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.Vision.VisionSubsystem;
-import frc.robot.subsystems.Vision.CameraConfig;
+// import frc.robot.subsystems.Vision.VisionSubsystem;
+// import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.Vision.VisionSubsystem;
+import frc.robot.subsystems.shooter.towerRollers;
+
+// import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.commands.climb.ClimbCommands.*;
+import frc.robot.subsystems.FMS.FieldManagementSubsystem;
+// import frc.robot.Constants.IntakeConstants;
+
+// Commands
 import frc.robot.commands.intake.ManualIntakePivotCommand;
+import frc.robot.commands.shooter.rampDownFlywheel;
+import frc.robot.commands.vision.GetCameraDisplacement;
+import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
 
 import frc.robot.commands.intake.*;
 import frc.robot.commands.hopper.*;
+import frc.robot.commands.climb.ClimbCommands.*;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 // WPILib imports
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -50,30 +70,35 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    private CANBus canivore = new CANBus("can");
-
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
-    private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+    private final CANBus swerveCAN = new CANBus(Constants.Swerve_CAN_BUS);
+    private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
-    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
-    private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
-    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
+    private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
+    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
+    private towerRollers tower = new towerRollers(mechCAN);
+
+    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
+    // private final PivotIntakeSubsystem pivotIntake = new
+    // PivotIntakeSubsystem(mechCAN);
+    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
-    private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
+    private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
+    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+    private final hood hoodSubsystem = new hood(mechCAN);
+    private boolean shootSeq = false;
 
     private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-        VisionConstants.cameraConfigs[0]);
+        VisionConstants.cameraConfig11);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
-
-        constructDriveController();
-        constructMechController();
+        visionStuff();
+        constructController();
         configureBindings();
         configureAutoChooser();
 
@@ -95,6 +120,8 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
+    private boolean mechEnabled = false;
+
     private void configureBindings() {
         /*
          * Driving -- One joystick controls translation, the other rotation. If the
@@ -105,199 +132,180 @@ public class RobotContainer {
          * face a target, and only
          * translation will be manually controllable.
          */
-        swerveSubsystem.setDefaultCommand(
-            new RunCommand(() -> {
-                swerveSubsystem.setDrivePowers(
-                    driveController.getForwardPower(),
-                    driveController.getLeftPower(),
-                    driveController.getRotatePower());
-            },
-                swerveSubsystem));
+        if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+            swerveSubsystem.setDefaultCommand(
+                new RunCommand(() -> {
+                    // L1 = boost mode (higher accel/velocity)
+                    swerveSubsystem.setBoostMode(driveController.getLeftBumper());
 
-        driveController.getRelativeMode().whileTrue(
-            new RunCommand(
-                () -> {
-                    swerveSubsystem.setRobotRelativeDrivePowers(
+                    // Left trigger controls speed limit: fully released = full speed, fully pressed
+                    // = stopped
+                    double leftTrigger = driveController.getLeftTriggerAxis();
+                    double speedLimit = 1.0 - leftTrigger; // Invert so more trigger = slower
+                    swerveSubsystem.setDriveSpeedLimit(speedLimit);
+
+                    swerveSubsystem.setDrivePowers(
                         driveController.getForwardPower(),
                         driveController.getLeftPower(),
                         driveController.getRotatePower());
-                    driveController.getRotatePower();
-                }, swerveSubsystem));
+                },
+                    swerveSubsystem));
 
-        /* Pressing the button resets the field axes to the current robot axes. */
-        driveController.bindDriverHeadingReset(
-            () -> {
-                swerveSubsystem.resetDriverHeading();
-            },
-            swerveSubsystem);
+            driveController.getRelativeMode().whileTrue(
+                new RunCommand(
+                    () -> {
+                        swerveSubsystem.setRobotRelativeDrivePowers(
+                            driveController.getForwardPower(),
+                            driveController.getLeftPower(),
+                            driveController.getRotatePower());
+                        driveController.getRotatePower();
+                    }, swerveSubsystem));
 
-        // bind semi auto commands
-        var crossTrigger = mechController.cross();
-        var triangleTrigger = mechController.triangle();
-        crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
-        triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
+            /* Pressing the button resets the field axes to the current robot axes. */
+            driveController.bindDriverHeadingReset(
+                () -> {
+                    swerveSubsystem.resetDriverHeading();
+                },
+                swerveSubsystem);
+        }
+        if (Constants.MECH_ENABLED) {
+            // bind semi auto commands
+            var crossTrigger = mechController.cross();
+            var triangleTrigger = mechController.triangle();
+            crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
+            triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
 
-        mechController.options().onTrue(new AutoClimbCommand(m_ClimbSubsystem));
+            mechController.options().onTrue(new AutoClimbCommand(m_ClimbSubsystem));
 
-        // Manual control with d-pad for winch and left stick for arm
-        m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-            double armDutyCycle = 0;
-            double winchDutyCycle = 0;
+            // Manual control with d-pad for winch and left stick for arm
+            m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
+                var armDutyCycle = mechController.getLeftY();
+                double winchDutyCycle = 0;
 
-            if (mechController.povRight().getAsBoolean()) {
-                armDutyCycle++;
+                if (mechController.povUp().getAsBoolean()) {
+                    winchDutyCycle++;
+                }
+                if (mechController.povDown().getAsBoolean()) {
+                    winchDutyCycle--;
+                }
+                m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
+                m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+            }, m_ClimbSubsystem));
+
+            // ==================== INTAKE ROLLER ====================
+            // R1 = intake in
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+            intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+
+            // ==================== INTAKE PIVOT ====================
+            // Right stick Y controls pivot manually
+            /*
+             * pivotIntake.setDefaultCommand(Commands.run(() -> {
+             * double pivotInput = -mechController.getRightY();
+             * if (Math.abs(pivotInput) > 0.1) {
+             * pivotIntake.setManualSpeed(pivotInput * 0.3);
+             * } else {
+             * pivotIntake.stop();
+             * }
+             * }, pivotIntake));
+             */
+
+            // ==================== HOPPER ====================
+            // L1 = hopper in
+
+            driveController.square().toggleOnTrue(
+                Commands.defer(
+                    () -> new ShooterSequence(
+                        swerveSubsystem,
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        fmsSubsystem,
+                        tower,
+
+                        () -> -driveController.getForwardPower(), // forward/back
+                        () -> -driveController.getLeftPower() // strafe
+                    ),
+                    java.util.Set.of(
+                        swerveSubsystem,
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        fmsSubsystem,
+                        tower)));
+
+            driveController.square().toggleOnFalse(
+                new rampDownFlywheel(flywheelSubsystem));
+
+            // ==================== SHOOTER ====================
+            // R2 = flywheel (analog speed control)
+            // Left stick Y = hood manual control
+            flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1)) {
+                    flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
+                } else {
+                    flywheelSubsystem.flySpeed(0);
+                }
+            }, flywheelSubsystem));
+
+            tower.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1) && mechController.getR2Axis() > -0.7) {
+                    tower.setTower(TOWER_INTAKE.BALLUP);
+                } else {
+                    tower.setTower(TOWER_INTAKE.STOP);
+                }
+            }, tower));
+
+
+            hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (mechController.L3().getAsBoolean()) {
+                    hoodSubsystem.hoodSpeed(0.05);
+                } else if (mechController.R3().getAsBoolean()) {
+                    hoodSubsystem.hoodSpeed(-0.05);
+                } else {
+                    hoodSubsystem.hoodSpeed(0);
+                }
+            }, hoodSubsystem));
+
+            // Swerve-dependent drive controller commands
+            if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+                // Cancel rotate command if driver touches any stick
+                BooleanSupplier driverInput = () -> Math.abs(driveController.getForwardPower()) > 0 ||
+                    Math.abs(driveController.getLeftPower()) > 0 ||
+                    Math.abs(driveController.getRotatePower()) > 0;
+
+                // Triangle = rotate to 0°, Circle = rotate to 90°
+                driveController.triangle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 0, driverInput));
+                driveController.circle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 90, driverInput));
+
+                // Options button = reset pose to starting position (in front of red hub)
+                driveController.options()
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
+
+                // Note: L2 (left trigger) is now used for speed limiting in the default command
+
+                // D-pad steer speed limiting (scales MotionMagic cruise velocity)
+                // Up = 100%, Right = 75%, Down = 50%, Left = 25%
+                new Trigger(() -> driveController.getPOV() == 0)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+                new Trigger(() -> driveController.getPOV() == 90)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+                new Trigger(() -> driveController.getPOV() == 180)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+                new Trigger(() -> driveController.getPOV() == 270)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
             }
-            if (mechController.povLeft().getAsBoolean()) {
-                armDutyCycle--;
-            }
-            if (mechController.povUp().getAsBoolean()) {
-                winchDutyCycle++;
-            }
-            if (mechController.povDown().getAsBoolean()) {
-                winchDutyCycle--;
-            }
-            m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-            m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-        }, m_ClimbSubsystem));
+        }
 
-        // --- Intake pivot set-position controls (commented out for now) ---
-        // mechController.square().onTrue(
-        // new SetIntakePivotCommand(pivotIntake, IntakeConstants .STOWED_POS));
-        // mechController.cross().onTrue(
-        // new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS));
-
-        // // circle for the manual hopper
-        // mechController.circle().whileTrue(
-        // new RunCommand(
-        // () -> HopperSubsystem.setManualControl(1.0),
-        // HopperSubsystem))
-        // .onFalse(
-        // new InstantCommand(
-        // () -> HopperSubsystem.stop(),
-        // HopperSubsystem));
-
-        // --- Hopper RPM control (commented out for now) ---
-        // mechController.triangle().onTrue(
-        // new HopperSetRPMCommand(HopperSubsystem));
-
-        /* Intake Controls - Hold button to run rollers */
-        // R1 - intake in
-        mechController.R1().whileTrue(
-            new RunCommand(
-                () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
-                intakeSubsystem))
-            .onFalse(
-                new InstantCommand(
-                    () -> intakeSubsystem.stop(),
-                    intakeSubsystem));
-
-        // L1 - intake out
-        mechController.L1().whileTrue(
-            new RunCommand(
-                () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
-                intakeSubsystem))
-            .onFalse(
-                new InstantCommand(
-                    () -> intakeSubsystem.stop(),
-                    intakeSubsystem));
-
-        // Pivot Configs: R2 for pivot up and L2 for pivot down
-        pivotIntake.setDefaultCommand(
-            new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() -
-                mechController.getL2Axis()));
-
-    }
-
-    public void updateDashboard() {
-        // Robot position
-        Pose2d robotPose = swerveSubsystem.getRobotPosition();
-        m_field.setRobotPose(robotPose);
-
-        // Match time
-        SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-
-        // Intake
-        // SmartDashboard.putString("Status/Intake State", getIntakeState());
-        // SmartDashboard.putNumber("Status/Intake Angle",
-        // pivotIntake.getAngleDegrees());
-        SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
-        SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
-        SmartDashboard.putBoolean("Status/At Bottom Limit",
-            pivotIntake.isAtBottomLimit());
-
-        // Vision + Autoalign
-        // VisionSubsystem is commented out rn because it's outdated
-        SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
-        SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
-        SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
-        SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
-    }
-
-    // --- Intake state detection (commented out for now) ---
-    // private String getIntakeState() {
-    // double angle = pivotIntake.getAngleDegrees();
-    // double tolerance = 0.05;
-    // if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
-    // return "STOWED";
-    // } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
-    // return "EXTENDED";
-    // } else {
-    // return "MOVING";
-    // }
-    // }
-
-    private boolean isRollerActive() {
-        return intakeSubsystem.isRunning();
-    }
-
-    // TODO: Integrate w vision subsystem when its setup / enabled
-
-    /**
-     * Returns true if a target is detected by vision
-     */
-    private boolean hasTarget() {
-        // TODO: check if AprilTag/target is detected
-        // return visionSubsystem.hasTarget();
-        return false;
-    }
-
-    /**
-     * Returns true if target is locked (centered and stable)
-     */
-    private boolean isTargetLocked() {
-        // TODO: Implement target lock
-        // Check if target is within tolerance and robot is aligned
-        // return visionSubsystem.isTargetLocked();
-        return false;
-    }
-
-    /**
-     * Returns distance to target in meters
-     */
-    private double getTargetDistance() {
-        // TODO: Get distance from vision subsystem
-        // return visionSubsystem.getTargetDistance();
-        return 0.0;
-    }
-
-    private boolean isAutoAlignActive() {
-        // TODO: Check if auto-align command is running
-        return false;
     }
 
     /**
      * Constructs the drive controller based on the name of the controller at port
      * 0
      */
-    private void constructDriveController() {
+    private void constructController() {
         driveController = new PS5DriveController();
-        driveController.setDeadZone(0.05);
-    }
-
-    /**
-     * Constructs mech controller
-     */
-    private void constructMechController() {
+        driveController.setDeadZone(0.035);
         mechController = new CommandPS5Controller(1);
     }
 
@@ -313,6 +321,20 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    // vision shit
+    public void visionStuff() {
+        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+
+        CommandScheduler.getInstance().schedule(
+            new GetCameraDisplacement(visionSubsystem1,
+                new Transform3d(
+                    Units.inchesToMeters(0),
+                    Units.inchesToMeters(-43 - 15),
+                    Units.inchesToMeters(44.25),
+                    new Rotation3d(0, 0, Math.PI / 2))));
+
     }
 
 }
