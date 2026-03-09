@@ -1,20 +1,27 @@
 package frc.robot.subsystems.climb;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.CANBus;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimbConstants.CLIMB_MECH_STATE;
 
 public class ClimbSubsystem extends SubsystemBase {
-    private StabilizingArm m_StabilizingArm;
-    private Winch m_Winch;
+    private StabilizingArmSubsystem m_StabilizingArm;
+    private WinchSubsystem m_Winch;
+
+    private CLIMB_MECH_STATE armState = CLIMB_MECH_STATE.FLOATING;
+    private CLIMB_MECH_STATE winchState = CLIMB_MECH_STATE.FLOATING;
+    private CLIMB_MECH_STATE climbState = CLIMB_MECH_STATE.FLOATING;
 
     public ClimbSubsystem(CANBus canBusObj) {
-        m_StabilizingArm = new StabilizingArm(canBusObj);
-        m_Winch = new Winch(canBusObj);
+        m_StabilizingArm = new StabilizingArmSubsystem(canBusObj);
+        m_Winch = new WinchSubsystem(canBusObj);
+
+        armState = m_StabilizingArm.getArmState();
+        winchState = m_Winch.getWinchState();
     }
 
     public void setArmDutyCycle(double dutyCycle) {
@@ -25,45 +32,68 @@ public class ClimbSubsystem extends SubsystemBase {
         m_Winch.setMotorDutyCycle(dutyCycle);
     }
 
-    // block command execution until the booleanSupplier, usually a button, is
-    // released
-    private Command waitForButtonRelease(BooleanSupplier step) {
-        return Commands.waitUntil(() -> !step.getAsBoolean());
+    public void stopArm() {
+        m_StabilizingArm.stop();
     }
 
-    // block command execution until the booleanSupplier, usually a button, toggles
-    // back and forth
-    private Command waitForNextStep(BooleanSupplier step) {
-        return waitForButtonRelease(step).andThen(Commands.waitUntil(step)).andThen(waitForButtonRelease(step));
+    public void stopWinch() {
+        m_Winch.stop();
     }
 
-    // arm + winch -
-    // Step through the climb up sequence, stopping motors either with a button
-    // press or them reaching the soft stop
-    // public Command climbUp(BooleanSupplier step) {
-    // Command climbUp = (waitForButtonRelease(step)
-    // .andThen(m_StabilizingArm.deployArm(step)
-    // .raceWith(Commands.waitUntil(() -> m_StabilizingArm.getForwardLimit().orElseGet(() -> false)))
-    // .andThen(waitForNextStep(step))
-    // .andThen(m_Winch.pullDownClaw(step))
-    // .raceWith(Commands
-    // .waitUntil(() -> m_Winch.getReverseLimit().orElseGet(() -> false)))));
-    // climbUp.addRequirements(this);
-    // return climbUp;
-    // }
+    public void setArmPositionSetpoint(Angle setpoint) {
+        m_StabilizingArm.setPositionSetpoint(setpoint);
+    }
 
-    // // winch + arm -
-    // // Step through the climb down sequence, stopping motors either with a button
-    // // press or them reaching the soft stop
-    // public Command climbDown(BooleanSupplier step) {
-    // Command climbDown = waitForButtonRelease(step)
-    // .andThen(m_Winch.pullUpClaw(step)
-    // .raceWith(Commands.waitUntil(() -> m_Winch.getForwardLimit().orElseGet(() -> false)))
-    // .andThen(waitForNextStep(step))
-    // .andThen(m_StabilizingArm.retractArm(step)
-    // .raceWith(Commands
-    // .waitUntil(() -> m_StabilizingArm.getReverseLimit().orElseGet(() -> false)))));
-    // climbDown.addRequirements(this);
-    // return climbDown;
-    // }
+    public void setWinchTorqueCurrent(double amps) {
+        m_Winch.setTorqueCurrent(amps);
+    }
+
+    public Distance getWinchDistance() {
+        return m_Winch.getDistance();
+    }
+
+    public boolean isWinchAtDistance(Distance target) {
+        return m_Winch.isAtDistance(target);
+    }
+
+    public boolean isArmAtSetPosition() {
+        return m_StabilizingArm.atSetPosition();
+    }
+
+    public boolean isArmForwardLimitActive() {
+        return m_StabilizingArm.isForwardLimitActive();
+    }
+
+    public boolean isArmReverseLimitActive() {
+        return m_StabilizingArm.isReverseLimitActive();
+    }
+
+    public CLIMB_MECH_STATE getClimbState() {
+        armState = m_StabilizingArm.getArmState();
+        winchState = m_Winch.getWinchState();
+
+        if (armState == CLIMB_MECH_STATE.HOME && winchState == CLIMB_MECH_STATE.HOME) {
+            climbState = CLIMB_MECH_STATE.HOME;
+        } else if (armState == CLIMB_MECH_STATE.DEPLOYED && winchState == CLIMB_MECH_STATE.DEPLOYED) {
+            climbState = CLIMB_MECH_STATE.DEPLOYED;
+        } else {
+            climbState = CLIMB_MECH_STATE.FLOATING;
+        }
+        return climbState;
+    }
+
+    public CLIMB_MECH_STATE getArmState() {
+        return m_StabilizingArm.getArmState();
+    }
+
+    public CLIMB_MECH_STATE getWinchState() {
+        return m_Winch.getWinchState();
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putString("wstat", m_Winch.getWinchState().toString());
+        SmartDashboard.putString("astat", m_StabilizingArm.getArmState().toString());
+        SmartDashboard.putString("cstat", getClimbState().toString());
+    }
 }

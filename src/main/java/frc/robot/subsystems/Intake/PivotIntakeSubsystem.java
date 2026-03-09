@@ -147,7 +147,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
         // SmartDashboard
         // SmartDashboard.putNumber("Intake/Pivot/AngleDegrees", getAngleDegrees());
-        // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition", getAbsolutePosition());
+        // SmartDashboard.putNumber("Intake/Pivot/AbsolutePosition",
+        // getAbsolutePosition());
 
         SmartDashboard.putBoolean("Intake/Pivot/AtTopLimit", topLimit);
         SmartDashboard.putBoolean("Intake/Pivot/AtBottomLimit", bottomLimit);

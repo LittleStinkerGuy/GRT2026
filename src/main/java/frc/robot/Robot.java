@@ -91,7 +91,6 @@ public class Robot extends LoggedRobot {
         Logger.start();
     }
 
-
     @Override
     public void robotPeriodic() {
         // Runs the Scheduler. This is responsible for polling buttons, adding

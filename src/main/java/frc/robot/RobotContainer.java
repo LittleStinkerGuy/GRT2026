@@ -35,9 +35,11 @@ import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
 
-// import frc.robot.commands.intake.SetIntakePivotCommand;
-// import frc.robot.commands.hopper.HopperSetRPMCommand;
+import frc.robot.commands.intake.*;
+import frc.robot.commands.hopper.*;
+import frc.robot.commands.climb.ClimbCommands.*;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -169,12 +171,12 @@ public class RobotContainer {
         }
         if (Constants.MECH_ENABLED) {
             // bind semi auto commands
-            // var crossTrigger = mechController.cross();
-            // var triangleTrigger = mechController.triangle();
-            // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() ->
-            // crossTrigger.getAsBoolean()));
-            // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() ->
-            // triangleTrigger.getAsBoolean()));
+            var crossTrigger = mechController.cross();
+            var triangleTrigger = mechController.triangle();
+            crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
+            triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
+
+            mechController.options().onTrue(new AutoClimbCommand(m_ClimbSubsystem));
 
             // Manual control with d-pad for winch and left stick for arm
             m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
