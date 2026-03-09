@@ -1,11 +1,10 @@
 package frc.robot.commands.shooter;
 
 import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.Constants.AlignToHubConstants;
+import frc.robot.Constants.LoggingConstants;
 import frc.robot.subsystems.shooter.Intertable;
-
-import com.google.flatbuffers.Table;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -16,20 +15,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class rampFlywheel extends Command {
 
-    private boolean redTeam = false;
-    private flywheel fly;
-    private Intertable tableThing = new Intertable();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("SWERVE_TABLE_NAME");
-    StructSubscriber<Pose2d> poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
+    private final FieldManagementSubsystem fms;
+    private final flywheel fly;
+    private final Intertable tableThing = Intertable.getInstance();
+    private final NetworkTable table = NetworkTableInstance.getDefault().getTable(LoggingConstants.SWERVE_TABLE);
+    private final StructSubscriber<Pose2d> poseSub;
     private final NetworkTableEntry offsetEntry;
 
-    public rampFlywheel(flywheel h, boolean red) {
-        redTeam = red;
+    public rampFlywheel(flywheel h, FieldManagementSubsystem fms) {
+        this.fms = fms;
         this.fly = h;
         addRequirements(fly);
 
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("ShooterLearner");
-        offsetEntry = table.getEntry("offset");
+        poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
+        NetworkTable learnerTable = NetworkTableInstance.getDefault().getTable("ShooterLearner");
+        offsetEntry = learnerTable.getEntry("offset");
     }
 
     @Override
@@ -38,6 +38,7 @@ public class rampFlywheel extends Command {
     @Override
     public void execute() {
         double RPS = 0;
+        boolean redTeam = fms.isRedAlliance();
 
         if (redTeam) {
             if (poseSub.get().getX() > AlignConstants.RED_WALL_X) {

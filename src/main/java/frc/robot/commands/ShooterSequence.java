@@ -30,24 +30,16 @@ public class ShooterSequence extends SequentialCommandGroup {
         DoubleSupplier xSpeed,
         DoubleSupplier ySpeed) {
 
-        boolean redTeam = fms.isRedAlliance();
-
-        AimWhileDrivingCommand aimWhileDriving =
-            new AimWhileDrivingCommand(
-                swerve,
-                fms,
-                xSpeed,
-                ySpeed);
-
         addCommands(
-
             new ParallelCommandGroup(
-                aimWhileDriving,
-                new rampFlywheel(fly, redTeam),
-                new hoodCommand(hood, redTeam),
-                new towerRoll(b),
-
-                new indexerRun(hopper)
-                    .onlyWhile(() -> (fly.wantedVel() && hood.wantedAngl() && b.correctRoll()))));
+                new AimWhileDrivingCommand(swerve, fms, xSpeed, ySpeed),
+                new rampFlywheel(fly, fms),
+                new hoodCommand(hood, fms),
+                new towerRoll(b, fly)
+            ),
+            // Indexer only runs after flywheel is up to speed
+            new indexerRun(hopper)
+                .onlyWhile(() -> fly.wantedVel())
+        );
     }
 }

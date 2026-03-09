@@ -1,13 +1,12 @@
 package frc.robot.commands.shooter;
 
 import frc.robot.Constants.AlignConstants;
-import frc.robot.commands.allign.AimToHubCommand;
-import frc.robot.commands.allign.AimToPointCommand;
+import frc.robot.Constants.LoggingConstants;
+import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.subsystems.shooter.Intertable;
 import frc.robot.subsystems.shooter.hood;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.shooter.Intertable;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -16,16 +15,18 @@ import edu.wpi.first.networktables.StructSubscriber;
 
 public class hoodCommand extends Command {
 
-    private hood hd;
-    private Intertable tableThing = new Intertable();
-    private boolean redTeam = false;
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("SWERVE_TABLE_NAME");
-    StructSubscriber<Pose2d> poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
+    private final hood hd;
+    private final FieldManagementSubsystem fms;
+    private final Intertable tableThing = Intertable.getInstance();
+    private final NetworkTable table = NetworkTableInstance.getDefault().getTable(LoggingConstants.SWERVE_TABLE);
+    private final StructSubscriber<Pose2d> poseSub;
 
-    public hoodCommand(hood h, boolean red) {
-        redTeam = red;
+    public hoodCommand(hood h, FieldManagementSubsystem fms) {
+        this.fms = fms;
         this.hd = h;
         addRequirements(hd);
+
+        poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
     }
 
     @Override
@@ -34,6 +35,7 @@ public class hoodCommand extends Command {
     @Override
     public void execute() {
         double ang;
+        boolean redTeam = fms.isRedAlliance();
 
         if (redTeam) {
             if (poseSub.get().getX() > AlignConstants.RED_WALL_X) {
