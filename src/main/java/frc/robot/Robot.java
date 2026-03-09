@@ -49,9 +49,7 @@ public class Robot extends LoggedRobot {
         // Also log DS data (joystick inputs, mode changes, etc.)
         DriverStation.startDataLog(DataLogManager.getLog());
 
-        // Instantiate our RobotContainer. This will perform all our button bindings,
-        // and put our
-        // autonomous chooser on the dashboard.
+        // Instantiate our RobotContainer. This will perform all our button bindings, and put our autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
     }
 
