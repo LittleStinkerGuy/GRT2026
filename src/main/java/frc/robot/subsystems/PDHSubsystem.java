@@ -21,27 +21,27 @@ public class PDHSubsystem extends SubsystemBase {
 
     public void sendData() {
         Logger.recordOutput(LOG_PREFIX + "TotalCurrentAmps",
-                        pdh.getTotalCurrent());
+            pdh.getTotalCurrent());
 
         Logger.recordOutput(LOG_PREFIX + "TotalPowerWatts",
-                        pdh.getTotalPower());
+            pdh.getTotalPower());
 
         Logger.recordOutput(LOG_PREFIX + "TotalEnergyJoules",
-                        pdh.getTotalEnergy());
+            pdh.getTotalEnergy());
 
         Logger.recordOutput(LOG_PREFIX + "VoltageVolts",
-                        pdh.getVoltage());
+            pdh.getVoltage());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-                        pdh.getTemperature());
+            pdh.getTemperature());
 
         Logger.recordOutput(LOG_PREFIX + "SwitchableChannelEnabled",
-                        pdh.getSwitchableChannel());
+            pdh.getSwitchableChannel());
 
         // Per-channel current logging
         for (int i = 0; i < 24; i++) {
             Logger.recordOutput(LOG_PREFIX + "Channel" + i + "CurrentAmps",
-                            pdh.getCurrent(i));
+                pdh.getCurrent(i));
         }
     }
 

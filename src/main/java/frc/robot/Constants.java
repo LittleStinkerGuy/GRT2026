@@ -166,17 +166,17 @@ public final class Constants {
 
         // Module Positions (relative to robot center)
         public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-                        MODULE_LEFTRIGHT_SPACING / 2.0);
+            MODULE_LEFTRIGHT_SPACING / 2.0);
         public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-                        -MODULE_LEFTRIGHT_SPACING / 2.0);
+            -MODULE_LEFTRIGHT_SPACING / 2.0);
         public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-                        MODULE_LEFTRIGHT_SPACING / 2.0);
+            MODULE_LEFTRIGHT_SPACING / 2.0);
         public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-                        -MODULE_LEFTRIGHT_SPACING / 2.0);
+            -MODULE_LEFTRIGHT_SPACING / 2.0);
 
         // Kinematic Limits
         public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
-                        * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+            * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
         public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
     }
 
@@ -256,30 +256,30 @@ public final class Constants {
 
         public static final CameraConfig[] cameraConfigs = new CameraConfig[] { // back top
                 new CameraConfig(
-                                "6",
-                                new Transform3d(
-                                                -0.1016, 0, 0.5842,
-                                                new Rotation3d(0, -Math.toRadians(30), 0)),
-                                PoseStrategy.LOWEST_AMBIGUITY)
+                    "6",
+                    new Transform3d(
+                        -0.1016, 0, 0.5842,
+                        new Rotation3d(0, -Math.toRadians(30), 0)),
+                    PoseStrategy.LOWEST_AMBIGUITY)
         };
 
         public static final Distance FUEL_TARGET_HEIGHT = Inches.of(3);
         public static final int FUEL_PIPELINE_INDEX = 0;
 
         public static final FuelDetectionConfig fuelDetectionConfig =
-                        new FuelDetectionSubsystem.FuelDetectionConfig(
-                                        cameraConfigs[0].getCameraName(),
-                                        Meters.of(cameraConfigs[0].getCameraPose().getZ()),
-                                        FUEL_TARGET_HEIGHT,
-                                        Radians.of(cameraConfigs[0].getCameraPose().getRotation().getY()),
-                                        FUEL_PIPELINE_INDEX);
+            new FuelDetectionSubsystem.FuelDetectionConfig(
+                cameraConfigs[0].getCameraName(),
+                Meters.of(cameraConfigs[0].getCameraPose().getZ()),
+                FUEL_TARGET_HEIGHT,
+                Radians.of(cameraConfigs[0].getCameraPose().getRotation().getY()),
+                FUEL_PIPELINE_INDEX);
 
         public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
-                        VisionConstants.STD_DEV_DIST, VisionConstants.X_STD_DEV, 2);
+            VisionConstants.STD_DEV_DIST, VisionConstants.X_STD_DEV, 2);
         public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
-                        VisionConstants.STD_DEV_DIST, VisionConstants.Y_STD_DEV, 2);
+            VisionConstants.STD_DEV_DIST, VisionConstants.Y_STD_DEV, 2);
         public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
-                        VisionConstants.STD_DEV_DIST, VisionConstants.O_STD_DEV, 1);
+            VisionConstants.STD_DEV_DIST, VisionConstants.O_STD_DEV, 1);
 
         public static final int FUEL_SMOOTHING_WINDOW_SIZE = 5;
         public static final Time FUEL_DECAY_HOLD_TIME_SECONDS = Seconds.of(0.2);

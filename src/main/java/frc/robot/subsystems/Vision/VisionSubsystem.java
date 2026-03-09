@@ -58,7 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Load AprilTag field layout
         try {
             aprilTagFieldLayout = new AprilTagFieldLayout(
-                            Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json");
+                Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to load field layout", e);
         }
@@ -94,12 +94,12 @@ public class VisionSubsystem extends SubsystemBase {
                     PhotonTrackedTarget target = result.getTargets().get(i);
 
                     Translation3d translation =
-                                    target.getBestCameraToTarget().getTranslation();
+                        target.getBestCameraToTarget().getTranslation();
 
                     double distance = Math.sqrt(
-                                    Math.pow(translation.getX(), 2) +
-                                                    Math.pow(translation.getY(), 2) +
-                                                    Math.pow(translation.getZ(), 2));
+                        Math.pow(translation.getX(), 2) +
+                            Math.pow(translation.getY(), 2) +
+                            Math.pow(translation.getZ(), 2));
                     if (distance < minDistance) {
                         minDistance = distance;
                     }
@@ -116,12 +116,12 @@ public class VisionSubsystem extends SubsystemBase {
                     continue;
 
                 Optional<EstimatedRobotPose> estimatedPose =
-                                // photonPoseEstimator.update(result);
-                                photonPoseEstimator.estimateAverageBestTargetsPose(result);
+                    // photonPoseEstimator.update(result);
+                    photonPoseEstimator.estimateAverageBestTargetsPose(result);
                 // System.out.println("estimatedPoseworked");
                 if (estimatedPose.isPresent()) {
                     Pose2d estimatedPose2d =
-                                    estimatedPose.get().estimatedPose.toPose2d();
+                        estimatedPose.get().estimatedPose.toPose2d();
 
                     // double x = estimatedPose2d.getTranslation().getX();
                     // double y = estimatedPose2d.getTranslation().getY();
@@ -135,13 +135,13 @@ public class VisionSubsystem extends SubsystemBase {
                     // }
 
                     visionConsumer.accept(
-                                    new TimestampedVisionUpdate(
-                                                    result.getTimestampSeconds(),
-                                                    estimatedPose2d,
-                                                    VecBuilder.fill(// standard deviation matrix
-                                                                    xStdDevModel.predict(minDistance),
-                                                                    yStdDevModel.predict(minDistance),
-                                                                    oStdDevModel.predict(minDistance))));
+                        new TimestampedVisionUpdate(
+                            result.getTimestampSeconds(),
+                            estimatedPose2d,
+                            VecBuilder.fill(// standard deviation matrix
+                                xStdDevModel.predict(minDistance),
+                                yStdDevModel.predict(minDistance),
+                                oStdDevModel.predict(minDistance))));
                     visionPosePublisher.set(estimatedPose2d);
                     estimatedPoseLogEntry.update(estimatedPose2d);
                 }
@@ -164,18 +164,18 @@ public class VisionSubsystem extends SubsystemBase {
     private void initNT(CameraConfig cameraConfig) {
         ntInstance = NetworkTableInstance.getDefault();
         visionStatsTable = ntInstance.getTable(
-                        "Vision Debug" + cameraConfig.getCameraName());
+            "Vision Debug" + cameraConfig.getCameraName());
         visionPosePublisher = visionStatsTable.getStructTopic(
-                        "estimated pose", Pose2d.struct).publish();
+            "estimated pose", Pose2d.struct).publish();
 
         visionDistPublisher = visionStatsTable.getDoubleTopic(
-                        "dist").publish();
+            "dist").publish();
         cameraPosePublisher = visionStatsTable.getStructTopic(
-                        "camera pose", Pose3d.struct).publish();
+            "camera pose", Pose3d.struct).publish();
         tagDistancePublisher = visionStatsTable.getDoubleArrayTopic(
-                        "Tag Distances").publish();
+            "Tag Distances").publish();
         cameraPosePublisher.set(
-                        new Pose3d().transformBy(cameraConfig.getCameraPose()));
+            new Pose3d().transformBy(cameraConfig.getCameraPose()));
     }
 
     /**
@@ -185,16 +185,16 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void initLog(CameraConfig cameraConfig) {
         tagIDLogEntry = new IntegerArrayLogEntry(
-                        DataLogManager.getLog(),
-                        cameraConfig.getCameraName() + " Tag IDs");
+            DataLogManager.getLog(),
+            cameraConfig.getCameraName() + " Tag IDs");
         tagDistanceLogEntry = new DoubleArrayLogEntry(
-                        DataLogManager.getLog(),
-                        cameraConfig.getCameraName() + " Tag Distances"
+            DataLogManager.getLog(),
+            cameraConfig.getCameraName() + " Tag Distances"
 
         );
         estimatedPoseLogEntry = StructLogEntry.create(
-                        DataLogManager.getLog(),
-                        cameraConfig.getCameraName() + " Estimated Pose",
-                        Pose2d.struct);
+            DataLogManager.getLog(),
+            cameraConfig.getCameraName() + " Estimated Pose",
+            Pose2d.struct);
     }
 }

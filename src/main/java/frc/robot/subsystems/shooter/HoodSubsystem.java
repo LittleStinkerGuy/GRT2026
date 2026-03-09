@@ -46,11 +46,11 @@ public class HoodSubsystem extends SubsystemBase {
         cfg.withCurrentLimits(currLim);
         hoodMotor.getConfigurator().apply(cfg);
         cfg.withSoftwareLimitSwitch(
-                        new SoftwareLimitSwitchConfigs()
-                                        .withForwardSoftLimitEnable(true)
-                                        .withForwardSoftLimitThreshold(ShooterConstants.UPPER_ANGLE)
-                                        .withReverseSoftLimitEnable(true)
-                                        .withReverseSoftLimitThreshold(ShooterConstants.LOWER_ANGLE));
+            new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(ShooterConstants.UPPER_ANGLE)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(ShooterConstants.LOWER_ANGLE));
     }
 
     public void hoodSpeed(double speed) {
@@ -89,30 +89,30 @@ public class HoodSubsystem extends SubsystemBase {
 
     public void sendData() {
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
-                        hoodMotor.getPosition().getValueAsDouble());
+            hoodMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "VelocityRPS",
-                        hoodMotor.getVelocity().getValueAsDouble());
+            hoodMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "AppliedVolts",
-                        hoodMotor.getMotorVoltage().getValueAsDouble());
+            hoodMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyVoltage",
-                        hoodMotor.getSupplyVoltage().getValueAsDouble());
+            hoodMotor.getSupplyVoltage().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "StatorCurrentAmps",
-                        hoodMotor.getStatorCurrent().getValueAsDouble());
+            hoodMotor.getStatorCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "SupplyCurrentAmps",
-                        hoodMotor.getSupplyCurrent().getValueAsDouble());
+            hoodMotor.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "TemperatureC",
-                        hoodMotor.getDeviceTemp().getValueAsDouble());
+            hoodMotor.getDeviceTemp().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "CommandedDutyCycle",
-                        commandedDutyCycle);
+            commandedDutyCycle);
 
         Logger.recordOutput(LOG_PREFIX + "Connected",
-                        hoodMotor.isConnected());
+            hoodMotor.isConnected());
     }
 }

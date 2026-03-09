@@ -10,7 +10,7 @@ public class CameraConfig {
     private PoseStrategy poseStrategy;
 
     public CameraConfig(
-                    String cameraName, Transform3d cameraPose, PoseStrategy poseStrategy) {
+        String cameraName, Transform3d cameraPose, PoseStrategy poseStrategy) {
         this.cameraName = cameraName;
         this.cameraPose = cameraPose;
         this.poseStrategy = poseStrategy;

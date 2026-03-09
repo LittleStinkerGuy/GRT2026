@@ -117,8 +117,8 @@ public class DriveMotor {
         supplyCurrentSignal = motor.getSupplyCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-                        250.0, positionSignal, velocitySignal,
-                        appliedVoltsSignal, torqueCurrentSignal, supplyCurrentSignal);
+            250.0, positionSignal, velocitySignal,
+            appliedVoltsSignal, torqueCurrentSignal, supplyCurrentSignal);
         motor.optimizeBusUtilization(0, 1.0);
     }
 

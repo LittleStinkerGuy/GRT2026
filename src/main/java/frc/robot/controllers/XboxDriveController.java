@@ -21,12 +21,12 @@ public class XboxDriveController extends BaseDriveController {
     private final JoystickButton yButton = new JoystickButton(driveController, XboxController.Button.kY.value);
     private final JoystickButton lBumper = new JoystickButton(driveController, XboxController.Button.kLeftBumper.value);
     private final JoystickButton rBumper = new JoystickButton(
-                    driveController,
-                    XboxController.Button.kRightBumper.value);
+        driveController,
+        XboxController.Button.kRightBumper.value);
     private final JoystickButton driveLStickButton = new JoystickButton(
-                    driveController, XboxController.Button.kLeftStick.value);
+        driveController, XboxController.Button.kLeftStick.value);
     private final JoystickButton driveRStickButton = new JoystickButton(
-                    driveController, XboxController.Button.kRightStick.value);
+        driveController, XboxController.Button.kRightStick.value);
 
     @Override
     public double getForwardPower() {
@@ -77,10 +77,10 @@ public class XboxDriveController extends BaseDriveController {
 
     @Override
     public void bindDriverHeadingReset(
-                    Runnable command, Subsystem requiredSubsystem) {
+        Runnable command, Subsystem requiredSubsystem) {
         aButton.onTrue(new InstantCommand(
-                        command,
-                        requiredSubsystem));
+            command,
+            requiredSubsystem));
     }
 
     @Override

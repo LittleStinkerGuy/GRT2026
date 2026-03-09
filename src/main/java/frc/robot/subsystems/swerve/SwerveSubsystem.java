@@ -96,10 +96,10 @@ public class SwerveSubsystem extends SubsystemBase {
         // sets swerve
         kinematics = new SwerveDriveKinematics(FL_POS, FR_POS, BL_POS, BR_POS);
         poseEstimator = new SwerveDrivePoseEstimator(
-                        kinematics,
-                        getGyroHeading(),
-                        getModulePositions(),
-                        new Pose2d());
+            kinematics,
+            getGyroHeading(),
+            getModulePositions(),
+            new Pose2d());
 
         // buildAuton();
         initNT();
@@ -126,10 +126,10 @@ public class SwerveSubsystem extends SubsystemBase {
         Rotation2d targetHeading = new Rotation2d(Math.atan2(dy, dx));
 
         Rotation2d headingError =
-                        targetHeading.minus(currentPose.getRotation());
+            targetHeading.minus(currentPose.getRotation());
 
         double omega =
-                        ROTATION_PID.calculate(headingError.getRadians(), 0.0);
+            ROTATION_PID.calculate(headingError.getRadians(), 0.0);
 
         setDrivePowers(0.0, 0.0, omega);
     }
@@ -139,15 +139,15 @@ public class SwerveSubsystem extends SubsystemBase {
         // update the poseestimator with curent gyro reading
         Rotation2d gyroAngle = getGyroHeading();
         estimatedPose = poseEstimator.update(
-                        gyroAngle,
-                        getModulePositions());
+            gyroAngle,
+            getModulePositions());
 
         // If all commanded velocities are 0, the system is idle (drivers / commands are
         // not supplying input).
         boolean isIdle = states[0].speedMetersPerSecond == 0.0
-                        && states[1].speedMetersPerSecond == 0.0
-                        && states[2].speedMetersPerSecond == 0.0
-                        && states[3].speedMetersPerSecond == 0.0;
+            && states[1].speedMetersPerSecond == 0.0
+            && states[2].speedMetersPerSecond == 0.0
+            && states[3].speedMetersPerSecond == 0.0;
 
         // Start lock timer when idle
         if (isIdle) {
@@ -187,15 +187,15 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
         ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                        xPower * MAX_VEL,
-                        yPower * MAX_VEL,
-                        angularPower * MAX_OMEGA,
-                        getDriverHeading());
+            xPower * MAX_VEL,
+            yPower * MAX_VEL,
+            angularPower * MAX_OMEGA,
+            getDriverHeading());
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
-                        states, speeds,
-                        MAX_VEL, MAX_VEL, MAX_OMEGA);
+            states, speeds,
+            MAX_VEL, MAX_VEL, MAX_OMEGA);
 
 
     }
@@ -212,9 +212,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void addVisionMeasurements(TimestampedVisionUpdate update) {
         poseEstimator.addVisionMeasurement(
-                        update.pose(),
-                        update.timestamp(),
-                        update.stdDevs());
+            update.pose(),
+            update.timestamp(),
+            update.stdDevs());
     }
 
     /**
@@ -290,29 +290,29 @@ public class SwerveSubsystem extends SubsystemBase {
     public void resetPose(Pose2d currentPose) {
         Rotation2d gyroAngle = getGyroHeading();
         poseEstimator.resetPosition(
-                        gyroAngle,
-                        getModulePositions(),
-                        currentPose);
+            gyroAngle,
+            getModulePositions(),
+            currentPose);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
         SwerveModuleState[] currentModuleStates = getModuleStates();
         ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                        kinematics.toChassisSpeeds(currentModuleStates),
-                        getRobotPosition().getRotation() // Could be replaced with getGyroHeading() if desired
+            kinematics.toChassisSpeeds(currentModuleStates),
+            getRobotPosition().getRotation() // Could be replaced with getGyroHeading() if desired
         );
         return robotRelativeSpeeds;
     }
 
     public void setRobotRelativeDrivePowers(ChassisSpeeds robotRelativeSpeeds) {
         ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                        robotRelativeSpeeds,
-                        new Rotation2d(0));
+            robotRelativeSpeeds,
+            new Rotation2d(0));
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
-                        states, speeds,
-                        MAX_VEL, MAX_VEL, MAX_OMEGA);
+            states, speeds,
+            MAX_VEL, MAX_VEL, MAX_OMEGA);
     }
 
     /**
@@ -324,15 +324,15 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void setRobotRelativeDrivePowers(double xPower, double yPower, double angularPower) {
         ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                        xPower * MAX_VEL,
-                        yPower * MAX_VEL,
-                        angularPower * MAX_OMEGA,
-                        new Rotation2d(0));
+            xPower * MAX_VEL,
+            yPower * MAX_VEL,
+            angularPower * MAX_OMEGA,
+            new Rotation2d(0));
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
-                        states, speeds,
-                        MAX_VEL, MAX_VEL, MAX_OMEGA);
+            states, speeds,
+            MAX_VEL, MAX_VEL, MAX_OMEGA);
     }
 
     /**
@@ -354,11 +354,11 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveTable = ntInstance.getTable(SWERVE_TABLE);
 
         swerveStatesPublisher = swerveTable.getStructArrayTopic(
-                        "SwerveStates", SwerveModuleState.struct).publish();
+            "SwerveStates", SwerveModuleState.struct).publish();
 
         estimatedPosePublisher = swerveTable.getStructTopic(
-                        "estimatedPose",
-                        Pose2d.struct).publish();
+            "estimatedPose",
+            Pose2d.struct).publish();
     }
 
     /**
@@ -449,24 +449,24 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         AutoBuilder.configure(
-                        this::getRobotPosition,
-                        this::resetPose,
-                        this::getRobotRelativeChassisSpeeds,
-                        (speeds, feedforwards) -> setRobotRelativeDrivePowers(speeds),
+            this::getRobotPosition,
+            this::resetPose,
+            this::getRobotRelativeChassisSpeeds,
+            (speeds, feedforwards) -> setRobotRelativeDrivePowers(speeds),
 
-                        // 1.25/3.25
-                        new PPHolonomicDriveController(
-                                        new PIDConstants(1.38, 0, 0.0),
-                                        new PIDConstants(3.3, 0.0, 0.0)),
+            // 1.25/3.25
+            new PPHolonomicDriveController(
+                new PIDConstants(1.38, 0, 0.0),
+                new PIDConstants(3.3, 0.0, 0.0)),
 
-                        config,
-                        () -> {
-                            var alliance = DriverStation.getAlliance();
-                            if (alliance.isPresent()) {
-                                return alliance.get() == DriverStation.Alliance.Red;
-                            }
-                            return false;
-                        },
-                        this);
+            config,
+            () -> {
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
+            this);
     }
 }

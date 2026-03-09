@@ -77,8 +77,8 @@ public class SteerMotor extends SubsystemBase {
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private final CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
     private PositionTorqueCurrentFOC posTorqueCurrentFOCRequest = new PositionTorqueCurrentFOC(0)
-                    .withSlot(0)
-                    .withUpdateFreqHz(100.0);
+        .withSlot(0)
+        .withUpdateFreqHz(100.0);
 
     private void configureMotor() {
         // Set peak current for torque limiting for stall prevention
