@@ -64,8 +64,7 @@ public class VisionSubsystem extends SubsystemBase {
         camID = cameraConfig.getCameraName();
         // Load AprilTag field layout
         try {
-            aprilTagFieldLayout = new AprilTagFieldLayout(
-                Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json");
+            aprilTagFieldLayout = new AprilTagFieldLayout(Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json");
         } catch (Exception e) {
             throw new RuntimeException("Failed to load field layout", e);
         }

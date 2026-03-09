@@ -4,11 +4,21 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.List;
 
 import com.ctre.phoenix6.signals.InvertedValue;
+
+// Units library:
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
+
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -157,7 +167,6 @@ public final class Constants {
         public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
         public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
 
-
         // MotionMagic parameters for drive motors
         public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
         public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
@@ -178,7 +187,8 @@ public final class Constants {
         public static final double STEER_FREE_SPEED_RPM = 7530.0; // Kraken X44
 
         // Motion Magic
-        public static final double STEER_MAX_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0; // ~5.49 rot/sec
+        public static final double STEER_MAX_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0; // ~5.49
+                                                                                                            // rot/sec
         public static final double STEER_MAX_ACCELERATION = STEER_MAX_VELOCITY * 10.0; // ~54.9 rot/sec^2
         public static final double STEER_CRUISE_VELOCITY = STEER_MAX_VELOCITY;
         public static final double STEER_ACCELERATION = STEER_MAX_ACCELERATION;
@@ -359,21 +369,57 @@ public final class Constants {
         // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
         public static final int WINCH_MOTOR_CAN_ID = 21;
         public static final int ARM_MOTOR_CAN_ID = 19; // Doornob
-        public static final int CANDI_CAN_ID = 22;
+        public static final int CANRANGE_CAN_ID = 22;
 
         public static final InvertedValue ARM_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
         public static final InvertedValue WINCH_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
 
+        public static enum CLIMB_MECH_STATE {
+            HOME,
+            DEPLOYED,
+            FLOATING
+        }
+
         public static final double ARM_GR = 1.0;
-        public static final double WINCH_GR = 1.0;
+        public static final double WINCH_GR = 70.0;
 
-        public static final double ARM_MAX_OUTPUT = 0.5;
-        public static final double WINCH_MAX_OUTPUT = 1;
+        public static final double ARM_MAX_OUTPUT = 0.05;
+        public static final double WINCH_MAX_OUTPUT = 0.1;
 
-        public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.19);
-        public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0);
+        public static final Angle ARM_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
 
-        public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(0);
-        public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(3);
+        public static final Angle ARM_REVERSE_LIMIT = Rotations.of(-0.05);
+        public static final Angle ARM_FORWARD_LIMIT = Rotations.of(0.25);
+        public static final Angle WINCH_REVERSE_LIMIT = Rotations.of(-0.25);
+        public static final Angle WINCH_FORWARD_LIMIT = Rotations.of(0.25);
+
+        public static final Angle ARM_HOME_POS = Rotations.of(0.25);
+        public static final Angle WINCH_HOME_POS = Rotations.of(-0.25);
+        public static final Angle ARM_DEPLOYED_POS = Rotations.of(0);
+
+        public static final Time ARM_POS_TIMEOUT = Seconds.of(5);
+        public static final Time WINCH_POS_TIMEOUT = Seconds.of(5);
+
+        public static final Angle ENCODER_OFFSET = Rotations.of(0);
+        public static final Angle ENCODER_DISCONTINUITY_POINT = ((ARM_HOME_POS.plus(ARM_DEPLOYED_POS)).div(2))
+            .plus(Rotations.of(0.5)); // docs for less than one rotation of travel: mean(lowerLimit,upperLimit) +
+                                      // 0.5
+
+        // Winch CANrange + torque current control
+        public static final double WINCH_TORQUE_CURRENT = 10.0; // amps, placeholder to tune
+        public static final Distance WINCH_HOME_DISTANCE = Millimeters.of(50); // placeholder to tune
+        public static final Distance WINCH_DEPLOYED_DISTANCE = Millimeters.of(300); // placeholder to tune
+        public static final Distance WINCH_DISTANCE_TOLERANCE = Millimeters.of(15); // placeholder to tune
+
+        public static final double ARM_kP = 15;
+        public static final double ARM_kI = 0.0;
+        public static final double ARM_kD = 0.1;
+        public static final double ARM_kG = 4.5;
+        public static final double ARM_kS = 2;
+
+        public static final String CLIMB_BASE_TABLE = "Climb";
+        public static final String ARM_TABLE = CLIMB_BASE_TABLE + "/Arm";
+        public static final String WINCH_TABLE = CLIMB_BASE_TABLE + "/Winch";
+        public static final String STATUS_TABLE = CLIMB_BASE_TABLE + "/Status";
     }
 }
