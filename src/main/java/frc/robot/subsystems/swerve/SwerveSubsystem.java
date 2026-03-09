@@ -34,7 +34,6 @@ import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
@@ -49,7 +48,7 @@ public class SwerveSubsystem extends SubsystemBase {
             new SwerveModuleState()
     };
     SwerveModuleState testState = new SwerveModuleState();
-    private Pose2d estimatedPose;
+    private Pose2d estimatedPose = new Pose2d(10, 4, new Rotation2d());
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator poseEstimator;
     private Rotation2d driverHeadingOffset = new Rotation2d();
@@ -58,6 +57,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private final CANBus canivore;
     private Timer lockTimer;
     private double currentCruiseVelocityRPM = STEER_CRUISE_VELOCITY * STEER_GEAR_REDUCTION * 60.0;
+
+    // Acceleration limiting fields
+    private ChassisSpeeds previousSpeeds = new ChassisSpeeds();
+    private double lastUpdateTime = 0.0;
 
     // DataLog entries
     private StructLogEntry<Pose2d> poseLogEntry;
@@ -80,6 +83,17 @@ public class SwerveSubsystem extends SubsystemBase {
     // "estimatedPose",
     // Pose2d.struct
     // );
+
+    // NT Accel Config
+    public double maxLinearAcceleration = MAX_LINEAR_ACCELERATION; // meters per second squared
+    public double maxLinearDeceleration = MAX_LINEAR_DECELERATION; // meters per second squared
+    public double maxAngularAcceleration = MAX_ANGULAR_ACCELERATION; // radians per second squared
+    public double maxAngularDeceleration = MAX_ANGULAR_DECELERATION; // radians per second squared
+
+    // Boost mode flag
+    private boolean boostModeEnabled = false;
+
+    private boolean robotRelativeMode = false;
 
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
@@ -113,29 +127,17 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         lockTimer = new Timer();
+
+        initAccelValues();
     }
 
     private final PIDController ROTATION_PID = new PIDController(4.0, 0.0, 0.2);
 
-    public void facePose() {
-        Pose2d currentPose = getRobotPosition();
-
-        double dx = ShooterConstants.HUB_POS.getX() - currentPose.getX();
-        double dy = ShooterConstants.HUB_POS.getY() - currentPose.getY();
-
-        Rotation2d targetHeading = new Rotation2d(Math.atan2(dy, dx));
-
-        Rotation2d headingError = targetHeading.minus(currentPose.getRotation());
-
-        double omega = ROTATION_PID.calculate(headingError.getRadians(), 0.0);
-
-        setDrivePowers(0.0, 0.0, omega);
-    }
-
     @Override
     public void periodic() {
         // update the poseestimator with curent gyro reading
-        Rotation2d gyroAngle = getGyroHeading();
+        // Pigeon is flipped, so negate to match vision coordinate system
+        Rotation2d gyroAngle = getGyroHeading().times(-1);
         estimatedPose = poseEstimator.update(
             gyroAngle,
             getModulePositions());
@@ -185,17 +187,155 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param angularPower [-1, 1] The rotational power.
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-            xPower * MAX_VEL,
-            yPower * MAX_VEL,
-            angularPower * MAX_OMEGA,
-            getDriverHeading());
+        // Determine max velocity based on boost mode and speed limit
+        double baseMaxVel = boostModeEnabled ? BOOST_MAX_VEL : MAX_VEL;
+        double baseMaxOmega = boostModeEnabled ? (BOOST_MAX_VEL / FL_POS.getNorm()) : MAX_OMEGA;
+
+        // Apply drive speed limit (controlled by left trigger)
+        double limitedMaxVel = baseMaxVel * driveSpeedLimit;
+        double limitedMaxOmega = baseMaxOmega * driveSpeedLimit;
+
+        Rotation2d heading = robotRelativeMode ? new Rotation2d() : getDriverHeading();
+
+        ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+            xPower * limitedMaxVel,
+            yPower * limitedMaxVel,
+            angularPower * limitedMaxOmega,
+            heading);
+
+        // Apply acceleration limiting (only limit acceleration, not deceleration)
+        ChassisSpeeds speeds = limitAcceleration(desiredSpeeds);
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
             states, speeds,
-            MAX_VEL, MAX_VEL, MAX_OMEGA);
+            limitedMaxVel, limitedMaxVel, limitedMaxOmega);
+    }
 
+    private void initAccelValues() {
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+        SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
+    }
+
+    private void updateAccelValues() {
+        if (boostModeEnabled) {
+            // Use boost mode acceleration values
+            maxLinearAcceleration = BOOST_MAX_LINEAR_ACCELERATION;
+            maxLinearDeceleration = MAX_LINEAR_DECELERATION; // Keep decel the same
+            maxAngularAcceleration = BOOST_MAX_ANGULAR_ACCELERATION;
+            maxAngularDeceleration = MAX_ANGULAR_DECELERATION; // Keep decel the same
+        } else {
+            // Use normal values from SmartDashboard
+            maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+            maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+            maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+            maxAngularDeceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
+        }
+    }
+
+    /**
+     * Enables or disables boost mode.
+     * When enabled, uses higher max velocity and acceleration values.
+     * 
+     * @param enabled true to enable boost mode, false to disable
+     */
+    public void setBoostMode(boolean enabled) {
+        this.boostModeEnabled = enabled;
+    }
+
+    /**
+     * Gets whether boost mode is currently enabled.
+     *
+     * @return true if boost mode is enabled
+     */
+    public boolean isBoostModeEnabled() {
+        return boostModeEnabled;
+    }
+
+    public void setRobotRelativeMode(boolean enabled) {
+        this.robotRelativeMode = enabled;
+    }
+
+    public boolean isRobotRelativeMode() {
+        return robotRelativeMode;
+    }
+
+    /**
+     * Limits acceleration but allows full deceleration
+     * 
+     * @param desiredSpeeds The desired chassis speeds
+     * @return Limited chassis speeds
+     */
+    private ChassisSpeeds limitAcceleration(ChassisSpeeds desiredSpeeds) {
+        updateAccelValues();
+        double currentTime = Timer.getFPGATimestamp();
+        double dt = currentTime - lastUpdateTime;
+
+        // If this is the first update or dt is too large, don't limit
+        if (lastUpdateTime == 0.0 || dt > 0.1 || dt <= 0.0) {
+            lastUpdateTime = currentTime;
+            previousSpeeds = desiredSpeeds;
+            return desiredSpeeds;
+        }
+
+        // Calculate current linear velocity magnitude
+        double currentLinearVel = Math.hypot(previousSpeeds.vxMetersPerSecond, previousSpeeds.vyMetersPerSecond);
+        double desiredLinearVel = Math.hypot(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond);
+
+        // Limit both acceleration and deceleration
+        double vx = desiredSpeeds.vxMetersPerSecond;
+        double vy = desiredSpeeds.vyMetersPerSecond;
+        double deltaV = desiredLinearVel - currentLinearVel;
+
+        if (deltaV > 0) {
+            // We're accelerating - apply acceleration limits
+            double maxDeltaV = maxLinearAcceleration * dt;
+            if (deltaV > maxDeltaV) {
+                double limitedLinearVel = currentLinearVel + maxDeltaV;
+                double scale = limitedLinearVel / desiredLinearVel;
+                vx = desiredSpeeds.vxMetersPerSecond * scale;
+                vy = desiredSpeeds.vyMetersPerSecond * scale;
+            }
+        } else if (deltaV < 0) {
+            // We're decelerating - apply deceleration limits
+            double maxDeltaV = maxLinearDeceleration * dt;
+            if (-deltaV > maxDeltaV) {
+                double limitedLinearVel = currentLinearVel - maxDeltaV;
+                if (desiredLinearVel > 0.001) {
+                    double scale = limitedLinearVel / desiredLinearVel;
+                    vx = desiredSpeeds.vxMetersPerSecond * scale;
+                    vy = desiredSpeeds.vyMetersPerSecond * scale;
+                } else {
+                    // Decelerating toward zero - use direction from previous speeds
+                    double prevMag = Math.hypot(previousSpeeds.vxMetersPerSecond, previousSpeeds.vyMetersPerSecond);
+                    if (prevMag > 0.001) {
+                        vx = (previousSpeeds.vxMetersPerSecond / prevMag) * limitedLinearVel;
+                        vy = (previousSpeeds.vyMetersPerSecond / prevMag) * limitedLinearVel;
+                    }
+                }
+            }
+        }
+
+        // Limit angular acceleration and deceleration separately
+        double omega = desiredSpeeds.omegaRadiansPerSecond;
+        double deltaOmega = omega - previousSpeeds.omegaRadiansPerSecond;
+
+        // Determine if we're accelerating or decelerating (speeding up or slowing down rotation)
+        boolean isAngularAccelerating = Math.abs(omega) > Math.abs(previousSpeeds.omegaRadiansPerSecond);
+        double maxDeltaOmega = (isAngularAccelerating ? maxAngularAcceleration : maxAngularDeceleration) * dt;
+
+        if (Math.abs(deltaOmega) > maxDeltaOmega) {
+            omega = previousSpeeds.omegaRadiansPerSecond + Math.signum(deltaOmega) * maxDeltaOmega;
+        }
+
+        ChassisSpeeds limitedSpeeds = new ChassisSpeeds(vx, vy, omega);
+
+        lastUpdateTime = currentTime;
+        previousSpeeds = limitedSpeeds;
+
+        return limitedSpeeds;
     }
 
     /**
@@ -287,11 +427,23 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d currentPose) {
-        Rotation2d gyroAngle = getGyroHeading();
+        // Pigeon is flipped, so negate to match vision coordinate system
+        Rotation2d gyroAngle = getGyroHeading().times(-1);
         poseEstimator.resetPosition(
             gyroAngle,
             getModulePositions(),
             currentPose);
+    }
+
+    /**
+     * Resets the robot pose to the default starting position in front of the red
+     * hub.
+     * Use this for testing/practice when starting in a known position.
+     */
+    public void resetToStartingPosition() {
+        // Starting position: 1.5 meters in front of red hub (which is at x=11.9)
+        Pose2d startingPose = new Pose2d(10.4, 4.0, new Rotation2d());
+        resetPose(startingPose);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
@@ -335,9 +487,30 @@ public class SwerveSubsystem extends SubsystemBase {
             MAX_VEL, MAX_VEL, MAX_OMEGA);
     }
 
+    // Drive speed limit multiplier (controlled by left trigger)
+    private double driveSpeedLimit = 1.0;
+
+    /**
+     * Sets the drive speed limit multiplier. This scales max velocity and acceleration.
+     * 
+     * @param limit [0, 1] fraction of max speed. 1.0 = full speed, 0.0 = stopped.
+     */
+    public void setDriveSpeedLimit(double limit) {
+        this.driveSpeedLimit = Math.max(0.0, Math.min(1.0, limit));
+    }
+
+    /**
+     * Gets the current drive speed limit.
+     * 
+     * @return The current speed limit multiplier [0, 1]
+     */
+    public double getDriveSpeedLimit() {
+        return driveSpeedLimit;
+    }
+
     /**
      * Limits all steer motor speeds by scaling the MotionMagic cruise velocity.
-     * 
+     *
      * @param limit [0, 1] fraction of max cruise velocity. 1.0 = full speed, 0.25 =
      *        quarter speed.
      */

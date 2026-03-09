@@ -7,27 +7,18 @@ import Jama.QRDecomposition;
 // http://algs4.cs.princeton.edu/14analysis/PolynomialRegression.java.html
 
 /**
- * The {@code PolynomialRegression} class performs a polynomial regression on an
- * set of <em>N</em>
- * data points (<em>y<sub>i</sub></em>, <em>x<sub>i</sub></em>). That is, it
- * fits a polynomial
- * <em>y</em> = &beta;<sub>0</sub> + &beta;<sub>1</sub> <em>x</em> +
- * &beta;<sub>2</sub>
- * <em>x</em><sup>2</sup> + ... + &beta;<sub><em>d</em></sub>
- * <em>x</em><sup><em>d</em></sup> (where
- * <em>y</em> is the response variable, <em>x</em> is the predictor variable,
- * and the
- * &beta;<sub><em>i</em></sub> are the regression coefficients) that minimizes
- * the sum of squared
- * residuals of the multiple regression model. It also computes associated the
- * coefficient of
+ * The {@code PolynomialRegression} class performs a polynomial regression on an set of <em>N</em>
+ * data points (<em>y<sub>i</sub></em>, <em>x<sub>i</sub></em>). That is, it fits a polynomial
+ * <em>y</em> = &beta;<sub>0</sub> + &beta;<sub>1</sub> <em>x</em> + &beta;<sub>2</sub>
+ * <em>x</em><sup>2</sup> + ... + &beta;<sub><em>d</em></sub> <em>x</em><sup><em>d</em></sup> (where
+ * <em>y</em> is the response variable, <em>x</em> is the predictor variable, and the
+ * &beta;<sub><em>i</em></sub> are the regression coefficients) that minimizes the sum of squared
+ * residuals of the multiple regression model. It also computes associated the coefficient of
  * determination <em>R</em><sup>2</sup>.
  *
  * <p>
- * This implementation performs a QR-decomposition of the underlying Vandermonde
- * matrix, so it is
- * neither the fastest nor the most numerically stable way to perform the
- * polynomial regression.
+ * This implementation performs a QR-decomposition of the underlying Vandermonde matrix, so it is
+ * neither the fastest nor the most numerically stable way to perform the polynomial regression.
  *
  * @author Robert Sedgewick
  * @author Kevin Wayne
@@ -40,15 +31,13 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     private double sst; // total sum of squares
 
     /**
-     * Performs a polynomial reggression on the data points {@code (y[i], x[i])}.
-     * Uses n as the name
+     * Performs a polynomial reggression on the data points {@code (y[i], x[i])}. Uses n as the name
      * of the predictor variable.
      *
      * @param x the values of the predictor variable
      * @param y the corresponding values of the response variable
      * @param degree the degree of the polynomial to fit
-     * @throws IllegalArgumentException if the lengths of the two arrays are not
-     *         equal
+     * @throws IllegalArgumentException if the lengths of the two arrays are not equal
      */
     public PolynomialRegression(double[] x, double[] y, int degree) {
         this(x, y, degree, "n");
@@ -61,8 +50,7 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
      * @param y the corresponding values of the response variable
      * @param degree the degree of the polynomial to fit
      * @param variableName the name of the predictor variable
-     * @throws IllegalArgumentException if the lengths of the two arrays are not
-     *         equal
+     * @throws IllegalArgumentException if the lengths of the two arrays are not equal
      */
     public PolynomialRegression(double[] x, double[] y, int degree, String variableName) {
         this.degree = degree;
@@ -142,8 +130,7 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     /**
      * Returns the coefficient of determination <em>R</em><sup>2</sup>.
      *
-     * @return the coefficient of determination <em>R</em><sup>2</sup>, which is a
-     *         real number between
+     * @return the coefficient of determination <em>R</em><sup>2</sup>, which is a real number between
      *         0 and 1
      */
     public double R2() {
@@ -153,12 +140,10 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     }
 
     /**
-     * Returns the expected response {@code y} given the value of the predictor
-     * variable {@code x}.
+     * Returns the expected response {@code y} given the value of the predictor variable {@code x}.
      *
      * @param x the value of the predictor variable
-     * @return the expected response {@code y} given the value of the predictor
-     *         variable {@code x}
+     * @return the expected response {@code y} given the value of the predictor variable {@code x}
      */
     public double predict(double x) {
         // horner's method
@@ -171,10 +156,8 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     /**
      * Returns a string representation of the polynomial regression model.
      *
-     * @return a string representation of the polynomial regression model, including
-     *         the best-fit
-     *         polynomial and the coefficient of determination
-     *         <em>R</em><sup>2</sup>
+     * @return a string representation of the polynomial regression model, including the best-fit
+     *         polynomial and the coefficient of determination <em>R</em><sup>2</sup>
      */
     public String toString() {
         StringBuilder s = new StringBuilder();
@@ -232,7 +215,5 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
         double[] x = {10, 20, 40, 80, 160, 200};
         double[] y = {100, 350, 1500, 6700, 20160, 40000};
         PolynomialRegression regression = new PolynomialRegression(x, y, 3);
-
-        System.out.println(regression);
     }
 }

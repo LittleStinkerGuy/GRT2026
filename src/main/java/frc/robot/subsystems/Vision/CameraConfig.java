@@ -1,19 +1,15 @@
 package frc.robot.subsystems.Vision;
 
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-
 import edu.wpi.first.math.geometry.Transform3d;
 
 public class CameraConfig {
     private String cameraName;
     private Transform3d cameraPose;
-    private PoseStrategy poseStrategy;
 
     public CameraConfig(
-        String cameraName, Transform3d cameraPose, PoseStrategy poseStrategy) {
+        String cameraName, Transform3d cameraPose) {
         this.cameraName = cameraName;
         this.cameraPose = cameraPose;
-        this.poseStrategy = poseStrategy;
     }
 
     public String getCameraName() {
@@ -24,7 +20,4 @@ public class CameraConfig {
         return cameraPose;
     }
 
-    public PoseStrategy getPoseStrategy() {
-        return poseStrategy;
-    }
 }

@@ -60,8 +60,7 @@ public class Winch extends SubsystemBase {
 
         // Change soft limit signal update frequency
         // idk why this is necessary but it makes code work
-        // BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal,
-        // reverseLimitSignal);
+        // BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
     }
 
     private void configureMotor() {
@@ -86,28 +85,21 @@ public class Winch extends SubsystemBase {
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
-                System.out.println("MOTOR " + motor.getDeviceID() + " CONFIGURED!");
                 break; // Success
-            }
-            if (i == 4) {
-                System.out.println("VERY BAD, MOTOR " + motor.getDeviceID() + " DID NOT GET CONFIGURED");
             }
         }
     }
 
     // private void configureCandi() {
-    // candiConfig.withDigitalInputs(new
-    // DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow));
+    // candiConfig.withDigitalInputs(new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow));
 
     // for (int i = 0; i < 5; i++) {
-    // if (hardstopCANdi.getConfigurator().apply(candiConfig, 0.1) == StatusCode.OK)
-    // {
+    // if (hardstopCANdi.getConfigurator().apply(candiConfig, 0.1) == StatusCode.OK) {
     // System.out.println("CANDI " + hardstopCANdi.getDeviceID() + " CONFIGURED!");
     // break; // Success
     // }
     // if (i == 4) {
-    // System.out.println("VERY BAD, CANDI " + hardstopCANdi.getDeviceID() + " DID
-    // NOT GET CONFIGURED");
+    // System.out.println("VERY BAD, CANDI " + hardstopCANdi.getDeviceID() + " DID NOT GET CONFIGURED");
     // }
     // }
     // }
@@ -184,11 +176,8 @@ public class Winch extends SubsystemBase {
         SmartDashboard.putNumber("Climb/Winch/SupplyVoltage", motor.getSupplyVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Climb/Winch/Temp", motor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Climb/Winch/Connected", motor.isConnected());
-        // SmartDashboard.putBoolean("Climb/Winch/ForwardLimitHit",
-        // forwardLimitSignal.getValue());
-        // SmartDashboard.putBoolean("Climb/Winch/ReverseLimitHit",
-        // reverseLimitSignal.getValue());
-        // SmartDashboard.putBoolean("Climb/Winch/HardstopPressed",
-        // hardstopCANdi.getS1Closed().getValue());
+        // SmartDashboard.putBoolean("Climb/Winch/ForwardLimitHit", forwardLimitSignal.getValue());
+        // SmartDashboard.putBoolean("Climb/Winch/ReverseLimitHit", reverseLimitSignal.getValue());
+        // SmartDashboard.putBoolean("Climb/Winch/HardstopPressed", hardstopCANdi.getS1Closed().getValue());
     }
 }

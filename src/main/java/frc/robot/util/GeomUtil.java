@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+
 // Copyright (c) 2024 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
@@ -16,10 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
-/**
- * Geometry utilities for working with translations, rotations, transforms, and
- * poses.
- */
+/** Geometry utilities for working with translations, rotations, transforms, and poses. */
 public class GeomUtil {
     /**
      * Creates a pure translating transform
@@ -69,8 +67,7 @@ public class GeomUtil {
     }
 
     /**
-     * Converts a Transform2d to a Pose2d to be used as a position or as the start
-     * of a kinematic
+     * Converts a Transform2d to a Pose2d to be used as a position or as the start of a kinematic
      * chain
      *
      * @param transform The transform that will represent the pose
@@ -122,8 +119,7 @@ public class GeomUtil {
     }
 
     /**
-     * Converts a Transform3d to a Pose3d to be used as a position or as the start
-     * of a kinematic
+     * Converts a Transform3d to a Pose3d to be used as a position or as the start of a kinematic
      * chain
      *
      * @param transform The transform that will represent the pose
@@ -134,8 +130,7 @@ public class GeomUtil {
     }
 
     /**
-     * Converts a ChassisSpeeds to a Twist2d by extracting two dimensions (Y and Z).
-     * chain
+     * Converts a ChassisSpeeds to a Twist2d by extracting two dimensions (Y and Z). chain
      *
      * @param speeds The original translation
      * @return The resulting translation
@@ -167,3 +162,4 @@ public class GeomUtil {
         return new Pose2d(pose.getTranslation(), rotation);
     }
 }
+
