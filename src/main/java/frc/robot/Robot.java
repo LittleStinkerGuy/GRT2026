@@ -87,7 +87,7 @@ public class Robot extends LoggedRobot {
                 String logPath = LogFileUtil.findReplayLog();
                 Logger.setReplaySource(new WPILOGReader(logPath));
                 Logger.addDataReceiver(
-                                new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
+                    new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
                 break;
         }
 
@@ -108,7 +108,7 @@ public class Robot extends LoggedRobot {
 
         Logger.recordOutput("Robot/Enabled", isEnabled());
         Logger.recordOutput("Robot/Mode",
-                        isAutonomous() ? "Auto" : isTeleop() ? "Teleop" : isDisabled() ? "Disabled" : "Other");
+            isAutonomous() ? "Auto" : isTeleop() ? "Teleop" : isDisabled() ? "Disabled" : "Other");
     }
 
     /** This function is called once each time the robot enters Disabled mode. */
