@@ -26,7 +26,6 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
-import frc.robot.commands.intake.ManualIntakePivotCommand;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
@@ -34,7 +33,8 @@ import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
 
-import frc.robot.commands.intake.*;
+import frc.robot.commands.intake.pivot.*;
+import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.climb.ClimbCommands.*;
 import edu.wpi.first.cameraserver.CameraServer;
