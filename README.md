@@ -6,24 +6,24 @@
 | ---------------------- | ------------------------------------------------------------ | -------- |
 | X (Cross)              | Reset Heading                                                |          |
 | O (Circle)             |                                                              |          |
-| △ (Triangle)           | Ramp up wheels Click Again to cancel                         |          |
-| □ (Square)             |                                                              |          |
-| L1                     | Speed Mode (Slow Mech and Slow Steer)                        |          |
-| L2                     | Slow Mode (set value)                                        |          |
-| R1                     | Shooter Sequence Click Again to cancel (drive away to cancle too) |          |
-| R2                     | Forced Intake In (HOLD)                                      |          |
+| △ (Triangle)           | Auto Climb (TODO)                                            |          |
+| □ (Square)             | Toggle Robot-Relative Mode                                   |          |
+| L1 (hold)              | Boost Mode                                                   |          |
+| L2 (analog)            | Speed Limit (harder press = slower)                          |          |
+| R1 (toggle)            | Shooter Sequence                                             |          |
+| R2 (hold)              | Force Intake In (pivot up + stop rollers)                    |          |
 | L3 (Left Stick Click)  |                                                              |          |
-| R3 (Right Stick Click) | Change Driver Cam                                            |          |
-| D-Pad Up               | Climb Up                                                     |          |
-| D-Pad Down             | Climb Down                                                   |          |
+| R3 (Right Stick Click) |                                                              |          |
+| D-Pad Up               |                                                              |          |
+| D-Pad Down             |                                                              |          |
 | D-Pad Left             |                                                              |          |
 | D-Pad Right            |                                                              |          |
-| Options Button         |                                                              |          |
+| Options Button         | Reset Pose to Starting Position                              |          |
 | Create Button          |                                                              |          |
 | PS Button              |                                                              |          |
 | Touchpad               |                                                              |          |
-| Left Joystick          | Swerve Drive                                                 | 0-11     |
-| Right Joystick         | Swerve Turning                                               | 0-11     |
+| Left Joystick          | Swerve Translation (forward/strafe)                          | 0-11     |
+| Right Joystick         | Swerve Rotation                                              | 0-11     |
 
 ## **Mech Controller (Operator)**
 

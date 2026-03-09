@@ -266,6 +266,9 @@ public final class Constants {
         public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
         public static final double BOOST_MAX_LINEAR_ACCELERATION = 6.0; // meters per second squared
         public static final double BOOST_MAX_ANGULAR_ACCELERATION = 4.0; // radians per second squared
+
+        // Slow Mode Constants (R1 held)
+        public static final double SLOW_MODE_SPEED_LIMIT = 0.3; // 30% speed when R1 held
     }
 
     public static class RotateToAngleConstants {
@@ -390,7 +393,7 @@ public final class Constants {
     }
 
     public static final class ClimbConstants {
-        // CAN IDs (per README: Doornob=19, Winch=21, CANdi=22)
+        // CAN IDs (Arm/Doornob=19, Winch=21, CANrange=22)
         public static final int WINCH_MOTOR_CAN_ID = 21;
         public static final int ARM_MOTOR_CAN_ID = 19; // Doornob
         public static final int CANRANGE_CAN_ID = 22;
