@@ -112,10 +112,10 @@ public class towerRollers extends SubsystemBase {
         config.Feedback.SensorToMechanismRatio = TowerConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
         pidSlots.withKP(TowerConstants.KP);
-        pidSlots.withKP(TowerConstants.KI);
-        pidSlots.withKP(TowerConstants.KD);
-        pidSlots.withKP(TowerConstants.KS);
-        pidSlots.withKP(TowerConstants.KV);
+        pidSlots.withKI(TowerConstants.KI);
+        pidSlots.withKD(TowerConstants.KD);
+        pidSlots.withKS(TowerConstants.KS);
+        pidSlots.withKV(TowerConstants.KV);
         config.withSlot0(pidSlots);
 
         krakenMotor.getConfigurator().apply(config);

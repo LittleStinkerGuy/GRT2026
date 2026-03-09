@@ -1,6 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.Constants.railgunConstants;
+import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.CANBus;
@@ -30,8 +30,8 @@ public class hood extends SubsystemBase {
     private static final String LOG_PREFIX = "Hood/";
 
     public hood(CANBus cn) {
-        hoodMotor = new LoggedTalon(railgunConstants.hoodId, cn);
-        hoodCoder = new CANcoder(railgunConstants.hoodEncoderId, cn);
+        hoodMotor = new LoggedTalon(ShooterConstants.Hood.MOTOR_ID, cn);
+        hoodCoder = new CANcoder(ShooterConstants.Hood.ENCODER_ID, cn);
         config();
     }
 
@@ -40,20 +40,19 @@ public class hood extends SubsystemBase {
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs()
-            .withStatorCurrentLimit(50.0)
-            .withStatorCurrentLimitEnable(true)
-            .withSupplyCurrentLimit(40)
-            .withSupplyCurrentLimitEnable(true);;
+            .withStatorCurrentLimit(ShooterConstants.Hood.STATOR_CURRENT_LIMIT)
+            .withStatorCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE)
+            .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
+            .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
         cfg.withCurrentLimits(currLim);
         cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = railgunConstants.upperAngle;
+        cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
         cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = railgunConstants.lowerAngle;
-        cfg.Feedback.RotorToSensorRatio = railgunConstants.gearRatioHood;
+        cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
+        cfg.Feedback.RotorToSensorRatio = ShooterConstants.Hood.GEAR_RATIO;
 
-        cfg.Slot0.kP = 8;
-        cfg.Slot0.kI = 3;
-
+        cfg.Slot0.kP = ShooterConstants.Hood.KP;
+        cfg.Slot0.kI = ShooterConstants.Hood.KI;
 
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
         ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
@@ -61,7 +60,7 @@ public class hood extends SubsystemBase {
         hoodCoder.getConfigurator().apply(ccfg);
 
         cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        cfg.Feedback.FeedbackRemoteSensorID = railgunConstants.hoodEncoderId;
+        cfg.Feedback.FeedbackRemoteSensorID = ShooterConstants.Hood.ENCODER_ID;
 
         cfg.Feedback.SensorToMechanismRatio = 1;
 
@@ -69,7 +68,7 @@ public class hood extends SubsystemBase {
     }
 
     public void setHoodAngle(double rotationAngle) {
-        if (rotationAngle >= railgunConstants.lowerAngle && rotationAngle <= railgunConstants.upperAngle) {
+        if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
             hoodMotor.setControl(focThing.withPosition(rotationAngle));
             System.out.println("HoodControl" + rotationAngle);
             wantedAngle = rotationAngle;
@@ -88,14 +87,13 @@ public class hood extends SubsystemBase {
         commandedDutyCycle = speed;
 
         double pos = hoodMotor.getPosition().refresh().getValueAsDouble();
-        if (pos >= railgunConstants.upperAngle && speed > 0) {
+        if (pos >= ShooterConstants.Hood.UPPER_ANGLE_LIMIT && speed > 0) {
             hoodMotor.setControl(dutyCycl.withOutput(0));
-        } else if (pos <= railgunConstants.lowerAngle && speed < 0) {
+        } else if (pos <= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && speed < 0) {
             hoodMotor.setControl(dutyCycl.withOutput(0));
         } else {
             hoodMotor.setControl(dutyCycl.withOutput(speed));
         }
-
     }
 
     public double getPos() {

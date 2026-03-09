@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.Constants.TowerConstants;
-import frc.robot.Constants.railgunConstants;
+import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTable;
 
@@ -55,27 +54,25 @@ public class flywheel extends SubsystemBase {
 
     private void configThruNT() {
         NTtable = NetworkTableInstance.getDefault().getTable("tuneFlywheel");
-        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), railgunConstants.KP);
-        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), railgunConstants.KI);
-        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), railgunConstants.KD);
-        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), railgunConstants.KS);
-        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), railgunConstants.KV);
-        // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
-        // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
+        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), ShooterConstants.Flywheel.KP);
+        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), ShooterConstants.Flywheel.KI);
+        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), ShooterConstants.Flywheel.KD);
+        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), ShooterConstants.Flywheel.KS);
+        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), ShooterConstants.Flywheel.KV);
         yoTuneThis("setDutyCyclePercent", val -> upperMotor.setControl(new DutyCycleOut(val)), 0);
         yoTuneThis("setMMVTCF", val -> upperMotor.setControl(new VelocityVoltage(val)), 0);
 
-        yoTuneThis("MMAccel", val -> cfg.MotionMagic.MotionMagicAcceleration = val, railgunConstants.MM_ACCEL);
-        yoTuneThis("MMJerk", val -> cfg.MotionMagic.MotionMagicJerk = val, railgunConstants.MM_JERK);
-        yoTuneThis("MMMaxVelo", val -> cfg.MotionMagic.MotionMagicCruiseVelocity = val, railgunConstants.MM_MAXVELO);
+        yoTuneThis("MMAccel", val -> cfg.MotionMagic.MotionMagicAcceleration = val, ShooterConstants.Flywheel.MM_ACCEL);
+        yoTuneThis("MMJerk", val -> cfg.MotionMagic.MotionMagicJerk = val, ShooterConstants.Flywheel.MM_JERK);
+        yoTuneThis("MMMaxVelo", val -> cfg.MotionMagic.MotionMagicCruiseVelocity = val, ShooterConstants.Flywheel.MM_CRUISE_VELOCITY);
 
-        yoTuneThis("GearReduction", val -> cfg.Feedback.SensorToMechanismRatio = val, railgunConstants.gearRatioUpper);
+        yoTuneThis("GearReduction", val -> cfg.Feedback.SensorToMechanismRatio = val, ShooterConstants.Flywheel.GEAR_RATIO);
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
     }
 
     public flywheel(CANBus cn) {
-        upperMotor = new LoggedTalon(railgunConstants.upperId, cn);
-        secondMotor = new LoggedTalon(railgunConstants.secondId, cn);
+        upperMotor = new LoggedTalon(ShooterConstants.Flywheel.UPPER_MOTOR_ID, cn);
+        secondMotor = new LoggedTalon(ShooterConstants.Flywheel.SECOND_MOTOR_ID, cn);
 
         config();
         configThruNT();
@@ -84,23 +81,23 @@ public class flywheel extends SubsystemBase {
     public void config() {
         cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        cfg.MotionMagic.MotionMagicCruiseVelocity = railgunConstants.MM_MAXVELO; // target RPS cap
-        cfg.MotionMagic.MotionMagicAcceleration = railgunConstants.MM_ACCEL; // RPS per second
-        cfg.MotionMagic.MotionMagicJerk = railgunConstants.MM_JERK; // optional, smoothness
+        cfg.MotionMagic.MotionMagicCruiseVelocity = ShooterConstants.Flywheel.MM_CRUISE_VELOCITY;
+        cfg.MotionMagic.MotionMagicAcceleration = ShooterConstants.Flywheel.MM_ACCEL;
+        cfg.MotionMagic.MotionMagicJerk = ShooterConstants.Flywheel.MM_JERK;
 
-        pidSlots.withKP(railgunConstants.KP);
-        pidSlots.withKP(railgunConstants.KI);
-        pidSlots.withKP(railgunConstants.KD);
-        pidSlots.withKP(railgunConstants.KS);
-        pidSlots.withKP(railgunConstants.KV);
+        pidSlots.withKP(ShooterConstants.Flywheel.KP);
+        pidSlots.withKI(ShooterConstants.Flywheel.KI);
+        pidSlots.withKD(ShooterConstants.Flywheel.KD);
+        pidSlots.withKS(ShooterConstants.Flywheel.KS);
+        pidSlots.withKV(ShooterConstants.Flywheel.KV);
         cfg.withSlot0(pidSlots);
 
-        cfg.Feedback.SensorToMechanismRatio = railgunConstants.gearRatioUpper;
+        cfg.Feedback.SensorToMechanismRatio = ShooterConstants.Flywheel.GEAR_RATIO;
 
         upperMotor.getConfigurator().apply(cfg);
         secondMotor.getConfigurator().apply(cfg);
 
-        secondMotor.setControl(new Follower(railgunConstants.upperId, MotorAlignmentValue.Opposed));
+        secondMotor.setControl(new Follower(ShooterConstants.Flywheel.UPPER_MOTOR_ID, MotorAlignmentValue.Opposed));
     }
 
     public void shoot(double rps) {

@@ -90,32 +90,50 @@ public final class Constants {
     }
 
     // ==================== SHOOTER ====================
-    public static class railgunConstants {
+    public static class ShooterConstants {
 
-        // Everything in metric pls
-        public static int upperId = 17;
-        public static int hoodId = 16;
-        public static int secondId = 25;
+        // ---- Flywheel ----
+        public static class Flywheel {
+            public static final int UPPER_MOTOR_ID = 17;
+            public static final int SECOND_MOTOR_ID = 25;
 
-        public static int hoodEncoderId = 18;
+            public static final double GEAR_RATIO = 1.0;
 
-        public static double gearRatioUpper = 1;
-        public static double gearRatioHood = 244.411765;
-        // Velocity control PID
-        public static final double KP = 0.5;
-        public static final double KI = 0.0;
-        public static final double KD = 0.0;
-        public static final double KS = 0.0;
-        public static final double KV = 0.12;
-        // motion magic
-        public static final double MM_ACCEL = 30;// distance
-        public static final double MM_JERK = 150;// distance
-        public static final double MM_MAXVELO = 500;// distance
+            // Velocity control PID
+            public static final double KP = 0.5;
+            public static final double KI = 0.0;
+            public static final double KD = 0.0;
+            public static final double KS = 0.0;
+            public static final double KV = 0.12;
 
-        public static double upperAngle = 0.169;
-        public static double lowerAngle = 0.06;
-        public static double initHoodAngle = upperAngle;
+            // Motion Magic
+            public static final double MM_ACCEL = 30.0;
+            public static final double MM_JERK = 150.0;
+            public static final double MM_CRUISE_VELOCITY = 500.0;
+        }
 
+        // ---- Hood ----
+        public static class Hood {
+            public static final int MOTOR_ID = 16;
+            public static final int ENCODER_ID = 18;
+
+            public static final double GEAR_RATIO = 244.411765;
+
+            // Position control PID
+            public static final double KP = 8.0;
+            public static final double KI = 3.0;
+            public static final double KD = 0.0;
+
+            // Angle limits (rotations)
+            public static final double UPPER_ANGLE_LIMIT = 0.169;
+            public static final double LOWER_ANGLE_LIMIT = 0.06;
+            public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
+
+            // Current limits
+            public static final double STATOR_CURRENT_LIMIT = 50.0;
+            public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+            public static final boolean CURRENT_LIMIT_ENABLE = true;
+        }
     }
     // ==================== DRIVETRAIN ====================
 
