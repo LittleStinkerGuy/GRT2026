@@ -29,7 +29,6 @@ public class AutoClimbUpCommand extends SequentialCommandGroup {
             () -> armInterrupted.get());
 
         addCommands(
-            Commands.runOnce(() -> System.out.println("climbUp"), climbSubsystem),
             deployArm,
             pullDownClawIfArmSucceeded);
     }

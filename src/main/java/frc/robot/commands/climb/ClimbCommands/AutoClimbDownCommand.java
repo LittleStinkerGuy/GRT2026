@@ -27,7 +27,6 @@ public class AutoClimbDownCommand extends SequentialCommandGroup {
             () -> winchInterrupted.get());
 
         addCommands(
-            Commands.runOnce(() -> System.out.println("climbDown"), climbSubsystem),
             pullUpClaw,
             retractArmIfWinchSucceeded);
     }
