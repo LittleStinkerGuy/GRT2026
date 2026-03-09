@@ -76,11 +76,7 @@ public class hood extends SubsystemBase {
     }
 
     public boolean wantedAngl() {
-        if (Math.abs(wantedAngle - hoodMotor.getPosition().getValueAsDouble()) < 0.1) {
-            return true;
-        } else {
-            return false;
-        }
+        return Math.abs(wantedAngle - hoodMotor.getPosition().getValueAsDouble()) < ShooterConstants.Hood.ANGLE_TOLERANCE;
     }
 
     public void hoodSpeed(double speed) {

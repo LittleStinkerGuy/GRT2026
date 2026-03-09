@@ -39,8 +39,8 @@ public class ShooterSequence extends ParallelCommandGroup {
             new AimWhileDrivingCommand(swerve, fms, xSpeed, ySpeed),
             new rampFlywheel(fly, fms),
             new hoodCommand(hood, swerve, fms),
-            new towerRoll(b, fly),
-            new indexerRun(hopper).onlyIf(() -> fly.wantedVel())
+            new towerRoll(b, fly, hood),
+            new indexerRun(hopper).onlyIf(() -> fly.wantedVel() && hood.wantedAngl())
         );
     }
 }
