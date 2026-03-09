@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.Amps;
 import com.ctre.phoenix6.CANBus;
 
 
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
@@ -40,23 +39,21 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(IntakeConstants.ROLLER_INVERTED));
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(IntakeConstants.ROLLER_INVERTED));
 
         // Current limits
         config.withCurrentLimits(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(false)
-                        .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT))
-        );
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(false)
+                .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT)));
 
         config.withOpenLoopRamps(new OpenLoopRampsConfigs()
-                .withDutyCycleOpenLoopRampPeriod(IntakeConstants.ROLLER_OPEN_LOOP_RAMP)
-        );
+            .withDutyCycleOpenLoopRampPeriod(IntakeConstants.ROLLER_OPEN_LOOP_RAMP));
 
         rollerMotor.getConfigurator().apply(config);
     }
-    
+
 
     @Override
     public void periodic() {
@@ -74,6 +71,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
     /**
      * Run intake rollers at specified duty cycle (percent output)
+     * 
      * @param dutyCycle value between -1.0 and 1.0
      */
     public void setDutyCycle(double dutyCycle) {
@@ -103,7 +101,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
         setDutyCycle(-outSpeed);
     }
 
-    //Check if the roller is currently running
+    // Check if the roller is currently running
 
     public boolean isRunning() {
         return Math.abs(rollerMotor.get()) > 0.01;

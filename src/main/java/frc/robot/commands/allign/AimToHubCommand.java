@@ -11,13 +11,14 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.Constants.AlignConstants;
 
-public class AimToHubCommand extends Command{
+public class AimToHubCommand extends Command {
     private final SwerveSubsystem swerveSubsystem;
     private final FieldManagementSubsystem fmsSubsystem;
     // Shooter offset relative to robot center (x: forward/back, y: left/right in meters)
     private static final Translation2d SHOOTER_OFFSET = new Translation2d(-0.08, 0.073);
+
     // Link to dimensions https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
-    public AimToHubCommand (SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms){
+    public AimToHubCommand(SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms) {
         this.swerveSubsystem = swerveSubsystem;
         this.fmsSubsystem = fms;
         addRequirements(swerveSubsystem, fms);
@@ -28,7 +29,7 @@ public class AimToHubCommand extends Command{
 
         // Get the hub position based on alliance
         Translation2d hubTrans;
-        if(fmsSubsystem.isRedAlliance()){
+        if (fmsSubsystem.isRedAlliance()) {
             hubTrans = AlignConstants.RED_HUB_TRANS;
         } else {
             hubTrans = AlignConstants.BLUE_HUB_TRANS;
@@ -50,17 +51,17 @@ public class AimToHubCommand extends Command{
         return targetAngle.getDegrees() + 90;
     }
 
-    public Command createAimCommand(BooleanSupplier cancelCondition){
+    public Command createAimCommand(BooleanSupplier cancelCondition) {
         double targetAngle = calculateTargetAngle();
         return new RotateToFieldAngleCommand(swerveSubsystem, targetAngle, cancelCondition);
     }
 
-    public double getDistanceToHub(){
+    public double getDistanceToHub() {
         Translation2d robotPosition = swerveSubsystem.getRobotPosition().getTranslation();
 
         // Get the hub position based on alliance
         Translation2d hubTrans;
-        if(fmsSubsystem.isRedAlliance()){
+        if (fmsSubsystem.isRedAlliance()) {
             hubTrans = AlignConstants.RED_HUB_TRANS;
         } else {
             hubTrans = AlignConstants.BLUE_HUB_TRANS;

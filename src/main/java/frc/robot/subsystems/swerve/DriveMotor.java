@@ -1,6 +1,6 @@
 package frc.robot.subsystems.swerve;
 
-//Constants Import 
+// Constants Import
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
@@ -117,8 +117,8 @@ public class DriveMotor {
         supplyCurrentSignal = motor.getSupplyCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-                250.0, positionSignal, velocitySignal,
-                appliedVoltsSignal, torqueCurrentSignal, supplyCurrentSignal);
+            250.0, positionSignal, velocitySignal,
+            appliedVoltsSignal, torqueCurrentSignal, supplyCurrentSignal);
         motor.optimizeBusUtilization(0, 1.0);
     }
 
@@ -199,7 +199,7 @@ public class DriveMotor {
      * @param p :Determines how much the config will react to the error
      * @param i :Corrects recurring errors over time by stacking past errors
      * @param d :Reacting to the rate of change of the error, preventing
-     *          overshooting and damping oscillations
+     *        overshooting and damping oscillations
      * @param s :Helps with overcoming initial friction or resistance in systems
      * @param v :Compensates for the velocity or speed at which the system is moving
      */

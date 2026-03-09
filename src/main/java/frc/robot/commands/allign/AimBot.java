@@ -14,38 +14,38 @@ import frc.robot.Constants.AlignConstants;
 import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.allign.AimToPointCommand;
 
-public class AimBot extends Command{
+public class AimBot extends Command {
 
     private SwerveSubsystem swerve;
     private FieldManagementSubsystem field;
     private boolean redTeam = false;
-    
-    public AimBot(SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms, boolean red){
+
+    public AimBot(SwerveSubsystem swerveSubsystem, FieldManagementSubsystem fms, boolean red) {
         swerve = swerveSubsystem;
         field = fms;
         redTeam = red;
     }
 
-     @Override
-    public void initialize(){
-        if(redTeam){
-            if(swerve.getRobotPosition().getX() > AlignConstants.RED_WALL_X){
+    @Override
+    public void initialize() {
+        if (redTeam) {
+            if (swerve.getRobotPosition().getX() > AlignConstants.RED_WALL_X) {
                 new AimToHubCommand(swerve, field).schedule();
-            }else{
-                if(swerve.getRobotPosition().getY() > AlignConstants.HUB_Y){
+            } else {
+                if (swerve.getRobotPosition().getY() > AlignConstants.HUB_Y) {
                     new AimToPointCommand(swerve, field, AlignConstants.RED_AIM_TOP).schedule();
-                }else{
+                } else {
                     new AimToPointCommand(swerve, field, AlignConstants.RED_AIM_BOTTOM).schedule();
                 }
             }
 
-        }else{
-            if(swerve.getRobotPosition().getX() < AlignConstants.BLUE_WALL_X){
+        } else {
+            if (swerve.getRobotPosition().getX() < AlignConstants.BLUE_WALL_X) {
                 new AimToHubCommand(swerve, field).schedule();
-            }else{
-                if(swerve.getRobotPosition().getY() > AlignConstants.HUB_Y){
+            } else {
+                if (swerve.getRobotPosition().getY() > AlignConstants.HUB_Y) {
                     new AimToPointCommand(swerve, field, AlignConstants.BLUE_AIM_TOP).schedule();
-                }else{
+                } else {
                     new AimToPointCommand(swerve, field, AlignConstants.BLUE_AIM_BOTTOM).schedule();
                 }
             }
@@ -54,16 +54,16 @@ public class AimBot extends Command{
 
     @Override
     public void execute() {
-        
+
     }
 
     @Override
-    public boolean isFinished(){
+    public boolean isFinished() {
         return true;
     }
 
     @Override
-    public void end(boolean interrupted){
+    public void end(boolean interrupted) {
 
     }
 

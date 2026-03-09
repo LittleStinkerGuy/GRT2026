@@ -9,31 +9,31 @@ package frc.robot.commands.intake;
 // import frc.robot.subsystems.Intake.PivotIntake;
 //
 // public class SetIntakePivotCommand extends Command {
-//   private final PivotIntake pivotIntake;
-//   private final double targetAngle;
+// private final PivotIntake pivotIntake;
+// private final double targetAngle;
 //
-//   public SetIntakePivotCommand(PivotIntake pivotIntake, double targetAngle) {
-//     this.pivotIntake = pivotIntake;
-//     this.targetAngle = targetAngle;
-//     addRequirements(pivotIntake);
-//   }
+// public SetIntakePivotCommand(PivotIntake pivotIntake, double targetAngle) {
+// this.pivotIntake = pivotIntake;
+// this.targetAngle = targetAngle;
+// addRequirements(pivotIntake);
+// }
 //
-//   @Override
-//   public void initialize() {
-//     pivotIntake.setAngle(targetAngle);
-//   }
+// @Override
+// public void initialize() {
+// pivotIntake.setAngle(targetAngle);
+// }
 //
-//   @Override
-//   public void execute() {
-//     pivotIntake.setAngle(targetAngle);
-//   }
+// @Override
+// public void execute() {
+// pivotIntake.setAngle(targetAngle);
+// }
 //
-//   @Override
-//   public boolean isFinished() {
-//     return false;
-//   }
+// @Override
+// public boolean isFinished() {
+// return false;
+// }
 //
-//   @Override
-//   public void end(boolean interrupted) {
-//   }
+// @Override
+// public void end(boolean interrupted) {
+// }
 // }

@@ -38,8 +38,8 @@ public class GetCameraDisplacement extends Command {
     public void initialize() {
 
         // cameraPosePublisher = swerveTable.getStructTopic(
-        //     "estimatedPose",
-        //     Pose2d.struct
+        // "estimatedPose",
+        // Pose2d.struct
         // ).publish();
 
     }
@@ -48,7 +48,7 @@ public class GetCameraDisplacement extends Command {
     public void execute() {
 
         cameraToApriltag = visionSubsytem.cameraToApriltag();
-        robotToCamera = robotToApriltag.plus(cameraToApriltag.inverse());//this is what we want
+        robotToCamera = robotToApriltag.plus(cameraToApriltag.inverse());// this is what we want
         // Pose3d cameraPos = new Pose3d().plus(robotToCamera);
         SmartDashboard.putNumber(camID + "/x", robotToCamera.getX());
         SmartDashboard.putNumber(camID + "/y", robotToCamera.getY());
@@ -60,7 +60,8 @@ public class GetCameraDisplacement extends Command {
     @Override
     public boolean isFinished() {
         return false;
-    }    
+    }
+
     @Override
     public boolean runsWhenDisabled() {
         return true;

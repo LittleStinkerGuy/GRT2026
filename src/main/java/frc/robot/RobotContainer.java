@@ -20,7 +20,7 @@ import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.Vision.VisionSubsystem;
 import frc.robot.subsystems.shooter.towerRollers;
 
-//import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
+// import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 // import frc.robot.Constants.IntakeConstants;
@@ -68,270 +68,270 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-  private PS5DriveController driveController;
-  private CommandPS5Controller mechController;
-  private final CANBus swerveCAN = new CANBus(Constants.Swerve_CAN_BUS);
-  private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    private PS5DriveController driveController;
+    private CommandPS5Controller mechController;
+    private final CANBus swerveCAN = new CANBus(Constants.Swerve_CAN_BUS);
+    private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
-  private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
-  private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
-  private towerRollers tower = new towerRollers(mechCAN);
+    private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
+    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
+    private towerRollers tower = new towerRollers(mechCAN);
 
-  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
-  // private final PivotIntakeSubsystem pivotIntake = new
-  // PivotIntakeSubsystem(mechCAN);
-  private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
-  private final Field2d m_field = new Field2d();
-  private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-  private final flywheel flywheelSubsystem = new flywheel(mechCAN);
-  private final hood hoodSubsystem = new hood(mechCAN);
-  private boolean shootSeq = false;
+    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
+    // private final PivotIntakeSubsystem pivotIntake = new
+    // PivotIntakeSubsystem(mechCAN);
+    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
+    private final Field2d m_field = new Field2d();
+    private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
+    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+    private final hood hoodSubsystem = new hood(mechCAN);
+    private boolean shootSeq = false;
 
-  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-      VisionConstants.cameraConfig11);
+    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+        VisionConstants.cameraConfig11);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    visionStuff();
-    constructController();
-    configureBindings();
-    configureAutoChooser();
-
-    CameraServer.startAutomaticCapture(); // start driver cam
-    SmartDashboard.putData("Field", m_field);
-  }
-
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary
-   * predicate, or via the named f`actories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link
-   * CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private boolean mechEnabled = false;
-
-  private void configureBindings() {
-    /*
-     * Driving -- One joystick controls translation, the other rotation. If the
-     * robot-relative button is held down,
-     * the robot is controlled along its own axes, otherwise controls apply to the
-     * field axes by default. If the
-     * swerve aim button is held down, the robot will rotate automatically to always
-     * face a target, and only
-     * translation will be manually controllable.
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
-      swerveSubsystem.setDefaultCommand(
-          new RunCommand(() -> {
-            // L1 = boost mode (higher accel/velocity)
-            swerveSubsystem.setBoostMode(driveController.getLeftBumper());
+    public RobotContainer() {
+        visionStuff();
+        constructController();
+        configureBindings();
+        configureAutoChooser();
 
-            // Left trigger controls speed limit: fully released = full speed, fully pressed
-            // = stopped
-            double leftTrigger = driveController.getLeftTriggerAxis();
-            double speedLimit = 1.0 - leftTrigger; // Invert so more trigger = slower
-            swerveSubsystem.setDriveSpeedLimit(speedLimit);
-
-            swerveSubsystem.setDrivePowers(
-                driveController.getForwardPower(),
-                driveController.getLeftPower(),
-                driveController.getRotatePower());
-          },
-              swerveSubsystem));
-
-      driveController.getRelativeMode().whileTrue(
-          new RunCommand(
-              () -> {
-                swerveSubsystem.setRobotRelativeDrivePowers(
-                    driveController.getForwardPower(),
-                    driveController.getLeftPower(),
-                    driveController.getRotatePower());
-                driveController.getRotatePower();
-              }, swerveSubsystem));
-
-      /* Pressing the button resets the field axes to the current robot axes. */
-      driveController.bindDriverHeadingReset(
-          () -> {
-            swerveSubsystem.resetDriverHeading();
-          },
-          swerveSubsystem);
-    }
-    if (Constants.MECH_ENABLED) {
-      // bind semi auto commands
-      // var crossTrigger = mechController.cross();
-      // var triangleTrigger = mechController.triangle();
-      // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() ->
-      // crossTrigger.getAsBoolean()));
-      // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() ->
-      // triangleTrigger.getAsBoolean()));
-
-      // Manual control with d-pad for winch and left stick for arm
-      m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-        var armDutyCycle = mechController.getLeftY();
-        double winchDutyCycle = 0;
-
-        if (mechController.povUp().getAsBoolean()) {
-          winchDutyCycle++;
-        }
-        if (mechController.povDown().getAsBoolean()) {
-          winchDutyCycle--;
-        }
-        m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-        m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-      }, m_ClimbSubsystem));
-
-      // ==================== INTAKE ROLLER ====================
-      // R1 = intake in
-      mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-      intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
-
-      // ==================== INTAKE PIVOT ====================
-      // Right stick Y controls pivot manually
-      /*
-       * pivotIntake.setDefaultCommand(Commands.run(() -> {
-       * double pivotInput = -mechController.getRightY();
-       * if (Math.abs(pivotInput) > 0.1) {
-       * pivotIntake.setManualSpeed(pivotInput * 0.3);
-       * } else {
-       * pivotIntake.stop();
-       * }
-       * }, pivotIntake));
-       */
-
-      // ==================== HOPPER ====================
-      // L1 = hopper in
-
-      driveController.square().toggleOnTrue(
-          Commands.defer(
-              () -> new ShooterSequence(
-                  swerveSubsystem,
-                  flywheelSubsystem,
-                  hoodSubsystem,
-                  HopperSubsystem,
-                  fmsSubsystem,
-                  tower,
-
-                  () -> -driveController.getForwardPower(), // forward/back
-                  () -> -driveController.getLeftPower() // strafe
-              ),
-              java.util.Set.of(
-                  swerveSubsystem,
-                  flywheelSubsystem,
-                  hoodSubsystem,
-                  HopperSubsystem,
-                  fmsSubsystem,
-                  tower)));
-
-      driveController.square().toggleOnFalse(
-          new rampDownFlywheel(flywheelSubsystem));
-
-      // ==================== SHOOTER ====================
-      // R2 = flywheel (analog speed control)
-      // Left stick Y = hood manual control
-      flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-        if (DriverStation.isJoystickConnected(1)) {
-          flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
-        } else {
-          flywheelSubsystem.flySpeed(0);
-        }
-      }, flywheelSubsystem));
-
-      tower.setDefaultCommand(Commands.run(() -> {
-        if (DriverStation.isJoystickConnected(1) && mechController.getR2Axis() > -0.7) {
-          tower.setTower(TOWER_INTAKE.BALLUP);
-        } else {
-          tower.setTower(TOWER_INTAKE.STOP);
-        }
-      }, tower));
-
-      hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-        if (mechController.L3().getAsBoolean()) {
-          hoodSubsystem.hoodSpeed(0.05);
-        } else if (mechController.R3().getAsBoolean()) {
-          hoodSubsystem.hoodSpeed(-0.05);
-        } else {
-          hoodSubsystem.hoodSpeed(0);
-        }
-      }, hoodSubsystem));
-
-      // Swerve-dependent drive controller commands
-      if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
-        // Cancel rotate command if driver touches any stick
-        BooleanSupplier driverInput = () -> Math.abs(driveController.getForwardPower()) > 0 ||
-            Math.abs(driveController.getLeftPower()) > 0 ||
-            Math.abs(driveController.getRotatePower()) > 0;
-
-        // Triangle = rotate to 0°, Circle = rotate to 90°
-        driveController.triangle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 0, driverInput));
-        driveController.circle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 90, driverInput));
-
-        // Options button = reset pose to starting position (in front of red hub)
-        driveController.options()
-            .onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
-
-        // Note: L2 (left trigger) is now used for speed limiting in the default command
-
-        // D-pad steer speed limiting (scales MotionMagic cruise velocity)
-        // Up = 100%, Right = 75%, Down = 50%, Left = 25%
-        new Trigger(() -> driveController.getPOV() == 0)
-            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
-        new Trigger(() -> driveController.getPOV() == 90)
-            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
-        new Trigger(() -> driveController.getPOV() == 180)
-            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
-        new Trigger(() -> driveController.getPOV() == 270)
-            .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
-      }
+        CameraServer.startAutomaticCapture(); // start driver cam
+        SmartDashboard.putData("Field", m_field);
     }
 
-  }
+    /**
+     * Use this method to define your trigger->command mappings. Triggers can be
+     * created via the
+     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+     * an arbitrary
+     * predicate, or via the named f`actories in {@link
+     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+     * {@link
+     * CommandXboxController
+     * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+     * PS4} controllers or
+     * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+     * joysticks}.
+     */
+    private boolean mechEnabled = false;
 
-  /**
-   * Constructs the drive controller based on the name of the controller at port
-   * 0
-   */
-  private void constructController() {
-    driveController = new PS5DriveController();
-    driveController.setDeadZone(0.035);
-    mechController = new CommandPS5Controller(1);
-  }
+    private void configureBindings() {
+        /*
+         * Driving -- One joystick controls translation, the other rotation. If the
+         * robot-relative button is held down,
+         * the robot is controlled along its own axes, otherwise controls apply to the
+         * field axes by default. If the
+         * swerve aim button is held down, the robot will rotate automatically to always
+         * face a target, and only
+         * translation will be manually controllable.
+         */
+        if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+            swerveSubsystem.setDefaultCommand(
+                new RunCommand(() -> {
+                    // L1 = boost mode (higher accel/velocity)
+                    swerveSubsystem.setBoostMode(driveController.getLeftBumper());
 
-  /**
-   * Config the autonomous command chooser
-   */
-  private void configureAutoChooser() {
-    // Add auton here
-    autoChooser.setDefaultOption("Do Nothing", null);
+                    // Left trigger controls speed limit: fully released = full speed, fully pressed
+                    // = stopped
+                    double leftTrigger = driveController.getLeftTriggerAxis();
+                    double speedLimit = 1.0 - leftTrigger; // Invert so more trigger = slower
+                    swerveSubsystem.setDriveSpeedLimit(speedLimit);
 
-    SmartDashboard.putData("Auto Selector", autoChooser);
-  }
+                    swerveSubsystem.setDrivePowers(
+                        driveController.getForwardPower(),
+                        driveController.getLeftPower(),
+                        driveController.getRotatePower());
+                },
+                    swerveSubsystem));
 
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+            driveController.getRelativeMode().whileTrue(
+                new RunCommand(
+                    () -> {
+                        swerveSubsystem.setRobotRelativeDrivePowers(
+                            driveController.getForwardPower(),
+                            driveController.getLeftPower(),
+                            driveController.getRotatePower());
+                        driveController.getRotatePower();
+                    }, swerveSubsystem));
 
-  // vision shit
-  public void visionStuff() {
-    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+            /* Pressing the button resets the field axes to the current robot axes. */
+            driveController.bindDriverHeadingReset(
+                () -> {
+                    swerveSubsystem.resetDriverHeading();
+                },
+                swerveSubsystem);
+        }
+        if (Constants.MECH_ENABLED) {
+            // bind semi auto commands
+            // var crossTrigger = mechController.cross();
+            // var triangleTrigger = mechController.triangle();
+            // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() ->
+            // crossTrigger.getAsBoolean()));
+            // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() ->
+            // triangleTrigger.getAsBoolean()));
 
-    CommandScheduler.getInstance().schedule(
-        new GetCameraDisplacement(visionSubsystem1,
-            new Transform3d(
-                Units.inchesToMeters(0),
-                Units.inchesToMeters(-43 - 15),
-                Units.inchesToMeters(44.25),
-                new Rotation3d(0, 0, Math.PI / 2))));
+            // Manual control with d-pad for winch and left stick for arm
+            m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
+                var armDutyCycle = mechController.getLeftY();
+                double winchDutyCycle = 0;
 
-  }
+                if (mechController.povUp().getAsBoolean()) {
+                    winchDutyCycle++;
+                }
+                if (mechController.povDown().getAsBoolean()) {
+                    winchDutyCycle--;
+                }
+                m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
+                m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+            }, m_ClimbSubsystem));
+
+            // ==================== INTAKE ROLLER ====================
+            // R1 = intake in
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+            intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+
+            // ==================== INTAKE PIVOT ====================
+            // Right stick Y controls pivot manually
+            /*
+             * pivotIntake.setDefaultCommand(Commands.run(() -> {
+             * double pivotInput = -mechController.getRightY();
+             * if (Math.abs(pivotInput) > 0.1) {
+             * pivotIntake.setManualSpeed(pivotInput * 0.3);
+             * } else {
+             * pivotIntake.stop();
+             * }
+             * }, pivotIntake));
+             */
+
+            // ==================== HOPPER ====================
+            // L1 = hopper in
+
+            driveController.square().toggleOnTrue(
+                Commands.defer(
+                    () -> new ShooterSequence(
+                        swerveSubsystem,
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        fmsSubsystem,
+                        tower,
+
+                        () -> -driveController.getForwardPower(), // forward/back
+                        () -> -driveController.getLeftPower() // strafe
+                    ),
+                    java.util.Set.of(
+                        swerveSubsystem,
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        fmsSubsystem,
+                        tower)));
+
+            driveController.square().toggleOnFalse(
+                new rampDownFlywheel(flywheelSubsystem));
+
+            // ==================== SHOOTER ====================
+            // R2 = flywheel (analog speed control)
+            // Left stick Y = hood manual control
+            flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1)) {
+                    flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
+                } else {
+                    flywheelSubsystem.flySpeed(0);
+                }
+            }, flywheelSubsystem));
+
+            tower.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1) && mechController.getR2Axis() > -0.7) {
+                    tower.setTower(TOWER_INTAKE.BALLUP);
+                } else {
+                    tower.setTower(TOWER_INTAKE.STOP);
+                }
+            }, tower));
+
+            hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (mechController.L3().getAsBoolean()) {
+                    hoodSubsystem.hoodSpeed(0.05);
+                } else if (mechController.R3().getAsBoolean()) {
+                    hoodSubsystem.hoodSpeed(-0.05);
+                } else {
+                    hoodSubsystem.hoodSpeed(0);
+                }
+            }, hoodSubsystem));
+
+            // Swerve-dependent drive controller commands
+            if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
+                // Cancel rotate command if driver touches any stick
+                BooleanSupplier driverInput = () -> Math.abs(driveController.getForwardPower()) > 0 ||
+                    Math.abs(driveController.getLeftPower()) > 0 ||
+                    Math.abs(driveController.getRotatePower()) > 0;
+
+                // Triangle = rotate to 0°, Circle = rotate to 90°
+                driveController.triangle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 0, driverInput));
+                driveController.circle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 90, driverInput));
+
+                // Options button = reset pose to starting position (in front of red hub)
+                driveController.options()
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
+
+                // Note: L2 (left trigger) is now used for speed limiting in the default command
+
+                // D-pad steer speed limiting (scales MotionMagic cruise velocity)
+                // Up = 100%, Right = 75%, Down = 50%, Left = 25%
+                new Trigger(() -> driveController.getPOV() == 0)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(1.0)));
+                new Trigger(() -> driveController.getPOV() == 90)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.75)));
+                new Trigger(() -> driveController.getPOV() == 180)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.50)));
+                new Trigger(() -> driveController.getPOV() == 270)
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.setSteerSpeedLimit(0.25)));
+            }
+        }
+
+    }
+
+    /**
+     * Constructs the drive controller based on the name of the controller at port
+     * 0
+     */
+    private void constructController() {
+        driveController = new PS5DriveController();
+        driveController.setDeadZone(0.035);
+        mechController = new CommandPS5Controller(1);
+    }
+
+    /**
+     * Config the autonomous command chooser
+     */
+    private void configureAutoChooser() {
+        // Add auton here
+        autoChooser.setDefaultOption("Do Nothing", null);
+
+        SmartDashboard.putData("Auto Selector", autoChooser);
+    }
+
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
+
+    // vision shit
+    public void visionStuff() {
+        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+
+        CommandScheduler.getInstance().schedule(
+            new GetCameraDisplacement(visionSubsystem1,
+                new Transform3d(
+                    Units.inchesToMeters(0),
+                    Units.inchesToMeters(-43 - 15),
+                    Units.inchesToMeters(44.25),
+                    new Rotation3d(0, 0, Math.PI / 2))));
+
+    }
 
 }
