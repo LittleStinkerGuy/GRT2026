@@ -146,6 +146,8 @@ public final class Constants {
             public static final double STATOR_CURRENT_LIMIT = 50.0;
             public static final double SUPPLY_CURRENT_LIMIT = 40.0;
             public static final boolean CURRENT_LIMIT_ENABLE = true;
+
+            public static final double ANGLE_TOLERANCE = 0.01;
         }
     }
     // ==================== DRIVETRAIN ====================

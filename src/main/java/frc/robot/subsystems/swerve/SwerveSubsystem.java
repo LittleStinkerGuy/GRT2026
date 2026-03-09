@@ -93,6 +93,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // Boost mode flag
     private boolean boostModeEnabled = false;
 
+    private boolean robotRelativeMode = false;
+
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
         ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
@@ -193,11 +195,13 @@ public class SwerveSubsystem extends SubsystemBase {
         double limitedMaxVel = baseMaxVel * driveSpeedLimit;
         double limitedMaxOmega = baseMaxOmega * driveSpeedLimit;
 
+        Rotation2d heading = robotRelativeMode ? new Rotation2d() : getDriverHeading();
+
         ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
             xPower * limitedMaxVel,
             yPower * limitedMaxVel,
             angularPower * limitedMaxOmega,
-            getDriverHeading());
+            heading);
 
         // Apply acceleration limiting (only limit acceleration, not deceleration)
         ChassisSpeeds speeds = limitAcceleration(desiredSpeeds);
@@ -243,11 +247,19 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Gets whether boost mode is currently enabled.
-     * 
+     *
      * @return true if boost mode is enabled
      */
     public boolean isBoostModeEnabled() {
         return boostModeEnabled;
+    }
+
+    public void setRobotRelativeMode(boolean enabled) {
+        this.robotRelativeMode = enabled;
+    }
+
+    public boolean isRobotRelativeMode() {
+        return robotRelativeMode;
     }
 
     /**
