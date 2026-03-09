@@ -1,8 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-package frc.robot.commands.intake;
+package frc.robot.commands.intake.pivot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
@@ -13,13 +9,7 @@ public class ManualIntakePivotCommand extends Command {
     private final PivotIntakeSubsystem pivotIntake;
     private final DoubleSupplier speedSupplier;
 
-    /**
-     * Creates a new ManualPivot command
-     *
-     * @param pivotIntake Pivot subsystem
-     * @param speedSupplier A supplier returning the desired speed (-1.0 to 1.0), in this case its R2 and L2
-     *
-     */
+
     public ManualIntakePivotCommand(PivotIntakeSubsystem pivotIntake, DoubleSupplier speedSupplier) {
         this.pivotIntake = pivotIntake;
         this.speedSupplier = speedSupplier;
