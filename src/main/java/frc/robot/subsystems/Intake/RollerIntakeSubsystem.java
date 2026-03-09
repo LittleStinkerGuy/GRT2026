@@ -38,17 +38,17 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(IntakeConstants.ROLLER_INVERTED));
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(IntakeConstants.ROLLER_INVERTED));
 
         // Current limits
         config.withCurrentLimits(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimitEnable(false)
-                        .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT)));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(false)
+                .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT)));
 
         config.withOpenLoopRamps(new OpenLoopRampsConfigs()
-                .withDutyCycleOpenLoopRampPeriod(IntakeConstants.ROLLER_OPEN_LOOP_RAMP));
+            .withDutyCycleOpenLoopRampPeriod(IntakeConstants.ROLLER_OPEN_LOOP_RAMP));
 
         rollerMotor.getConfigurator().apply(config);
     }

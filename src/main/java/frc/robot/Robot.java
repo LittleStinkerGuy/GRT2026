@@ -86,7 +86,7 @@ public class Robot extends LoggedRobot {
                 String logPath = LogFileUtil.findReplayLog();
                 Logger.setReplaySource(new WPILOGReader(logPath));
                 Logger.addDataReceiver(
-                        new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
+                    new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed")));
                 break;
         }
 
@@ -106,17 +106,15 @@ public class Robot extends LoggedRobot {
 
         Logger.recordOutput("Robot/Enabled", isEnabled());
         Logger.recordOutput("Robot/Mode",
-                isAutonomous() ? "Auto" : isTeleop() ? "Teleop" : isDisabled() ? "Disabled" : "Other");
+            isAutonomous() ? "Auto" : isTeleop() ? "Teleop" : isDisabled() ? "Disabled" : "Other");
     }
 
     /** This function is called once each time the robot enters Disabled mode. */
     @Override
-    public void disabledInit() {
-    }
+    public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {
-    }
+    public void disabledPeriodic() {}
 
     @Override
     public void autonomousInit() {
@@ -130,8 +128,7 @@ public class Robot extends LoggedRobot {
 
     /** This function is called periodically during autonomous. */
     @Override
-    public void autonomousPeriodic() {
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
@@ -146,8 +143,7 @@ public class Robot extends LoggedRobot {
 
     /** This function is called periodically during operator control. */
     @Override
-    public void teleopPeriodic() {
-    }
+    public void teleopPeriodic() {}
 
     @Override
     public void testInit() {
@@ -157,16 +153,13 @@ public class Robot extends LoggedRobot {
 
     /** This function is called periodically during test mode. */
     @Override
-    public void testPeriodic() {
-    }
+    public void testPeriodic() {}
 
     /** This function is called once when the robot is first started up. */
     @Override
-    public void simulationInit() {
-    }
+    public void simulationInit() {}
 
     /** This function is called periodically whilst in simulation. */
     @Override
-    public void simulationPeriodic() {
-    }
+    public void simulationPeriodic() {}
 }

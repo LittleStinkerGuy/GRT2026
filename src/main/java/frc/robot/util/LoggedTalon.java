@@ -89,25 +89,25 @@ public class LoggedTalon extends TalonFX {
      */
     private StatusCode refreshSignals() {
         return BaseStatusSignal.refreshAll(
-                position,
-                velocity,
-                acceleration,
-                dutyCycle,
-                supplyVoltage,
-                appliedVoltage,
-                supplyCurrent,
-                statorCurrent,
-                deviceTemp,
-                torqueCurrent,
-                motorKt,
-                closedLoopReference,
-                closedLoopError,
-                controlMode,
-                forwardLimit,
-                reverseLimit,
-                faultBridgeBrownout,
-                faultHardware,
-                faultBootDuringEnable);
+            position,
+            velocity,
+            acceleration,
+            dutyCycle,
+            supplyVoltage,
+            appliedVoltage,
+            supplyCurrent,
+            statorCurrent,
+            deviceTemp,
+            torqueCurrent,
+            motorKt,
+            closedLoopReference,
+            closedLoopError,
+            controlMode,
+            forwardLimit,
+            reverseLimit,
+            faultBridgeBrownout,
+            faultHardware,
+            faultBootDuringEnable);
     }
 
     /**
@@ -136,8 +136,7 @@ public class LoggedTalon extends TalonFX {
         }
 
         if (telemetryLevel.includes(TelemetryLevel.STANDARD)) {
-            Logger.recordOutput(
-                    logPrefix + "/Acceleration", acceleration.getValue().in(Units.RadiansPerSecondPerSecond));
+            Logger.recordOutput(logPrefix + "/Acceleration", acceleration.getValue().in(Units.RadiansPerSecondPerSecond));
             Logger.recordOutput(logPrefix + "/SupplyVoltage", supplyVoltage.getValue().in(Units.Volts));
             Logger.recordOutput(logPrefix + "/SupplyCurrent", supplyCurrent.getValue().in(Units.Amps));
         }
@@ -158,8 +157,8 @@ public class LoggedTalon extends TalonFX {
 
     private TelemetryLevel getEffectiveTelemetryLevel() {
         return dashboardTelemetryLevel.ordinal() >= logTelemetryLevel.ordinal()
-                ? dashboardTelemetryLevel
-                : logTelemetryLevel;
+            ? dashboardTelemetryLevel
+            : logTelemetryLevel;
     }
 
     private boolean isForwardLimitClosed() {

@@ -44,11 +44,10 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
      * Uses n as the name
      * of the predictor variable.
      *
-     * @param x      the values of the predictor variable
-     * @param y      the corresponding values of the response variable
+     * @param x the values of the predictor variable
+     * @param y the corresponding values of the response variable
      * @param degree the degree of the polynomial to fit
-     * @throws IllegalArgumentException if the lengths of the two arrays are not
-     *                                  equal
+     * @throws IllegalArgumentException if the lengths of the two arrays are not equal
      */
     public PolynomialRegression(double[] x, double[] y, int degree) {
         this(x, y, degree, "n");
@@ -57,12 +56,11 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     /**
      * Performs a polynomial reggression on the data points {@code (y[i], x[i])}.
      *
-     * @param x            the values of the predictor variable
-     * @param y            the corresponding values of the response variable
-     * @param degree       the degree of the polynomial to fit
+     * @param x the values of the predictor variable
+     * @param y the corresponding values of the response variable
+     * @param degree the degree of the polynomial to fit
      * @param variableName the name of the predictor variable
-     * @throws IllegalArgumentException if the lengths of the two arrays are not
-     *                                  equal
+     * @throws IllegalArgumentException if the lengths of the two arrays are not equal
      */
     public PolynomialRegression(double[] x, double[] y, int degree, String variableName) {
         this.degree = degree;
@@ -229,8 +227,8 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        double[] x = { 10, 20, 40, 80, 160, 200 };
-        double[] y = { 100, 350, 1500, 6700, 20160, 40000 };
+        double[] x = {10, 20, 40, 80, 160, 200};
+        double[] y = {100, 350, 1500, 6700, 20160, 40000};
         PolynomialRegression regression = new PolynomialRegression(x, y, 3);
     }
 }

@@ -51,17 +51,17 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
         // Config current limits
         config.withCurrentLimits(
-                new CurrentLimitsConfigs()
-                        .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
-                        .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
 
         // Config software limits
         config.withSoftwareLimitSwitch(
-                new SoftwareLimitSwitchConfigs()
-                        .withForwardSoftLimitEnable(true)
-                        .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
-                        .withReverseSoftLimitEnable(true)
-                        .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
+            new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
 
         pivotMotor.getConfigurator().apply(config);
     }

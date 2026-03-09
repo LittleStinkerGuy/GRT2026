@@ -35,11 +35,9 @@ public class ShooterSequence extends SequentialCommandGroup {
                 new AimWhileDrivingCommand(swerve, fms, xSpeed, ySpeed),
                 new rampFlywheel(fly, fms),
                 new hoodCommand(hood, fms),
-                new towerRoll(b, fly)
-            ),
+                new towerRoll(b, fly)),
             // Indexer only runs after flywheel is up to speed
             new indexerRun(hopper)
-                .onlyWhile(() -> fly.wantedVel())
-        );
+                .onlyWhile(() -> fly.wantedVel()));
     }
 }
