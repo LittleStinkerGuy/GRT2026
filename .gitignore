@@ -186,3 +186,6 @@ compile_commands.json
 # Eclipse generated file for annotation processors
 .factorypath
 .gradle/8.11/checksums/checksums.lock
+
+# gversion generated constants file (needed for advantage kit)
+src/main/java/frc/robot/BuildConstants.java

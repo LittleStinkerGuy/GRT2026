@@ -134,6 +134,7 @@ public final class Constants {
         public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
         public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
 
+
         // MotionMagic parameters for drive motors
         public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
         public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
