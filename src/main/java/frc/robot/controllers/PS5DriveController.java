@@ -55,6 +55,10 @@ public class PS5DriveController extends BaseDriveController {
         return L1;
     }
 
+    public Trigger R1() {
+        return R1;
+    }
+
     @Override
     public boolean getRightBumper() {
         return R1.getAsBoolean();
