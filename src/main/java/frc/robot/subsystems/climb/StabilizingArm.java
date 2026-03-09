@@ -67,11 +67,7 @@ public class StabilizingArm extends SubsystemBase {
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
-                System.out.println("MOTOR " + motor.getDeviceID() + " CONFIGURED!");
                 break; // Success
-            }
-            if (i == 4) {
-                System.out.println("VERY BAD, MOTOR " + motor.getDeviceID() + " DID NOT GET CONFIGURED");
             }
         }
     }

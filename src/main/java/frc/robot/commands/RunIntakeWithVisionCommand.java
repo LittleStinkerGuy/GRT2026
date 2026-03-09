@@ -7,6 +7,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
@@ -30,7 +31,7 @@ public class RunIntakeWithVisionCommand extends Command {
 
     @Override
     public void initialize() {
-        intake.stop();
+        intake.setManualControl(0);
     }
 
     @Override
@@ -40,15 +41,15 @@ public class RunIntakeWithVisionCommand extends Command {
         });
 
         if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Meters.of(.5))) {
-            intake.runForward(); // TODO: SWITCH TO intake.runIn() WHEN USING ACTUAL INTAKE SUBSYSTEM
+            intake.setHopper(HOPPER_INTAKE.BALLIN); // TODO: SWITCH TO intake.runIn() or whatever it is now WHEN USING ACTUAL INTAKE SUBSYSTEM
         } else {
-            intake.stop();
+            intake.setManualControl(0);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        intake.stop();
+        intake.setManualControl(0);
     }
 
     @Override

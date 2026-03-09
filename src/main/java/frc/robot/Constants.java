@@ -46,53 +46,115 @@ public final class Constants {
     // ==================== GLOBAL ====================
     public static final String Swerve_CAN_BUS = "swerveCAN";
     public static final String Mech_CAN_BUS = "mechCAN";
-
+    // debug mode / pushing hella stuff to NT tables
     // Subsystem Enable/Disable
     public static final boolean SWERVE_ENABLED = true;
     public static final boolean MECH_ENABLED = true;
 
-    // ==================== SHOOTER ====================
-    public static class ShooterConstants {
-        // CAN IDs (: Hood=16, Flywheel=17, Flywheel Encoder=18)
-        public static final int HOOD_CAN_ID = 16;
-        public static final int FLYWHEEL_CAN_ID = 17;
-        public static final int FLYWHEEL_ENCODER_ID = 18;
+    public static class TowerConstants {
+        public static final int KRAKEN_CAN_ID = 26;
 
-        // Physics constants
-        public static final double g = 9.8;
-        public static final double tan75 = 3.73205;
-        public static final double cos75 = 0.258819;
-        public static final double height = 1.83;
-        public static final double radius = 0.0508;
+        public enum TOWER_INTAKE {
+            BALLUP,
+            BALLDOWN,
+            STOP
+        }
 
-        // Gear ratios
-        public static final double GEAR_RATIO_FLYWHEEL = 1.5;
-        public static final double GEAR_RATIO_HOOD = 50;
+        // maths
+        public static final double GEAR_REDUCTION = 4.0;
 
-        // Angles
-        public static final double UPPER_ANGLE = 0.45;
-        public static final double LOWER_ANGLE = -1.25;
-        public static final double MAX_VELO = 1;
-        public static final double INIT_HOOD_ANGLE = -1.25;
-        public static final double HOOD_MAGNET_OFFSET = 0.5;
+        public static final double TARGET_BPS = 4.0;// frequency
+        public static final double WHEEL_RADIUS = 1.0;// distance
+        public static final double BALL_DIAMETER = 6.0;// distance
+        public static final double TARGET_RPS = 10;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
-        // Hub position
-        public static final Pose2d HUB_POS = new Pose2d(4.03479, 4.0288, null);
+        // Velocity control PID
+        public static final double KP = 0.5;
+        public static final double KI = 0.0;
+        public static final double KD = 0.0;
+        public static final double KS = 0.0;
+        public static final double KV = 0.12;
 
-        // Manual control
-        public static final double HOOD_MANUAL_SPEED = 0.15;
-        public static final double FLYWHEEL_MANUAL_SPEED = 0.5;
+        // motion magic
+        public static final double MM_ACCEL = 6.0;// distance
+        public static final double MM_JERK = 6.0;// distance
+        public static final double MM_MAXVELO = 6.0;// distance
+
+        // Current limits
+        public static final int SUPPLY_CURRENT_LIMIT = 80;
+        public static final int STATOR_CURRENT_LIMIT = 60;
+        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
+        public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
+
+        // // Voltage and ramping
+        // public static final int VOLTAGE_COMPENSATION = 12;
+        // public static final double OPEN_LOOP_RAMP = 0.5;
+        // public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
+
+        // Motor config
+        public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
+    // ==================== SHOOTER ====================
+    public static class ShooterConstants {
+
+        // ---- Flywheel ----
+        public static class Flywheel {
+            public static final int UPPER_MOTOR_ID = 17;
+            public static final int SECOND_MOTOR_ID = 25;
+
+            public static final double GEAR_RATIO = 1.0;
+
+            // Velocity control PID
+            public static final double KP = 0.5;
+            public static final double KI = 0.0;
+            public static final double KD = 0.0;
+            public static final double KS = 0.0;
+            public static final double KV = 0.12;
+
+            // Motion Magic
+            public static final double MM_ACCEL = 30.0;
+            public static final double MM_JERK = 150.0;
+            public static final double MM_CRUISE_VELOCITY = 500.0;
+
+            // Velocity tolerance for "at speed" check (RPS)
+            public static final double VELOCITY_TOLERANCE_RPS = 2.0;
+        }
+
+        // ---- Hood ----
+        public static class Hood {
+            public static final int MOTOR_ID = 16;
+            public static final int ENCODER_ID = 18;
+
+            public static final double GEAR_RATIO = 244.411765;
+
+            // Position control PID
+            public static final double KP = 8.0;
+            public static final double KI = 3.0;
+            public static final double KD = 0.0;
+
+            // Angle limits (rotations)
+            public static final double UPPER_ANGLE_LIMIT = 0.169;
+            public static final double LOWER_ANGLE_LIMIT = 0.06;
+            public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
+
+            // Current limits
+            public static final double STATOR_CURRENT_LIMIT = 50.0;
+            public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+            public static final boolean CURRENT_LIMIT_ENABLE = true;
+
+            public static final double ANGLE_TOLERANCE = 0.01;
+        }
+    }
     // ==================== DRIVETRAIN ====================
 
     public static class SwerveDriveConstants {
         // Motor Configuration
-        public static final double DRIVE_PEAK_CURRENT = 80;
-        public static final double DRIVE_RAMP_RATE = 0;
+        public static final double DRIVE_PEAK_STATOR_CURRENT = 80;
+        public static final double DRIVE_RAMP_RATE = 0.0;
 
         // Current Limits (optimized for Kraken motors)
-        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 50; // Prevents brownouts
+        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 60; // Prevents brownouts
         public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
         public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
@@ -100,11 +162,16 @@ public final class Constants {
         public static final double DRIVE_WHEEL_RADIUS = 2.0; // inches
         public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
         public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
+
+
+        // MotionMagic parameters for drive motors
+        public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
+        public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
     }
 
     public static class SwerveSteerConstants {
         // Motor Configuration
-        public static final double STEER_PEAK_CURRENT = 40;
+        public static final double STEER_PEAK_STATOR_CURRENT = 40;
         public static final double STEER_RAMP_RATE = 0;
 
         // Current Limits (optimized for Kraken motors - steer needs less current)
@@ -178,13 +245,24 @@ public final class Constants {
         public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
             * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
         public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
+
+        // Chassis Acceleration Limits (m/s^2)
+        public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
+        public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
+        public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
+        public static final double MAX_ANGULAR_DECELERATION = 12.0; // radians per second squared
+
+        // Boost Mode Constants (L1 held)
+        public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
+        public static final double BOOST_MAX_LINEAR_ACCELERATION = 6.0; // meters per second squared
+        public static final double BOOST_MAX_ANGULAR_ACCELERATION = 4.0; // radians per second squared
     }
 
     public static class RotateToAngleConstants {
-        public static final double kP = 0.005;
+        public static final double kP = 0.009;
         public static final double kI = 0.0;
         public static final double kD = 0.0005;
-        public static final double TOLERANCE_DEGREES = 2.0;
+        public static final double TOLERANCE_DEGREES = 0.0;
     }
 
     // ==================== SUBSYSTEMS ====================
@@ -216,86 +294,57 @@ public final class Constants {
     }
 
     public static class HopperConstants {
-        // Motor Configuration
         public static final int KRAKEN_CAN_ID = 15;
-        public static final InvertedValue HOPPERINVERTED = InvertedValue.Clockwise_Positive;
 
-        // Current Limits
+        public enum HOPPER_INTAKE {
+            BALLIN,
+            BALLOUT,
+            STOP
+        }
+
+        // Velocity control PID
+        public static final double KP = 0.5;
+        public static final double KI = 0.0;
+        public static final double KD = 0.0;
+        public static final double KS = 0.0;
+        public static final double KV = 0.12;
+
+        // balls stuff
+        public static final double TARGET_BPS = 4.0;// frequency
+        public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
+        public static final double TARGET_RPS = TARGET_BPS / 4;// divided by 4 cuz 4 vains on spinner
+
+        // Current limits
         public static final int SUPPLY_CURRENT_LIMIT = 80;
         public static final int STATOR_CURRENT_LIMIT = 60;
         public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
-        // Ramp Rates
+        // Voltage and ramping
         public static final int VOLTAGE_COMPENSATION = 12;
-        public static final double OPEN_LOOP_RAMP = 0.2;
+        public static final double OPEN_LOOP_RAMP = 0.5;
         public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
-        // Manual Control
-        public static final double MANUAL_SPEED = 0.5;
-    }
-
-    // ==================== VISION ====================
-
-    public static class VisionConstants {
-        public static final double FIELD_X = 16.54;
-        public static final double FIELD_Y = 8.07;
-        public static final double ROBOT_RADIUS = 0.762;
-        public static final double[] STD_DEV_DIST = new double[] {
-                0.75, 1.00, 1.3, 1.69, 2., 2.51, 2.78, 3.07, 3.54, 4.1, 4.52
-        };
-        public static final double[] X_STD_DEV = new double[] {
-                0.002, 0.005, 0.007, 0.014, 0.029, 0.074, 0.101, 0.12, 0.151, 0.204, 0.287
-        };
-        public static final double[] Y_STD_DEV = new double[] {
-                0.002, 0.005, 0.013, 0.020, 0.067, 0.080, 0.095, 0.160, 0.206, 0.259, 0.288
-        };
-        public static final double[] O_STD_DEV = new double[] {
-                0.002, 0.004, 0.005, 0.011, 0.031, 0.4, 1.72, 1.89, 2.05, 2.443, 2.804
-        };
-
-        public static final CameraConfig[] cameraConfigs = new CameraConfig[] { // back top
-                new CameraConfig(
-                    "6",
-                    new Transform3d(
-                        -0.1016, 0, 0.5842,
-                        new Rotation3d(0, -Math.toRadians(30), 0)),
-                    PoseStrategy.LOWEST_AMBIGUITY)
-        };
-
-        public static final Distance FUEL_TARGET_HEIGHT = Inches.of(3);
-        public static final int FUEL_PIPELINE_INDEX = 0;
-
-        public static final FuelDetectionConfig fuelDetectionConfig =
-            new FuelDetectionSubsystem.FuelDetectionConfig(
-                cameraConfigs[0].getCameraName(),
-                Meters.of(cameraConfigs[0].getCameraPose().getZ()),
-                FUEL_TARGET_HEIGHT,
-                Radians.of(cameraConfigs[0].getCameraPose().getRotation().getY()),
-                FUEL_PIPELINE_INDEX);
-
-        public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
-            VisionConstants.STD_DEV_DIST, VisionConstants.X_STD_DEV, 2);
-        public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
-            VisionConstants.STD_DEV_DIST, VisionConstants.Y_STD_DEV, 2);
-        public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
-            VisionConstants.STD_DEV_DIST, VisionConstants.O_STD_DEV, 1);
-
-        public static final int FUEL_SMOOTHING_WINDOW_SIZE = 5;
-        public static final Time FUEL_DECAY_HOLD_TIME_SECONDS = Seconds.of(0.2);
-        public static final Time FUEL_DECAY_TIME_SECONDS = Seconds.of(0.4);
+        // Motor config
+        public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
     // ==================== ALIGNMENT ====================
 
     public static class AlignToHubConstants {
-        public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4.03479);
+        public static final Translation2d HUB_POSITION = new Translation2d(12.51204, 4);
     }
 
     public static class AlignConstants {
-        public static final double distanceTolerance = 0.5; // meters
-        public static final List<String> reefPathList = List.of();
-        public static final List<ChassisSpeeds> reefDirectionList = List.of();
+        public static final Translation2d BLUE_HUB_TRANS = new Translation2d(4.625, 4);
+        public static final Translation2d RED_HUB_TRANS = new Translation2d(11.9, 4);
+        public static final double RED_WALL_X = 11.9;
+        public static final double BLUE_WALL_X = 4.625;
+        public static final double HUB_Y = 4;
+        public static final Translation2d BLUE_AIM_TOP = new Translation2d(2.4, 6);
+        public static final Translation2d BLUE_AIM_BOTTOM = new Translation2d(2.4, 2);
+        public static final Translation2d RED_AIM_TOP = new Translation2d(14.3, 6);
+        public static final Translation2d RED_AIM_BOTTOM = new Translation2d(14.3, 2);
     }
 
     // ==================== LOGGING & DEBUG ====================

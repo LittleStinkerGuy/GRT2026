@@ -4,28 +4,34 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.Vision.VisionConstants;
 // import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.allign.AlignToHubCommand;
-import frc.robot.commands.allign.RotateToAngleCommand;
+import frc.robot.commands.allign.RotateToFieldAngleCommand;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.shooter.hood;
 // Subsystems
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
 // import frc.robot.subsystems.Vision.CameraConfig;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.Vision.VisionSubsystem;
+import frc.robot.subsystems.shooter.towerRollers;
+
 // import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
-import frc.robot.commands.RunHopperUntilNoBallCommand;
-import frc.robot.commands.RunIntakeWithVisionCommand;
 import frc.robot.commands.intake.ManualIntakePivotCommand;
+import frc.robot.commands.shooter.rampDownFlywheel;
+import frc.robot.commands.vision.GetCameraDisplacement;
+import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -33,6 +39,9 @@ import com.ctre.phoenix6.CANBus;
 // import frc.robot.commands.hopper.HopperSetRPMCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -42,7 +51,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -65,24 +76,27 @@ public class RobotContainer {
     private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
+    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
+    private towerRollers tower = new towerRollers(mechCAN);
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
     // private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
     private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
     private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-    private final FlywheelSubsystem flywheelSubsystem = new FlywheelSubsystem(mechCAN);
-    private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCAN);
-    private final FuelDetectionSubsystem fuelDetectionSubsystem =
-        new FuelDetectionSubsystem(Constants.VisionConstants.fuelDetectionConfig);
+    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+    private final hood hoodSubsystem = new hood(mechCAN);
+    private boolean shootSeq = false;
+    private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
-    // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    // VisionConstants.cameraConfigs[0]
-    // );
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+        VisionConstants.cameraConfig11);
+
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
     public RobotContainer() {
-        // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
-
+        visionStuff();
         constructController();
         configureBindings();
         configureAutoChooser();
@@ -120,6 +134,15 @@ public class RobotContainer {
         if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
             swerveSubsystem.setDefaultCommand(
                 new RunCommand(() -> {
+                    // L1 = boost mode (higher accel/velocity)
+                    swerveSubsystem.setBoostMode(driveController.getLeftBumper());
+
+                    // Left trigger controls speed limit: fully released = full speed, fully pressed
+                    // = stopped
+                    double leftTrigger = driveController.getLeftTriggerAxis();
+                    double speedLimit = 1.0 - leftTrigger; // Invert so more trigger = slower
+                    swerveSubsystem.setDriveSpeedLimit(speedLimit);
+
                     swerveSubsystem.setDrivePowers(
                         driveController.getForwardPower(),
                         driveController.getLeftPower(),
@@ -144,13 +167,14 @@ public class RobotContainer {
                 },
                 swerveSubsystem);
         }
-
         if (Constants.MECH_ENABLED) {
             // bind semi auto commands
             // var crossTrigger = mechController.cross();
             // var triangleTrigger = mechController.triangle();
-            // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() -> crossTrigger.getAsBoolean()));
-            // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() -> triangleTrigger.getAsBoolean()));
+            // crossTrigger.onTrue(m_ClimbSubsystem.climbDown(() ->
+            // crossTrigger.getAsBoolean()));
+            // triangleTrigger.onTrue(m_ClimbSubsystem.climbUp(() ->
+            // triangleTrigger.getAsBoolean()));
 
             // Manual control with d-pad for winch and left stick for arm
             m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
@@ -163,10 +187,6 @@ public class RobotContainer {
                 if (mechController.povDown().getAsBoolean()) {
                     winchDutyCycle--;
                 }
-                System.out.print(armDutyCycle);
-                System.out.print(" ");
-                System.out.println(winchDutyCycle);
-
                 m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
                 m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
             }, m_ClimbSubsystem));
@@ -189,24 +209,54 @@ public class RobotContainer {
              * }, pivotIntake));
              */
 
-
             // ==================== HOPPER ====================
             // L1 = hopper in
-            mechController.L1().whileTrue(Commands.run(() -> HopperSubsystem.runForward(), HopperSubsystem));
-            // Cross = run hopper until no ball detected
-            mechController.cross().toggleOnTrue(new RunHopperUntilNoBallCommand(fuelDetectionSubsystem, HopperSubsystem));
-            HopperSubsystem.setDefaultCommand(new RunIntakeWithVisionCommand(fuelDetectionSubsystem, HopperSubsystem));
+
+            driveController.square().toggleOnTrue(
+                Commands.defer(
+                    () -> new ShooterSequence(
+                        swerveSubsystem,
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        fmsSubsystem,
+                        tower,
+
+                        () -> -driveController.getForwardPower(), // forward/back
+                        () -> -driveController.getLeftPower() // strafe
+                    ),
+                    java.util.Set.of(
+                        swerveSubsystem,
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        fmsSubsystem,
+                        tower)));
+
+            driveController.square().toggleOnFalse(
+                new rampDownFlywheel(flywheelSubsystem));
 
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
             // Left stick Y = hood manual control
             flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-                if (DriverStation.isJoystickConnected(1))
+                if (DriverStation.isJoystickConnected(1)) {
                     flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 2);
+                } else {
+                    flywheelSubsystem.flySpeed(0);
+                }
             }, flywheelSubsystem));
 
+            tower.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1) && mechController.getR2Axis() > -0.7) {
+                    tower.setTower(TOWER_INTAKE.BALLUP);
+                } else {
+                    tower.setTower(TOWER_INTAKE.STOP);
+                }
+            }, tower));
+
+
             hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-                // double hoodInput = -mechController.getLeftY();
                 if (mechController.L3().getAsBoolean()) {
                     hoodSubsystem.hoodSpeed(0.05);
                 } else if (mechController.R3().getAsBoolean()) {
@@ -224,11 +274,14 @@ public class RobotContainer {
                     Math.abs(driveController.getRotatePower()) > 0;
 
                 // Triangle = rotate to 0°, Circle = rotate to 90°
-                driveController.triangle().onTrue(new RotateToAngleCommand(swerveSubsystem, 0, driverInput));
-                driveController.circle().onTrue(new RotateToAngleCommand(swerveSubsystem, 90, driverInput));
+                driveController.triangle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 0, driverInput));
+                driveController.circle().onTrue(new RotateToFieldAngleCommand(swerveSubsystem, 90, driverInput));
 
-                // L1 = align to hub
-                new Trigger(driveController::getLeftBumper).onTrue(AlignToHubCommand.create(swerveSubsystem, driverInput));
+                // Options button = reset pose to starting position (in front of red hub)
+                driveController.options()
+                    .onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
+
+                // Note: L2 (left trigger) is now used for speed limiting in the default command
 
                 // D-pad steer speed limiting (scales MotionMagic cruise velocity)
                 // Up = 100%, Right = 75%, Down = 50%, Left = 25%
@@ -245,17 +298,15 @@ public class RobotContainer {
 
     }
 
-
     /**
      * Constructs the drive controller based on the name of the controller at port
      * 0
      */
     private void constructController() {
         driveController = new PS5DriveController();
-        driveController.setDeadZone(0.05);
+        driveController.setDeadZone(0.035);
         mechController = new CommandPS5Controller(1);
     }
-
 
     /**
      * Config the autonomous command chooser
@@ -271,5 +322,18 @@ public class RobotContainer {
         return autoChooser.getSelected();
     }
 
-}
+    // vision shit
+    public void visionStuff() {
+        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
+        CommandScheduler.getInstance().schedule(
+            new GetCameraDisplacement(visionSubsystem1,
+                new Transform3d(
+                    Units.inchesToMeters(0),
+                    Units.inchesToMeters(-43 - 15),
+                    Units.inchesToMeters(44.25),
+                    new Rotation3d(0, 0, Math.PI / 2))));
+
+    }
+
+}

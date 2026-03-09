@@ -51,6 +51,10 @@ public class PS5DriveController extends BaseDriveController {
         return L1.getAsBoolean();
     }
 
+    public Trigger L1() {
+        return L1;
+    }
+
     @Override
     public boolean getRightBumper() {
         return R1.getAsBoolean();
@@ -67,6 +71,16 @@ public class PS5DriveController extends BaseDriveController {
 
     public boolean getLeftTrigger() {
         return driveController.getL2Axis() > .1;
+    }
+
+    /**
+     * Gets the raw left trigger axis value.
+     * 
+     * @return Value from 0.0 (not pressed) to 1.0 (fully pressed)
+     */
+    public double getLeftTriggerAxis() {
+        // L2Axis returns -1 to 1, convert to 0 to 1
+        return (driveController.getL2Axis() + 1) / 2;
     }
 
     @Override
@@ -105,6 +119,18 @@ public class PS5DriveController extends BaseDriveController {
 
     @Override
     public Trigger getAlignToSource() {
+        return square;
+    }
+
+    public CommandPS5Controller getController() {
+        return driveController;
+    }
+
+    public Trigger options() {
+        return driveController.options();
+    }
+
+    public Trigger square() {
         return square;
     }
 }

@@ -4,7 +4,7 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_ACCELERATION;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
-import static frc.robot.Constants.SwerveSteerConstants.STEER_PEAK_CURRENT;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_PEAK_STATOR_CURRENT;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_RAMP_RATE;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_SUPPLY_CURRENT_LIMIT;
@@ -82,8 +82,8 @@ public class SteerMotor extends SubsystemBase {
 
     private void configureMotor() {
         // Set peak current for torque limiting for stall prevention
-        motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = STEER_PEAK_CURRENT;
-        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -STEER_PEAK_CURRENT;
+        motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = STEER_PEAK_STATOR_CURRENT;
+        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -STEER_PEAK_STATOR_CURRENT;
 
         // Current limits (optimized for swerve steer)
         motorConfig.CurrentLimits.SupplyCurrentLimit = STEER_SUPPLY_CURRENT_LIMIT;
@@ -99,7 +99,6 @@ public class SteerMotor extends SubsystemBase {
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-
         // motorConfig.Slot0.kP = 3;
         // motorConfig.Slot0.kI = 0;
         // motorConfig.Slot0.kD = 0;
@@ -111,7 +110,8 @@ public class SteerMotor extends SubsystemBase {
             motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         }
         // Tell it how rotor relates to module angle:
-        // motorConfig.Feedback.SensorToMechanismRatio = STEER_GEAR_REDUCTION; // e.g., 12.8
+        // motorConfig.Feedback.SensorToMechanismRatio = STEER_GEAR_REDUCTION; // e.g.,
+        // 12.8
 
         // Enable position wrapping (by default values are from 0-1)
 
@@ -135,29 +135,34 @@ public class SteerMotor extends SubsystemBase {
         motor.setPosition(0);
     }
 
-
     public void configPID(double p, double i, double d, double s) {
 
         Slot0Configs slot0Configs = new Slot0Configs(); // used to store and update PID values
         /*
-         * Think of P as how much we want it to correct, as an example imagine you are parking a car
+         * Think of P as how much we want it to correct, as an example imagine you are
+         * parking a car
          */
 
         slot0Configs.kP = p;
         /*
-         * Integral Control's job is to correct recurring errors over time by stacking past errors.
-         * It sums up previous errors, so it looks at how many errors you have had over time.
+         * Integral Control's job is to correct recurring errors over time by stacking
+         * past errors.
+         * It sums up previous errors, so it looks at how many errors you have had over
+         * time.
          */
         slot0Configs.kI = i;
 
         /*
-         * The Derivitive Controls job is to look at the Rate of Change (slope) of how fast the error is changing (def of derrivitive)
-         * If the error is chaning too fast, the kD will slow it down so we do not overshoot
+         * The Derivitive Controls job is to look at the Rate of Change (slope) of how
+         * fast the error is changing (def of derrivitive)
+         * If the error is chaning too fast, the kD will slow it down so we do not
+         * overshoot
          */
         slot0Configs.kD = d;
 
         /*
-         * Feedforward Control (kS, or kV in Phoenix 6) predicts how much power we need based only on how fast we want to go,
+         * Feedforward Control (kS, or kV in Phoenix 6) predicts how much power we need
+         * based only on how fast we want to go,
          * instead of waiting for an error to happen first.
          */
         slot0Configs.kS = s;
@@ -170,22 +175,30 @@ public class SteerMotor extends SubsystemBase {
         steerStatsTable = ntInstance.getTable("SwerveSteer");
         motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
 
-        // encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId + "encoderPosition").publish();
+        // encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId +
+        // "encoderPosition").publish();
         motorPositionPublisher = steerStatsTable.getDoubleTopic(canId + "motorPosition").publish();
         targetPositionPublisher = steerStatsTable.getDoubleTopic(canId + "targetPosition").publish();
-        // motorTemperaturePublisher = steerStatsTable.getDoubleTopic(canId + "motorTemperature").publish();
-        // appliedVoltsPublisher = steerStatsTable.getDoubleTopic(canId + "appliedVolts").publish();
-        // supplyCurrentPublisher = steerStatsTable.getDoubleTopic(canId + "supplyCurrent").publish();
-        // torqueCurrentPublisher = steerStatsTable.getDoubleTopic(canId + "torqueCurrent").publish();
-        // positionErrorPublisher = steerStatsTable.getDoubleTopic(canId + "positionError").publish();
+        // motorTemperaturePublisher = steerStatsTable.getDoubleTopic(canId +
+        // "motorTemperature").publish();
+        // appliedVoltsPublisher = steerStatsTable.getDoubleTopic(canId +
+        // "appliedVolts").publish();
+        // supplyCurrentPublisher = steerStatsTable.getDoubleTopic(canId +
+        // "supplyCurrent").publish();
+        // torqueCurrentPublisher = steerStatsTable.getDoubleTopic(canId +
+        // "torqueCurrent").publish();
+        // positionErrorPublisher = steerStatsTable.getDoubleTopic(canId +
+        // "positionError").publish();
         rotationPublisher = steerStatsTable.getDoubleTopic(canId + "controllerTargetPosition").publish();
-        // closedLoopReferencePublisher = steerStatsTable.getDoubleTopic(canId + "targetMotorRotationPosition").publish();
+        // closedLoopReferencePublisher = steerStatsTable.getDoubleTopic(canId +
+        // "targetMotorRotationPosition").publish();
         gurtMotorPos1 = steerStatsTable.getDoubleTopic(canId + "motorPosThing").publish();
         gurtMotorPos1.set(0.0);
         positionControlPositionPublisher = steerStatsTable.getDoubleTopic(canId + "positionControlPosition").publish();
-        steerStatsTable.addListener(canId + "motorPosThing", EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
-            gurtMotorPos = event.valueData.value.getDouble();
-        });
+        steerStatsTable.addListener(canId + "motorPosThing", EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+            (table, key, event) -> {
+                gurtMotorPos = event.valueData.value.getDouble();
+            });
 
     }
 
@@ -195,9 +208,11 @@ public class SteerMotor extends SubsystemBase {
         targetPositionPublisher.set(targetPos);
 
         // encoderPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
-        // targetPositionPublisher.set(rotorRotations); // Just show current position for now
+        // targetPositionPublisher.set(rotorRotations); // Just show current position
+        // for now
         rotationPublisher.set(controllerTargetRotations); // get position
-        // closedLoopReferencePublisher.set(motor.getClosedLoopReference().getValueAsDouble()); // TODO: Calculate actual position error
+        // closedLoopReferencePublisher.set(motor.getClosedLoopReference().getValueAsDouble());
+        // // TODO: Calculate actual position error
 
         // positionErrorPublisher.set(0.0); // TODO: Calculate actual position error
 
@@ -261,10 +276,10 @@ public class SteerMotor extends SubsystemBase {
         return motorPos;
     }
 
-
     /**
      * 
-     * @param targetWheelPosition wheel position in radians, pi = 180 degrees CCW looking from the top
+     * @param targetWheelPosition wheel position in radians, pi = 180 degrees CCW
+     *        looking from the top
      */
     double controllerTargetRotations;
 
@@ -281,7 +296,8 @@ public class SteerMotor extends SubsystemBase {
         // radians to rotations
         // // motor.wra(motorCurrentPos);
 
-        // targetWheelPosition = getOptimalSteerTargetPosition(motorCurrentPos, targetWheelPosition);
+        // targetWheelPosition = getOptimalSteerTargetPosition(motorCurrentPos,
+        // targetWheelPosition);
         // targetPos = targetWheelPosition;
         posTorqueCurrentFOCRequest.withPosition(gurtMotorPos);
         motor.setControl(posTorqueCurrentFOCRequest);
@@ -307,7 +323,6 @@ public class SteerMotor extends SubsystemBase {
         mmConfigs.MotionMagicCruiseVelocity = velocity;
         mmConfigs.MotionMagicAcceleration = STEER_ACCELERATION;
         motor.getConfigurator().apply(mmConfigs);
-        System.out.println("MOTOR " + motorID + " cruise velocity: " + (velocity * STEER_GEAR_REDUCTION * 60.0) + " RPM");
     }
 
     public void setCruiseVelocity(double velocity, double acceleration) {

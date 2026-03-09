@@ -64,7 +64,6 @@ public class KrakenSwerveModule {
             STEER_D[steerIndex],
             STEER_S[steerIndex]);
 
-
         driveMotor = new DriveMotor(drivePort, canivore);
         driveMotor.configPID(
             DRIVE_P[driveIndex],
@@ -77,14 +76,14 @@ public class KrakenSwerveModule {
     }
 
     /**
-     * Sets the un optimized desired state of this swerve module through setting the PID targets.
+     * Sets the un optimized desired state of this swerve module through setting the
+     * PID targets.
      *
      * @param state The desired SwerveModuleState
      */
     public void setDesiredState(SwerveModuleState state) {
         Rotation2d currentAngle = getWrappedAngle();
         state.optimize(currentAngle);
-
 
         double targetAngleRads = state.angle.getRadians() - offsetRads;
         double angleErrorRads = state.angle.minus(currentAngle).getRadians();
@@ -96,7 +95,8 @@ public class KrakenSwerveModule {
     }
 
     /**
-     * Sets the optimized desired state of this swerve module through setting the PID targets.
+     * Sets the optimized desired state of this swerve module through setting the
+     * PID targets.
      *
      * @param state The desired SwerveModuleState
      */
@@ -160,7 +160,6 @@ public class KrakenSwerveModule {
     public double getDriveVelocity() {
         return driveMotor.getVelocity();
     }
-
 
     public void steerDebug() {
         NetworkTableInstance.getDefault().getTable("steerDebug")

@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 
 public class RunHopperUntilNoBallCommand extends Command {
@@ -27,12 +28,12 @@ public class RunHopperUntilNoBallCommand extends Command {
 
     @Override
     public void execute() {
-        hopper.runForward();
+        hopper.setHopper(HOPPER_INTAKE.BALLIN);
     }
 
     @Override
     public void end(boolean interrupted) {
-        hopper.stop();
+        hopper.setManualControl(0);
     }
 
     @Override

@@ -61,7 +61,7 @@
   ],
   "java.dependency.enableDependencyCheckup": false,
   "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
+  "editor.tabSize": 4,
   "editor.formatOnSave": true,
-  "java.format.settings.url": "./eclipse-java-formatter.xml",
-  "editor.tabSize": 4
+  "java.format.settings.url": "./eclipse-java-formatter.xml"
 }
