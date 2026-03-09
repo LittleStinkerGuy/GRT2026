@@ -271,20 +271,38 @@ public final class Constants {
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
         public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
+        // Roller PID
+        public static final double ROLLER_P = 0.1;
+        public static final double ROLLER_I = 0.0;
+        public static final double ROLLER_D = 0.0;
+        public static final double ROLLER_V = 0.12;
+
         // Pivot Motor
         public static final int PIVOT_MOTOR_ID = 12;
+        public static final int PIVOT_CANCODER_ID = 13;
         public static final double MANUAL_PIVOT_SPEED = 0.15;
         public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
-        // Limit Switches
-        public static final int TOP_LIMIT_SWITCH_DIO = 0;
-        public static final int BOTTOM_LIMIT_SWITCH_DIO = 1;
+        // Pivot PID
+        public static final double PIVOT_P = 50.0;
+        public static final double PIVOT_I = 0.0;
+        public static final double PIVOT_D = 0.5;
+        public static final double PIVOT_F = 0.0;
+
+        // Pivot Motion Magic
+        public static final double PIVOT_CRUISE_VELOCITY = 2.0;
+        public static final double PIVOT_ACCELERATION = 4.0;
+        public static final double GEAR_RATIO = 25.0;
+
+        // Pivot Positions (in rotations)
+        public static final double PIVOT_OUT_POS = 0.25;
+        public static final double PIVOT_IN_POS = 0.0;
+        public static final double PIVOT_MID_POS = 0.125;
+
+        // Software Limits
         public static final Angle TOP_LIMIT = Rotations.of(0.25);
         public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);
-
-        // CANdle
-        public static final int CANDLE_ID = 13;
     }
 
     public static class HopperConstants {
