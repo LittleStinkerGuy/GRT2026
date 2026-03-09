@@ -60,7 +60,7 @@ public final class Constants {
         public static final double TARGET_BPS = 4.0;// frequency
         public static final double WHEEL_RADIUS = 1.0;// distance
         public static final double BALL_DIAMETER = 6.0;// distance
-        public static final double TARGET_RPS = TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+        public static final double TARGET_RPS = 10;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
         // Velocity control PID
         public static final double KP = 0.5;
@@ -99,8 +99,8 @@ public final class Constants {
 
         public static int hoodEncoderId = 18;
 
-        public static double gearRatioUpper = 1.5;
-        public static double gearRatioHood = 50;
+        public static double gearRatioUpper = 1;
+        public static double gearRatioHood = 244.411765;
         // Velocity control PID
         public static final double KP = 0.5;
         public static final double KI = 0.0;
@@ -112,11 +112,9 @@ public final class Constants {
         public static final double MM_JERK = 150;// distance
         public static final double MM_MAXVELO = 500;// distance
 
-        public static double upperAngle = 0;
-        public static double lowerAngle = -0.328;
+        public static double upperAngle = 0.169;
+        public static double lowerAngle = 0.06;
         public static double initHoodAngle = upperAngle;
-
-        public static double flyDia = 0.127;
 
     }
     // ==================== DRIVETRAIN ====================
@@ -135,6 +133,7 @@ public final class Constants {
         public static final double DRIVE_WHEEL_RADIUS = 2.0; // inches
         public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
         public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
+
 
         // MotionMagic parameters for drive motors
         public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
