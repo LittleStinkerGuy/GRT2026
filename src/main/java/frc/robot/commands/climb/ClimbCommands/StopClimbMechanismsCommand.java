@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
 public class StopClimbMechanismsCommand extends InstantCommand {
-  public StopClimbMechanismsCommand(ClimbSubsystem climbSubsystem) {
-    super(() -> {
-      System.out.println("stop");
-      climbSubsystem.stopArm();
-      climbSubsystem.stopWinch();
-    }, climbSubsystem);
-  }
+    public StopClimbMechanismsCommand(ClimbSubsystem climbSubsystem) {
+        super(() -> {
+            System.out.println("stop");
+            climbSubsystem.stopArm();
+            climbSubsystem.stopWinch();
+        }, climbSubsystem);
+    }
 }

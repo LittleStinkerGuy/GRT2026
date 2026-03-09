@@ -5,25 +5,25 @@ import frc.robot.Constants.ClimbConstants;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
 public class AutoPullDownClawCommand extends Command {
-  private final ClimbSubsystem climbSubsystem;
+    private final ClimbSubsystem climbSubsystem;
 
-  public AutoPullDownClawCommand(ClimbSubsystem climbSubsystem) {
-    this.climbSubsystem = climbSubsystem;
-    addRequirements(climbSubsystem);
-  }
+    public AutoPullDownClawCommand(ClimbSubsystem climbSubsystem) {
+        this.climbSubsystem = climbSubsystem;
+        addRequirements(climbSubsystem);
+    }
 
-  @Override
-  public void initialize() {
-    climbSubsystem.setWinchTorqueCurrent(ClimbConstants.WINCH_TORQUE_CURRENT);
-  }
+    @Override
+    public void initialize() {
+        climbSubsystem.setWinchTorqueCurrent(ClimbConstants.WINCH_TORQUE_CURRENT);
+    }
 
-  @Override
-  public boolean isFinished() {
-    return climbSubsystem.isWinchAtDistance(ClimbConstants.WINCH_DEPLOYED_DISTANCE);
-  }
+    @Override
+    public boolean isFinished() {
+        return climbSubsystem.isWinchAtDistance(ClimbConstants.WINCH_DEPLOYED_DISTANCE);
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-    climbSubsystem.stopWinch();
-  }
+    @Override
+    public void end(boolean interrupted) {
+        climbSubsystem.stopWinch();
+    }
 }

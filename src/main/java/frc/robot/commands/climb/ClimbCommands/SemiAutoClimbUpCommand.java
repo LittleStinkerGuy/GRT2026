@@ -11,27 +11,27 @@ import frc.robot.commands.climb.WinchCommands.ManualPullDownClawCommand;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
 public class SemiAutoClimbUpCommand extends SequentialCommandGroup {
-  private ManualDeployArmCommand deployArm;
-  private ManualPullDownClawCommand pullDownClaw;
+    private ManualDeployArmCommand deployArm;
+    private ManualPullDownClawCommand pullDownClaw;
 
-  public SemiAutoClimbUpCommand(ClimbSubsystem climbSubsystem, BooleanSupplier stepSupplier) {
-    deployArm = new ManualDeployArmCommand(climbSubsystem, stepSupplier);
-    pullDownClaw = new ManualPullDownClawCommand(climbSubsystem, stepSupplier);
+    public SemiAutoClimbUpCommand(ClimbSubsystem climbSubsystem, BooleanSupplier stepSupplier) {
+        deployArm = new ManualDeployArmCommand(climbSubsystem, stepSupplier);
+        pullDownClaw = new ManualPullDownClawCommand(climbSubsystem, stepSupplier);
 
-    addCommands(
-        waitForButtonRelease(stepSupplier),
-        deployArm.raceWith(Commands.waitUntil(climbSubsystem::isArmReverseLimitActive)),
-        waitForNextStep(stepSupplier),
-        pullDownClaw.raceWith(Commands.waitUntil(() -> climbSubsystem.isWinchAtDistance(ClimbConstants.WINCH_DEPLOYED_DISTANCE))));
-  }
+        addCommands(
+            waitForButtonRelease(stepSupplier),
+            deployArm.raceWith(Commands.waitUntil(climbSubsystem::isArmReverseLimitActive)),
+            waitForNextStep(stepSupplier),
+            pullDownClaw.raceWith(Commands.waitUntil(() -> climbSubsystem.isWinchAtDistance(ClimbConstants.WINCH_DEPLOYED_DISTANCE))));
+    }
 
-  private static Command waitForButtonRelease(BooleanSupplier supplier) {
-    return Commands.waitUntil(() -> !supplier.getAsBoolean());
-  }
+    private static Command waitForButtonRelease(BooleanSupplier supplier) {
+        return Commands.waitUntil(() -> !supplier.getAsBoolean());
+    }
 
-  private static Command waitForNextStep(BooleanSupplier supplier) {
-    return waitForButtonRelease(supplier)
-        .andThen(Commands.waitUntil(supplier))
-        .andThen(waitForButtonRelease(supplier));
-  }
+    private static Command waitForNextStep(BooleanSupplier supplier) {
+        return waitForButtonRelease(supplier)
+            .andThen(Commands.waitUntil(supplier))
+            .andThen(waitForButtonRelease(supplier));
+    }
 }

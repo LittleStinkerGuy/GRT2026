@@ -50,269 +50,269 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private CANBus canivore = new CANBus("can");
+    private CANBus canivore = new CANBus("can");
 
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-  private PS5DriveController driveController;
-  private CommandPS5Controller mechController;
-  private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    private PS5DriveController driveController;
+    private CommandPS5Controller mechController;
+    private SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
-  private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
-  private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
-  private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
-  private final Field2d m_field = new Field2d();
-  private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
+    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(canivore);
+    private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem();
+    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(canivore);
+    private final Field2d m_field = new Field2d();
+    private ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(canivore);
 
-  private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-      VisionConstants.cameraConfigs[0]);
+    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+        VisionConstants.cameraConfigs[0]);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
-
-    constructDriveController();
-    constructMechController();
-    configureBindings();
-    configureAutoChooser();
-
-    CameraServer.startAutomaticCapture(); // start driver cam
-    SmartDashboard.putData("Field", m_field);
-  }
-
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary
-   * predicate, or via the named f`actories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link
-   * CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    /*
-     * Driving -- One joystick controls translation, the other rotation. If the
-     * robot-relative button is held down,
-     * the robot is controlled along its own axes, otherwise controls apply to the
-     * field axes by default. If the
-     * swerve aim button is held down, the robot will rotate automatically to always
-     * face a target, and only
-     * translation will be manually controllable.
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    swerveSubsystem.setDefaultCommand(
-        new RunCommand(() -> {
-          swerveSubsystem.setDrivePowers(
-              driveController.getForwardPower(),
-              driveController.getLeftPower(),
-              driveController.getRotatePower());
-        },
-            swerveSubsystem));
+    public RobotContainer() {
+        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
 
-    driveController.getRelativeMode().whileTrue(
-        new RunCommand(
+        constructDriveController();
+        constructMechController();
+        configureBindings();
+        configureAutoChooser();
+
+        CameraServer.startAutomaticCapture(); // start driver cam
+        SmartDashboard.putData("Field", m_field);
+    }
+
+    /**
+     * Use this method to define your trigger->command mappings. Triggers can be
+     * created via the
+     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+     * an arbitrary
+     * predicate, or via the named f`actories in {@link
+     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+     * {@link
+     * CommandXboxController
+     * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+     * PS4} controllers or
+     * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+     * joysticks}.
+     */
+    private void configureBindings() {
+        /*
+         * Driving -- One joystick controls translation, the other rotation. If the
+         * robot-relative button is held down,
+         * the robot is controlled along its own axes, otherwise controls apply to the
+         * field axes by default. If the
+         * swerve aim button is held down, the robot will rotate automatically to always
+         * face a target, and only
+         * translation will be manually controllable.
+         */
+        swerveSubsystem.setDefaultCommand(
+            new RunCommand(() -> {
+                swerveSubsystem.setDrivePowers(
+                    driveController.getForwardPower(),
+                    driveController.getLeftPower(),
+                    driveController.getRotatePower());
+            },
+                swerveSubsystem));
+
+        driveController.getRelativeMode().whileTrue(
+            new RunCommand(
+                () -> {
+                    swerveSubsystem.setRobotRelativeDrivePowers(
+                        driveController.getForwardPower(),
+                        driveController.getLeftPower(),
+                        driveController.getRotatePower());
+                    driveController.getRotatePower();
+                }, swerveSubsystem));
+
+        /* Pressing the button resets the field axes to the current robot axes. */
+        driveController.bindDriverHeadingReset(
             () -> {
-              swerveSubsystem.setRobotRelativeDrivePowers(
-                  driveController.getForwardPower(),
-                  driveController.getLeftPower(),
-                  driveController.getRotatePower());
-              driveController.getRotatePower();
-            }, swerveSubsystem));
+                swerveSubsystem.resetDriverHeading();
+            },
+            swerveSubsystem);
 
-    /* Pressing the button resets the field axes to the current robot axes. */
-    driveController.bindDriverHeadingReset(
-        () -> {
-          swerveSubsystem.resetDriverHeading();
-        },
-        swerveSubsystem);
+        // bind semi auto commands
+        var crossTrigger = mechController.cross();
+        var triangleTrigger = mechController.triangle();
+        crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
+        triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
 
-    // bind semi auto commands
-    var crossTrigger = mechController.cross();
-    var triangleTrigger = mechController.triangle();
-    crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
-    triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
+        mechController.options().onTrue(new AutoClimbCommand(m_ClimbSubsystem));
 
-    mechController.options().onTrue(new AutoClimbCommand(m_ClimbSubsystem));
+        // Manual control with d-pad for winch and left stick for arm
+        m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
+            double armDutyCycle = 0;
+            double winchDutyCycle = 0;
 
-    // Manual control with d-pad for winch and left stick for arm
-    m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-      double armDutyCycle = 0;
-      double winchDutyCycle = 0;
+            if (mechController.povRight().getAsBoolean()) {
+                armDutyCycle++;
+            }
+            if (mechController.povLeft().getAsBoolean()) {
+                armDutyCycle--;
+            }
+            if (mechController.povUp().getAsBoolean()) {
+                winchDutyCycle++;
+            }
+            if (mechController.povDown().getAsBoolean()) {
+                winchDutyCycle--;
+            }
+            m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
+            m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+        }, m_ClimbSubsystem));
 
-      if (mechController.povRight().getAsBoolean()) {
-        armDutyCycle++;
-      }
-      if (mechController.povLeft().getAsBoolean()) {
-        armDutyCycle--;
-      }
-      if (mechController.povUp().getAsBoolean()) {
-        winchDutyCycle++;
-      }
-      if (mechController.povDown().getAsBoolean()) {
-        winchDutyCycle--;
-      }
-      m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-      m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-    }, m_ClimbSubsystem));
+        // --- Intake pivot set-position controls (commented out for now) ---
+        // mechController.square().onTrue(
+        // new SetIntakePivotCommand(pivotIntake, IntakeConstants .STOWED_POS));
+        // mechController.cross().onTrue(
+        // new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS));
 
-    // --- Intake pivot set-position controls (commented out for now) ---
-    // mechController.square().onTrue(
-    // new SetIntakePivotCommand(pivotIntake, IntakeConstants .STOWED_POS));
-    // mechController.cross().onTrue(
-    // new SetIntakePivotCommand(pivotIntake, IntakeConstants.EXTENDED_POS));
+        // // circle for the manual hopper
+        // mechController.circle().whileTrue(
+        // new RunCommand(
+        // () -> HopperSubsystem.setManualControl(1.0),
+        // HopperSubsystem))
+        // .onFalse(
+        // new InstantCommand(
+        // () -> HopperSubsystem.stop(),
+        // HopperSubsystem));
 
-    // // circle for the manual hopper
-    // mechController.circle().whileTrue(
-    // new RunCommand(
-    // () -> HopperSubsystem.setManualControl(1.0),
-    // HopperSubsystem))
-    // .onFalse(
-    // new InstantCommand(
-    // () -> HopperSubsystem.stop(),
-    // HopperSubsystem));
+        // --- Hopper RPM control (commented out for now) ---
+        // mechController.triangle().onTrue(
+        // new HopperSetRPMCommand(HopperSubsystem));
 
-    // --- Hopper RPM control (commented out for now) ---
-    // mechController.triangle().onTrue(
-    // new HopperSetRPMCommand(HopperSubsystem));
+        /* Intake Controls - Hold button to run rollers */
+        // R1 - intake in
+        mechController.R1().whileTrue(
+            new RunCommand(
+                () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
+                intakeSubsystem))
+            .onFalse(
+                new InstantCommand(
+                    () -> intakeSubsystem.stop(),
+                    intakeSubsystem));
 
-    /* Intake Controls - Hold button to run rollers */
-    // R1 - intake in
-    mechController.R1().whileTrue(
-        new RunCommand(
-            () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_IN_SPEED),
-            intakeSubsystem))
-        .onFalse(
-            new InstantCommand(
-                () -> intakeSubsystem.stop(),
-                intakeSubsystem));
+        // L1 - intake out
+        mechController.L1().whileTrue(
+            new RunCommand(
+                () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
+                intakeSubsystem))
+            .onFalse(
+                new InstantCommand(
+                    () -> intakeSubsystem.stop(),
+                    intakeSubsystem));
 
-    // L1 - intake out
-    mechController.L1().whileTrue(
-        new RunCommand(
-            () -> intakeSubsystem.setDutyCycle(Constants.IntakeConstants.ROLLER_OUT_SPEED),
-            intakeSubsystem))
-        .onFalse(
-            new InstantCommand(
-                () -> intakeSubsystem.stop(),
-                intakeSubsystem));
+        // Pivot Configs: R2 for pivot up and L2 for pivot down
+        pivotIntake.setDefaultCommand(
+            new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() -
+                mechController.getL2Axis()));
 
-    // Pivot Configs: R2 for pivot up and L2 for pivot down
-    pivotIntake.setDefaultCommand(
-        new ManualIntakePivotCommand(pivotIntake, () -> mechController.getR2Axis() -
-            mechController.getL2Axis()));
+    }
 
-  }
+    public void updateDashboard() {
+        // Robot position
+        Pose2d robotPose = swerveSubsystem.getRobotPosition();
+        m_field.setRobotPose(robotPose);
 
-  public void updateDashboard() {
-    // Robot position
-    Pose2d robotPose = swerveSubsystem.getRobotPosition();
-    m_field.setRobotPose(robotPose);
+        // Match time
+        SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
 
-    // Match time
-    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+        // Intake
+        // SmartDashboard.putString("Status/Intake State", getIntakeState());
+        // SmartDashboard.putNumber("Status/Intake Angle",
+        // pivotIntake.getAngleDegrees());
+        SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
+        SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
+        SmartDashboard.putBoolean("Status/At Bottom Limit",
+            pivotIntake.isAtBottomLimit());
 
-    // Intake
-    // SmartDashboard.putString("Status/Intake State", getIntakeState());
-    // SmartDashboard.putNumber("Status/Intake Angle",
-    // pivotIntake.getAngleDegrees());
-    SmartDashboard.putBoolean("Status/Roller Active", isRollerActive());
-    SmartDashboard.putBoolean("Status/At Top Limit", pivotIntake.isAtTopLimit());
-    SmartDashboard.putBoolean("Status/At Bottom Limit",
-        pivotIntake.isAtBottomLimit());
+        // Vision + Autoalign
+        // VisionSubsystem is commented out rn because it's outdated
+        SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
+        SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
+        SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
+        SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
+    }
 
-    // Vision + Autoalign
-    // VisionSubsystem is commented out rn because it's outdated
-    SmartDashboard.putBoolean("Status/Target Detected", hasTarget());
-    SmartDashboard.putBoolean("Status/Target Locked", isTargetLocked());
-    SmartDashboard.putNumber("Status/Target Distance", getTargetDistance());
-    SmartDashboard.putBoolean("Status/Auto Align Active", isAutoAlignActive());
-  }
+    // --- Intake state detection (commented out for now) ---
+    // private String getIntakeState() {
+    // double angle = pivotIntake.getAngleDegrees();
+    // double tolerance = 0.05;
+    // if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
+    // return "STOWED";
+    // } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
+    // return "EXTENDED";
+    // } else {
+    // return "MOVING";
+    // }
+    // }
 
-  // --- Intake state detection (commented out for now) ---
-  // private String getIntakeState() {
-  // double angle = pivotIntake.getAngleDegrees();
-  // double tolerance = 0.05;
-  // if (Math.abs(angle - IntakeConstants.STOWED_POS) < tolerance) {
-  // return "STOWED";
-  // } else if (Math.abs(angle - IntakeConstants.EXTENDED_POS) < tolerance) {
-  // return "EXTENDED";
-  // } else {
-  // return "MOVING";
-  // }
-  // }
+    private boolean isRollerActive() {
+        return intakeSubsystem.isRunning();
+    }
 
-  private boolean isRollerActive() {
-    return intakeSubsystem.isRunning();
-  }
+    // TODO: Integrate w vision subsystem when its setup / enabled
 
-  // TODO: Integrate w vision subsystem when its setup / enabled
+    /**
+     * Returns true if a target is detected by vision
+     */
+    private boolean hasTarget() {
+        // TODO: check if AprilTag/target is detected
+        // return visionSubsystem.hasTarget();
+        return false;
+    }
 
-  /**
-   * Returns true if a target is detected by vision
-   */
-  private boolean hasTarget() {
-    // TODO: check if AprilTag/target is detected
-    // return visionSubsystem.hasTarget();
-    return false;
-  }
+    /**
+     * Returns true if target is locked (centered and stable)
+     */
+    private boolean isTargetLocked() {
+        // TODO: Implement target lock
+        // Check if target is within tolerance and robot is aligned
+        // return visionSubsystem.isTargetLocked();
+        return false;
+    }
 
-  /**
-   * Returns true if target is locked (centered and stable)
-   */
-  private boolean isTargetLocked() {
-    // TODO: Implement target lock
-    // Check if target is within tolerance and robot is aligned
-    // return visionSubsystem.isTargetLocked();
-    return false;
-  }
+    /**
+     * Returns distance to target in meters
+     */
+    private double getTargetDistance() {
+        // TODO: Get distance from vision subsystem
+        // return visionSubsystem.getTargetDistance();
+        return 0.0;
+    }
 
-  /**
-   * Returns distance to target in meters
-   */
-  private double getTargetDistance() {
-    // TODO: Get distance from vision subsystem
-    // return visionSubsystem.getTargetDistance();
-    return 0.0;
-  }
+    private boolean isAutoAlignActive() {
+        // TODO: Check if auto-align command is running
+        return false;
+    }
 
-  private boolean isAutoAlignActive() {
-    // TODO: Check if auto-align command is running
-    return false;
-  }
+    /**
+     * Constructs the drive controller based on the name of the controller at port
+     * 0
+     */
+    private void constructDriveController() {
+        driveController = new PS5DriveController();
+        driveController.setDeadZone(0.05);
+    }
 
-  /**
-   * Constructs the drive controller based on the name of the controller at port
-   * 0
-   */
-  private void constructDriveController() {
-    driveController = new PS5DriveController();
-    driveController.setDeadZone(0.05);
-  }
+    /**
+     * Constructs mech controller
+     */
+    private void constructMechController() {
+        mechController = new CommandPS5Controller(1);
+    }
 
-  /**
-   * Constructs mech controller
-   */
-  private void constructMechController() {
-    mechController = new CommandPS5Controller(1);
-  }
+    /**
+     * Config the autonomous command chooser
+     */
+    private void configureAutoChooser() {
+        // Add auton here
+        autoChooser.setDefaultOption("Do Nothing", null);
 
-  /**
-   * Config the autonomous command chooser
-   */
-  private void configureAutoChooser() {
-    // Add auton here
-    autoChooser.setDefaultOption("Do Nothing", null);
+        SmartDashboard.putData("Auto Selector", autoChooser);
+    }
 
-    SmartDashboard.putData("Auto Selector", autoChooser);
-  }
-
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
 
 }

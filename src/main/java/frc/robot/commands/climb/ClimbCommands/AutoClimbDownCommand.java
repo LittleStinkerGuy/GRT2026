@@ -11,24 +11,24 @@ import frc.robot.commands.climb.WinchCommands.AutoPullUpClawCommand;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
 public class AutoClimbDownCommand extends SequentialCommandGroup {
-  private Command pullUpClaw;
-  private Command retractArm;
-  private Command retractArmIfWinchSucceeded;
+    private Command pullUpClaw;
+    private Command retractArm;
+    private Command retractArmIfWinchSucceeded;
 
-  private AtomicBoolean winchInterrupted = new AtomicBoolean(false);
+    private AtomicBoolean winchInterrupted = new AtomicBoolean(false);
 
-  public AutoClimbDownCommand(ClimbSubsystem climbSubsystem) {
-    pullUpClaw = new AutoPullUpClawCommand(climbSubsystem).withTimeout(ClimbConstants.WINCH_POS_TIMEOUT.times(2))
-        .finallyDo(interrupted -> winchInterrupted.set(interrupted));
-    retractArm = new AutoRetractArmCommand(climbSubsystem).withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
-    retractArmIfWinchSucceeded = Commands.either(
-        Commands.none(),
-        retractArm,
-        () -> winchInterrupted.get());
+    public AutoClimbDownCommand(ClimbSubsystem climbSubsystem) {
+        pullUpClaw = new AutoPullUpClawCommand(climbSubsystem).withTimeout(ClimbConstants.WINCH_POS_TIMEOUT.times(2))
+            .finallyDo(interrupted -> winchInterrupted.set(interrupted));
+        retractArm = new AutoRetractArmCommand(climbSubsystem).withTimeout(ClimbConstants.ARM_POS_TIMEOUT);
+        retractArmIfWinchSucceeded = Commands.either(
+            Commands.none(),
+            retractArm,
+            () -> winchInterrupted.get());
 
-    addCommands(
-        Commands.runOnce(() -> System.out.println("climbDown"), climbSubsystem),
-        pullUpClaw,
-        retractArmIfWinchSucceeded);
-  }
+        addCommands(
+            Commands.runOnce(() -> System.out.println("climbDown"), climbSubsystem),
+            pullUpClaw,
+            retractArmIfWinchSucceeded);
+    }
 }

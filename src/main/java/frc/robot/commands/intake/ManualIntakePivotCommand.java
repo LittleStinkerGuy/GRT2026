@@ -10,40 +10,40 @@ import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class ManualIntakePivotCommand extends Command {
-  private final PivotIntakeSubsystem pivotIntake;
-  private final DoubleSupplier speedSupplier;
+    private final PivotIntakeSubsystem pivotIntake;
+    private final DoubleSupplier speedSupplier;
 
-  /**
-   * Creates a new ManualPivot command
-   *
-   * @param pivotIntake Pivot subsystem
-   * @param speedSupplier A supplier returning the desired speed (-1.0 to 1.0), in this case its R2 and L2
-   *
-   */
-  public ManualIntakePivotCommand(PivotIntakeSubsystem pivotIntake, DoubleSupplier speedSupplier) {
-    this.pivotIntake = pivotIntake;
-    this.speedSupplier = speedSupplier;
-    addRequirements(pivotIntake);
-  }
+    /**
+     * Creates a new ManualPivot command
+     *
+     * @param pivotIntake Pivot subsystem
+     * @param speedSupplier A supplier returning the desired speed (-1.0 to 1.0), in this case its R2 and L2
+     *
+     */
+    public ManualIntakePivotCommand(PivotIntakeSubsystem pivotIntake, DoubleSupplier speedSupplier) {
+        this.pivotIntake = pivotIntake;
+        this.speedSupplier = speedSupplier;
+        addRequirements(pivotIntake);
+    }
 
-  @Override
-  public void initialize() {}
+    @Override
+    public void initialize() {}
 
-  @Override
-  public void execute() {
-    // Get the current speed value from R2 and L2
-    double speedValue = speedSupplier.getAsDouble();
-    pivotIntake.setManualSpeed(speedValue * IntakeConstants.MANUAL_PIVOT_SPEED);
+    @Override
+    public void execute() {
+        // Get the current speed value from R2 and L2
+        double speedValue = speedSupplier.getAsDouble();
+        pivotIntake.setManualSpeed(speedValue * IntakeConstants.MANUAL_PIVOT_SPEED);
 
-  }
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-    pivotIntake.stop();
-  }
+    @Override
+    public void end(boolean interrupted) {
+        pivotIntake.stop();
+    }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }
