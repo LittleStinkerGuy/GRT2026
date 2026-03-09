@@ -10,7 +10,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import static edu.wpi.first.units.Units.Amps;
 import com.ctre.phoenix6.CANBus;
 
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
@@ -53,7 +52,6 @@ public class RollerIntakeSubsystem extends SubsystemBase {
 
         rollerMotor.getConfigurator().apply(config);
     }
-
 
     @Override
     public void periodic() {

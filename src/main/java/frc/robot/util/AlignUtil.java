@@ -51,10 +51,13 @@
 // */
 
 // public Command runAlignPath (String pathName, Pose2d currentPose) {
-// Translation2d currentTrans = swerveSubsystem.getRobotPosition().getTranslation();
-// Translation2d pathStartTrans = getAlignPath(pathName).getStartingHolonomicPose().get().getTranslation();
+// Translation2d currentTrans =
+// swerveSubsystem.getRobotPosition().getTranslation();
+// Translation2d pathStartTrans =
+// getAlignPath(pathName).getStartingHolonomicPose().get().getTranslation();
 
-// if (Math.abs(currentTrans.getDistance(pathStartTrans)) <= AlignConstants.distanceTolerance) {
+// if (Math.abs(currentTrans.getDistance(pathStartTrans)) <=
+// AlignConstants.distanceTolerance) {
 // int index = AlignConstants.reefPathList.indexOf(pathName) / 2;
 // ChassisSpeeds drivePower = AlignConstants.reefdirectionList.get(index);
 
@@ -130,7 +133,8 @@
 // return getAlignPath;
 // }
 
-// public PathPlannerPath getAlignPath (List<Waypoint> pathWaypoints, GoalEndState goalEndState){
+// public PathPlannerPath getAlignPath (List<Waypoint> pathWaypoints,
+// GoalEndState goalEndState){
 
 // PathPlannerPath getAlignPath = new PathPlannerPath (
 // pathWaypoints,
@@ -141,6 +145,4 @@
 // return getAlignPath;
 // }
 
-
 // }
-
