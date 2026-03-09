@@ -65,6 +65,6 @@ public class LoggedBooleanSensor {
      */
     private void initLogs(String name) {
         sensorReadingLogEntry = new BooleanLogEntry(
-                        DataLogManager.getLog(), name);
+            DataLogManager.getLog(), name);
     }
 }
