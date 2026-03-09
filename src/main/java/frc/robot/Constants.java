@@ -110,6 +110,9 @@ public final class Constants {
             public static final double MM_ACCEL = 30.0;
             public static final double MM_JERK = 150.0;
             public static final double MM_CRUISE_VELOCITY = 500.0;
+
+            // Velocity tolerance for "at speed" check (RPS)
+            public static final double VELOCITY_TOLERANCE_RPS = 2.0;
         }
 
         // ---- Hood ----

@@ -110,11 +110,7 @@ public class flywheel extends SubsystemBase {
     }
 
     public boolean wantedVel() {
-        if (Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < 2) {
-            return true;
-        } else {
-            return false;
-        }
+        return Math.abs(wantedVe - upperMotor.getVelocity().getValueAsDouble()) < ShooterConstants.Flywheel.VELOCITY_TOLERANCE_RPS;
     }
 
     public void dontShoot() {
