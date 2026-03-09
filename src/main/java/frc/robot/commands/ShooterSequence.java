@@ -13,12 +13,11 @@ import frc.robot.commands.hopper.indexerRun;
 import frc.robot.commands.shooter.towerRollers.towerRoll;
 import frc.robot.commands.allign.AimWhileDrivingCommand;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import java.util.function.DoubleSupplier;
 
-public class ShooterSequence extends SequentialCommandGroup {
+public class ShooterSequence extends ParallelCommandGroup {
 
     public ShooterSequence(
         SwerveSubsystem swerve,
@@ -30,16 +29,18 @@ public class ShooterSequence extends SequentialCommandGroup {
         DoubleSupplier xSpeed,
         DoubleSupplier ySpeed) {
 
+        // All run simultaneously:
+        // - Swerve aims at target while allowing driver input
+        // - Flywheel ramps up to calculated speed
+        // - Hood adjusts to calculated angle
+        // - Tower feeds balls only when flywheel is at speed
+        // - Indexer feeds balls only when flywheel is at speed
         addCommands(
-            new ParallelCommandGroup(
-                new AimWhileDrivingCommand(swerve, fms, xSpeed, ySpeed),
-                new rampFlywheel(fly, fms),
-                new hoodCommand(hood, fms),
-                new towerRoll(b, fly)
-            ),
-            // Indexer only runs after flywheel is up to speed
-            new indexerRun(hopper)
-                .onlyWhile(() -> fly.wantedVel())
+            new AimWhileDrivingCommand(swerve, fms, xSpeed, ySpeed),
+            new rampFlywheel(fly, fms),
+            new hoodCommand(hood, fms),
+            new towerRoll(b, fly),
+            new indexerRun(hopper).onlyIf(() -> fly.wantedVel())
         );
     }
 }
