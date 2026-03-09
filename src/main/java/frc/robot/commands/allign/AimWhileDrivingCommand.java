@@ -24,10 +24,10 @@ public class AimWhileDrivingCommand extends Command {
     private final PIDController rotationPID = new PIDController(5.0, 0.0, 0.2);
 
     public AimWhileDrivingCommand(
-            SwerveSubsystem swerve,
-            FieldManagementSubsystem fms,
-            DoubleSupplier xSupplier,
-            DoubleSupplier ySupplier) {
+        SwerveSubsystem swerve,
+        FieldManagementSubsystem fms,
+        DoubleSupplier xSupplier,
+        DoubleSupplier ySupplier) {
         this.swerve = swerve;
         this.fms = fms;
         this.xSupplier = xSupplier;
@@ -81,7 +81,7 @@ public class AimWhileDrivingCommand extends Command {
         Translation2d target = getTargetPoint();
 
         Translation2d shooterPosition = robotPose.getTranslation().plus(
-                SHOOTER_OFFSET.rotateBy(robotPose.getRotation()));
+            SHOOTER_OFFSET.rotateBy(robotPose.getRotation()));
 
         Translation2d toTarget = target.minus(shooterPosition);
 
@@ -99,8 +99,8 @@ public class AimWhileDrivingCommand extends Command {
         Rotation2d targetHeading = getTargetRotation();
 
         double omega = rotationPID.calculate(
-                currentHeading.getRadians(),
-                targetHeading.getRadians());
+            currentHeading.getRadians(),
+            targetHeading.getRadians());
 
         swerve.setDrivePowers(x, y, omega);
     }

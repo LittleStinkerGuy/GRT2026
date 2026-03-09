@@ -5,7 +5,7 @@ package frc.robot.subsystems.FMS;
  */
 public enum MatchStatus {
     NOTSTARTED,
-    AUTON, 
+    AUTON,
     TELEOP,
     ENDGAME,
     ENDED;

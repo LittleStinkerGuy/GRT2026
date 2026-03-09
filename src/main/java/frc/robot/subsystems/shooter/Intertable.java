@@ -14,20 +14,20 @@ public class Intertable {
         shooterAngle.put(2.261, -0.3);
         shooterAngle.put(2.616, -0.27);
 
-        shooterRPS.put(1.524,45.0);
-        shooterRPS.put(1.651,45.0);
-        shooterRPS.put(1.981,50.0);
-        shooterRPS.put(2.261,50.0);
+        shooterRPS.put(1.524, 45.0);
+        shooterRPS.put(1.651, 45.0);
+        shooterRPS.put(1.981, 50.0);
+        shooterRPS.put(2.261, 50.0);
         shooterRPS.put(2.616, 60.0);
 
-        
+
     }
 
-    public double getRPS(double dis){
+    public double getRPS(double dis) {
         return shooterRPS.get(dis);
     }
 
-    public double getAngle(double dis){
+    public double getAngle(double dis) {
         return shooterAngle.get(dis);
     }
 }

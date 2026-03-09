@@ -30,7 +30,7 @@ public abstract class BaseDriveController {
     /**
      * Gets the button to reset the driver heading.
      *
-     * @return The JoystickButton to reset the driver heading. 
+     * @return The JoystickButton to reset the driver heading.
      */
     public abstract boolean getDriverHeadingResetButton();
 
@@ -60,13 +60,12 @@ public abstract class BaseDriveController {
     // public abstract boolean getAlignToReef();
 
     public abstract void bindDriverHeadingReset(
-        Runnable command, Subsystem requiredSubsystem
-    );
+        Runnable command, Subsystem requiredSubsystem);
 
     public abstract void setDeadZone(double deadZone);
 
     public abstract Trigger getAlignToReef();
 
     public abstract Trigger getAlignToSource();
-    
+
 }

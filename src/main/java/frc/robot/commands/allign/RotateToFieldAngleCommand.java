@@ -36,8 +36,7 @@ public class RotateToFieldAngleCommand extends Command {
         this.pid = new PIDController(
             RotateToAngleConstants.kP,
             RotateToAngleConstants.kI,
-            RotateToAngleConstants.kD
-        );
+            RotateToAngleConstants.kD);
         pid.enableContinuousInput(-180, 180);
         pid.setTolerance(RotateToAngleConstants.TOLERANCE_DEGREES);
         addRequirements(swerve);
@@ -82,8 +81,10 @@ public class RotateToFieldAngleCommand extends Command {
         goalEntry.setDouble(normalizedTarget);
         actualEntry.setDouble(currentAngle);
         double error = normalizedTarget - currentAngle;
-        if (error > 180) error -= 360;
-        if (error < -180) error += 360;
+        if (error > 180)
+            error -= 360;
+        if (error < -180)
+            error += 360;
         errorEntry.setDouble(error);
         outputEntry.setDouble(rotationPower);
     }
@@ -93,8 +94,10 @@ public class RotateToFieldAngleCommand extends Command {
      */
     private double normalizeAngle(double degrees) {
         double angle = degrees % 360;
-        if (angle > 180) angle -= 360;
-        if (angle < -180) angle += 360;
+        if (angle > 180)
+            angle -= 360;
+        if (angle < -180)
+            angle += 360;
         return angle;
     }
 
@@ -107,6 +110,6 @@ public class RotateToFieldAngleCommand extends Command {
     public void end(boolean interrupted) {
         swerve.setDrivePowers(0, 0, 0);
     }
-    
+
 
 }
