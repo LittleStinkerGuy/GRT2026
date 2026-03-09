@@ -23,6 +23,7 @@ import frc.robot.subsystems.shooter.towerRollers;
 // import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.FMS.FieldManagementSubsystem;
+import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
@@ -81,14 +82,14 @@ public class RobotContainer {
     private towerRollers tower = new towerRollers(mechCAN);
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
-    // private final PivotIntakeSubsystem pivotIntake = new
-    // PivotIntakeSubsystem(mechCAN);
+    // private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
     private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
     private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
     private final flywheel flywheelSubsystem = new flywheel(mechCAN);
     private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
+    private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
     private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
         VisionConstants.cameraConfig11);

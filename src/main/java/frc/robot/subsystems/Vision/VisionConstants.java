@@ -1,8 +1,15 @@
 package frc.robot.subsystems.Vision;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
+import frc.robot.subsystems.Vision.FuelDetectionSubsystem.FuelDetectionConfig;
 import frc.robot.util.PolynomialRegression;
 
 public final class VisionConstants {
@@ -50,5 +57,20 @@ public final class VisionConstants {
         STD_DEV_DIST, Y_STD_DEV, 2);
     public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
         STD_DEV_DIST, O_STD_DEV, 1);
+
+    public static final Distance FUEL_TARGET_HEIGHT = Inches.of(3);
+    public static final int FUEL_PIPELINE_INDEX = 0;
+
+    public static final FuelDetectionConfig fuelDetectionConfig =
+        new FuelDetectionSubsystem.FuelDetectionConfig(
+            cameraConfig7.getCameraName(),
+            Meters.of(cameraConfig7.getCameraPose().getZ()),
+            FUEL_TARGET_HEIGHT,
+            Radians.of(cameraConfig7.getCameraPose().getRotation().getY()),
+            FUEL_PIPELINE_INDEX);
+
+    public static final int FUEL_SMOOTHING_WINDOW_SIZE = 5;
+    public static final Time FUEL_DECAY_HOLD_TIME_SECONDS = Seconds.of(0.2);
+    public static final Time FUEL_DECAY_TIME_SECONDS = Seconds.of(0.4);
 
 }
