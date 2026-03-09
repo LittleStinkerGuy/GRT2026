@@ -254,6 +254,7 @@ public class RobotContainer {
                 }
             }, tower));
 
+
             hoodSubsystem.setDefaultCommand(Commands.run(() -> {
                 if (mechController.L3().getAsBoolean()) {
                     hoodSubsystem.hoodSpeed(0.05);
