@@ -322,7 +322,8 @@ public class SwerveSubsystem extends SubsystemBase {
         double omega = desiredSpeeds.omegaRadiansPerSecond;
         double deltaOmega = omega - previousSpeeds.omegaRadiansPerSecond;
 
-        // Determine if we're accelerating or decelerating (speeding up or slowing down rotation)
+        // Determine if we're accelerating or decelerating (speeding up or slowing down
+        // rotation)
         boolean isAngularAccelerating = Math.abs(omega) > Math.abs(previousSpeeds.omegaRadiansPerSecond);
         double maxDeltaOmega = (isAngularAccelerating ? maxAngularAcceleration : maxAngularDeceleration) * dt;
 
@@ -491,7 +492,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private double driveSpeedLimit = 1.0;
 
     /**
-     * Sets the drive speed limit multiplier. This scales max velocity and acceleration.
+     * Sets the drive speed limit multiplier. This scales max velocity and
+     * acceleration.
      * 
      * @param limit [0, 1] fraction of max speed. 1.0 = full speed, 0.0 = stopped.
      */

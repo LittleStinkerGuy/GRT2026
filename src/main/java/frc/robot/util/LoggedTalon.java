@@ -70,7 +70,6 @@ public class LoggedTalon extends TalonFX {
     private final StatusSignal<Boolean> faultHardware = getFault_Hardware();
     private final StatusSignal<Boolean> faultBootDuringEnable = getFault_BootDuringEnable();
 
-
     // if no name set set to motor[deviceID]
     public LoggedTalon(int deviceId, CANBus canBus) {
         this(deviceId, canBus, ("motor" + deviceId));
@@ -137,8 +136,7 @@ public class LoggedTalon extends TalonFX {
         }
 
         if (telemetryLevel.includes(TelemetryLevel.STANDARD)) {
-            Logger.recordOutput(
-                logPrefix + "/Acceleration", acceleration.getValue().in(Units.RadiansPerSecondPerSecond));
+            Logger.recordOutput(logPrefix + "/Acceleration", acceleration.getValue().in(Units.RadiansPerSecondPerSecond));
             Logger.recordOutput(logPrefix + "/SupplyVoltage", supplyVoltage.getValue().in(Units.Volts));
             Logger.recordOutput(logPrefix + "/SupplyCurrent", supplyCurrent.getValue().in(Units.Amps));
         }
@@ -178,7 +176,6 @@ public class LoggedTalon extends TalonFX {
         Current tCurrent = torqueCurrent.getValue();
         return (Torque) kt.timesDivisor(tCurrent);
     }
-
 
     // torque = kt * torqueCurrent
 
