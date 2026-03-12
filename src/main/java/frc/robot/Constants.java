@@ -76,7 +76,7 @@ public final class Constants {
         public static final double TARGET_BPS = 4.0;// frequency
         public static final double WHEEL_RADIUS = 1.0;// distance
         public static final double BALL_DIAMETER = 6.0;// distance
-        public static final double TARGET_RPS = 10;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+        public static final double TARGET_RPS = 30;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
         // Velocity control PID
         public static final double KP = 0.5;
@@ -86,9 +86,9 @@ public final class Constants {
         public static final double KV = 0.12;
 
         // motion magic
-        public static final double MM_ACCEL = 6.0;// distance
-        public static final double MM_JERK = 6.0;// distance
-        public static final double MM_MAXVELO = 6.0;// distance
+        public static final double MM_ACCEL = 1000;// distance
+        public static final double MM_JERK = 100;// distance
+        public static final double MM_MAXVELO = 100;// distance
 
         // Current limits
         public static final int SUPPLY_CURRENT_LIMIT = 80;
@@ -102,7 +102,7 @@ public final class Constants {
         // public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
         // Motor config
-        public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue HOPPERINVERTED = InvertedValue.Clockwise_Positive;
     }
 
     // ==================== SHOOTER ====================
@@ -411,7 +411,7 @@ public final class Constants {
         public static final double WINCH_GR = 70.0;
 
         public static final double ARM_MAX_OUTPUT = 0.05;
-        public static final double WINCH_MAX_OUTPUT = 0.1;
+        public static final double WINCH_MAX_OUTPUT = 1;
 
         public static final Angle ARM_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
 

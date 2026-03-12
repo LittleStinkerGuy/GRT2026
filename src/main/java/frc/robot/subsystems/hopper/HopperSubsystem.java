@@ -122,8 +122,10 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     public void setHopper(HOPPER_INTAKE state) {
+
         switch (state) {
             case BALLIN:
+                setManualControl(1);
                 krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(HopperConstants.TARGET_RPS));
                 break;
             case BALLOUT:
