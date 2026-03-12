@@ -83,6 +83,7 @@
 |                 | Pigeon           | Pigeon 2.0  | -        | 24           |
 | **Extra**       | Second Flywheel  | X60         | -        | 25           |
 |                 | Tower Roller     | X40         | -        | 26           |
+|                 | CANrange climb   |             | -        | 22           |
 
 ## **Motor Configuration**
 
