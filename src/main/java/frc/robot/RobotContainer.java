@@ -29,6 +29,7 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.commands.ShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
@@ -183,19 +184,26 @@ public class RobotContainer {
                 double winchDutyCycle = 0;
 
                 if (mechController.povUp().getAsBoolean()) {
-                    winchDutyCycle++;
-                }
-                if (mechController.povDown().getAsBoolean()) {
                     winchDutyCycle--;
                 }
+                if (mechController.povDown().getAsBoolean()) {
+                    winchDutyCycle++;
+                }
                 m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-                m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+                // m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
             }, m_ClimbSubsystem));
 
             // ==================== INTAKE ROLLER ====================
-            // R1 (mech) = intake in
+            // R1 (mech) = intake in, L1 (mech) = intake out
             mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+
+            // L2 (mech) = spin spindexer (hopper) and tower at set speed
+            mechController.L2().whileTrue(Commands.run(() -> {
+                HopperSubsystem.setHopper(HOPPER_INTAKE.BALLIN);
+                tower.setTower(TOWER_INTAKE.BALLUP);
+            }, HopperSubsystem, tower));
 
             // R2 (drive) = force intake in (pivot up + stop rollers) - hold to override
             new Trigger(() -> driveController.getRightTrigger())

@@ -68,12 +68,12 @@ public class WinchSubsystem extends SubsystemBase {
                 .withInverted(ClimbConstants.WINCH_MOTOR_INVERTED))
             .withFeedback(new FeedbackConfigs()
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                .withSensorToMechanismRatio(ClimbConstants.WINCH_GR))
-            .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitEnable(true)
-                .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
-                .withReverseSoftLimitEnable(true)
-                .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
+                .withSensorToMechanismRatio(ClimbConstants.WINCH_GR));
+        // .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
+        // .withForwardSoftLimitEnable(true)
+        // .withForwardSoftLimitThreshold(ClimbConstants.WINCH_FORWARD_LIMIT)
+        // .withReverseSoftLimitEnable(true)
+        // .withReverseSoftLimitThreshold(ClimbConstants.WINCH_REVERSE_LIMIT));
 
         for (int i = 0; i < 5; i++) {
             if (motor.getConfigurator().apply(motorConfig, 0.1) == StatusCode.OK) {
