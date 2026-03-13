@@ -56,13 +56,14 @@ public class hood extends SubsystemBase {
 
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
         ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        ccfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // Use full range for absolute position
 
         hoodCoder.getConfigurator().apply(ccfg);
 
-        cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        // Use FusedCANcoder to preserve absolute position on boot (no re-zeroing)
+        cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         cfg.Feedback.FeedbackRemoteSensorID = ShooterConstants.Hood.ENCODER_ID;
-
-        cfg.Feedback.SensorToMechanismRatio = 1;
+        cfg.Feedback.SensorToMechanismRatio = 1.0; // CANcoder is 1:1 with mechanism
 
         hoodMotor.getConfigurator().apply(cfg);
     }
@@ -83,9 +84,9 @@ public class hood extends SubsystemBase {
         commandedDutyCycle = speed;
 
         double pos = hoodMotor.getPosition().refresh().getValueAsDouble();
-        if (pos >= ShooterConstants.Hood.UPPER_ANGLE_LIMIT && speed > 0) {
+        if (pos >= ShooterConstants.Hood.UPPER_ANGLE_LIMIT && speed < 0) {
             hoodMotor.setControl(dutyCycl.withOutput(0));
-        } else if (pos <= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && speed < 0) {
+        } else if (pos <= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && speed > 0) {
             hoodMotor.setControl(dutyCycl.withOutput(0));
         } else {
             hoodMotor.setControl(dutyCycl.withOutput(speed));
