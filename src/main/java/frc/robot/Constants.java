@@ -385,6 +385,21 @@ public final class Constants {
         public static final String SENSOR_TABLE = "Sensors";
     }
 
+    // ==================== SMASH AND SHOOT ====================
+    public static class SmashAndShootConstants {
+        // Hood position (rotations) - between 0.06 and 0.169
+        public static final double HOOD_POSITION = 0.12;
+
+        // Flywheel speed (RPS)
+        public static final double FLYWHEEL_RPS = 50.0;
+
+        // Tower duty cycle
+        public static final double TOWER_DUTY_CYCLE = 0.7;
+
+        // Indexer/Hopper duty cycle
+        public static final double INDEXER_DUTY_CYCLE = 1.0;
+    }
+
     public static class DebugConstants {
         public static final boolean MASTER_DEBUG = true;
         public static final boolean DRIVE_DEBUG = true;

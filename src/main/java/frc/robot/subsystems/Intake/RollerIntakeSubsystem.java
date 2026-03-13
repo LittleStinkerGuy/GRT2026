@@ -38,7 +38,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Roller/kV", kV);
         SmartDashboard.putNumber("Intake/Roller/InSpeed", Math.abs(inSpeed));
         SmartDashboard.putNumber("Intake/Roller/OutSpeed", Math.abs(outSpeed));
-        SmartDashboard.putNumber("Intake/Roller/ManualDutyCycle", 0.5);
+        SmartDashboard.putNumber("Intake/Roller/ManualDutyCycle", 1.0);
     }
 
     private void configureMotor() {
@@ -141,7 +141,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
      * Run intake in at tunable duty cycle (simpler control for testing)
      */
     public void runInDutyCycle() {
-        double dc = SmartDashboard.getNumber("Intake/Roller/ManualDutyCycle", 0.5);
+        double dc = SmartDashboard.getNumber("Intake/Roller/ManualDutyCycle", 1.0);
         setDutyCycle(-dc);
     }
 
@@ -149,7 +149,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
      * Run intake out at tunable duty cycle (simpler control for testing)
      */
     public void runOutDutyCycle() {
-        double dc = SmartDashboard.getNumber("Intake/Roller/ManualDutyCycle", 0.5);
+        double dc = SmartDashboard.getNumber("Intake/Roller/ManualDutyCycle", 1.0);
         setDutyCycle(dc);
     }
 

@@ -26,11 +26,10 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 // import frc.robot.Constants.IntakeConstants;
 
 // Commands
-import frc.robot.commands.shooter.rampDownFlywheel;
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
-import frc.robot.commands.ShooterSequence;
+import frc.robot.commands.ManualShooterSequence;
 
 import com.ctre.phoenix6.CANBus;
 
@@ -190,23 +189,31 @@ public class RobotContainer {
                     winchDutyCycle++;
                 }
                 m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-                // m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+                m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
             }, m_ClimbSubsystem));
 
             // ==================== INTAKE ROLLER ====================
-            // R1 (mech) = intake in, L1 (mech) = intake out
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
+            // R1 (mech) = intake in, L1 (mech) = intake out (duty cycle control)
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
-            // L2 (mech) = spin spindexer (hopper) and tower at set speed
+            // ==================== INTAKE PIVOT ====================
+            // D-pad left = pivot out (manual), D-pad right = pivot in (manual)
+            // whileTrue runs while held, default command stops when released
+            mechController.povLeft().whileTrue(Commands.run(() -> pivotIntake.setManualSpeed(Constants.IntakeConstants.MANUAL_PIVOT_SPEED), pivotIntake));
+            mechController.povRight().whileTrue(Commands.run(() -> pivotIntake.setManualSpeed(-Constants.IntakeConstants.MANUAL_PIVOT_SPEED), pivotIntake));
+            pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
+
+            // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
-                HopperSubsystem.setHopper(HOPPER_INTAKE.BALLIN);
-                tower.setTower(TOWER_INTAKE.BALLUP);
+                HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
+                tower.setManualControl(0.7); // 0.7 duty cycle for tower
             }, HopperSubsystem, tower));
+            HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
             // R2 (drive) = force intake in (pivot up + stop rollers) - hold to override
-            new Trigger(() -> driveController.getRightTrigger())
+            new Trigger(driveController::getRightTrigger)
                 .whileTrue(Commands.run(() -> {
                     pivotIntake.setPosition(Constants.IntakeConstants.PIVOT_IN_POS);
                     intakeSubsystem.stop();
@@ -225,31 +232,25 @@ public class RobotContainer {
              * }, pivotIntake));
              */
 
-            // ==================== SHOOTER SEQUENCE ====================
-            // R1 (drive) = shooter sequence toggle
-            driveController.R1().toggleOnTrue(
-                Commands.defer(
-                    () -> new ShooterSequence(
-                        swerveSubsystem,
-                        flywheelSubsystem,
-                        hoodSubsystem,
-                        HopperSubsystem,
-                        fmsSubsystem,
-                        tower,
+            // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
+            // R1 (drive) = manual shooter sequence, any other button cancels
+            Command manualShooterCmd = new ManualShooterSequence(
+                flywheelSubsystem,
+                hoodSubsystem,
+                tower,
+                HopperSubsystem
+            );
 
-                        () -> -driveController.getForwardPower(), // forward/back
-                        () -> -driveController.getLeftPower() // strafe
-                    ),
-                    java.util.Set.of(
-                        swerveSubsystem,
-                        flywheelSubsystem,
-                        hoodSubsystem,
-                        HopperSubsystem,
-                        fmsSubsystem,
-                        tower)));
+            // R1 starts the manual shooter sequence
+            driveController.R1().onTrue(manualShooterCmd);
 
-            driveController.R1().toggleOnFalse(
-                new rampDownFlywheel(flywheelSubsystem));
+            // Joystick movement cancels it
+            Trigger joystickMoved = new Trigger(() ->
+                Math.abs(driveController.getForwardPower()) > 0.1 ||
+                Math.abs(driveController.getLeftPower()) > 0.1 ||
+                Math.abs(driveController.getRotatePower()) > 0.1
+            );
+            joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
 
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
@@ -263,19 +264,15 @@ public class RobotContainer {
             }, flywheelSubsystem));
 
             tower.setDefaultCommand(Commands.run(() -> {
-                if (DriverStation.isJoystickConnected(1) && mechController.getR2Axis() > -0.7) {
-                    tower.setTower(TOWER_INTAKE.BALLUP);
-                } else {
-                    tower.setTower(TOWER_INTAKE.STOP);
-                }
+                tower.setManualControl(0); // Stop tower by default
             }, tower));
 
 
             hoodSubsystem.setDefaultCommand(Commands.run(() -> {
                 if (mechController.L3().getAsBoolean()) {
-                    hoodSubsystem.hoodSpeed(0.05);
+                    hoodSubsystem.hoodSpeed(0.5);
                 } else if (mechController.R3().getAsBoolean()) {
-                    hoodSubsystem.hoodSpeed(-0.05);
+                    hoodSubsystem.hoodSpeed(-0.5);
                 } else {
                     hoodSubsystem.hoodSpeed(0);
                 }
