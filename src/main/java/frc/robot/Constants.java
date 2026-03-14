@@ -110,6 +110,8 @@ public final class Constants {
 
         // ---- Flywheel ----
         public static class Flywheel {
+            public static final InvertedValue F_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+
             public static final int UPPER_MOTOR_ID = 17;
             public static final int SECOND_MOTOR_ID = 25;
 

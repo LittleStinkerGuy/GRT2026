@@ -79,7 +79,7 @@ public class flywheel extends SubsystemBase {
     }
 
     public void config() {
-        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        cfg.MotorOutput.Inverted = ShooterConstants.Flywheel.F_INVERTED_VALUE;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         cfg.MotionMagic.MotionMagicCruiseVelocity = ShooterConstants.Flywheel.MM_CRUISE_VELOCITY;
         cfg.MotionMagic.MotionMagicAcceleration = ShooterConstants.Flywheel.MM_ACCEL;
