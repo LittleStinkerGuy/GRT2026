@@ -38,6 +38,8 @@ import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.climb.ClimbCommands.*;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -93,6 +95,14 @@ public class RobotContainer {
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.cameraConfig11);
 
+    private UsbCamera camera1;
+    private UsbCamera camera2;
+    private VideoSink cameraServer;
+    private boolean isCamera1Active = true;
+
+    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+        VisionConstants.cameraConfig11);
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -102,7 +112,11 @@ public class RobotContainer {
         configureBindings();
         configureAutoChooser();
 
-        CameraServer.startAutomaticCapture(); // start driver cam
+        // switchable cameras
+        camera1 = CameraServer.startAutomaticCapture(0);
+        camera2 = CameraServer.startAutomaticCapture(1);
+        cameraServer = CameraServer.getServer();
+
         SmartDashboard.putData("Field", m_field);
     }
 
@@ -160,6 +174,17 @@ public class RobotContainer {
             // Square = toggle robot-relative mode
             driveController.square().onTrue(
                 Commands.runOnce(() -> robotRelativeMode = !robotRelativeMode));
+
+            // Create button = switch cameras
+            driveController.create().onTrue(
+                Commands.runOnce(() -> {
+                    if (isCamera1Active) {
+                        cameraServer.setSource(camera2);
+                    } else {
+                        cameraServer.setSource(camera1);
+                    }
+                    isCamera1Active = !isCamera1Active;
+                }));
 
             /* Pressing the button resets the field axes to the current robot axes. */
             driveController.bindDriverHeadingReset(

@@ -137,4 +137,8 @@ public class PS5DriveController extends BaseDriveController {
     public Trigger square() {
         return square;
     }
+
+    public Trigger create() {
+        return driveController.create();
+    }
 }
