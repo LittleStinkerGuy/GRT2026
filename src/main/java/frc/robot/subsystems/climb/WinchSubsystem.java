@@ -1,6 +1,7 @@
 package frc.robot.subsystems.climb;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Millimeters;
 import java.util.Optional;
 import com.ctre.phoenix6.CANBus;
@@ -115,7 +116,7 @@ public class WinchSubsystem extends SubsystemBase {
 
     public void setMotorDutyCycle(double dutyCycle) {
         // Stop motor if TOF sensor reads 1cm (10mm) or less
-        if (getDistance().in(Millimeters) <= 10) {
+        if (getDistance().in(Meters) <= 0.07) {
             dutyCycleControl.withOutput(0);
             motor.setControl(dutyCycleControl);
             return;
