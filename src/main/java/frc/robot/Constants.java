@@ -146,8 +146,8 @@ public final class Constants {
             public static final double KD = 0.0;
 
             // Angle limits (rotations)
-            public static final double UPPER_ANGLE_LIMIT = 0.169;
-            public static final double LOWER_ANGLE_LIMIT = 0.06;
+            public static final double UPPER_ANGLE_LIMIT = 0.1;
+            public static final double LOWER_ANGLE_LIMIT = 0;
             public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
 
             // Current limits

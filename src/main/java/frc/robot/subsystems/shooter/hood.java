@@ -46,9 +46,9 @@ public class hood extends SubsystemBase {
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
         cfg.withCurrentLimits(currLim);
         // cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
+        // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         // cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
+        // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
         cfg.Feedback.RotorToSensorRatio = ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
@@ -75,6 +75,7 @@ public class hood extends SubsystemBase {
             wantedAngle = rotationAngle;
         }
     }
+
 
     public boolean wantedAngl() {
         return Math.abs(wantedAngle - hoodMotor.getPosition().getValueAsDouble()) < ShooterConstants.Hood.ANGLE_TOLERANCE;
