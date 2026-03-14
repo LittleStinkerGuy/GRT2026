@@ -45,9 +45,9 @@ public class Robot extends LoggedRobot {
      */
     public Robot() {
         // Start logging to .wpilog file (saved to USB stick or /home/lvuser/logs/)
-        DataLogManager.start();
+        // DataLogManager.start();
         // Also log DS data (joystick inputs, mode changes, etc.)
-        DriverStation.startDataLog(DataLogManager.getLog());
+        // DriverStation.startDataLog(DataLogManager.getLog());
 
         // Instantiate our RobotContainer. This will perform all our button bindings, and put our autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
@@ -72,7 +72,7 @@ public class Robot extends LoggedRobot {
 
         switch (currentMODE) {
             case REAL:
-                Logger.addDataReceiver(new WPILOGWriter("/U/logs"));
+                // Logger.addDataReceiver(new WPILOGWriter("/U/logs"));
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
 

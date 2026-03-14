@@ -173,7 +173,6 @@ public class SwerveSubsystem extends SubsystemBase {
         // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFPGATime());
         SmartDashboard.putNumber("Steer/Current RPM", frontLeftModule.getSteerVelocityRPM());
         SmartDashboard.putNumber("Steer/Max RPM", currentCruiseVelocityRPM);
-        SmartDashboard.putBoolean("Swerve/Robot/Field Relative", robotRelativeMode);
 
         publishStats();
         logStats();
