@@ -93,8 +93,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // Boost mode flag
     private boolean boostModeEnabled = false;
 
-    private boolean robotRelativeMode = false;
-
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
         ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
@@ -137,7 +135,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         // update the poseestimator with curent gyro reading
         // Pigeon is flipped, so negate to match vision coordinate system
-        Rotation2d gyroAngle = getGyroHeading().times(-1);
+        Rotation2d gyroAngle = getGyroHeading();
         estimatedPose = poseEstimator.update(
             gyroAngle,
             getModulePositions());
@@ -195,7 +193,7 @@ public class SwerveSubsystem extends SubsystemBase {
         double limitedMaxVel = baseMaxVel * driveSpeedLimit;
         double limitedMaxOmega = baseMaxOmega * driveSpeedLimit;
 
-        Rotation2d heading = robotRelativeMode ? new Rotation2d() : getDriverHeading();
+        Rotation2d heading = getDriverHeading();
 
         ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
             xPower * limitedMaxVel,
@@ -252,14 +250,6 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public boolean isBoostModeEnabled() {
         return boostModeEnabled;
-    }
-
-    public void setRobotRelativeMode(boolean enabled) {
-        this.robotRelativeMode = enabled;
-    }
-
-    public boolean isRobotRelativeMode() {
-        return robotRelativeMode;
     }
 
     /**

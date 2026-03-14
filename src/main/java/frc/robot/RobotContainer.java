@@ -89,7 +89,6 @@ public class RobotContainer {
     private final flywheel flywheelSubsystem = new flywheel(mechCAN);
     private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
-    private boolean robotRelativeMode = false;
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
@@ -156,32 +155,12 @@ public class RobotContainer {
                     double speedLimit = 1.0 - leftTrigger;
                     swerveSubsystem.setDriveSpeedLimit(speedLimit);
 
-                    // Drive based on robot-relative toggle state
-                    if (robotRelativeMode) {
-                        swerveSubsystem.setRobotRelativeDrivePowers(
-                            driveController.getForwardPower(),
-                            driveController.getLeftPower(),
-                            driveController.getRotatePower());
-                    } else {
-                        swerveSubsystem.setDrivePowers(
-                            driveController.getForwardPower(),
-                            driveController.getLeftPower(),
-                            driveController.getRotatePower());
-                    }
+                    swerveSubsystem.setDrivePowers(
+                        driveController.getForwardPower(),
+                        driveController.getLeftPower(),
+                        driveController.getRotatePower());
                 },
                     swerveSubsystem));
-
-            // Square = toggle robot-relative mode
-            driveController.square().onTrue(
-                Commands.runOnce(() -> {
-                    robotRelativeMode = !robotRelativeMode;
-                    if (robotRelativeMode) {
-                        System.out.println("SWERVE FIELD RELATIVE MODE!!!!");
-                    } else {
-                        System.out.println("SWERVE ROBOT RELATIVE MODE!!!!");
-                    }
-                }));
-
 
             // Create button = switch cameras
             driveController.create().onTrue(
