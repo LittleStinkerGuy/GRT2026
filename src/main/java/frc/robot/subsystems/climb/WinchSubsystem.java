@@ -114,6 +114,13 @@ public class WinchSubsystem extends SubsystemBase {
     }
 
     public void setMotorDutyCycle(double dutyCycle) {
+        // Stop motor if TOF sensor reads 1cm (10mm) or less
+        if (getDistance().in(Millimeters) <= 10) {
+            dutyCycleControl.withOutput(0);
+            motor.setControl(dutyCycleControl);
+            return;
+        }
+
         dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
         dutyCycle *= ClimbConstants.WINCH_MAX_OUTPUT;
         dutyCycleControl.withOutput(dutyCycle);

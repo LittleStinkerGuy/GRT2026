@@ -120,7 +120,6 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
-    private boolean mechEnabled = false;
 
     private void configureBindings() {
         /*
@@ -171,11 +170,13 @@ public class RobotContainer {
         }
         if (Constants.MECH_ENABLED) {
             // bind semi auto commands
+            // Cross (mech) = semi auto climb down
             var crossTrigger = mechController.cross();
             crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
 
-            // Triangle (drive) = auto climb (TODO: implement)
-            driveController.triangle().onTrue(Commands.none());
+            // Triangle (mech) = semi auto climb up
+            var triangleTrigger = mechController.triangle();
+            triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
 
             // Manual control with d-pad for winch and left stick for arm
             m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
@@ -238,18 +239,15 @@ public class RobotContainer {
                 flywheelSubsystem,
                 hoodSubsystem,
                 tower,
-                HopperSubsystem
-            );
+                HopperSubsystem);
 
             // R1 starts the manual shooter sequence
             driveController.R1().onTrue(manualShooterCmd);
 
             // Joystick movement cancels it
-            Trigger joystickMoved = new Trigger(() ->
-                Math.abs(driveController.getForwardPower()) > 0.1 ||
+            Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
                 Math.abs(driveController.getLeftPower()) > 0.1 ||
-                Math.abs(driveController.getRotatePower()) > 0.1
-            );
+                Math.abs(driveController.getRotatePower()) > 0.1);
             joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
 
             // ==================== SHOOTER ====================
