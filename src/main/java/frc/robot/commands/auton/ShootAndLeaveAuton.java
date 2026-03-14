@@ -43,7 +43,7 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
 
             Commands.waitSeconds(5),
             Commands.run(() -> hopperSubsystem.setHopper(HOPPER_INTAKE.BALLIN), hopperSubsystem)
-            .alongWith(Commands.runOnce(()->towerSubsystem.setTower(TOWER_INTAKE.BALLUP)))
+            .alongWith(Commands.run(()->towerSubsystem.setTower(TOWER_INTAKE.BALLUP), towerSubsystem))
         // .withTimeout(10)
         // .andThen(new DriveBackwardsCommand(swerveSubsystem, AlignConstants.AUTON_SPEEDS)
         );
