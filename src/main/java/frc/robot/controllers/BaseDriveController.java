@@ -48,15 +48,6 @@ public abstract class BaseDriveController {
      */
     public abstract boolean getRightBumper();
 
-    /**
-     * Gets whether the driver is currently running in relative mode or not. Relative mode means moving the joystick
-     * forward will move the robot in the direction of the intake. The default driving mode is field relative, meaning
-     * forward is a direction set on the field by the driver (see resetDriverHeading)
-     *
-     * @return true if relativeMode is active, false otherwise
-     */
-    public abstract Trigger getRelativeMode();
-
     // public abstract boolean getAlignToReef();
 
     public abstract void bindDriverHeadingReset(

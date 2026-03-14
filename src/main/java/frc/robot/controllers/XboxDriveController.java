@@ -71,11 +71,6 @@ public class XboxDriveController extends BaseDriveController {
     }
 
     @Override
-    public Trigger getRelativeMode() {
-        return null;
-    }
-
-    @Override
     public void bindDriverHeadingReset(
         Runnable command, Subsystem requiredSubsystem) {
         aButton.onTrue(new InstantCommand(
