@@ -53,10 +53,10 @@ public class WinchSubsystem extends SubsystemBase {
         reverseLimitSignal = motor.getFault_ReverseSoftLimit();
         BaseStatusSignal.setUpdateFrequencyForAll(50, forwardLimitSignal, reverseLimitSignal);
 
-        homeTrigger = new Trigger(() -> isAtDistance(ClimbConstants.WINCH_HOME_DISTANCE));
-        homeTrigger.onTrue(this.runOnce(this::homeEncoder).ignoringDisable(true));
+        // homeTrigger = new Trigger(() -> isAtDistance(ClimbConstants.WINCH_HOME_DISTANCE));
+        // homeTrigger.onTrue(this.runOnce(this::homeEncoder).ignoringDisable(true));
 
-        homeEncoder();
+        // homeEncoder();
     }
 
     private void configureMotor() {
@@ -116,11 +116,11 @@ public class WinchSubsystem extends SubsystemBase {
 
     public void setMotorDutyCycle(double dutyCycle) {
         // Stop motor if TOF sensor reads 1cm (10mm) or less
-        if (getDistance().in(Meters) <= 0.07) {
-            dutyCycleControl.withOutput(0);
-            motor.setControl(dutyCycleControl);
-            return;
-        }
+        // if (getDistance().in(Meters) <= 0.07) {
+        // dutyCycleControl.withOutput(0);
+        // motor.setControl(dutyCycleControl);
+        // return;
+        // }
 
         dutyCycle = Math.max(-1.0, Math.min(dutyCycle, 1.0));
         dutyCycle *= ClimbConstants.WINCH_MAX_OUTPUT;

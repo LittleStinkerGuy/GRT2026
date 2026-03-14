@@ -41,15 +41,16 @@ public class hood extends SubsystemBase {
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs()
-            .withStatorCurrentLimit(ShooterConstants.Hood.STATOR_CURRENT_LIMIT)
+            .withStatorCurrentLimit(
+                ShooterConstants.Hood.STATOR_CURRENT_LIMIT)
             .withStatorCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE)
             .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
         cfg.withCurrentLimits(currLim);
         // cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
+        // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         // cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
+        // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
         cfg.Feedback.RotorToSensorRatio = ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
@@ -76,6 +77,7 @@ public class hood extends SubsystemBase {
             wantedAngle = rotationAngle;
         }
     }
+
 
     public boolean wantedAngl() {
         return Math.abs(wantedAngle - hoodMotor.getPosition().getValueAsDouble()) < ShooterConstants.Hood.ANGLE_TOLERANCE;

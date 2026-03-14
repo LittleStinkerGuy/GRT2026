@@ -110,6 +110,8 @@ public final class Constants {
 
         // ---- Flywheel ----
         public static class Flywheel {
+            public static final InvertedValue F_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+
             public static final int UPPER_MOTOR_ID = 17;
             public static final int SECOND_MOTOR_ID = 25;
 
@@ -144,8 +146,8 @@ public final class Constants {
             public static final double KD = 0.0;
 
             // Angle limits (rotations)
-            public static final double UPPER_ANGLE_LIMIT = 0.169;
-            public static final double LOWER_ANGLE_LIMIT = 0.06;
+            public static final double UPPER_ANGLE_LIMIT = 0.1;
+            public static final double LOWER_ANGLE_LIMIT = 0;
             public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
 
             // Current limits
@@ -425,7 +427,7 @@ public final class Constants {
         public static final double ARM_GR = 1.0;
         public static final double WINCH_GR = 70.0;
 
-        public static final double ARM_MAX_OUTPUT = 0.05;
+        public static final double ARM_MAX_OUTPUT = 0.1;
         public static final double WINCH_MAX_OUTPUT = 1;
 
         public static final Angle ARM_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
