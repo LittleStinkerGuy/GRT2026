@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTable;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -132,12 +133,14 @@ public class flywheel extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Shooter/Flywheel/FlywheelVelo:", upperMotor.getVelocity(false).getValueAsDouble());
         upperMotor.updateDashboard();
         secondMotor.updateDashboard();
         sendData();
     }
 
     public void sendData() {
+
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
             upperMotor.getPosition().getValueAsDouble());
 

@@ -108,8 +108,8 @@ public class hood extends SubsystemBase {
 
 
     public void sendData() {
-        SmartDashboard.putNumber("Shooter/hood/VelocityRPS", hoodMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter/hood/Position", hoodMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/Hood/HoodVelocity:", hoodMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/Hood/HoodAngle:", hoodMotor.getPosition().getValueAsDouble());
 
         Logger.recordOutput(LOG_PREFIX + "PositionRotations",
             hoodMotor.getPosition().getValueAsDouble());
