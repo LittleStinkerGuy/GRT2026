@@ -100,8 +100,8 @@ public class RobotContainer {
     private VideoSink cameraServer;
     private boolean isCamera1Active = true;
 
-    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-        VisionConstants.cameraConfig11);
+    // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+    // VisionConstants.cameraConfig11);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
