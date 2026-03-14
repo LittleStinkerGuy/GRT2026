@@ -40,7 +40,8 @@ public class hood extends SubsystemBase {
         cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs()
-            .withStatorCurrentLimit(ShooterConstants.Hood.STATOR_CURRENT_LIMIT)
+            .withStatorCurrentLimit(
+                ShooterConstants.Hood.STATOR_CURRENT_LIMIT)
             .withStatorCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE)
             .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
