@@ -64,11 +64,6 @@ public class PS5DriveController extends BaseDriveController {
         return R1.getAsBoolean();
     }
 
-    @Override
-    public Trigger getRelativeMode() {
-        return square;
-    }
-
     public boolean getRightTrigger() {
         return driveController.getR2Axis() > .1;
     }
