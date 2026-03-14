@@ -427,7 +427,7 @@ public final class Constants {
         public static final double ARM_GR = 1.0;
         public static final double WINCH_GR = 70.0;
 
-        public static final double ARM_MAX_OUTPUT = 0.05;
+        public static final double ARM_MAX_OUTPUT = 0.1;
         public static final double WINCH_MAX_OUTPUT = 1;
 
         public static final Angle ARM_ACCEPTABLE_POSITION_ERROR = Degrees.of(5);
