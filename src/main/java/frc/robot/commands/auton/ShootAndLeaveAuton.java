@@ -26,7 +26,7 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
     private SwerveSubsystem swerveSubsystem;
     private flywheel flySubsystem;
     private HopperSubsystem hopperSubsystem;
-    private towerRollers towerSubsystem; 
+    private towerRollers towerSubsystem;
     private hood hoodSubsystem;
 
     // Link to dimensions https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
@@ -38,12 +38,12 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
         this.towerSubsystem = towerSubsystem;
 
         addCommands(
-            new SpinFlywheelCommand(flySubsystem, 60)
+            new SpinFlywheelCommand(flySubsystem, 37)
                 .alongWith(Commands.runOnce(() -> hoodSubsystem.setHoodAngle(0), hoodSubsystem)),
 
             Commands.waitSeconds(5),
             Commands.run(() -> hopperSubsystem.setHopper(HOPPER_INTAKE.BALLIN), hopperSubsystem)
-            .alongWith(Commands.run(()->towerSubsystem.setTower(TOWER_INTAKE.BALLUP), towerSubsystem))
+                .alongWith(Commands.run(() -> towerSubsystem.setTower(TOWER_INTAKE.BALLUP), towerSubsystem))
         // .withTimeout(10)
         // .andThen(new DriveBackwardsCommand(swerveSubsystem, AlignConstants.AUTON_SPEEDS)
         );
