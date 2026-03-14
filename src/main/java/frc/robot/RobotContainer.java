@@ -268,9 +268,9 @@ public class RobotContainer {
 
             hoodSubsystem.setDefaultCommand(Commands.run(() -> {
                 if (mechController.L3().getAsBoolean()) {
-                    hoodSubsystem.hoodSpeed(0.5);
+                    hoodSubsystem.hoodSpeed(0.15);
                 } else if (mechController.R3().getAsBoolean()) {
-                    hoodSubsystem.hoodSpeed(-0.5);
+                    hoodSubsystem.hoodSpeed(-0.15);
                 } else {
                     hoodSubsystem.hoodSpeed(0);
                 }

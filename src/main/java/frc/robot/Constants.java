@@ -299,7 +299,7 @@ public final class Constants {
         // Pivot Motor
         public static final int PIVOT_MOTOR_ID = 12;
         public static final int PIVOT_CANCODER_ID = 13;
-        public static final double MANUAL_PIVOT_SPEED = 0.15;
+        public static final double MANUAL_PIVOT_SPEED = 1;
         public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 

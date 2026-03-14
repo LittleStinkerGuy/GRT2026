@@ -45,10 +45,10 @@ public class hood extends SubsystemBase {
             .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
         cfg.withCurrentLimits(currLim);
-        cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
-        cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
+        // cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
+        // cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         cfg.Feedback.RotorToSensorRatio = ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
@@ -61,7 +61,7 @@ public class hood extends SubsystemBase {
         hoodCoder.getConfigurator().apply(ccfg);
 
         // Use FusedCANcoder to preserve absolute position on boot (no re-zeroing)
-        cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         cfg.Feedback.FeedbackRemoteSensorID = ShooterConstants.Hood.ENCODER_ID;
         cfg.Feedback.SensorToMechanismRatio = 1.0; // CANcoder is 1:1 with mechanism
 
@@ -84,13 +84,15 @@ public class hood extends SubsystemBase {
         commandedDutyCycle = speed;
 
         double pos = hoodMotor.getPosition().refresh().getValueAsDouble();
-        if (pos >= ShooterConstants.Hood.UPPER_ANGLE_LIMIT && speed < 0) {
-            hoodMotor.setControl(dutyCycl.withOutput(0));
-        } else if (pos <= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && speed > 0) {
-            hoodMotor.setControl(dutyCycl.withOutput(0));
-        } else {
-            hoodMotor.setControl(dutyCycl.withOutput(speed));
-        }
+        hoodMotor.setControl(dutyCycl.withOutput(speed));
+
+        // if (pos >= ShooterConstants.Hood.UPPER_ANGLE_LIMIT && speed < 0) {
+        // hoodMotor.setControl(dutyCycl.withOutput(0));
+        // } else if (pos <= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && speed > 0) {
+        // hoodMotor.setControl(dutyCycl.withOutput(0));
+        // } else {
+        // hoodMotor.setControl(dutyCycl.withOutput(speed));
+        // }
     }
 
     public double getPos() {
