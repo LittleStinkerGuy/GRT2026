@@ -195,7 +195,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         Rotation2d heading = getDriverHeading();
 
-        ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+        ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             xPower * limitedMaxVel,
             yPower * limitedMaxVel,
             angularPower * limitedMaxOmega,
