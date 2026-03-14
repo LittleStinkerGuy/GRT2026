@@ -122,15 +122,15 @@ public class flywheel extends SubsystemBase {
     double commandedDutyCycle = 0;
 
     public void flySpeed(double speed) {
-        upperMotor.setControl(dutyCycl.withOutput(speed));
+        // upperMotor.setControl(dutyCycl.withOutput(speed));
 
-        // if (speed > 0.75) {
-        // commandedDutyCycle = 0.65;
-        // upperMotor.setControl(dutyCycl.withOutput(commandedDutyCycle));
-        // } else {
-        // commandedDutyCycle = 0.0;
-        // upperMotor.setControl(dutyCycl.withOutput(0.0));
-        // }
+        if (speed > 0.1) {
+            commandedDutyCycle = 0.4;
+            upperMotor.setControl(dutyCycl.withOutput(commandedDutyCycle));
+        } else {
+            commandedDutyCycle = 0.0;
+            upperMotor.setControl(dutyCycl.withOutput(0.0));
+        }
     }
 
     @Override
