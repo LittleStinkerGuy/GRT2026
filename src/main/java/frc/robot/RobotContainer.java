@@ -173,7 +173,15 @@ public class RobotContainer {
 
             // Square = toggle robot-relative mode
             driveController.square().onTrue(
-                Commands.runOnce(() -> robotRelativeMode = !robotRelativeMode));
+                Commands.runOnce(() -> {
+                    robotRelativeMode = !robotRelativeMode;
+                    if (robotRelativeMode) {
+                        System.out.println("SWERVE FIELD RELATIVE MODE!!!!");
+                    } else {
+                        System.out.println("SWERVE ROBOT RELATIVE MODE!!!!");
+                    }
+                }));
+
 
             // Create button = switch cameras
             driveController.create().onTrue(
