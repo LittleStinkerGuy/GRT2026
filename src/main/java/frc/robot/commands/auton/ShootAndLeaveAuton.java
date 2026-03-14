@@ -38,7 +38,7 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
         this.towerSubsystem = towerSubsystem;
 
         addCommands(
-            new SpinFlywheelCommand(flySubsystem, 60)
+            new SpinFlywheelCommand(flySubsystem, .4)
             .alongWith(
                 Commands.runOnce(() -> hoodSubsystem.setHoodAngle(0), hoodSubsystem),
                 Commands.waitSeconds(5)

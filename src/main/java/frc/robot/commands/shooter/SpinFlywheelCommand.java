@@ -5,22 +5,22 @@ import frc.robot.subsystems.shooter.flywheel;
 
 public class SpinFlywheelCommand extends Command {
     private final flywheel flySubsystem;
-    private final double rps;
+    private final double dutyCycle;
 
-    public SpinFlywheelCommand(flywheel flySubsystem, double rps) {
+    public SpinFlywheelCommand(flywheel flySubsystem, double dutyCycle) {
         this.flySubsystem = flySubsystem;
-        this.rps = rps;
+        this.dutyCycle = dutyCycle;
         addRequirements(flySubsystem); // prevents other commands from controlling flywheel
     }
 
     @Override
     public void initialize() {
-        flySubsystem.shoot(rps); // start spinning
+        flySubsystem.flySpeed(dutyCycle); // start spinning
     }
 
     @Override
     public void execute() {
-        flySubsystem.shoot(rps); // keep it running
+        flySubsystem.flySpeed(dutyCycle); // keep it running
     }
 
     @Override
