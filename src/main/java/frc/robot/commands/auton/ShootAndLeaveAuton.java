@@ -38,15 +38,15 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
         this.towerSubsystem = towerSubsystem;
 
         addCommands(
-            new SpinFlywheelCommand(flySubsystem, 37)
-                .alongWith(Commands.runOnce(() -> hoodSubsystem.setHoodAngle(0), hoodSubsystem)),
-
-            Commands.waitSeconds(5),
-            Commands.run(() -> hopperSubsystem.setHopper(HOPPER_INTAKE.BALLIN), hopperSubsystem)
-                .alongWith(Commands.run(() -> towerSubsystem.setTower(TOWER_INTAKE.BALLUP), towerSubsystem))
-        // .withTimeout(10)
-        // .andThen(new DriveBackwardsCommand(swerveSubsystem, AlignConstants.AUTON_SPEEDS)
-        );
+            new SpinFlywheelCommand(flySubsystem, 60)
+            .alongWith(
+                Commands.runOnce(() -> hoodSubsystem.setHoodAngle(0), hoodSubsystem),
+                Commands.waitSeconds(5)
+                .andThen(Commands.run(() -> hopperSubsystem.setHopper(HOPPER_INTAKE.BALLIN), hopperSubsystem)
+                .alongWith(Commands.run(()->towerSubsystem.setTower(TOWER_INTAKE.BALLUP), towerSubsystem)))
+            // .withTimeout(10)
+            // .andThen(new DriveBackwardsCommand(swerveSubsystem, AlignConstants.AUTON_SPEEDS)
+            ));
 
     }
 }
