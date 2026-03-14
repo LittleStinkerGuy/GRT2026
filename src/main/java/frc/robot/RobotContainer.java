@@ -90,7 +90,7 @@ public class RobotContainer {
     private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
     private boolean robotRelativeMode = false;
-    private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
+    // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.cameraConfig11);

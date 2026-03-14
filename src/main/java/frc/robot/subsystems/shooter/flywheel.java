@@ -138,7 +138,7 @@ public class flywheel extends SubsystemBase {
         SmartDashboard.putNumber("Shooter/Flywheel/FlywheelVelo:", upperMotor.getVelocity(false).getValueAsDouble());
         upperMotor.updateDashboard();
         secondMotor.updateDashboard();
-        sendData();
+        // sendData();
     }
 
     public void sendData() {
