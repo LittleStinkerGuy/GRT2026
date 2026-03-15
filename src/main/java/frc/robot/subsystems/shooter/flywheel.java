@@ -43,7 +43,7 @@ public class flywheel extends SubsystemBase {
     private Slot0Configs pidSlots = new Slot0Configs();
 
     private double wantedVe = 0;
-    private double targetRPS = 0;
+    private double targetRPS = SmashAndShootConstants.FLYWHEEL_RPS;
 
     private static final String LOG_PREFIX = "FlyWheel/";
 

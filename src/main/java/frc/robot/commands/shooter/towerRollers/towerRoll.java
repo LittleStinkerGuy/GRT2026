@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.towerRollers;
 import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 
 public class towerRoll extends Command {
@@ -19,7 +21,8 @@ public class towerRoll extends Command {
 
     @Override
     public void execute() {
-        t.setTower(TOWER_INTAKE.BALLUP);
+        t.setManualControl(SmashAndShootConstants.TOWER_DUTY_CYCLE);
+        // t.setTower(TOWER_INTAKE.BALLUP);
         // if (fly.wantedVel() && hd.wantedAngl()) {
         // t.setTower(TOWER_INTAKE.BALLUP);
         // } else {

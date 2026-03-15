@@ -398,7 +398,7 @@ public final class Constants {
     // ==================== SMASH AND SHOOT ====================
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
-        public static final double HOOD_POSITION = 0.14;
+        public static final double HOOD_POSITION = 0.134;
 
         // Flywheel speed (RPS)
         public static final double FLYWHEEL_RPS = 47.0;

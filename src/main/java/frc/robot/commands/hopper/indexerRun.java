@@ -1,5 +1,6 @@
 package frc.robot.commands.hopper;
 
+import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,12 +25,15 @@ public class indexerRun extends Command {
     @Override
     public void execute() {
         if (timer.hasElapsed(4.0)) {
-            hop.setHopper(HOPPER_INTAKE.BALLIN);
+            // hop.setHopper(HOPPER_INTAKE.BALLIN);
+            hop.setManualControl(SmashAndShootConstants.INDEXER_DUTY_CYCLE);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        hop.setHopper(HOPPER_INTAKE.STOP);
+        // hop.setHopper(HOPPER_INTAKE.STOP);
+        hop.setManualControl(0);
+
     }
 }
