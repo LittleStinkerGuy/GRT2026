@@ -325,6 +325,12 @@ public final class Constants {
         // Software Limits
         public static final Angle TOP_LIMIT = Rotations.of(0.25);
         public static final Angle BOTTOM_LIMIT = Rotations.of(-0.1);
+
+        // Pivot Duty Cycle
+        public static final double PIVOT_UP_DUTY_CYCLE = 0.3;
+        public static final double PIVOT_DOWN_DUTY_CYCLE = -0.3;
+        public static final double PIVOT_UP_DURATION_SECONDS = 1.0;
+        public static final double PIVOT_DOWN_DURATION_SECONDS = 1.0;
     }
 
     public static class HopperConstants {
