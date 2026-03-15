@@ -393,9 +393,10 @@ public final class Constants {
     public static class LoggingConstants {
         public static final String SWERVE_TABLE = "SwerveStats";
         public static final String SENSOR_TABLE = "Sensors";
+        public static final String thing = "hi";
     }
 
-    // ==================== SMASH AND SHOOT ====================
+    // ==================== SMASH AND SHOOT ==================== thing
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
         public static final double HOOD_POSITION = 0.134;
