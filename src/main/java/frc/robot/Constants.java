@@ -393,21 +393,22 @@ public final class Constants {
     public static class LoggingConstants {
         public static final String SWERVE_TABLE = "SwerveStats";
         public static final String SENSOR_TABLE = "Sensors";
+        public static final String thing = "hi";
     }
 
-    // ==================== SMASH AND SHOOT ====================
+    // ==================== SMASH AND SHOOT ==================== thing
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
         public static final double HOOD_POSITION = 0.134;
 
         // Flywheel speed (RPS)
-        public static final double FLYWHEEL_RPS = 47.0;
+        public static final double FLYWHEEL_RPS = 40.0;
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 0.7;
 
         // Indexer/Hopper duty cycle
-        public static final double INDEXER_DUTY_CYCLE = 0.4;
+        public static final double INDEXER_DUTY_CYCLE = 1;
     }
 
     public static class DebugConstants {
