@@ -208,9 +208,9 @@ public class RobotContainer {
             }, m_ClimbSubsystem));
 
             // ==================== INTAKE ROLLER ====================
-            // R1 (mech) = intake in, L1 (mech) = intake out (duty cycle control)
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
+            // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
             // ==================== INTAKE PIVOT ====================
@@ -222,7 +222,8 @@ public class RobotContainer {
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
                 HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
-                tower.setManualControl(0.7); // 0.7 duty cycle for tower
+                tower.setManualControl(
+                    0.7); // 0.7 duty cycle for tower
             }, HopperSubsystem, tower));
             HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
@@ -248,7 +249,7 @@ public class RobotContainer {
 
             // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
             // R1 (drive) = manual shooter sequence, any other button cancels
-            driveController.R1().toggleOnTrue(
+            mechController.square().toggleOnTrue(
                 Commands.defer(
                     () -> new ShooterSequence(
                         flywheelSubsystem,
