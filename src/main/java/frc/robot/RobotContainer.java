@@ -327,7 +327,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+        return null;
     }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
     // }

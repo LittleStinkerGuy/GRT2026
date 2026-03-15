@@ -402,13 +402,13 @@ public final class Constants {
         public static final double HOOD_POSITION = 0.134;
 
         // Flywheel speed (RPS)
-        public static final double FLYWHEEL_RPS = 47.0;
+        public static final double FLYWHEEL_RPS = 40.0;
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 0.7;
 
         // Indexer/Hopper duty cycle
-        public static final double INDEXER_DUTY_CYCLE = 0.4;
+        public static final double INDEXER_DUTY_CYCLE = 1;
     }
 
     public static class DebugConstants {
