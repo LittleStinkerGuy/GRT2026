@@ -7,9 +7,9 @@ import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 public class RollerOutCommand extends Command {
     private final RollerIntakeSubsystem rollerIntake;
 
-    public RollerOutCommand(PivotIntakeSubsystem pivotIntake) {
-        this.rollerIntake = pivotIntake;
-        addRequirements(pivotIntake);
+    public RollerOutCommand(RollerIntakeSubsystem rollerIntake) {
+        this.rollerIntake = rollerIntake;
+        addRequirements(rollerIntake);
     }
 
     @Override
