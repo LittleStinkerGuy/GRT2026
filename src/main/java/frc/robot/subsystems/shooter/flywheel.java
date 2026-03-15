@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTable;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -18,9 +19,10 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-
+import static edu.wpi.first.units.Units.Volts;
 import java.util.EnumSet;
 import java.util.function.Consumer;
 
@@ -33,6 +35,7 @@ public class flywheel extends SubsystemBase {
     private final LoggedTalon secondMotor;
     private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
+    private VoltageOut voltOut = new VoltageOut(0);
     private TalonFXConfiguration cfg = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
@@ -122,11 +125,11 @@ public class flywheel extends SubsystemBase {
     double commandedDutyCycle = 0;
 
     public void flySpeed(double speed) {
-        // upperMotor.setControl(dutyCycl.withOutput(speed));
+        // upperMotor.setControl(voltOut.withOutput(volts));
 
         if (speed > 0.1) {
-            commandedDutyCycle = 0.6;
-            upperMotor.setControl(dutyCycl.withOutput(commandedDutyCycle));
+            // commandedDutyCycle = 0.6;
+            upperMotor.setControl(voltOut.withOutput(Volts.of(7.4)));
         } else {
             commandedDutyCycle = 0.0;
             upperMotor.setControl(dutyCycl.withOutput(0.0));
