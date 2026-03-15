@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SmashAndShootConstants;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTable;
 
@@ -17,7 +18,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -33,7 +33,7 @@ public class flywheel extends SubsystemBase {
 
     private final LoggedTalon upperMotor;
     private final LoggedTalon secondMotor;
-    private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
+    private VelocityVoltage spinner = new VelocityVoltage(0).withEnableFOC(true);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
     private VoltageOut voltOut = new VoltageOut(0);
     private TalonFXConfiguration cfg = new TalonFXConfiguration();
@@ -126,11 +126,11 @@ public class flywheel extends SubsystemBase {
 
     public void flySpeed(double speed) {
         if (speed > 0.1) {
-            // commandedDutyCycle = 0.6;
-            upperMotor.setControl(voltOut.withOutput(Volts.of(6.0)));
+            wantedVe = SmashAndShootConstants.FLYWHEEL_RPS;
+            upperMotor.setControl(spinner.withVelocity(SmashAndShootConstants.FLYWHEEL_RPS));
         } else {
-            commandedDutyCycle = 0.0;
-            upperMotor.setControl(dutyCycl.withOutput(0.0));
+            wantedVe = 0;
+            upperMotor.setControl(spinner.withVelocity(0));
         }
     }
 

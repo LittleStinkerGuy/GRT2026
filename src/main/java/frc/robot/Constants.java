@@ -131,6 +131,7 @@ public final class Constants {
 
             // Velocity tolerance for "at speed" check (RPS)
             public static final double VELOCITY_TOLERANCE_RPS = 2.0;
+
         }
 
         // ---- Hood ----
@@ -397,10 +398,10 @@ public final class Constants {
     // ==================== SMASH AND SHOOT ====================
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
-        public static final double HOOD_POSITION = 0.12;
+        public static final double HOOD_POSITION = 0.14;
 
         // Flywheel speed (RPS)
-        public static final double FLYWHEEL_RPS = 50.0;
+        public static final double FLYWHEEL_RPS = 47.0;
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 0.7;
