@@ -34,6 +34,20 @@ public final class VisionConstants {
         new Transform3d(
             0.28, 0, 0,
             new Rotation3d(0, -Math.toRadians(5), 0)));
+
+    // intake
+    public static final CameraConfig cameraConfig100 = new CameraConfig(
+        "7",
+        new Transform3d(
+            0, 0, 0.5334,
+            new Rotation3d(-Math.toRadians(50), 0, 0)));
+
+    // hopper
+    public static final CameraConfig cameraConfig101 = new CameraConfig(
+        "7",
+        new Transform3d(
+            0.28, 0, 0,
+            new Rotation3d(0, -Math.toRadians(5), 0)));
     public static final CameraConfig cameraConfig12 = new CameraConfig(
         "12",
         new Transform3d(
@@ -63,10 +77,10 @@ public final class VisionConstants {
 
     public static final FuelDetectionConfig fuelDetectionConfig =
         new FuelDetectionSubsystem.FuelDetectionConfig(
-            cameraConfig7.getCameraName(),
-            Meters.of(cameraConfig7.getCameraPose().getZ()),
+            cameraConfig100.getCameraName(),
+            Meters.of(cameraConfig100.getCameraPose().getZ()),
             FUEL_TARGET_HEIGHT,
-            Radians.of(cameraConfig7.getCameraPose().getRotation().getY()),
+            Radians.of(cameraConfig100.getCameraPose().getRotation().getY()),
             FUEL_PIPELINE_INDEX);
 
     public static final int FUEL_SMOOTHING_WINDOW_SIZE = 5;

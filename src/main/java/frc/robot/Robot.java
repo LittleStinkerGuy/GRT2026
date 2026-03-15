@@ -27,7 +27,6 @@ import org.littletonrobotics.junction.LoggedRobot;
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
-    @SuppressWarnings("unused")
     private final RobotContainer m_robotContainer;
 
     public enum MODE {
@@ -137,6 +136,9 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        // Reset driver heading with 90 degree offset at teleop start
+        m_robotContainer.onTeleopInit();
     }
 
     /** This function is called periodically during operator control. */

@@ -334,6 +334,15 @@ public class RobotContainer {
         // return new PathPlannerAuto("auton1");
         return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
     }
+
+    /**
+     * Called when teleop starts to reset driver heading with 90 degree offset.
+     */
+    public void onTeleopInit() {
+        if (swerveSubsystem != null) {
+            swerveSubsystem.resetDriverHeadingOffset90();
+        }
+    }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
     // }
 
