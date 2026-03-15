@@ -33,7 +33,8 @@ import frc.robot.commands.ManualShooterSequence;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import com.ctre.phoenix6.CANBus;
-
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
@@ -91,6 +92,7 @@ public class RobotContainer {
     private final flywheel flywheelSubsystem = new flywheel(mechCAN);
     private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
+
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
@@ -119,6 +121,8 @@ public class RobotContainer {
         cameraServer = CameraServer.getServer();
 
         SmartDashboard.putData("Field", m_field);
+        NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
+        NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
     }
 
     /**
@@ -327,7 +331,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+        return new PathPlannerAuto("auton1");
+        // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
     }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
     // }

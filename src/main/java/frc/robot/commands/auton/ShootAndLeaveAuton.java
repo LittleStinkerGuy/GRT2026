@@ -38,14 +38,13 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
 
     // Link to dimensions https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
     public ShootAndLeaveAuton(
-            SwerveSubsystem swerveSubsystem, 
-            flywheel flySubsystem, 
-            hood hoodSubsystem, 
-            HopperSubsystem hopperSubsystem, 
-            towerRollers towerSubsystem, 
-            PivotIntakeSubsystem pivotIntakeSubsystem, 
-            RollerIntakeSubsystem rollerSubsystem) 
-    {
+        SwerveSubsystem swerveSubsystem,
+        flywheel flySubsystem,
+        hood hoodSubsystem,
+        HopperSubsystem hopperSubsystem,
+        towerRollers towerSubsystem,
+        PivotIntakeSubsystem pivotIntakeSubsystem,
+        RollerIntakeSubsystem rollerSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         this.flySubsystem = flySubsystem;
         this.hoodSubsystem = hoodSubsystem;
