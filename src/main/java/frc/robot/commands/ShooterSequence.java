@@ -27,7 +27,8 @@ public class ShooterSequence extends ParallelCommandGroup {
         hood hood,
         towerRollers tower,
         HopperSubsystem hopperSubsystem,
-        PivotIntakeSubsystem pivotIntake) {
+        PivotIntakeSubsystem pivotIntake,
+        RollerIntakeSubsystem rollerIntake) {
 
         // All run simultaneously:
         // - Swerve aims at target while allowing driver input
@@ -37,7 +38,7 @@ public class ShooterSequence extends ParallelCommandGroup {
         // - Indexer feeds balls only when flywheel is at speed
         addCommands(
             new rampFlywheel(fly), // ramp flywheel
-            new RollerOutCommand(pivotIntake), // rollers out
+            new RollerOutCommand(rollerIntake), // rollers out
             new hoodCommand(hood), // set hood angle
             new towerRoll(tower), // set tower rollers
             new indexerRun(hopperSubsystem));// runs after x seconds tuned in indexerRun

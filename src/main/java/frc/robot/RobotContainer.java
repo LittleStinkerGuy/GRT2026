@@ -38,6 +38,7 @@ import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.climb.ClimbCommands.*;
+import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
@@ -255,23 +256,18 @@ public class RobotContainer {
                         hoodSubsystem,
                         tower,
                         HopperSubsystem,
-                        pivotIntake
-
-                    ),
+                        pivotIntake,
+                        intakeSubsystem),
                     java.util.Set.of(
                         flywheelSubsystem,
                         hoodSubsystem,
                         HopperSubsystem,
                         tower,
-                        pivotIntake)));
+                        pivotIntake,
+                        intakeSubsystem)));
 
             driveController.R1().toggleOnFalse(
                 new rampDownFlywheel(flywheelSubsystem));
-            // Joystick movement cancels it
-            Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
-                Math.abs(driveController.getLeftPower()) > 0.1 ||
-                Math.abs(driveController.getRotatePower()) > 0.1);
-            joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
 
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
