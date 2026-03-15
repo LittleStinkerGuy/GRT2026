@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTable;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +19,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -33,13 +35,14 @@ public class flywheel extends SubsystemBase {
 
     private final LoggedTalon upperMotor;
     private final LoggedTalon secondMotor;
-    private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
+    private VelocityTorqueCurrentFOC spinner = new VelocityTorqueCurrentFOC(0);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
     private VoltageOut voltOut = new VoltageOut(0);
     private TalonFXConfiguration cfg = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
     private double wantedVe = 0;
+    private double targetRPS = 0;
 
     private static final String LOG_PREFIX = "FlyWheel/";
 
@@ -47,6 +50,7 @@ public class flywheel extends SubsystemBase {
         NTtable.getEntry(valueName).setDouble(defaultVal);
         NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
             configSetter.accept(event.valueData.value.getDouble());
+
 
             cfg.withSlot0(pidSlots);
             upperMotor.getConfigurator().apply(cfg);
@@ -64,7 +68,7 @@ public class flywheel extends SubsystemBase {
         yoTuneThis("Pids/S", val -> pidSlots.withKS(val), ShooterConstants.Flywheel.KS);
         yoTuneThis("Pids/V", val -> pidSlots.withKV(val), ShooterConstants.Flywheel.KV);
         yoTuneThis("setDutyCyclePercent", val -> upperMotor.setControl(new DutyCycleOut(val)), 0);
-        yoTuneThis("setMMVTCF", val -> upperMotor.setControl(new VelocityVoltage(val)), 0);
+        yoTuneThis("setMMVTCF", val -> targetRPS = val, 0);
 
         yoTuneThis("MMAccel", val -> cfg.MotionMagic.MotionMagicAcceleration = val, ShooterConstants.Flywheel.MM_ACCEL);
         yoTuneThis("MMJerk", val -> cfg.MotionMagic.MotionMagicJerk = val, ShooterConstants.Flywheel.MM_JERK);
@@ -77,7 +81,6 @@ public class flywheel extends SubsystemBase {
     public flywheel(CANBus cn) {
         upperMotor = new LoggedTalon(ShooterConstants.Flywheel.UPPER_MOTOR_ID, cn);
         secondMotor = new LoggedTalon(ShooterConstants.Flywheel.SECOND_MOTOR_ID, cn);
-
         config();
         configThruNT();
     }
@@ -105,8 +108,8 @@ public class flywheel extends SubsystemBase {
     }
 
     public void shoot(double rps) {
-        wantedVe = rps;
-        upperMotor.setControl(spinner.withVelocity(rps));
+        // wantedVe = rps;
+        upperMotor.setControl(spinner.withVelocity(targetRPS));
     }
 
     public double getRPS() {
@@ -127,7 +130,7 @@ public class flywheel extends SubsystemBase {
     public void flySpeed(double speed) {
         if (speed > 0.1) {
             // commandedDutyCycle = 0.6;
-            upperMotor.setControl(voltOut.withOutput(Volts.of(6.0)));
+            upperMotor.setControl(spinner.withVelocity(targetRPS));
         } else {
             commandedDutyCycle = 0.0;
             upperMotor.setControl(dutyCycl.withOutput(0.0));

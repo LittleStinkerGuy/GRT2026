@@ -265,13 +265,11 @@ public class RobotContainer {
                         tower,
                         pivotIntake)));
 
-            driveController.R1().toggleOnFalse(
-                new rampDownFlywheel(flywheelSubsystem));
             // Joystick movement cancels it
-            Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
-                Math.abs(driveController.getLeftPower()) > 0.1 ||
-                Math.abs(driveController.getRotatePower()) > 0.1);
-            joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
+            // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
+            // Math.abs(driveController.getLeftPower()) > 0.1 ||
+            // Math.abs(driveController.getRotatePower()) > 0.1);
+            // joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
 
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
