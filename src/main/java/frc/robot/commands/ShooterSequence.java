@@ -27,7 +27,8 @@ public class ShooterSequence extends ParallelCommandGroup {
         hood hood,
         towerRollers tower,
         HopperSubsystem hopperSubsystem,
-        PivotIntakeSubsystem pivotIntake) {
+        PivotIntakeSubsystem pivotIntake,
+        RollerIntakeSubsystem rollerIntake) {
 
         // All run simultaneously:
         // - Swerve aims at target while allowing driver input

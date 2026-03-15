@@ -6,20 +6,28 @@ import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 
 public class RollerOutCommand extends Command {
     private final RollerIntakeSubsystem rollerIntake;
+    private double aggnumber;
 
     public RollerOutCommand(RollerIntakeSubsystem rollerIntake) {
         this.rollerIntake = rollerIntake;
+        this.aggnumber = -1;
+        addRequirements(rollerIntake);
+    }
+
+    public RollerOutCommand(RollerIntakeSubsystem rollerIntake, double aggnumber) {
+        this.rollerIntake = rollerIntake;
+        this.aggnumber = aggnumber;
         addRequirements(rollerIntake);
     }
 
     @Override
     public void initialize() {
-        rollerIntake.runOut();
+        rollerIntake.setDutyCycle(aggnumber);
     }
 
     @Override
     public void execute() {
-        rollerIntake.runOut();
+        rollerIntake.setDutyCycle(aggnumber);
     }
 
     @Override

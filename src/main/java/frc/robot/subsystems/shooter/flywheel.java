@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SmashAndShootConstants;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTable;
 
@@ -132,8 +133,8 @@ public class flywheel extends SubsystemBase {
             // commandedDutyCycle = 0.6;
             upperMotor.setControl(spinner.withVelocity(targetRPS));
         } else {
-            commandedDutyCycle = 0.0;
-            upperMotor.setControl(dutyCycl.withOutput(0.0));
+            wantedVe = 0;
+            upperMotor.setControl(spinner.withVelocity(0));
         }
     }
 

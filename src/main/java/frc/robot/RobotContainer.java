@@ -38,6 +38,7 @@ import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.climb.ClimbCommands.*;
+import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSink;
@@ -213,10 +214,9 @@ public class RobotContainer {
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
             // ==================== INTAKE PIVOT ====================
-            // D-pad left = pivot out (manual), D-pad right = pivot in (manual)
-            // whileTrue runs while held, default command stops when released
-            mechController.povLeft().whileTrue(Commands.run(() -> pivotIntake.setManualSpeed(Constants.IntakeConstants.MANUAL_PIVOT_SPEED), pivotIntake));
-            mechController.povRight().whileTrue(Commands.run(() -> pivotIntake.setManualSpeed(-Constants.IntakeConstants.MANUAL_PIVOT_SPEED), pivotIntake));
+            // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
+            mechController.povLeft().onTrue(new PivotDownTimedCommand(pivotIntake));
+            mechController.povRight().onTrue(new PivotUpTimedCommand(pivotIntake));
             pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
@@ -255,15 +255,15 @@ public class RobotContainer {
                         hoodSubsystem,
                         tower,
                         HopperSubsystem,
-                        pivotIntake
-
-                    ),
+                        pivotIntake,
+                        intakeSubsystem),
                     java.util.Set.of(
                         flywheelSubsystem,
                         hoodSubsystem,
                         HopperSubsystem,
                         tower,
-                        pivotIntake)));
+                        pivotIntake,
+                        intakeSubsystem)));
 
             // Joystick movement cancels it
             // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
