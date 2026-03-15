@@ -330,8 +330,8 @@ public final class Constants {
         // Pivot Duty Cycle
         public static final double PIVOT_UP_DUTY_CYCLE = 0.3;
         public static final double PIVOT_DOWN_DUTY_CYCLE = -0.3;
-        public static final double PIVOT_UP_DURATION_SECONDS = 1.0;
-        public static final double PIVOT_DOWN_DURATION_SECONDS = 1.0;
+        public static final double PIVOT_UP_DURATION_SECONDS = 2.0;
+        public static final double PIVOT_DOWN_DURATION_SECONDS = 2.0;
     }
 
     public static class HopperConstants {
