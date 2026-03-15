@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -12,6 +13,8 @@ public class PDHSubsystem extends SubsystemBase {
 
     public PDHSubsystem() {
         pdh = new PowerDistribution(1, ModuleType.kRev);
+
+        SmartDashboard.setDefaultBoolean(LOG_PREFIX + "BrownOut", false);
     }
 
     @Override
@@ -37,6 +40,8 @@ public class PDHSubsystem extends SubsystemBase {
 
         Logger.recordOutput(LOG_PREFIX + "SwitchableChannelEnabled",
             pdh.getSwitchableChannel());
+
+        SmartDashboard.putBoolean(LOG_PREFIX + "BrownOut", pdh.getStickyFaults().Brownout);
 
         // Per-channel current logging
         for (int i = 0; i < 24; i++) {
