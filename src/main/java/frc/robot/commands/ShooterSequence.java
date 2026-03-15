@@ -38,7 +38,7 @@ public class ShooterSequence extends ParallelCommandGroup {
         // - Indexer feeds balls only when flywheel is at speed
         addCommands(
             new rampFlywheel(fly), // ramp flywheel
-            new RollerOutCommand(rollerIntake), // rollers out
+            new RollerOutCommand(rollerIntake, -0.5), // rollers out at half speed
             new hoodCommand(hood), // set hood angle
             new towerRoll(tower), // set tower rollers
             new indexerRun(hopperSubsystem));// runs after x seconds tuned in indexerRun
