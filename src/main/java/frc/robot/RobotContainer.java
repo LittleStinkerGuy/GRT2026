@@ -256,14 +256,12 @@ public class RobotContainer {
                         hoodSubsystem,
                         tower,
                         HopperSubsystem,
-                        pivotIntake,
                         intakeSubsystem),
                     java.util.Set.of(
                         flywheelSubsystem,
                         hoodSubsystem,
                         HopperSubsystem,
                         tower,
-                        pivotIntake,
                         intakeSubsystem)));
 
             // Joystick movement cancels it
