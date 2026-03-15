@@ -5,6 +5,7 @@ import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.subsystems.shooter.Intertable;
+import frc.robot.Constants.SmashAndShootConstants;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -28,8 +29,7 @@ public class rampFlywheel extends Command {
 
     @Override
     public void execute() {
-        double RPS = 0;
-        fly.shoot(RPS);
+        fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
     }
 
     @Override
