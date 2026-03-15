@@ -131,6 +131,9 @@ public final class Constants {
 
             // Velocity tolerance for "at speed" check (RPS)
             public static final double VELOCITY_TOLERANCE_RPS = 2.0;
+
+            // Target velocity for manual flywheel button (RPS)
+            public static final double TARGET_RPS = 50.0;
         }
 
         // ---- Hood ----
