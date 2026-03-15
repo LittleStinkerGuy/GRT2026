@@ -30,6 +30,7 @@ import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.commands.ManualShooterSequence;
+import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import com.ctre.phoenix6.CANBus;
 
@@ -247,15 +248,25 @@ public class RobotContainer {
 
             // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
             // R1 (drive) = manual shooter sequence, any other button cancels
-            Command manualShooterCmd = new ManualShooterSequence(
-                flywheelSubsystem,
-                hoodSubsystem,
-                tower,
-                HopperSubsystem);
+            driveController.R1().toggleOnTrue(
+                Commands.defer(
+                    () -> new ShooterSequence(
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        tower,
+                        HopperSubsystem,
+                        pivotIntake
 
-            // R1 starts the manual shooter sequence
-            driveController.R1().onTrue(manualShooterCmd);
+                    ),
+                    java.util.Set.of(
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        tower,
+                        pivotIntake)));
 
+            driveController.R1().toggleOnFalse(
+                new rampDownFlywheel(flywheelSubsystem));
             // Joystick movement cancels it
             Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
                 Math.abs(driveController.getLeftPower()) > 0.1 ||

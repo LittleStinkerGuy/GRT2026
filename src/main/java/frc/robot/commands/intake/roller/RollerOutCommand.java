@@ -1,14 +1,15 @@
 package frc.robot.commands.intake.roller;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 
 public class RollerOutCommand extends Command {
     private final RollerIntakeSubsystem rollerIntake;
 
-    public RollerOutCommand(RollerIntakeSubsystem rollerIntake) {
-        this.rollerIntake = rollerIntake;
-        addRequirements(rollerIntake);
+    public RollerOutCommand(PivotIntakeSubsystem pivotIntake) {
+        this.rollerIntake = pivotIntake;
+        addRequirements(pivotIntake);
     }
 
     @Override

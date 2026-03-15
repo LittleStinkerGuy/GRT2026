@@ -9,23 +9,22 @@ import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 public class towerRoll extends Command {
 
     private final towerRollers t;
-    private final flywheel fly;
-    private final hood hd;
 
-    public towerRoll(towerRollers b, flywheel fly, hood hd) {
+
+    public towerRoll(towerRollers b) {
         this.t = b;
-        this.fly = fly;
-        this.hd = hd;
+
         addRequirements(t);
     }
 
     @Override
     public void execute() {
-        if (fly.wantedVel() && hd.wantedAngl()) {
-            t.setTower(TOWER_INTAKE.BALLUP);
-        } else {
-            t.setTower(TOWER_INTAKE.STOP);
-        }
+        t.setTower(TOWER_INTAKE.BALLUP);
+        // if (fly.wantedVel() && hd.wantedAngl()) {
+        // t.setTower(TOWER_INTAKE.BALLUP);
+        // } else {
+        // t.setTower(TOWER_INTAKE.STOP);
+        // }
     }
 
     @Override

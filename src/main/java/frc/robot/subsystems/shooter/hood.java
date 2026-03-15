@@ -71,11 +71,11 @@ public class hood extends SubsystemBase {
     }
 
     public void setHoodAngle(double rotationAngle) {
-        if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
-            hoodMotor.setControl(focThing.withPosition(rotationAngle));
-            System.out.println("HoodControl" + rotationAngle);
-            wantedAngle = rotationAngle;
-        }
+        // if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
+        hoodMotor.setControl(focThing.withPosition(rotationAngle));
+        System.out.println("HoodControl" + rotationAngle);
+        wantedAngle = rotationAngle;
+        // }
     }
 
 
