@@ -216,6 +216,8 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
         SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
         SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
+
+        SmartDashboard.setDefaultBoolean("imu/brownOut", false);
     }
 
     private void updateAccelValues() {
@@ -541,6 +543,8 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     private void publishStats() {
         estimatedPosePublisher.set(estimatedPose);
+
+        SmartDashboard.putBoolean("imu/brownOut", pidgey.getStickyFault_Undervoltage().getValue());
 
         if (STATE_DEBUG || DRIVE_DEBUG || STEER_DEBUG) {
             swerveStatesPublisher.set(getModuleStates());
