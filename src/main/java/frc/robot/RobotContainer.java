@@ -33,7 +33,8 @@ import frc.robot.commands.ManualShooterSequence;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import com.ctre.phoenix6.CANBus;
-
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
@@ -91,6 +92,7 @@ public class RobotContainer {
     private final flywheel flywheelSubsystem = new flywheel(mechCAN);
     private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
+
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
@@ -119,6 +121,8 @@ public class RobotContainer {
         cameraServer = CameraServer.getServer();
 
         SmartDashboard.putData("Field", m_field);
+        NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
+        NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
     }
 
     /**
@@ -208,9 +212,9 @@ public class RobotContainer {
             }, m_ClimbSubsystem));
 
             // ==================== INTAKE ROLLER ====================
-            // R1 (mech) = intake in, L1 (mech) = intake out (duty cycle control)
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
+            // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
             // ==================== INTAKE PIVOT ====================
@@ -222,7 +226,8 @@ public class RobotContainer {
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
                 HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
-                tower.setManualControl(0.7); // 0.7 duty cycle for tower
+                tower.setManualControl(
+                    0.7); // 0.7 duty cycle for tower
             }, HopperSubsystem, tower));
             HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
@@ -248,25 +253,26 @@ public class RobotContainer {
 
             // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
             // R1 (drive) = manual shooter sequence, any other button cancels
-            driveController.R1().toggleOnTrue(
+            mechController.square().toggleOnTrue(
                 Commands.defer(
                     () -> new ShooterSequence(
                         flywheelSubsystem,
                         hoodSubsystem,
                         tower,
                         HopperSubsystem,
-                        pivotIntake,
                         intakeSubsystem),
                     java.util.Set.of(
                         flywheelSubsystem,
                         hoodSubsystem,
                         HopperSubsystem,
                         tower,
-                        pivotIntake,
                         intakeSubsystem)));
 
-            driveController.R1().toggleOnFalse(
-                new rampDownFlywheel(flywheelSubsystem));
+            // Joystick movement cancels it
+            // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
+            // Math.abs(driveController.getLeftPower()) > 0.1 ||
+            // Math.abs(driveController.getRotatePower()) > 0.1);
+            // joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
 
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
@@ -325,7 +331,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return null;
+        return new PathPlannerAuto("auton1");
+        // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
     }
 
     /**

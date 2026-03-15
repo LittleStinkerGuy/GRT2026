@@ -23,6 +23,9 @@
       "open": true
     },
     "tuneFlywheel": {
+      "Pids": {
+        "open": true
+      },
       "open": true
     }
   }

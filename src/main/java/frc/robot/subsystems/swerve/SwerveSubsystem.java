@@ -113,9 +113,10 @@ public class SwerveSubsystem extends SubsystemBase {
             getModulePositions(),
             new Pose2d());
 
-        // buildAuton();
+        buildAuton();
         initNT();
         initLogs();
+
 
         if (DRIVE_DEBUG) {
             enableDriveDebug();

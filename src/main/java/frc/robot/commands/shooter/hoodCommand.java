@@ -1,6 +1,7 @@
 package frc.robot.commands.shooter;
 
 import frc.robot.Constants.AlignConstants;
+import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.FMS.FieldManagementSubsystem;
 import frc.robot.subsystems.shooter.Intertable;
 import frc.robot.subsystems.shooter.hood;
@@ -24,7 +25,7 @@ public class hoodCommand extends Command {
 
     @Override
     public void execute() {
-        double ang = 0.15;
+        double ang = SmashAndShootConstants.HOOD_POSITION;
 
 
         hd.setHoodAngle(ang);
