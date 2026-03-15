@@ -319,8 +319,10 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower);
+        return null;
     }
+    // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
+    // }
 
     // vision shit
     public void visionStuff() {

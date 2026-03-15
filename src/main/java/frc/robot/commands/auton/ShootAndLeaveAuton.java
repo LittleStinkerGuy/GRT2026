@@ -43,7 +43,7 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
 
         addCommands(
             new PivotOutCommand(pivotIntakeSubsystem),
-            new SpinFlywheelCommand(flySubsystem, .4)
+            new SpinFlywheelCommand(flySubsystem, .36)
                 .alongWith(
                     Commands.runOnce(() -> hoodSubsystem.setHoodAngle(0), hoodSubsystem),
                     Commands.waitSeconds(5)

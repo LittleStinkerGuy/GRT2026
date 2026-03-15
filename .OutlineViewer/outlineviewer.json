@@ -21,6 +21,9 @@
         "open": true
       },
       "open": true
+    },
+    "tuneFlywheel": {
+      "open": true
     }
   }
 }
