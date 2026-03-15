@@ -24,7 +24,7 @@ public class indexerRun extends Command {
 
     @Override
     public void execute() {
-        if (timer.hasElapsed(4.0)) {
+        if (timer.hasElapsed(1)) {
             // hop.setHopper(HOPPER_INTAKE.BALLIN);
             hop.setManualControl(SmashAndShootConstants.INDEXER_DUTY_CYCLE);
         }

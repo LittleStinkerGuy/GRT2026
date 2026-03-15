@@ -118,14 +118,14 @@ public final class Constants {
             public static final double GEAR_RATIO = 1.0;
 
             // Velocity control PID
-            public static final double KP = 0.5;
+            public static final double KP = 10;
             public static final double KI = 0.0;
             public static final double KD = 0.0;
             public static final double KS = 0.0;
             public static final double KV = 0.12;
 
             // Motion Magic
-            public static final double MM_ACCEL = 30.0;
+            public static final double MM_ACCEL = 100;
             public static final double MM_JERK = 150.0;
             public static final double MM_CRUISE_VELOCITY = 500.0;
 
@@ -330,8 +330,8 @@ public final class Constants {
         // Pivot Duty Cycle
         public static final double PIVOT_UP_DUTY_CYCLE = 0.3;
         public static final double PIVOT_DOWN_DUTY_CYCLE = -0.3;
-        public static final double PIVOT_UP_DURATION_SECONDS = 2.0;
-        public static final double PIVOT_DOWN_DURATION_SECONDS = 2.0;
+        public static final double PIVOT_UP_DURATION_SECONDS = 1.5;
+        public static final double PIVOT_DOWN_DURATION_SECONDS = 1.5;
     }
 
     public static class HopperConstants {
@@ -407,7 +407,7 @@ public final class Constants {
         public static final double TOWER_DUTY_CYCLE = 0.7;
 
         // Indexer/Hopper duty cycle
-        public static final double INDEXER_DUTY_CYCLE = 1.0;
+        public static final double INDEXER_DUTY_CYCLE = 0.4;
     }
 
     public static class DebugConstants {
