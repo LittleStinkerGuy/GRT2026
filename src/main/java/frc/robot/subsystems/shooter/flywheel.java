@@ -33,7 +33,6 @@ public class flywheel extends SubsystemBase {
     private final LoggedTalon secondMotor;
     private MotionMagicVelocityVoltage spinner = new MotionMagicVelocityVoltage(0);
     private DutyCycleOut dutyCycl = new DutyCycleOut(0);
-    private VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(false);
     private TalonFXConfiguration cfg = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
@@ -123,10 +122,14 @@ public class flywheel extends SubsystemBase {
     double commandedDutyCycle = 0;
 
     public void flySpeed(double speed) {
+        // upperMotor.setControl(dutyCycl.withOutput(speed));
+
         if (speed > 0.1) {
-            upperMotor.setControl(velocityControl.withVelocity(ShooterConstants.Flywheel.TARGET_RPS));
+            commandedDutyCycle = 0.6;
+            upperMotor.setControl(dutyCycl.withOutput(commandedDutyCycle));
         } else {
-            upperMotor.setControl(velocityControl.withVelocity(0));
+            commandedDutyCycle = 0.0;
+            upperMotor.setControl(dutyCycl.withOutput(0.0));
         }
     }
 
