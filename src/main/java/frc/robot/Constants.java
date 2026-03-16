@@ -167,8 +167,8 @@ public final class Constants {
         public static final double DRIVE_RAMP_RATE = 0.0;
 
         // Current Limits (optimized for Kraken motors)
-        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 60; // Prevents brownouts
-        public static final double DRIVE_STATOR_CURRENT_LIMIT = 100; // Allows burst torque for acceleration
+        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 70; // Prevents brownouts
+        public static final double DRIVE_STATOR_CURRENT_LIMIT = 130; // Allows burst torque for acceleration
         public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
         // Physical Measurements
@@ -177,8 +177,8 @@ public final class Constants {
         public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
 
         // MotionMagic parameters for drive motors
-        public static final double DRIVE_MAX_VELOCITY_RPS = 80.0; // Max velocity in rotations per second
-        public static final double DRIVE_MAX_ACCELERATION = 160.0; // Max acceleration in rotations per second^2
+        public static final double DRIVE_MAX_VELOCITY_RPS = 90.0; // Max velocity in rotations per second
+        public static final double DRIVE_MAX_ACCELERATION = 170.0; // Max acceleration in rotations per second^2
     }
 
     public static class SwerveSteerConstants {
@@ -187,7 +187,7 @@ public final class Constants {
         public static final double STEER_RAMP_RATE = 0;
 
         // Current Limits (optimized for Kraken motors - steer needs less current)
-        public static final double STEER_SUPPLY_CURRENT_LIMIT = 25; // Prevents brownouts
+        public static final double STEER_SUPPLY_CURRENT_LIMIT = 30; // Prevents brownouts
         public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
         public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
 
@@ -261,10 +261,10 @@ public final class Constants {
         public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
 
         // Chassis Acceleration Limits (m/s^2)
-        public static final double MAX_LINEAR_ACCELERATION = 3.0; // meters per second squared
+        public static final double MAX_LINEAR_ACCELERATION = 4; // meters per second squared
         public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
-        public static final double MAX_ANGULAR_ACCELERATION = 2.0; // radians per second squared
-        public static final double MAX_ANGULAR_DECELERATION = 12.0; // radians per second squared
+        public static final double MAX_ANGULAR_ACCELERATION = 3; // radians per second squared
+        public static final double MAX_ANGULAR_DECELERATION = 13.0; // radians per second squared
 
         // Boost Mode Constants (L1 held)
         public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
