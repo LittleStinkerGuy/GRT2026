@@ -82,15 +82,15 @@ public class RobotContainer {
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
-    private towerRollers tower = new towerRollers(mechCAN);
+    // private towerRollers tower = new towerRollers(mechCAN);
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
     private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
-    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
+    // private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
-    private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
-    private final hood hoodSubsystem = new hood(mechCAN);
+    // private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
+    // private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+    // private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
 
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
@@ -190,26 +190,26 @@ public class RobotContainer {
             // bind semi auto commands
             // Cross (mech) = semi auto climb down
             var crossTrigger = mechController.cross();
-            crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
+            // crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
 
             // Triangle (mech) = semi auto climb up
             var triangleTrigger = mechController.triangle();
-            triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
+            // triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
 
             // Manual control with d-pad for winch and left stick for arm
-            m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-                var armDutyCycle = mechController.getLeftY();
-                double winchDutyCycle = 0;
+            // m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
+            // var armDutyCycle = mechController.getLeftY();
+            // double winchDutyCycle = 0;
 
-                if (mechController.povUp().getAsBoolean()) {
-                    winchDutyCycle--;
-                }
-                if (mechController.povDown().getAsBoolean()) {
-                    winchDutyCycle++;
-                }
-                m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-                m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-            }, m_ClimbSubsystem));
+            // if (mechController.povUp().getAsBoolean()) {
+            // winchDutyCycle--;
+            // }
+            // if (mechController.povDown().getAsBoolean()) {
+            // winchDutyCycle++;
+            // }
+            // m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
+            // m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
+            // }, m_ClimbSubsystem));
 
             // ==================== INTAKE ROLLER ====================
             // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
@@ -224,12 +224,12 @@ public class RobotContainer {
             pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
-            mechController.L2().whileTrue(Commands.run(() -> {
-                HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
-                tower.setManualControl(
-                    0.7); // 0.7 duty cycle for tower
-            }, HopperSubsystem, tower));
-            HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
+            // mechController.L2().whileTrue(Commands.run(() -> {
+            // HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
+            // tower.setManualControl(
+            // 0.7); // 0.7 duty cycle for tower
+            // }, HopperSubsystem, tower));
+            // HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
             // R2 (drive) = force intake in (pivot up + stop rollers) - hold to override
             new Trigger(driveController::getRightTrigger)
@@ -253,20 +253,20 @@ public class RobotContainer {
 
             // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
             // R1 (drive) = manual shooter sequence, any other button cancels
-            mechController.square().toggleOnTrue(
-                Commands.defer(
-                    () -> new ShooterSequence(
-                        flywheelSubsystem,
-                        hoodSubsystem,
-                        tower,
-                        HopperSubsystem,
-                        intakeSubsystem),
-                    java.util.Set.of(
-                        flywheelSubsystem,
-                        hoodSubsystem,
-                        HopperSubsystem,
-                        tower,
-                        intakeSubsystem)));
+            // mechController.square().toggleOnTrue(
+            // Commands.defer(
+            // () -> new ShooterSequence(
+            // flywheelSubsystem,
+            // hoodSubsystem,
+            // tower,
+            // HopperSubsystem,
+            // intakeSubsystem),
+            // java.util.Set.of(
+            // flywheelSubsystem,
+            // hoodSubsystem,
+            // HopperSubsystem,
+            // tower,
+            // intakeSubsystem)));
 
             // Joystick movement cancels it
             // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
@@ -277,28 +277,28 @@ public class RobotContainer {
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
             // Left stick Y = hood manual control
-            flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-                if (DriverStation.isJoystickConnected(1)) {
-                    flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
-                } else {
-                    flywheelSubsystem.flySpeed(0);
-                }
-            }, flywheelSubsystem));
+            // flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+            // if (DriverStation.isJoystickConnected(1)) {
+            // flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
+            // } else {
+            // flywheelSubsystem.flySpeed(0);
+            // }
+            // }, flywheelSubsystem));
 
-            tower.setDefaultCommand(Commands.run(() -> {
-                tower.setManualControl(0); // Stop tower by default
-            }, tower));
+            // tower.setDefaultCommand(Commands.run(() -> {
+            // tower.setManualControl(0); // Stop tower by default
+            // }, tower));
 
 
-            hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-                if (mechController.L3().getAsBoolean()) {
-                    hoodSubsystem.hoodSpeed(0.15);
-                } else if (mechController.R3().getAsBoolean()) {
-                    hoodSubsystem.hoodSpeed(-0.15);
-                } else {
-                    hoodSubsystem.hoodSpeed(0);
-                }
-            }, hoodSubsystem));
+            // hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+            // if (mechController.L3().getAsBoolean()) {
+            // hoodSubsystem.hoodSpeed(0.15);
+            // } else if (mechController.R3().getAsBoolean()) {
+            // hoodSubsystem.hoodSpeed(-0.15);
+            // } else {
+            // hoodSubsystem.hoodSpeed(0);
+            // }
+            // }, hoodSubsystem));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
@@ -330,10 +330,10 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Selector", autoChooser);
     }
 
-    public Command getAutonomousCommand() {
-        // return new PathPlannerAuto("auton1");
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
-    }
+    // public Command getAutonomousCommand() {
+    // // return new PathPlannerAuto("auton1");
+    // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+    // }
 
     /**
      * Called when teleop starts to reset driver heading with 90 degree offset.
