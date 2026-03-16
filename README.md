@@ -6,24 +6,24 @@
 | ---------------------- | ------------------------------------------------------------ | -------- |
 | X (Cross)              | Reset Heading                                                |          |
 | O (Circle)             |                                                              |          |
-| △ (Triangle)           | Ramp up wheels Click Again to cancel                         |          |
-| □ (Square)             |                                                              |          |
-| L1                     | Speed Mode (Slow Mech and Slow Steer)                        |          |
-| L2                     | Slow Mode (set value)                                        |          |
-| R1                     | Shooter Sequence Click Again to cancel (drive away to cancle too) |          |
-| R2                     | Forced Intake In (HOLD)                                      |          |
+| △ (Triangle)           | Auto Climb (TODO)                                            |          |
+| □ (Square)             | Toggle Robot-Relative Mode                                   |          |
+| L1 (hold)              | Boost Mode                                                   |          |
+| L2 (analog)            | Speed Limit (harder press = slower)                          |          |
+| R1 (toggle)            | Shooter Sequence                                             |          |
+| R2 (hold)              | Force Intake In (pivot up + stop rollers)                    |          |
 | L3 (Left Stick Click)  |                                                              |          |
-| R3 (Right Stick Click) | Change Driver Cam                                            |          |
-| D-Pad Up               | Climb Up                                                     |          |
-| D-Pad Down             | Climb Down                                                   |          |
+| R3 (Right Stick Click) |                                                              |          |
+| D-Pad Up               |                                                              |          |
+| D-Pad Down             |                                                              |          |
 | D-Pad Left             |                                                              |          |
 | D-Pad Right            |                                                              |          |
-| Options Button         |                                                              |          |
+| Options Button         | Reset Pose to Starting Position                              |          |
 | Create Button          |                                                              |          |
 | PS Button              |                                                              |          |
 | Touchpad               |                                                              |          |
-| Left Joystick          | Swerve Drive                                                 | 0-11     |
-| Right Joystick         | Swerve Turning                                               | 0-11     |
+| Left Joystick          | Swerve Translation (forward/strafe)                          | 0-11     |
+| Right Joystick         | Swerve Rotation                                              | 0-11     |
 
 ## **Mech Controller (Operator)**
 
@@ -72,7 +72,7 @@
 | **Hopper**      | Hopper           | Kraken x44  | -        | 15           |
 | **Shooter**     | Hood             | Kraken x44  | -        | 16           |
 |                 | Flywheel         | Kraken x44  | -        | 17           |
-|                 | Flywheel Encoder | Throughbore | -        | 18           |
+|                 | Hood Encoder     | Throughbore | -        | 18           |
 | **Climb**       | Doornob          | Kraken x44  | -        | 19           |
 |                 | Doornob Encoder  | Throughbore | -        | 20           |
 |                 | Winch            | Kraken x60  | -        | 21           |
@@ -81,6 +81,9 @@
 |                 | CANivore         | CANivore    | -        | "swerve-can" |
 |                 | CANivore         | CANivore    | -        | "mech-can"   |
 |                 | Pigeon           | Pigeon 2.0  | -        | 24           |
+| **Extra**       | Second Flywheel  | X60         | -        | 25           |
+|                 | Tower Roller     | X40         | -        | 26           |
+|                 | CANrange climb   |             | -        | 22           |
 
 ## **Motor Configuration**
 
