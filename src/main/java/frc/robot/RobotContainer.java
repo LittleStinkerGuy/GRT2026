@@ -82,18 +82,18 @@ public class RobotContainer {
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
-    // private towerRollers tower = new towerRollers(mechCAN);
+    private towerRollers tower = new towerRollers(mechCAN);
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
     private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
-    // private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
+    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
     // private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-    // private final flywheel flywheelSubsystem = new flywheel(mechCAN);
-    // private final hood hoodSubsystem = new hood(mechCAN);
+    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+    private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
 
-    // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
+    private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.cameraConfig11);
@@ -224,12 +224,11 @@ public class RobotContainer {
             pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
-            // mechController.L2().whileTrue(Commands.run(() -> {
-            // HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
-            // tower.setManualControl(
-            // 0.7); // 0.7 duty cycle for tower
-            // }, HopperSubsystem, tower));
-            // HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
+            mechController.L2().whileTrue(Commands.run(() -> {
+                HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
+                tower.setManualControl(0.7); // 0.7 duty cycle for tower
+            }, HopperSubsystem, tower));
+            HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
             // R2 (drive) = force intake in (pivot up + stop rollers) - hold to override
             new Trigger(driveController::getRightTrigger)
@@ -277,28 +276,27 @@ public class RobotContainer {
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
             // Left stick Y = hood manual control
-            // flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-            // if (DriverStation.isJoystickConnected(1)) {
-            // flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
-            // } else {
-            // flywheelSubsystem.flySpeed(0);
-            // }
-            // }, flywheelSubsystem));
+            flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1)) {
+                    flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
+                } else {
+                    flywheelSubsystem.flySpeed(0);
+                }
+            }, flywheelSubsystem));
 
-            // tower.setDefaultCommand(Commands.run(() -> {
-            // tower.setManualControl(0); // Stop tower by default
-            // }, tower));
+            tower.setDefaultCommand(Commands.run(() -> {
+                tower.setManualControl(0); // Stop tower by default
+            }, tower));
 
-
-            // hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-            // if (mechController.L3().getAsBoolean()) {
-            // hoodSubsystem.hoodSpeed(0.15);
-            // } else if (mechController.R3().getAsBoolean()) {
-            // hoodSubsystem.hoodSpeed(-0.15);
-            // } else {
-            // hoodSubsystem.hoodSpeed(0);
-            // }
-            // }, hoodSubsystem));
+            hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (mechController.L3().getAsBoolean()) {
+                    hoodSubsystem.hoodSpeed(0.15);
+                } else if (mechController.R3().getAsBoolean()) {
+                    hoodSubsystem.hoodSpeed(-0.15);
+                } else {
+                    hoodSubsystem.hoodSpeed(0);
+                }
+            }, hoodSubsystem));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
