@@ -8,7 +8,6 @@ import frc.robot.subsystems.Vision.VisionConstants;
 // import frc.robot.Constants.VisionConstants;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
-import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
 // Subsystems
@@ -38,7 +37,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
-import frc.robot.commands.climb.ClimbCommands.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -88,7 +86,6 @@ public class RobotContainer {
     private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
     private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
-    // private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
     private final flywheel flywheelSubsystem = new flywheel(mechCAN);
     private final hood hoodSubsystem = new hood(mechCAN);
     private boolean shootSeq = false;
@@ -187,30 +184,6 @@ public class RobotContainer {
                 swerveSubsystem);
         }
         if (Constants.MECH_ENABLED) {
-            // bind semi auto commands
-            // Cross (mech) = semi auto climb down
-            var crossTrigger = mechController.cross();
-            // crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
-
-            // Triangle (mech) = semi auto climb up
-            var triangleTrigger = mechController.triangle();
-            // triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
-
-            // Manual control with d-pad for winch and left stick for arm
-            // m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-            // var armDutyCycle = mechController.getLeftY();
-            // double winchDutyCycle = 0;
-
-            // if (mechController.povUp().getAsBoolean()) {
-            // winchDutyCycle--;
-            // }
-            // if (mechController.povDown().getAsBoolean()) {
-            // winchDutyCycle++;
-            // }
-            // m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-            // m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-            // }, m_ClimbSubsystem));
-
             // ==================== INTAKE ROLLER ====================
             // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
             mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
