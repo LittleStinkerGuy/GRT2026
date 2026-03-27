@@ -5,40 +5,16 @@
 // BOOSTED SWERVE
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Millimeters;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.List;
+import static edu.wpi.first.units.Units.Rotations;
+
 
 import com.ctre.phoenix6.signals.InvertedValue;
 
 // Units library:
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-
-import frc.robot.subsystems.Vision.CameraConfig;
-import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
-import frc.robot.subsystems.Vision.FuelDetectionSubsystem.FuelDetectionConfig;
-import frc.robot.util.PolynomialRegression;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
