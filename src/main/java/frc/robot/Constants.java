@@ -37,6 +37,143 @@ public final class Constants {
     public static final boolean SWERVE_ENABLED = true;
     public static final boolean MECH_ENABLED = true;
 
+    // ==================== DRIVETRAIN ====================
+
+    public static class SwerveDriveConstants {
+
+        // Motor Configuration
+
+        // Current Limits (defaults - tunable via NetworkTables)
+        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 80;
+
+        public static final double DRIVE_STATOR_CURRENT_LIMIT = 200; // hardware safety cutoff
+        public static final double DRIVE_PEAK_STATOR_CURRENT = 160; // max current FOC control can request
+
+        public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
+        public static final double DRIVE_RAMP_RATE = 0.0;
+
+        // Physical Measurements (
+        public static final double DRIVE_WHEEL_RADIUS_METERS = 0.051; // meters
+        public static final double DRIVE_WHEEL_CIRCUMFERENCE = 2.0 * Math.PI * DRIVE_WHEEL_RADIUS_METERS; // meters
+        public static final double DRIVE_GEAR_REDUCTION = 8.25; // L2 gearing
+
+        // Measured max drive speed
+        public static final double TRUE_MAX_DRIVE_SPEED = 3.87; // put robot in the air and mesure from nt
+
+        // MotionMagic parameters for drive motors (tested values)
+        public static final double DRIVE_MAX_VELOCITY_RPS = 100.0; // 90
+        public static final double DRIVE_MAX_ACCELERATION = 200.0; // 170
+    }
+
+    public static class SwerveSteerConstants {
+        // Motor Configuration
+        public static final double STEER_PEAK_STATOR_CURRENT = 40;
+        public static final double STEER_RAMP_RATE = 0;
+
+        // Current Limits (optimized for Kraken motors - steer needs less current)
+        public static final double STEER_SUPPLY_CURRENT_LIMIT = 30; // Prevents brownouts
+        public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
+        public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
+
+        // Physical Measurements
+        public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // ~22.86:1
+        public static final double STEER_FREE_SPEED_RPM = 7530.0; // Kraken X44
+
+        // Motion Magic (theoretical max from motor specs)
+        // 7530 RPM / 22.86 gear ratio / 60 = 5.49 rot/sec output
+        public static final double STEER_CRUISE_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0;
+        // 10x velocity = reach max in 0.1 sec
+        public static final double STEER_ACCELERATION = STEER_CRUISE_VELOCITY * 10.0;
+    }
+
+    public static class SwerveConstants {
+
+        // Drive PID (Velocity Control)
+        public static final double[] DRIVE_P = {9.5, 9.5, 9.5, 9.5};
+        public static final double[] DRIVE_I = {0, 0, 0, 0};
+        public static final double[] DRIVE_D = {0.1, 0.1, 0.1, 0.1};
+        public static final double[] DRIVE_S = {0.5, 0.5, 0.5, 0.5};
+        public static final double[] DRIVE_V = {0.12, 0.12, 0.12, 0.12};
+
+        // Steer PID (Position Control)
+        public static final double[] STEER_P = {190, 190, 190, 190};
+        public static final double[] STEER_I = {0, 0, 0, 0};
+        public static final double[] STEER_D = {7, 7, 7, 7};
+        public static final double[] STEER_S = {1, 1, 1, 1};
+
+        // ID
+        public static final int PigeonID = 24;
+        // Module CAN IDs and Offsets (per README)
+        public static final int FL_DRIVE = 0;
+        public static final int FL_STEER = 1;
+        public static final int FL_ENCODER = 8;
+        public static final double FL_OFFSET = 0;
+
+        public static final int FR_DRIVE = 2;
+        public static final int FR_STEER = 3;
+        public static final int FR_ENCODER = 9;
+        public static final double FR_OFFSET = 0;
+
+        public static final int BL_DRIVE = 4;
+        public static final int BL_STEER = 5;
+        public static final int BL_ENCODER = 10;
+        public static final double BL_OFFSET = 0;
+
+        public static final int BR_DRIVE = 6;
+        public static final int BR_STEER = 7;
+        public static final int BR_ENCODER = 11;
+        public static final double BR_OFFSET = 0;
+
+        // Module Positions (meters, relative to robot center)
+        // WPILib: +X = front, +Y = left
+        public static final Translation2d FL_POS = new Translation2d(0.289878, 0.289878);   // front-left
+        public static final Translation2d FR_POS = new Translation2d(0.289878, -0.289878);  // front-right
+        public static final Translation2d BL_POS = new Translation2d(-0.289878, 0.289878);  // back-left
+        public static final Translation2d BR_POS = new Translation2d(-0.289878, -0.289878); // back-right
+
+        // Kinematic Limits (using measured true max speed)
+        public static final double MAX_VEL = SwerveDriveConstants.TRUE_MAX_DRIVE_SPEED; // 3.87 m/s
+        public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
+
+        // Chassis Acceleration Limits (set to max - no software limiting)
+        // increase = faster response, decrease = smoother
+        public static final double MAX_LINEAR_ACCELERATION = 100; // how fast robot speeds up (m/s²)
+        public static final double MAX_LINEAR_DECELERATION = 100; // how fast robot stops (m/s²)
+        
+        public static final double MAX_ANGULAR_ACCELERATION = 100; // how fast robot starts spinning (rad/s²)
+        public static final double MAX_ANGULAR_DECELERATION = 100; // how fast robot stops spinning (rad/s²)
+
+        // Boost Mode Constants (L1 held) - no limits, let motors do max
+        public static final double BOOST_MAX_VEL = MAX_VEL;
+        public static final double BOOST_MAX_LINEAR_ACCELERATION = 10.0; // ~1g acceleration
+        public static final double BOOST_MAX_ANGULAR_ACCELERATION = MAX_OMEGA; // match max rotation speed
+
+        // Slow Mode Constants (R1 held)
+        public static final double SLOW_MODE_SPEED_LIMIT = 0.3; // 30% speed when R1 held
+
+        // Chassis Rotation PID (for heading lock / field-oriented rotation)
+        public static final double ROTATION_KP = 4.0;
+        public static final double ROTATION_KI = 0.0;
+        public static final double ROTATION_KD = 0.2;
+
+        // PathPlanner Auto PID Constants
+        public static final double AUTO_TRANSLATION_KP = 1.38;
+        public static final double AUTO_TRANSLATION_KI = 0.0;
+        public static final double AUTO_TRANSLATION_KD = 0.0;
+        public static final double AUTO_ROTATION_KP = 3.3;
+        public static final double AUTO_ROTATION_KI = 0.0;
+        public static final double AUTO_ROTATION_KD = 0.0;
+    }
+
+    public static class RotateToAngleConstants {
+        public static final double kP = 0.009;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0005;
+        public static final double TOLERANCE_DEGREES = 0.0;
+    }
+
+    // ==================== SHOOTER ====================
+
     public static class TowerConstants {
         public static final int KRAKEN_CAN_ID = 26;
 
@@ -72,16 +209,10 @@ public final class Constants {
         public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
-        // // Voltage and ramping
-        // public static final int VOLTAGE_COMPENSATION = 12;
-        // public static final double OPEN_LOOP_RAMP = 0.5;
-        // public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
-
         // Motor config
         public static final InvertedValue HOPPERINVERTED = InvertedValue.Clockwise_Positive;
     }
 
-    // ==================== SHOOTER ====================
     public static class ShooterConstants {
 
         // ---- Flywheel ----
@@ -134,141 +265,6 @@ public final class Constants {
 
             public static final double ANGLE_TOLERANCE = 0.01;
         }
-    }
-    // ==================== DRIVETRAIN ====================
-
-    public static class SwerveDriveConstants {
-        // Motor Configuration
-        public static final double DRIVE_PEAK_STATOR_CURRENT = 200;
-        public static final double DRIVE_RAMP_RATE = 0.0;
-
-        // Current Limits (defaults - tunable via NetworkTables)
-        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 80;
-        public static final double DRIVE_STATOR_CURRENT_LIMIT = 200; // Unrestricted
-        public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
-
-        // Physical Measurements (from SysId/measured values)
-        public static final double DRIVE_WHEEL_RADIUS_METERS = 0.051; // meters
-        public static final double DRIVE_WHEEL_CIRCUMFERENCE = 2.0 * Math.PI * DRIVE_WHEEL_RADIUS_METERS; // meters
-        public static final double DRIVE_GEAR_REDUCTION = 8.25; // L2 gearing
-
-        // Measured max drive speed
-        public static final double TRUE_MAX_DRIVE_SPEED = 3.87; // m/s from SysId
-
-        // MotionMagic parameters for drive motors
-        public static final double DRIVE_MAX_VELOCITY_RPS = 90.0; // Max velocity in rotations per second
-        public static final double DRIVE_MAX_ACCELERATION = 170.0; // Max acceleration in rotations per second^2
-    }
-
-    public static class SwerveSteerConstants {
-        // Motor Configuration
-        public static final double STEER_PEAK_STATOR_CURRENT = 40;
-        public static final double STEER_RAMP_RATE = 0;
-
-        // Current Limits (optimized for Kraken motors - steer needs less current)
-        public static final double STEER_SUPPLY_CURRENT_LIMIT = 30; // Prevents brownouts
-        public static final double STEER_STATOR_CURRENT_LIMIT = 50; // Sufficient for steering
-        public static final boolean STEER_CURRENT_LIMIT_ENABLE = true;
-
-        // Physical Measurements
-        public static final double STEER_GEAR_REDUCTION = 160.0 / 7.0; // ~22.86:1
-        public static final double STEER_FREE_SPEED_RPM = 7530.0; // Kraken X44
-
-        // Motion Magic
-        public static final double STEER_MAX_VELOCITY = STEER_FREE_SPEED_RPM / STEER_GEAR_REDUCTION / 60.0; // ~5.49
-                                                                                                            // rot/sec
-        public static final double STEER_MAX_ACCELERATION = STEER_MAX_VELOCITY * 10.0; // ~54.9 rot/sec^2
-        public static final double STEER_CRUISE_VELOCITY = STEER_MAX_VELOCITY;
-        public static final double STEER_ACCELERATION = STEER_MAX_ACCELERATION;
-    }
-
-    public static class SwerveConstants {
-
-        // Drive PID (Velocity Control)
-        public static final double[] DRIVE_P = {9.5, 9.5, 9.5, 9.5};
-        public static final double[] DRIVE_I = {0, 0, 0, 0};
-        public static final double[] DRIVE_D = {0.1, 0.1, 0.1, 0.1};
-        public static final double[] DRIVE_S = {0.5, 0.5, 0.5, 0.5};
-        public static final double[] DRIVE_V = {0.12, 0.12, 0.12, 0.12};
-
-        // Steer PID (Position Control)
-        public static final double[] STEER_P = {190, 190, 190, 190};
-        public static final double[] STEER_I = {0, 0, 0, 0};
-        public static final double[] STEER_D = {7, 7, 7, 7};
-        public static final double[] STEER_S = {1, 1, 1, 1};
-
-        // ID
-        public static final int PigeonID = 24;
-        // Module CAN IDs and Offsets (per README)
-        public static final int FL_DRIVE = 0;
-        public static final int FL_STEER = 1;
-        public static final int FL_ENCODER = 8;
-        public static final double FL_OFFSET = 0;
-
-        public static final int FR_DRIVE = 2;
-        public static final int FR_STEER = 3;
-        public static final int FR_ENCODER = 9;
-        public static final double FR_OFFSET = 0;
-
-        public static final int BL_DRIVE = 4;
-        public static final int BL_STEER = 5;
-        public static final int BL_ENCODER = 10;
-        public static final double BL_OFFSET = 0;
-
-        public static final int BR_DRIVE = 6;
-        public static final int BR_STEER = 7;
-        public static final int BR_ENCODER = 11;
-        public static final double BR_OFFSET = 0;
-
-        // Module Positions (meters, relative to robot center)
-        // WPILib: +X = front, +Y = left
-        // From SysId measurements:
-        // FL: X=-0.289878, Y=0.289878 (left-front in WPILib coords)
-        // FR: X=0.289878, Y=0.289878 (right-front)
-        // BL: X=-0.289878, Y=-0.289878 (left-back)
-        // BR: X=0.289878, Y=-0.289878 (right-back)
-        public static final Translation2d FL_POS = new Translation2d(0.289878, 0.289878);
-        public static final Translation2d FR_POS = new Translation2d(0.289878, -0.289878);
-        public static final Translation2d BL_POS = new Translation2d(-0.289878, 0.289878);
-        public static final Translation2d BR_POS = new Translation2d(-0.289878, -0.289878);
-
-        // Kinematic Limits (using measured true max speed)
-        public static final double MAX_VEL = SwerveDriveConstants.TRUE_MAX_DRIVE_SPEED; // 3.87 m/s
-        public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
-
-        // Chassis Acceleration Limits (m/s^2)
-        public static final double MAX_LINEAR_ACCELERATION = 4; // meters per second squared
-        public static final double MAX_LINEAR_DECELERATION = 6; // meters per second squared
-        public static final double MAX_ANGULAR_ACCELERATION = 3; // radians per second squared
-        public static final double MAX_ANGULAR_DECELERATION = 13.0; // radians per second squared
-
-        // Boost Mode Constants (L1 held)
-        public static final double BOOST_MAX_VEL = MAX_VEL; // Use full max velocity in boost mode
-        public static final double BOOST_MAX_LINEAR_ACCELERATION = 6.0; // meters per second squared
-        public static final double BOOST_MAX_ANGULAR_ACCELERATION = 4.0; // radians per second squared
-
-        // Slow Mode Constants (R1 held)
-        public static final double SLOW_MODE_SPEED_LIMIT = 0.3; // 30% speed when R1 held
-
-        // Chassis Rotation PID (for heading lock / field-oriented rotation)
-        public static final double ROTATION_KP = 4.0;
-        public static final double ROTATION_KI = 0.0;
-        public static final double ROTATION_KD = 0.2;
-
-        // PathPlanner Auto PID Constants
-        public static final double AUTO_TRANSLATION_KP = 1.38;
-        public static final double AUTO_TRANSLATION_KI = 0.0;
-        public static final double AUTO_TRANSLATION_KD = 0.0;
-        public static final double AUTO_ROTATION_KP = 3.3;
-        public static final double AUTO_ROTATION_KI = 0.0;
-        public static final double AUTO_ROTATION_KD = 0.0;
-    }
-
-    public static class RotateToAngleConstants {
-        public static final double kP = 0.009;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0005;
-        public static final double TOLERANCE_DEGREES = 0.0;
     }
 
     // ==================== SUBSYSTEMS ====================
