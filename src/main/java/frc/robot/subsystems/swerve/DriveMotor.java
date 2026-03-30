@@ -330,7 +330,7 @@ public class DriveMotor {
      * @return swerve wheel's velocity in m/s
      */
     public double getVelocity() {
-        return motor.getVelocity().getValueAsDouble() / DRIVE_GEAR_REDUCTION * DRIVE_WHEEL_CIRCUMFERENCE;
+        return motor.getVelocity().getValueAsDouble();
     }
 
     /**
