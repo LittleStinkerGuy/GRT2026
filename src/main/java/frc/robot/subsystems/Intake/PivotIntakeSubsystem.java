@@ -50,6 +50,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
         configEncoder();
         configMotors();
+        pivotMotor.setPosition(0.0);
         SmartDashboard.putNumber("Intake/Pivot/kP", kP);
         SmartDashboard.putNumber("Intake/Pivot/kI", kI);
         SmartDashboard.putNumber("Intake/Pivot/kD", kD);
@@ -88,13 +89,10 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         // Motor Output Config
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        // Using FusedCANcoder! (basically combines combines the cancoder position abs w the internal encoder)
+        // Using internal encoder only (FusedCANcoder disabled for sysID)
         config.withFeedback(new FeedbackConfigs()
-            .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
-            .withFeedbackRemoteSensorID(IntakeConstants.PIVOT_CANCODER_ID)
-            .withSensorToMechanismRatio(1.0) // CANcoder is 1:1 with mechanism
-            .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO) // Motor to CANcoder ratio
-        );
+            .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+            .withSensorToMechanismRatio(IntakeConstants.GEAR_RATIO));
 
         // StatorCurrent Limits
         config.withCurrentLimits(
