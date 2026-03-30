@@ -58,6 +58,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -275,6 +276,31 @@ public class RobotContainer {
                     hoodSubsystem.hoodSpeed(0);
                 }
             }, hoodSubsystem));
+
+            // ==================== SYSID AUTO TUNE ====================
+            // Triangle = run all sysID routines sequentially
+            mechController.triangle().onTrue(
+                Commands.sequence(
+                    // Intake Rollers
+                    intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                    // Intake Pivot
+                    pivotIntake.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    pivotIntake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    pivotIntake.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    pivotIntake.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                    // Hopper
+                    HopperSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    HopperSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    HopperSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    HopperSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                    // Tower Rollers
+                    tower.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    tower.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    tower.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    tower.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
