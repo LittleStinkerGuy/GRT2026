@@ -38,7 +38,7 @@ public class hood extends SubsystemBase {
 
     public void config() {
         TalonFXConfiguration cfg = new TalonFXConfiguration();
-        cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs()
             .withStatorCurrentLimit(
@@ -51,10 +51,12 @@ public class hood extends SubsystemBase {
         // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         // cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
-        cfg.Feedback.RotorToSensorRatio = ShooterConstants.Hood.GEAR_RATIO;
+        cfg.Feedback.RotorToSensorRatio = -1*ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
         cfg.Slot0.kI = ShooterConstants.Hood.KI;
+        cfg.Slot0.kD = ShooterConstants.Hood.KD;
+        cfg.Slot0.kS = ShooterConstants.Hood.KS;
 
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
         ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
@@ -65,7 +67,7 @@ public class hood extends SubsystemBase {
         // Use FusedCANcoder to preserve absolute position on boot (no re-zeroing)
         cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         cfg.Feedback.FeedbackRemoteSensorID = ShooterConstants.Hood.ENCODER_ID;
-        cfg.Feedback.SensorToMechanismRatio = 1.0; // CANcoder is 1:1 with mechanism
+        cfg.Feedback.SensorToMechanismRatio = -1.0; // CANcoder is 1:1 with mechanism
 
         hoodMotor.getConfigurator().apply(cfg);
     }
