@@ -249,9 +249,10 @@ public final class Constants {
             public static final double GEAR_RATIO = 244.411765;
 
             // Position control PID
-            public static final double KP = 8.0;
-            public static final double KI = 3.0;
-            public static final double KD = 0.0;
+            public static final double KP = 3000;
+            public static final double KI = 30;
+            public static final double KD = 60;
+            public static final double KS = 120;
 
             // Angle limits (rotations)
             public static final double UPPER_ANGLE_LIMIT = 0.1;
