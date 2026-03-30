@@ -106,13 +106,13 @@ public class PivotIntakeSubsystem extends SubsystemBase {
                 .withMotionMagicCruiseVelocity(cruiseVelocity)
                 .withMotionMagicAcceleration(acceleration));
 
-        // Software Limits (disabled for tuning)
+        // Software Limits
         config.withSoftwareLimitSwitch(
             new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitEnable(false)
-                .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
-                .withReverseSoftLimitEnable(false)
-                .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(0)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(-0.293));
 
         pivotMotor.getConfigurator().apply(config);
     }
