@@ -12,15 +12,21 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.IntakeConstants;
 
 import com.ctre.phoenix6.CANBus;
+
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Seconds;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
     private final TalonFX pivotMotor;
@@ -28,6 +34,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
+    private final VoltageOut sysIdVoltage = new VoltageOut(0);
+    private final SysIdRoutine sysIdRoutine;
 
     // Tunable PID values
     private double kP = IntakeConstants.PIVOT_P;
@@ -50,6 +58,22 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Pivot/Acceleration", acceleration);
         SmartDashboard.putNumber("Intake/Pivot/TargetPosition", 0);
         SmartDashboard.putNumber("Intake/Pivot/ManualSpeed", IntakeConstants.MANUAL_PIVOT_SPEED);
+
+        sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(0.5).per(Seconds), // ramp rate: 0.5 V/s (slow for limited range)
+                Volts.of(4), // step voltage
+                Seconds.of(5) // timeout
+            ),
+            new SysIdRoutine.Mechanism(
+                voltage -> pivotMotor.setControl(sysIdVoltage.withOutput(voltage)),
+                log -> {
+                    log.motor("pivotIntake")
+                        .voltage(pivotMotor.getMotorVoltage().getValue())
+                        .angularPosition(pivotMotor.getPosition().getValue())
+                        .angularVelocity(pivotMotor.getVelocity().getValue());
+                },
+                this));
     }
 
     private void configMotors() {
@@ -178,6 +202,14 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
     public void stop() {
         pivotMotor.setControl(dutyCycleControl.withOutput(0));
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
     }
 
     @Override

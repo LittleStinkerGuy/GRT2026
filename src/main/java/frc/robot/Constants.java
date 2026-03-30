@@ -126,9 +126,9 @@ public final class Constants {
 
         // Module Positions (meters, relative to robot center)
         // WPILib: +X = front, +Y = left
-        public static final Translation2d FL_POS = new Translation2d(0.289878, 0.289878);   // front-left
-        public static final Translation2d FR_POS = new Translation2d(0.289878, -0.289878);  // front-right
-        public static final Translation2d BL_POS = new Translation2d(-0.289878, 0.289878);  // back-left
+        public static final Translation2d FL_POS = new Translation2d(0.289878, 0.289878); // front-left
+        public static final Translation2d FR_POS = new Translation2d(0.289878, -0.289878); // front-right
+        public static final Translation2d BL_POS = new Translation2d(-0.289878, 0.289878); // back-left
         public static final Translation2d BR_POS = new Translation2d(-0.289878, -0.289878); // back-right
 
         // Kinematic Limits (using measured true max speed)
@@ -139,7 +139,7 @@ public final class Constants {
         // increase = faster response, decrease = smoother
         public static final double MAX_LINEAR_ACCELERATION = 100; // how fast robot speeds up (m/s²)
         public static final double MAX_LINEAR_DECELERATION = 100; // how fast robot stops (m/s²)
-        
+
         public static final double MAX_ANGULAR_ACCELERATION = 100; // how fast robot starts spinning (rad/s²)
         public static final double MAX_ANGULAR_DECELERATION = 100; // how fast robot stops spinning (rad/s²)
 

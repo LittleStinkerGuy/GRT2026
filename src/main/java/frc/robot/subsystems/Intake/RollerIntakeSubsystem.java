@@ -6,19 +6,26 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Seconds;
 import com.ctre.phoenix6.CANBus;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.IntakeConstants;
 
 public class RollerIntakeSubsystem extends SubsystemBase {
     private final TalonFX rollerMotor;
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
+    private final VoltageOut sysIdVoltage = new VoltageOut(0);
+    private final SysIdRoutine sysIdRoutine;
 
     private double kP = IntakeConstants.ROLLER_P;
     private double kI = IntakeConstants.ROLLER_I;
@@ -31,6 +38,22 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     public RollerIntakeSubsystem(CANBus canBus) {
         rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, canBus);
         configureMotor();
+
+        sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(1).per(Seconds), // ramp rate: 1 V/s
+                Volts.of(7), // step voltage
+                Seconds.of(10) // timeout
+            ),
+            new SysIdRoutine.Mechanism(
+                voltage -> rollerMotor.setControl(sysIdVoltage.withOutput(voltage)),
+                log -> {
+                    log.motor("rollerIntake")
+                        .voltage(rollerMotor.getMotorVoltage().getValue())
+                        .angularPosition(rollerMotor.getPosition().getValue())
+                        .angularVelocity(rollerMotor.getVelocity().getValue());
+                },
+                this));
 
         SmartDashboard.putNumber("Intake/Roller/kP", kP);
         SmartDashboard.putNumber("Intake/Roller/kI", kI);
@@ -151,6 +174,14 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     public void runOutDutyCycle() {
         double dc = SmartDashboard.getNumber("Intake/Roller/ManualDutyCycle", 1.0);
         setDutyCycle(dc);
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
     }
 
     /**

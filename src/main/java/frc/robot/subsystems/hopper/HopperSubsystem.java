@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.networktables.DoubleSubscriber;
@@ -22,16 +23,23 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.util.LoggedTalon;
+
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Seconds;
 
 public class HopperSubsystem extends SubsystemBase {
 
     private final LoggedTalon krakenMotor;
     private final MotionMagicVelocityTorqueCurrentFOC velocityControl;
     private final DutyCycleOut dutyCycleControl;
+    private final VoltageOut sysIdVoltage = new VoltageOut(0);
+    private final SysIdRoutine sysIdRoutine;
     private NetworkTableInstance NTinst;
     private NetworkTable NTtable;
     private DoubleSubscriber sub;
@@ -44,6 +52,22 @@ public class HopperSubsystem extends SubsystemBase {
         dutyCycleControl = new DutyCycleOut(0);
         configureMotor();
         configThruNT();
+
+        sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(1).per(Seconds), // ramp rate: 1 V/s
+                Volts.of(7), // step voltage
+                Seconds.of(10) // timeout
+            ),
+            new SysIdRoutine.Mechanism(
+                voltage -> krakenMotor.setControl(sysIdVoltage.withOutput(voltage)),
+                log -> {
+                    log.motor("hopper")
+                        .voltage(krakenMotor.getMotorVoltage().getValue())
+                        .angularPosition(krakenMotor.getPosition().getValue())
+                        .angularVelocity(krakenMotor.getVelocity().getValue());
+                },
+                this));
     }
 
     /**
@@ -135,6 +159,14 @@ public class HopperSubsystem extends SubsystemBase {
                 krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(0.0));
                 break;
         }
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
     }
 
     public void setManualControl(double percentOutput) {
