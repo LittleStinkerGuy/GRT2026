@@ -14,7 +14,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 // Units library:
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -140,18 +139,21 @@ public final class Constants {
 
     public static class SwerveDriveConstants {
         // Motor Configuration
-        public static final double DRIVE_PEAK_STATOR_CURRENT = 80;
+        public static final double DRIVE_PEAK_STATOR_CURRENT = 200;
         public static final double DRIVE_RAMP_RATE = 0.0;
 
-        // Current Limits (optimized for Kraken motors)
-        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 70; // Prevents brownouts
-        public static final double DRIVE_STATOR_CURRENT_LIMIT = 130; // Allows burst torque for acceleration
+        // Current Limits (defaults - tunable via NetworkTables)
+        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 80;
+        public static final double DRIVE_STATOR_CURRENT_LIMIT = 200; // Unrestricted
         public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
 
-        // Physical Measurements
-        public static final double DRIVE_WHEEL_RADIUS = 2.0; // inches
-        public static final double DRIVE_WHEEL_CIRCUMFERENCE = Units.inchesToMeters(2.0 * Math.PI * DRIVE_WHEEL_RADIUS);
-        public static final double DRIVE_GEAR_REDUCTION = 33.0 / 4.0; // 8.25:1
+        // Physical Measurements (from SysId/measured values)
+        public static final double DRIVE_WHEEL_RADIUS_METERS = 0.051; // meters
+        public static final double DRIVE_WHEEL_CIRCUMFERENCE = 2.0 * Math.PI * DRIVE_WHEEL_RADIUS_METERS; // meters
+        public static final double DRIVE_GEAR_REDUCTION = 8.25; // L2 gearing
+
+        // Measured max drive speed
+        public static final double TRUE_MAX_DRIVE_SPEED = 3.87; // m/s from SysId
 
         // MotionMagic parameters for drive motors
         public static final double DRIVE_MAX_VELOCITY_RPS = 90.0; // Max velocity in rotations per second
@@ -218,23 +220,20 @@ public final class Constants {
         public static final int BR_ENCODER = 11;
         public static final double BR_OFFSET = 0;
 
-        // Module Geometry (inches)
-        public static final double MODULE_FRONT_BACK_SPACING = 20.45;
-        public static final double MODULE_LEFTRIGHT_SPACING = 25.45;
+        // Module Positions (meters, relative to robot center)
+        // WPILib: +X = front, +Y = left
+        // From SysId measurements:
+        // FL: X=-0.289878, Y=0.289878 (left-front in WPILib coords)
+        // FR: X=0.289878, Y=0.289878 (right-front)
+        // BL: X=-0.289878, Y=-0.289878 (left-back)
+        // BR: X=0.289878, Y=-0.289878 (right-back)
+        public static final Translation2d FL_POS = new Translation2d(0.289878, 0.289878);
+        public static final Translation2d FR_POS = new Translation2d(0.289878, -0.289878);
+        public static final Translation2d BL_POS = new Translation2d(-0.289878, 0.289878);
+        public static final Translation2d BR_POS = new Translation2d(-0.289878, -0.289878);
 
-        // Module Positions (relative to robot center)
-        public static final Translation2d FL_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-            MODULE_LEFTRIGHT_SPACING / 2.0);
-        public static final Translation2d FR_POS = new Translation2d(MODULE_FRONT_BACK_SPACING / 2.0,
-            -MODULE_LEFTRIGHT_SPACING / 2.0);
-        public static final Translation2d BL_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-            MODULE_LEFTRIGHT_SPACING / 2.0);
-        public static final Translation2d BR_POS = new Translation2d(-MODULE_FRONT_BACK_SPACING / 2.0,
-            -MODULE_LEFTRIGHT_SPACING / 2.0);
-
-        // Kinematic Limits
-        public static final double MAX_VEL = 6000.0 / SwerveDriveConstants.DRIVE_GEAR_REDUCTION / 60.0
-            * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+        // Kinematic Limits (using measured true max speed)
+        public static final double MAX_VEL = SwerveDriveConstants.TRUE_MAX_DRIVE_SPEED; // 3.87 m/s
         public static final double MAX_OMEGA = MAX_VEL / FL_POS.getNorm();
 
         // Chassis Acceleration Limits (m/s^2)
@@ -250,6 +249,19 @@ public final class Constants {
 
         // Slow Mode Constants (R1 held)
         public static final double SLOW_MODE_SPEED_LIMIT = 0.3; // 30% speed when R1 held
+
+        // Chassis Rotation PID (for heading lock / field-oriented rotation)
+        public static final double ROTATION_KP = 4.0;
+        public static final double ROTATION_KI = 0.0;
+        public static final double ROTATION_KD = 0.2;
+
+        // PathPlanner Auto PID Constants
+        public static final double AUTO_TRANSLATION_KP = 1.38;
+        public static final double AUTO_TRANSLATION_KI = 0.0;
+        public static final double AUTO_TRANSLATION_KD = 0.0;
+        public static final double AUTO_ROTATION_KP = 3.3;
+        public static final double AUTO_ROTATION_KI = 0.0;
+        public static final double AUTO_ROTATION_KD = 0.0;
     }
 
     public static class RotateToAngleConstants {

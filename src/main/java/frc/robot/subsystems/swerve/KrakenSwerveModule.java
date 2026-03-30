@@ -208,6 +208,14 @@ public class KrakenSwerveModule {
     }
 
     /**
+     * Updates drive current limits from NetworkTables if changed.
+     * Call this periodically.
+     */
+    public void updateCurrentLimits() {
+        driveMotor.updateCurrentLimitsFromNT();
+    }
+
+    /**
      * Sets the steer motor cruise velocity for MotionMagic.
      * 
      * @param velocity cruise velocity in rotations per second

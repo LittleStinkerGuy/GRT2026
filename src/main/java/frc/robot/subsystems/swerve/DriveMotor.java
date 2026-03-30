@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -61,6 +62,12 @@ public class DriveMotor {
     private DoublePublisher targetRPSPublisher;
     private DoublePublisher positionPublisher;
 
+    // Tunable current limits via NetworkTables
+    private DoubleEntry supplyCurrentLimitEntry;
+    private DoubleEntry statorCurrentLimitEntry;
+    private double lastSupplyLimit = DRIVE_SUPPLY_CURRENT_LIMIT;
+    private double lastStatorLimit = DRIVE_STATOR_CURRENT_LIMIT;
+
     private StatusSignal<Angle> positionSignal;
     private StatusSignal<AngularVelocity> velocitySignal;
     private StatusSignal<Voltage> appliedVoltsSignal;
@@ -104,6 +111,13 @@ public class DriveMotor {
         appliedVlotsPublisher = swerveStatsTable.getDoubleTopic(canId + "appliedVolts").publish();
         supplyCurrentPublisher = swerveStatsTable.getDoubleTopic(canId + "supplyCurrent").publish();
         torqueCurrentPublisher = swerveStatsTable.getDoubleTopic(canId + "torqueCurrent").publish();
+
+        // Tunable current limits (shared across all drive motors)
+        NetworkTable tuningTable = ntInstance.getTable("SwerveTuning");
+        supplyCurrentLimitEntry = tuningTable.getDoubleTopic("driveSupplyCurrentLimit").getEntry(DRIVE_SUPPLY_CURRENT_LIMIT);
+        statorCurrentLimitEntry = tuningTable.getDoubleTopic("driveStatorCurrentLimit").getEntry(DRIVE_STATOR_CURRENT_LIMIT);
+        supplyCurrentLimitEntry.set(DRIVE_SUPPLY_CURRENT_LIMIT);
+        statorCurrentLimitEntry.set(DRIVE_STATOR_CURRENT_LIMIT);
     }
 
     /**
@@ -326,6 +340,29 @@ public class DriveMotor {
      */
     public double getTemperature() {
         return motor.getDeviceTemp().getValueAsDouble();
+    }
+
+    /**
+     * Checks NetworkTables for updated current limits and applies them if changed.
+     * Call this periodically (e.g., in periodic()).
+     */
+    public void updateCurrentLimitsFromNT() {
+        double newSupplyLimit = supplyCurrentLimitEntry.get(DRIVE_SUPPLY_CURRENT_LIMIT);
+        double newStatorLimit = statorCurrentLimitEntry.get(DRIVE_STATOR_CURRENT_LIMIT);
+
+        // Only reconfigure if values changed
+        if (newSupplyLimit != lastSupplyLimit || newStatorLimit != lastStatorLimit) {
+            lastSupplyLimit = newSupplyLimit;
+            lastStatorLimit = newStatorLimit;
+
+            motorConfig.CurrentLimits.SupplyCurrentLimit = newSupplyLimit;
+            motorConfig.CurrentLimits.StatorCurrentLimit = newStatorLimit;
+            motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = newStatorLimit;
+            motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -newStatorLimit;
+
+            motor.getConfigurator().apply(motorConfig.CurrentLimits, 0.02);
+            motor.getConfigurator().apply(motorConfig.TorqueCurrent, 0.02);
+        }
     }
 
     /**
