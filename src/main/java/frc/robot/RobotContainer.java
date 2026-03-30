@@ -153,9 +153,14 @@ public class RobotContainer {
                     // L1 = boost mode (higher accel/velocity)
                     swerveSubsystem.setBoostMode(driveController.getLeftBumper());
 
-                    // L2 = speed limit (harder press = slower)
-                    double leftTrigger = driveController.getLeftTriggerAxis();
-                    double speedLimit = 1.0 - leftTrigger;
+                    // R1 = slow mode (30% speed), L2 = variable speed limit
+                    double speedLimit;
+                    if (driveController.getRightBumper()) {
+                        speedLimit = Constants.SwerveConstants.SLOW_MODE_SPEED_LIMIT;
+                    } else {
+                        double leftTrigger = driveController.getLeftTriggerAxis();
+                        speedLimit = 1.0 - leftTrigger;
+                    }
                     swerveSubsystem.setDriveSpeedLimit(speedLimit);
 
                     swerveSubsystem.setDrivePowers(
