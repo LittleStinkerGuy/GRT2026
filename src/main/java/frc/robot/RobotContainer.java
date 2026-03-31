@@ -92,9 +92,12 @@ public class RobotContainer {
 
     private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
-    // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    // VisionConstants.cameraConfig11);
-
+    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+        VisionConstants.cameraConfig1);
+    private final VisionSubsystem visionSubsystem2 = new VisionSubsystem(
+        VisionConstants.cameraConfig2);
+    private final VisionSubsystem visionSubsystem3 = new VisionSubsystem(
+        VisionConstants.cameraConfig3);
     private UsbCamera camera1;
     private UsbCamera camera2;
     private VideoSink cameraServer;
@@ -324,7 +327,9 @@ public class RobotContainer {
 
     // vision shit
     public void visionStuff() {
-        // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+        visionSubsystem2.setInterface(swerveSubsystem::addVisionMeasurements);
+        visionSubsystem3.setInterface(swerveSubsystem::addVisionMeasurements);
 
         // CommandScheduler.getInstance().schedule(
         // new GetCameraDisplacement(visionSubsystem1,

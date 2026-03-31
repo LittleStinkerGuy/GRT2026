@@ -51,7 +51,7 @@ public class hood extends SubsystemBase {
         // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         // cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
-        cfg.Feedback.RotorToSensorRatio = -1*ShooterConstants.Hood.GEAR_RATIO;
+        cfg.Feedback.RotorToSensorRatio = -1 * ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
         cfg.Slot0.kI = ShooterConstants.Hood.KI;
