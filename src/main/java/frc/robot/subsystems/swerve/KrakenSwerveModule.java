@@ -163,7 +163,7 @@ public class KrakenSwerveModule {
 
     public void steerDebug() {
         NetworkTableInstance.getDefault().getTable("steerDebug")
-            .getEntry(steerPort + "PIDF")
+            .getEntry("AllSwerve" + "PIDF")
             .setDoubleArray(
                 new double[] {
                         STEER_P[steerIndex],
@@ -172,7 +172,7 @@ public class KrakenSwerveModule {
                         STEER_S[steerIndex]
                 });
         NetworkTableInstance.getDefault().getTable("steerDebug").addListener(
-            steerPort + "PIDF",
+            "AllSwerve" + "PIDF",
             EnumSet.of(NetworkTableEvent.Kind.kValueAll),
             (table, key, event) -> {
                 double[] pidf = event.valueData.value.getDoubleArray();
@@ -182,7 +182,7 @@ public class KrakenSwerveModule {
 
     public void driveDebug() {
         NetworkTableInstance.getDefault().getTable("driveDebug")
-            .getEntry(drivePort + "PIDSV")
+            .getEntry("AllSwerve" + "PIDSV")
             .setDoubleArray(
                 new double[] {
                         DRIVE_P[driveIndex],
@@ -192,7 +192,7 @@ public class KrakenSwerveModule {
                         DRIVE_V[driveIndex]
                 });
         NetworkTableInstance.getDefault().getTable("driveDebug").addListener(
-            drivePort + "PIDSV",
+            "AllSwerve" + "PIDSV",
             EnumSet.of(NetworkTableEvent.Kind.kValueAll),
             (table, key, event) -> {
                 double[] pidsv = event.valueData.value.getDoubleArray();
