@@ -283,13 +283,13 @@ public final class Constants {
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
         public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
-        // Roller Position control PID (SysID Derived - Voltage) (lowk really sketch data)
-        public static final double ROLLER_P = 0.140;
+        // Roller Position control PID (SysID Derived - Voltage)
+        public static final double ROLLER_P = 0.0930;
         public static final double ROLLER_I = 0.0;
         public static final double ROLLER_D = 0.0;
-        public static final double ROLLER_S = 0.908;
-        public static final double ROLLER_V = 0.0991;
-        public static final double ROLLER_A = 0.0161;
+        public static final double ROLLER_S = 0.866;
+        public static final double ROLLER_V = 0.100;
+        public static final double ROLLER_A = 0.0116;
 
         // Pivot Motor
         public static final int PIVOT_MOTOR_ID = 12;
@@ -343,7 +343,7 @@ public final class Constants {
         public static final double KS = 0.0;
         public static final double KV = 0.464;
         public static final double KA = 0.0127;
-        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(6.46);
+        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(6.47);
 
         // balls stuff
         public static final double TARGET_BPS = 4.0;// frequency
