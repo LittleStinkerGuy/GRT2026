@@ -191,12 +191,14 @@ public final class Constants {
         public static final double BALL_DIAMETER = 6.0;// distance
         public static final double TARGET_RPS = 30;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
-        // Velocity control PID
-        public static final double KP = 0.5;
+        // Velocity control PID (SysID Derived - Voltage)
+        public static final double KP = 0.00625;
         public static final double KI = 0.0;
         public static final double KD = 0.0;
-        public static final double KS = 0.0;
-        public static final double KV = 0.12;
+        public static final double KS = 0.231;
+        public static final double KV = 0.388;
+        public static final double KA = 0.00582;
+        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(7.58);
 
         // motion magic
         public static final double MM_ACCEL = 1000;// distance
