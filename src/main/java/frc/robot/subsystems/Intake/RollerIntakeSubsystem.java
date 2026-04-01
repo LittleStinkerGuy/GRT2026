@@ -121,6 +121,9 @@ public class RollerIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Roller/Temp", rollerMotor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Intake/Roller/Connected", rollerMotor.isConnected());
         SmartDashboard.putBoolean("Intake/Roller/IsRunning", Math.abs(rollerMotor.get()) > 0.01);
+
+        SmartDashboard.putNumber("sysIDTest/rollerSetpoint(RPS)", rollerMotor.getClosedLoopOutput().getValueAsDouble());
+        SmartDashboard.putNumber("sysIDTest/rollerVelo(RPS)", rollerMotor.getVelocity(false).getValueAsDouble());
     }
 
     /**

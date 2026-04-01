@@ -20,6 +20,7 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -168,5 +169,8 @@ public class towerRollers extends SubsystemBase {
     @Override
     public void periodic() {
         krakenMotor.updateDashboard();
+
+        SmartDashboard.putNumber("sysIDTest/towerSetpoint(RPS)", krakenMotor.getClosedLoopOutput().getValueAsDouble());
+        SmartDashboard.putNumber("sysIDTest/towerVelo(RPS)", krakenMotor.getVelocity(false).getValueAsDouble());
     }
 }

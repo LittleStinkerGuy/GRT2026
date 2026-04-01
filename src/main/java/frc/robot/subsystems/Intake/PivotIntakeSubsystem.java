@@ -226,5 +226,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Pivot/Motor/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Intake/Pivot/Motor/Connected", pivotMotor.isConnected());
         // SmartDashboard.putBoolean("Intake/Pivot/CANcoder/Connected", canCoder.getPosition().getStatus().isOK());
+
+        SmartDashboard.putNumber("sysIDTest/pivotSetpoint(Rot.)", pivotMotor.getClosedLoopOutput().getValueAsDouble());
+        SmartDashboard.putNumber("sysIDTest/pivotPos(Rot.)", pivotMotor.getPosition(false).getValueAsDouble());
     }
 }
