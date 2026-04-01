@@ -249,14 +249,16 @@ public final class Constants {
             public static final double GEAR_RATIO = 244.411765;
 
             // Position control PID
-            public static final double KP = 8.0;
-            public static final double KI = 3.0;
-            public static final double KD = 0.0;
+            public static final double KP = 3000;
+            public static final double KI = 30;
+            public static final double KD = 60;
+            public static final double KS = 120;
 
             // Angle limits (rotations)
             public static final double UPPER_ANGLE_LIMIT = 0.1;
             public static final double LOWER_ANGLE_LIMIT = 0;
             public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
+            public static final double MagnetOffset = 0.322;
 
             // Current limits
             public static final double STATOR_CURRENT_LIMIT = 50.0;
@@ -293,10 +295,12 @@ public final class Constants {
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
         // Pivot PID
-        public static final double PIVOT_P = 50.0;
+        public static final double PIVOT_P = 60.0;
         public static final double PIVOT_I = 0.0;
-        public static final double PIVOT_D = 0.5;
-        public static final double PIVOT_F = 0.0;
+        public static final double PIVOT_D = 3.5;
+        public static final double PIVOT_S = 0.2;
+        public static final double PIVOT_V = 3.18;
+        public static final double PIVOT_A = 0.27;
 
         // Pivot Motion Magic
         public static final double PIVOT_CRUISE_VELOCITY = 2.0;

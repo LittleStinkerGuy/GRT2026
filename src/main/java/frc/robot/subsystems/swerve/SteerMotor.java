@@ -223,7 +223,7 @@ public class SteerMotor extends SubsystemBase {
     public SteerMotor(int motorCAN, int encoderID, CANBus canivore) {
         motorID = motorCAN;
         motor = new TalonFX(motorCAN, canivore);
-        cancoder = new CANcoder(encoderID);
+        cancoder = new CANcoder(encoderID, canivore);
         configureMotor();
         initNT(motorCAN);
         initLogs(motorCAN);
