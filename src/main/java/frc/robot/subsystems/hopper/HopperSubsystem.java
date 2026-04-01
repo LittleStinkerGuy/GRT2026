@@ -133,7 +133,7 @@ public class HopperSubsystem extends SubsystemBase {
                 krakenMotor.setControl(velocityControl.withVelocity(-HopperConstants.TARGET_RPS));
                 break;
             case STOP:
-                krakenMotor.setControl(velocityControl.withVelocity(0.0));
+                krakenMotor.stopMotor();
                 break;
         }
     }
