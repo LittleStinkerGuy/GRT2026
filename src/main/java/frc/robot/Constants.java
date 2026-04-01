@@ -258,6 +258,7 @@ public final class Constants {
             public static final double UPPER_ANGLE_LIMIT = 0.1;
             public static final double LOWER_ANGLE_LIMIT = 0;
             public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
+            public static final double MagnetOffset = 0.322;
 
             // Current limits
             public static final double STATOR_CURRENT_LIMIT = 50.0;
