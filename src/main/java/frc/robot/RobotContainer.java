@@ -351,6 +351,7 @@ public class RobotContainer {
         if (swerveSubsystem != null) {
             swerveSubsystem.resetDriverHeadingOffset90();
         }
+        pivotIntake.zeroEncoder();
     }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
     // }
