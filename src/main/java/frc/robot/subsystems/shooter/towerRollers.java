@@ -1,13 +1,12 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
-
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.EnumSet;
 import java.util.function.Consumer;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -18,9 +17,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.DoubleTopic;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,19 +33,16 @@ import static edu.wpi.first.units.Units.Seconds;
 public class towerRollers extends SubsystemBase {
 
     private final LoggedTalon krakenMotor;
-    private final MotionMagicVelocityTorqueCurrentFOC velocityControl;
-    private final DutyCycleOut dutyCycleControl;
-    private final VoltageOut sysIdVoltage = new VoltageOut(0);
+    private final VelocityVoltage velocityControl = new VelocityVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
+    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
     private final SysIdRoutine sysIdRoutine;
     private NetworkTable NTtable;
-    private DoubleSubscriber sub;
     private TalonFXConfiguration config = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
     public towerRollers(CANBus canBus) {
         krakenMotor = new LoggedTalon(TowerConstants.KRAKEN_CAN_ID, canBus);
-        velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0);
-        dutyCycleControl = new DutyCycleOut(0);
         configureMotor();
         configThruNT();
 
@@ -121,9 +115,7 @@ public class towerRollers extends SubsystemBase {
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(TowerConstants.STATOR_CURRENT_LIMIT_ENABLE)
                 .withStatorCurrentLimit(Amps.of(TowerConstants.STATOR_CURRENT_LIMIT_AMPS)));
-        config.MotionMagic.MotionMagicCruiseVelocity = TowerConstants.MM_MAXVELO; // rotations/sec^2
-        config.MotionMagic.MotionMagicAcceleration = TowerConstants.MM_ACCEL; // rotations/sec^2
-        config.MotionMagic.MotionMagicJerk = TowerConstants.MM_JERK; // optional
+
         config.Feedback.SensorToMechanismRatio = TowerConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
         pidSlots.withKP(TowerConstants.KP);
@@ -131,6 +123,7 @@ public class towerRollers extends SubsystemBase {
         pidSlots.withKD(TowerConstants.KD);
         pidSlots.withKS(TowerConstants.KS);
         pidSlots.withKV(TowerConstants.KV);
+        pidSlots.withKA(TowerConstants.KA);
         config.withSlot0(pidSlots);
 
         krakenMotor.getConfigurator().apply(config);
@@ -139,19 +132,20 @@ public class towerRollers extends SubsystemBase {
     public void setTower(TOWER_INTAKE state) {
         switch (state) {
             case BALLUP:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(TowerConstants.TARGET_RPS));
+                krakenMotor.setControl(velocityControl.withVelocity(TowerConstants.TARGET_RPS));
                 break;
             case BALLDOWN:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(-TowerConstants.TARGET_RPS));
+                krakenMotor.setControl(velocityControl.withVelocity(-TowerConstants.TARGET_RPS));
                 break;
             case STOP:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(0.0));
+                krakenMotor.stopMotor();
                 break;
         }
     }
 
     public boolean correctRoll() {
-        if (Math.abs(TowerConstants.TARGET_RPS - krakenMotor.getVelocity().getValueAsDouble()) < 2) {
+        double errorRPS = Math.abs(TowerConstants.TARGET_RPS - krakenMotor.getVelocity().getValueAsDouble());
+        if (errorRPS < TowerConstants.velocityTolerance.in(RotationsPerSecond)) {
             return true;
         } else {
             return false;
