@@ -57,7 +57,7 @@ public class hood extends SubsystemBase {
         cfg.Slot0.kS = ShooterConstants.Hood.KS;
 
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
-        ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         ccfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // Use full range for absolute position
         ccfg.MagnetSensor.MagnetOffset = ShooterConstants.Hood.MagnetOffset;
 
