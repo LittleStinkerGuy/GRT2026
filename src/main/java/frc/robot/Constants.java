@@ -44,10 +44,10 @@ public final class Constants {
         // Motor Configuration
 
         // Current Limits (defaults - tunable via NetworkTables)
-        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 80;
+        public static final double DRIVE_SUPPLY_CURRENT_LIMIT = 70;
 
         public static final double DRIVE_STATOR_CURRENT_LIMIT = 200; // hardware safety cutoff
-        public static final double DRIVE_PEAK_STATOR_CURRENT = 160; // max current FOC control can request
+        public static final double DRIVE_PEAK_STATOR_CURRENT = 120; // max current FOC control can request
 
         public static final boolean DRIVE_CURRENT_LIMIT_ENABLE = true;
         public static final double DRIVE_RAMP_RATE = 0.0;
@@ -62,7 +62,7 @@ public final class Constants {
 
         // MotionMagic parameters for drive motors (tested values)
         public static final double DRIVE_MAX_VELOCITY_RPS = 100.0; // 90
-        public static final double DRIVE_MAX_ACCELERATION = 200.0; // 170
+        public static final double DRIVE_MAX_ACCELERATION = 300.0; // 170
     }
 
     public static class SwerveSteerConstants {
@@ -137,11 +137,11 @@ public final class Constants {
 
         // Chassis Acceleration Limits (set to max - no software limiting)
         // increase = faster response, decrease = smoother
-        public static final double MAX_LINEAR_ACCELERATION = 100; // how fast robot speeds up (m/s²)
-        public static final double MAX_LINEAR_DECELERATION = 100; // how fast robot stops (m/s²)
+        public static final double MAX_LINEAR_ACCELERATION = 5; // how fast robot speeds up (m/s²)
+        public static final double MAX_LINEAR_DECELERATION = 6; // how fast robot stops (m/s²)
 
-        public static final double MAX_ANGULAR_ACCELERATION = 100; // how fast robot starts spinning (rad/s²)
-        public static final double MAX_ANGULAR_DECELERATION = 100; // how fast robot stops spinning (rad/s²)
+        public static final double MAX_ANGULAR_ACCELERATION = 10; // how fast robot starts spinning (rad/s²)
+        public static final double MAX_ANGULAR_DECELERATION = 10; // how fast robot stops spinning (rad/s²)
 
         // Boost Mode Constants (L1 held) - no limits, let motors do max
         public static final double BOOST_MAX_VEL = MAX_VEL;
