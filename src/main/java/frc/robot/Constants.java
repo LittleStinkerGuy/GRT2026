@@ -7,12 +7,12 @@ package frc.robot;
 
 
 import static edu.wpi.first.units.Units.Rotations;
-
-
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 // Units library:
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -332,13 +332,14 @@ public final class Constants {
             STOP
         }
 
-        // Velocity control PID
-        public static final double KP = 0.5;
+        // Velocity control PID (SysID Derived - Voltage)
+        public static final double KP = 0.0673;
         public static final double KI = 0.0;
         public static final double KD = 0.0;
         public static final double KS = 0.0;
-        public static final double KV = 0.12;
-        public static final double KA = 0.12;
+        public static final double KV = 0.464;
+        public static final double KA = 0.0127;
+        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(6.46);
 
         // balls stuff
         public static final double TARGET_BPS = 4.0;// frequency
