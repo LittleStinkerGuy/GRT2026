@@ -75,6 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private NetworkTable swerveTable;
 
     private StructArrayPublisher<SwerveModuleState> swerveStatesPublisher;
+    private StructArrayPublisher<SwerveModuleState> desiredStatesPublisher;
 
     private StructPublisher<Pose2d> estimatedPosePublisher;
     // private StructLogEntry<Pose2d> estimatedPoseLogEntry =
@@ -539,6 +540,9 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveStatesPublisher = swerveTable.getStructArrayTopic(
             "SwerveStates", SwerveModuleState.struct).publish();
 
+        desiredStatesPublisher = swerveTable.getStructArrayTopic(
+            "DesiredStates", SwerveModuleState.struct).publish();
+
         estimatedPosePublisher = swerveTable.getStructTopic(
             "estimatedPose",
             Pose2d.struct).publish();
@@ -554,6 +558,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (STATE_DEBUG || DRIVE_DEBUG || STEER_DEBUG) {
             swerveStatesPublisher.set(getModuleStates());
+            desiredStatesPublisher.set(states);
         }
 
         if (DRIVE_DEBUG) {
