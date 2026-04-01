@@ -299,9 +299,9 @@ public final class Constants {
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
         // Pivot PID
-        public static final double PIVOT_P = 50.0;
+        public static final double PIVOT_P = 60.0;
         public static final double PIVOT_I = 0.0;
-        public static final double PIVOT_D = 3;
+        public static final double PIVOT_D = 4;
         public static final double PIVOT_S = 0.2;
         public static final double PIVOT_V = 3.18;
         public static final double PIVOT_A = 0.27;
