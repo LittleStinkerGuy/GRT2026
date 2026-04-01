@@ -70,17 +70,8 @@ public class towerRollers extends SubsystemBase {
     }
 
     /**
-     *
-     * 
-     * 
-     * 
-     * @param valueName The name of the value in NetworkTables (ex: "P", "I",
-     *        "D").
-     * @param configSetter A Consumer that takes the new double value and applies it
-     *        to the
-     * 
-     * 
-     *        s.withKP(value)).
+     * @param valueName The name of the value in NetworkTables (ex: "P", "I", "D").
+     * @param configSetter A Consumer that takes the new double value and applies it to the s.withKP(value)).
      * @param defaultVal The default value to publish to NetworkTables on startup.
      */
 
