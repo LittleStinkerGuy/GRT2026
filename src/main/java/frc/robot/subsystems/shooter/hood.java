@@ -6,13 +6,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.util.LoggedTalon;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -22,7 +20,7 @@ public class hood extends SubsystemBase {
 
     private final LoggedTalon hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
-    private PositionVoltage focThing = new PositionVoltage(0);
+    private PositionTorqueCurrentFOC focThing = new PositionTorqueCurrentFOC(0);
     private final CANcoder hoodCoder;
 
     private double wantedAngle = 0.1;
@@ -61,6 +59,7 @@ public class hood extends SubsystemBase {
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
         ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         ccfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // Use full range for absolute position
+        ccfg.MagnetSensor.MagnetOffset = ShooterConstants.Hood.MagnetOffset;
 
         hoodCoder.getConfigurator().apply(ccfg);
 
