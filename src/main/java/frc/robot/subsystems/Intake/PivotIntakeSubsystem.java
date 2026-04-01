@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -33,7 +34,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     private final CANcoder canCoder;
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
+    private final PositionVoltage voltagePosControl = new PositionVoltage(0);
     private final VoltageOut sysIdVoltage = new VoltageOut(0);
     private final SysIdRoutine sysIdRoutine;
 
@@ -41,7 +42,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     private double kP = IntakeConstants.PIVOT_P;
     private double kI = IntakeConstants.PIVOT_I;
     private double kD = IntakeConstants.PIVOT_D;
-    private double kV = IntakeConstants.PIVOT_F;
+    private double kS = IntakeConstants.PIVOT_S;
+    private double kV = IntakeConstants.PIVOT_V;
+    private double kA = IntakeConstants.PIVOT_A;
     private double cruiseVelocity = IntakeConstants.PIVOT_CRUISE_VELOCITY;
     private double acceleration = IntakeConstants.PIVOT_ACCELERATION;
 
@@ -84,7 +87,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         config.Slot0.kP = kP;
         config.Slot0.kI = kI;
         config.Slot0.kD = kD;
+        config.Slot0.kS = kS;
         config.Slot0.kV = kV;
+        config.Slot0.kA = kA;
 
         // Motor Output Config
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -166,7 +171,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
      * @param rotations Target position in mechanism rotations (as read by CANcoder)
      */
     public void setPosition(double rotations) {
-        pivotMotor.setControl(motionMagicControl.withPosition(rotations));
+        pivotMotor.setControl(voltagePosControl.withPosition(rotations));
     }
 
     /**
