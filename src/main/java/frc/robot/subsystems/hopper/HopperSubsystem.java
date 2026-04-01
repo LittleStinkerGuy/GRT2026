@@ -7,20 +7,15 @@ import java.util.function.Consumer;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.DoubleTopic;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,20 +31,17 @@ import static edu.wpi.first.units.Units.Seconds;
 public class HopperSubsystem extends SubsystemBase {
 
     private final LoggedTalon krakenMotor;
-    private final MotionMagicVelocityTorqueCurrentFOC velocityControl;
-    private final DutyCycleOut dutyCycleControl;
-    private final VoltageOut sysIdVoltage = new VoltageOut(0);
+    private final VelocityVoltage velocityControl = new VelocityVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
+    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
     private final SysIdRoutine sysIdRoutine;
     private NetworkTableInstance NTinst;
     private NetworkTable NTtable;
-    private DoubleSubscriber sub;
     private TalonFXConfiguration config = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
     public HopperSubsystem(CANBus canBus) {
         krakenMotor = new LoggedTalon(HopperConstants.KRAKEN_CAN_ID, canBus);
-        velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0);
-        dutyCycleControl = new DutyCycleOut(0);
         configureMotor();
         configThruNT();
 
@@ -71,20 +63,10 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     /**
-     *
-     * 
-     * 
-     * 
-     * @param valueName The name of the value in NetworkTables (ex: "P", "I",
-     *        "D").
-     * @param configSetter A Consumer that takes the new double value and applies it
-     *        to the
-     * 
-     * 
-     *        s.withKP(value)).
+     * @param valueName The name of the value in NetworkTables (ex: "P", "I", "D").
+     * @param configSetter A Consumer that takes the new double value and applies it to the s.withKP(value)).
      * @param defaultVal The default value to publish to NetworkTables on startup.
      */
-
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
         NTtable.getEntry(valueName).setDouble(defaultVal);
         NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
@@ -94,7 +76,6 @@ public class HopperSubsystem extends SubsystemBase {
             krakenMotor.getConfigurator().apply(config);
             System.out.println("Updated: " + valueName + " to this: " + event.valueData.value.getDouble() + "!");
         });
-
     }
 
     private void configThruNT() {
@@ -130,9 +111,6 @@ public class HopperSubsystem extends SubsystemBase {
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
                 .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
-        config.MotionMagic.MotionMagicCruiseVelocity = 300; // rotations/sec^2
-        config.MotionMagic.MotionMagicAcceleration = 100; // rotations/sec^2
-        config.MotionMagic.MotionMagicJerk = 1000; // optional
         config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
         config.withSlot0(new Slot0Configs()
@@ -140,23 +118,22 @@ public class HopperSubsystem extends SubsystemBase {
             .withKI(HopperConstants.KI)
             .withKD(HopperConstants.KD)
             .withKS(HopperConstants.KS)
-            .withKV(HopperConstants.KV));
+            .withKV(HopperConstants.KV)
+            .withKV(HopperConstants.KA));
 
         krakenMotor.getConfigurator().apply(config);
     }
 
     public void setHopper(HOPPER_INTAKE state) {
-
         switch (state) {
             case BALLIN:
-                setManualControl(1);
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(HopperConstants.TARGET_RPS));
+                krakenMotor.setControl(velocityControl.withVelocity(HopperConstants.TARGET_RPS));
                 break;
             case BALLOUT:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(-HopperConstants.TARGET_RPS));
+                krakenMotor.setControl(velocityControl.withVelocity(-HopperConstants.TARGET_RPS));
                 break;
             case STOP:
-                krakenMotor.setControl(new MotionMagicVelocityTorqueCurrentFOC(0.0));
+                krakenMotor.setControl(velocityControl.withVelocity(0.0));
                 break;
         }
     }

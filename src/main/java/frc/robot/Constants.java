@@ -338,6 +338,7 @@ public final class Constants {
         public static final double KD = 0.0;
         public static final double KS = 0.0;
         public static final double KV = 0.12;
+        public static final double KA = 0.12;
 
         // balls stuff
         public static final double TARGET_BPS = 4.0;// frequency
