@@ -30,11 +30,14 @@ import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.commands.ManualShooterSequence;
 import frc.robot.commands.ShooterSequence;
+import frc.robot.commands.cycleBallsCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
+import frc.robot.commands.intake.pivot.PivotInCommand;
+import frc.robot.commands.intake.pivot.PivotOutCommand;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
@@ -58,6 +61,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -194,15 +198,14 @@ public class RobotContainer {
         if (Constants.MECH_ENABLED) {
             // ==================== INTAKE ROLLER ====================
             // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
             // ==================== INTAKE PIVOT ====================
             // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().onTrue(new PivotDownTimedCommand(pivotIntake));
-            mechController.povRight().onTrue(new PivotUpTimedCommand(pivotIntake));
-            pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
+            mechController.povLeft().whileTrue(new PivotOutCommand(pivotIntake));
+            mechController.povRight().whileTrue(new PivotInCommand(pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
@@ -278,6 +281,33 @@ public class RobotContainer {
                     hoodSubsystem.hoodSpeed(0);
                 }
             }, hoodSubsystem));
+
+            // ==================== SYSID AUTO TUNE ====================
+            // Triangle = run all sysID routines sequentially
+            mechController.triangle().onTrue(
+                Commands.sequence(
+                    // Intake Rollers
+                    intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                    // Intake Pivot
+                    pivotIntake.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    pivotIntake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    pivotIntake.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    pivotIntake.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                    // Hopper
+                    HopperSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    HopperSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    HopperSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    HopperSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+                    // Tower Rollers
+                    tower.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+                    tower.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+                    tower.sysIdDynamic(SysIdRoutine.Direction.kForward),
+                    tower.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+
+            mechController.cross().toggleOnTrue(new cycleBallsCommand(flywheelSubsystem, tower, HopperSubsystem, intakeSubsystem));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {

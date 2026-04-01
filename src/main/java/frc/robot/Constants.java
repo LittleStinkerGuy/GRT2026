@@ -7,12 +7,12 @@ package frc.robot;
 
 
 import static edu.wpi.first.units.Units.Rotations;
-
-
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 // Units library:
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -191,12 +191,14 @@ public final class Constants {
         public static final double BALL_DIAMETER = 6.0;// distance
         public static final double TARGET_RPS = 30;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
-        // Velocity control PID
-        public static final double KP = 0.5;
+        // Velocity control PID (SysID Derived - Voltage)
+        public static final double KP = 0.00625;
         public static final double KI = 0.0;
         public static final double KD = 0.0;
-        public static final double KS = 0.0;
-        public static final double KV = 0.12;
+        public static final double KS = 0.231;
+        public static final double KV = 0.388;
+        public static final double KA = 0.00582;
+        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(7.58);
 
         // motion magic
         public static final double MM_ACCEL = 1000;// distance
@@ -281,11 +283,13 @@ public final class Constants {
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
         public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
-        // Roller PID
-        public static final double ROLLER_P = 0.1;
+        // Roller Position control PID (SysID Derived - Voltage)
+        public static final double ROLLER_P = 0.0930;
         public static final double ROLLER_I = 0.0;
         public static final double ROLLER_D = 0.0;
-        public static final double ROLLER_V = 0.12;
+        public static final double ROLLER_S = 0.866;
+        public static final double ROLLER_V = 0.100;
+        public static final double ROLLER_A = 0.0116;
 
         // Pivot Motor
         public static final int PIVOT_MOTOR_ID = 12;
@@ -295,9 +299,9 @@ public final class Constants {
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
         // Pivot PID
-        public static final double PIVOT_P = 60.0;
+        public static final double PIVOT_P = 50.0;
         public static final double PIVOT_I = 0.0;
-        public static final double PIVOT_D = 3.5;
+        public static final double PIVOT_D = 3;
         public static final double PIVOT_S = 0.2;
         public static final double PIVOT_V = 3.18;
         public static final double PIVOT_A = 0.27;
@@ -308,9 +312,9 @@ public final class Constants {
         public static final double GEAR_RATIO = 25.0;
 
         // Pivot Positions (in rotations)
-        public static final double PIVOT_OUT_POS = 0.25;
+        public static final double PIVOT_OUT_POS = -0.29;
         public static final double PIVOT_IN_POS = 0.0;
-        public static final double PIVOT_MID_POS = 0.125;
+        public static final double PIVOT_MID_POS = -0.125;
 
         // Software Limits
         public static final Angle TOP_LIMIT = Rotations.of(0.25);
@@ -332,12 +336,14 @@ public final class Constants {
             STOP
         }
 
-        // Velocity control PID
-        public static final double KP = 0.5;
+        // Velocity control PID (SysID Derived - Voltage)
+        public static final double KP = 0.0673;
         public static final double KI = 0.0;
         public static final double KD = 0.0;
         public static final double KS = 0.0;
-        public static final double KV = 0.12;
+        public static final double KV = 0.464;
+        public static final double KA = 0.0127;
+        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(6.47);
 
         // balls stuff
         public static final double TARGET_BPS = 4.0;// frequency
