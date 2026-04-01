@@ -162,7 +162,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     /**
      * Run intake out (ejecting direction) at tunable speed
      */
-    public void runOut(double speed) {
+    public void runOut() {
         outSpeed = SmartDashboard.getNumber("Intake/Roller/OutSpeed", Math.abs(IntakeConstants.ROLLER_OUT_SPEED));
         setVelocity(outSpeed);
     }

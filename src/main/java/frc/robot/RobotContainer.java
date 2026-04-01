@@ -196,14 +196,14 @@ public class RobotContainer {
         if (Constants.MECH_ENABLED) {
             // ==================== INTAKE ROLLER ====================
             // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
             // ==================== INTAKE PIVOT ====================
             // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().onTrue(new PivotDownTimedCommand(pivotIntake));
-            mechController.povRight().onTrue(new PivotUpTimedCommand(pivotIntake));
+            mechController.povLeft().onTrue(Commands.run(() -> pivotIntake.setPosition(-0.25), pivotIntake));
+            mechController.povRight().onTrue(Commands.run(() -> pivotIntake.setPosition(0), pivotIntake));
             pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
