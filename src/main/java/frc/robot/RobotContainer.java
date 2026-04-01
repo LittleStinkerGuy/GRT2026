@@ -202,9 +202,8 @@ public class RobotContainer {
 
             // ==================== INTAKE PIVOT ====================
             // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().onTrue(Commands.run(() -> pivotIntake.setPosition(-0.25), pivotIntake));
-            mechController.povRight().onTrue(Commands.run(() -> pivotIntake.setPosition(0), pivotIntake));
-            pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
+            mechController.povLeft().whileTrue(Commands.run(() -> pivotIntake.setPosition(-0.25), pivotIntake));
+            mechController.povRight().whileTrue(Commands.run(() -> pivotIntake.setPosition(0), pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
