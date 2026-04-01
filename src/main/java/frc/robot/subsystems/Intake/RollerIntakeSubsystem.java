@@ -6,24 +6,33 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Seconds;
 import com.ctre.phoenix6.CANBus;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.IntakeConstants;
 
 public class RollerIntakeSubsystem extends SubsystemBase {
     private final TalonFX rollerMotor;
-    private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
+    private final VelocityVoltage velocityRequest = new VelocityVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
+    private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
+    private final SysIdRoutine sysIdRoutine;
 
     private double kP = IntakeConstants.ROLLER_P;
     private double kI = IntakeConstants.ROLLER_I;
     private double kD = IntakeConstants.ROLLER_D;
+    private double kS = IntakeConstants.ROLLER_S;
     private double kV = IntakeConstants.ROLLER_V;
+    private double kA = IntakeConstants.ROLLER_A;
 
     private double inSpeed = IntakeConstants.ROLLER_IN_SPEED;
     private double outSpeed = IntakeConstants.ROLLER_OUT_SPEED;
@@ -31,6 +40,22 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     public RollerIntakeSubsystem(CANBus canBus) {
         rollerMotor = new TalonFX(IntakeConstants.ROLLER_CAN_ID, canBus);
         configureMotor();
+
+        sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(1).per(Seconds), // ramp rate: 1 V/s
+                Volts.of(7), // step voltage
+                Seconds.of(10) // timeout
+            ),
+            new SysIdRoutine.Mechanism(
+                voltage -> rollerMotor.setControl(sysIdVoltage.withOutput(voltage)),
+                log -> {
+                    log.motor("rollerIntake")
+                        .voltage(rollerMotor.getMotorVoltage().getValue())
+                        .angularPosition(rollerMotor.getPosition().getValue())
+                        .angularVelocity(rollerMotor.getVelocity().getValue());
+                },
+                this));
 
         SmartDashboard.putNumber("Intake/Roller/kP", kP);
         SmartDashboard.putNumber("Intake/Roller/kI", kI);
@@ -60,7 +85,9 @@ public class RollerIntakeSubsystem extends SubsystemBase {
             .withKP(kP)
             .withKI(kI)
             .withKD(kD)
-            .withKV(kV));
+            .withKS(kS)
+            .withKV(kV)
+            .withKA(kA));
 
         rollerMotor.getConfigurator().apply(config);
     }
@@ -94,6 +121,9 @@ public class RollerIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Roller/Temp", rollerMotor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Intake/Roller/Connected", rollerMotor.isConnected());
         SmartDashboard.putBoolean("Intake/Roller/IsRunning", Math.abs(rollerMotor.get()) > 0.01);
+
+        SmartDashboard.putNumber("sysIDTest/rollerSetpoint(RPS)", rollerMotor.getClosedLoopOutput().getValueAsDouble());
+        SmartDashboard.putNumber("sysIDTest/rollerVelo(RPS)", rollerMotor.getVelocity(false).getValueAsDouble());
     }
 
     /**
@@ -132,7 +162,7 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     /**
      * Run intake out (ejecting direction) at tunable speed
      */
-    public void runOut(double speed) {
+    public void runOut() {
         outSpeed = SmartDashboard.getNumber("Intake/Roller/OutSpeed", Math.abs(IntakeConstants.ROLLER_OUT_SPEED));
         setVelocity(outSpeed);
     }
@@ -151,6 +181,14 @@ public class RollerIntakeSubsystem extends SubsystemBase {
     public void runOutDutyCycle() {
         double dc = SmartDashboard.getNumber("Intake/Roller/ManualDutyCycle", 1.0);
         setDutyCycle(dc);
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
     }
 
     /**
