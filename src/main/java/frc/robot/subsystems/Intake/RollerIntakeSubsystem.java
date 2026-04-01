@@ -22,15 +22,17 @@ import frc.robot.Constants.IntakeConstants;
 
 public class RollerIntakeSubsystem extends SubsystemBase {
     private final TalonFX rollerMotor;
-    private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
+    private final VelocityVoltage velocityRequest = new VelocityVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
-    private final VoltageOut sysIdVoltage = new VoltageOut(0);
+    private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
     private final SysIdRoutine sysIdRoutine;
 
     private double kP = IntakeConstants.ROLLER_P;
     private double kI = IntakeConstants.ROLLER_I;
     private double kD = IntakeConstants.ROLLER_D;
+    private double kS = IntakeConstants.ROLLER_S;
     private double kV = IntakeConstants.ROLLER_V;
+    private double kA = IntakeConstants.ROLLER_A;
 
     private double inSpeed = IntakeConstants.ROLLER_IN_SPEED;
     private double outSpeed = IntakeConstants.ROLLER_OUT_SPEED;
@@ -83,7 +85,9 @@ public class RollerIntakeSubsystem extends SubsystemBase {
             .withKP(kP)
             .withKI(kI)
             .withKD(kD)
-            .withKV(kV));
+            .withKS(kS)
+            .withKV(kV)
+            .withKA(kA));
 
         rollerMotor.getConfigurator().apply(config);
     }
