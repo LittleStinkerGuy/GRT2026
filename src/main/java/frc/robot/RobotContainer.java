@@ -30,6 +30,7 @@ import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.commands.ManualShooterSequence;
 import frc.robot.commands.ShooterSequence;
+import frc.robot.commands.cycleBallsCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -304,6 +305,8 @@ public class RobotContainer {
                     tower.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
                     tower.sysIdDynamic(SysIdRoutine.Direction.kForward),
                     tower.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+
+            mechController.cross().toggleOnTrue(new cycleBallsCommand(flywheelSubsystem, tower, HopperSubsystem, intakeSubsystem));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
