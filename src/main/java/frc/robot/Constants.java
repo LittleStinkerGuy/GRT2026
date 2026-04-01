@@ -299,9 +299,9 @@ public final class Constants {
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
         // Pivot PID
-        public static final double PIVOT_P = 60.0;
+        public static final double PIVOT_P = 50.0;
         public static final double PIVOT_I = 0.0;
-        public static final double PIVOT_D = 3.5;
+        public static final double PIVOT_D = 3;
         public static final double PIVOT_S = 0.2;
         public static final double PIVOT_V = 3.18;
         public static final double PIVOT_A = 0.27;
@@ -312,9 +312,9 @@ public final class Constants {
         public static final double GEAR_RATIO = 25.0;
 
         // Pivot Positions (in rotations)
-        public static final double PIVOT_OUT_POS = 0.25;
+        public static final double PIVOT_OUT_POS = -0.29;
         public static final double PIVOT_IN_POS = 0.0;
-        public static final double PIVOT_MID_POS = 0.125;
+        public static final double PIVOT_MID_POS = -0.125;
 
         // Software Limits
         public static final Angle TOP_LIMIT = Rotations.of(0.25);
