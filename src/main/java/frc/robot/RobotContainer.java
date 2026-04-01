@@ -36,6 +36,8 @@ import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
+import frc.robot.commands.intake.pivot.PivotInCommand;
+import frc.robot.commands.intake.pivot.PivotOutCommand;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
@@ -202,8 +204,8 @@ public class RobotContainer {
 
             // ==================== INTAKE PIVOT ====================
             // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().whileTrue(Commands.run(() -> pivotIntake.setPosition(-0.25), pivotIntake));
-            mechController.povRight().whileTrue(Commands.run(() -> pivotIntake.setPosition(0), pivotIntake));
+            mechController.povLeft().whileTrue(new PivotOutCommand(pivotIntake));
+            mechController.povRight().whileTrue(new PivotInCommand(pivotIntake));
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
