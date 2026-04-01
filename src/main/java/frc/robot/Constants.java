@@ -283,13 +283,13 @@ public final class Constants {
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
         public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
-        // Roller Position control PID (SysID Derived - Voltage)
-        public static final double ROLLER_P = 60.0;
+        // Roller Position control PID (SysID Derived - Voltage) (lowk really sketch data)
+        public static final double ROLLER_P = 0.140;
         public static final double ROLLER_I = 0.0;
-        public static final double ROLLER_D = 3.5;
-        public static final double ROLLER_S = 0.2;
-        public static final double ROLLER_V = 3.18;
-        public static final double ROLLER_A = 0.27;
+        public static final double ROLLER_D = 0.0;
+        public static final double ROLLER_S = 0.908;
+        public static final double ROLLER_V = 0.0991;
+        public static final double ROLLER_A = 0.0161;
 
         // Pivot Motor
         public static final int PIVOT_MOTOR_ID = 12;
