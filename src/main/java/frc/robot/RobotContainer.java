@@ -337,10 +337,19 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Selector", autoChooser);
     }
 
-    // public Command getAutonomousCommand() {
-    // // return new PathPlannerAuto("auton1");
+    public Command getAutonomousCommand() {
+    // return new PathPlannerAuto("auton1");
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
-    // }
+
+    // Run ManualShooterSequence for 10 seconds
+    return new ManualShooterSequence(
+        flywheelSubsystem,
+        hoodSubsystem,
+        tower,
+        HopperSubsystem,
+        pivotIntake).withTimeout(10);
+
+    }
 
     /**
      * Called when teleop starts to reset driver heading with 90 degree offset.
