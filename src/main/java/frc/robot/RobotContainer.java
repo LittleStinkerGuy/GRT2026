@@ -36,8 +36,6 @@ import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
-import frc.robot.commands.intake.pivot.PivotInCommand;
-import frc.robot.commands.intake.pivot.PivotOutCommand;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
@@ -209,7 +207,7 @@ public class RobotContainer {
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
-                HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
+                HopperSubsystem.setManualControl(-1.0); // Max duty cycle for spindexer
                 tower.setManualControl(0.7); // 0.7 duty cycle for tower
             }, HopperSubsystem, tower));
             HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
@@ -235,21 +233,21 @@ public class RobotContainer {
              */
 
             // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
-            // R1 (drive) = manual shooter sequence, any other button cancels
-            // mechController.square().toggleOnTrue(
-            // Commands.defer(
-            // () -> new ShooterSequence(
-            // flywheelSubsystem,
-            // hoodSubsystem,
-            // tower,
-            // HopperSubsystem,
-            // intakeSubsystem),
-            // java.util.Set.of(
-            // flywheelSubsystem,
-            // hoodSubsystem,
-            // HopperSubsystem,
-            // tower,
-            // intakeSubsystem)));
+            // Square (mech) = manual shooter sequence
+            mechController.square().toggleOnTrue(
+                Commands.defer(
+                    () -> new ManualShooterSequence(
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        tower,
+                        HopperSubsystem,
+                        pivotIntake),
+                    java.util.Set.of(
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        tower,
+                        pivotIntake)));
 
             // Joystick movement cancels it
             // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||

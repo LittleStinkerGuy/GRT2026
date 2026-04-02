@@ -26,6 +26,7 @@ public class ManualShooterSequence extends Command {
 
     private final Timer pivotTimer = new Timer();
     private boolean pivotIsIn = true;
+    private boolean initialDelayDone = false;
 
     public ManualShooterSequence(
         flywheel fly,
@@ -47,9 +48,10 @@ public class ManualShooterSequence extends Command {
         // Start ramping flywheel and moving hood to position
         fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
         hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION);
-        // Start with pivot in
-        pivotIsIn = true;
-        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
+        // Start with pivot out, wait 5 seconds before first toggle
+        pivotIsIn = false;
+        initialDelayDone = false;
+        pivotIntake.setPosition(IntakeConstants.PIVOT_OUT_POS);
         pivotTimer.restart();
     }
 
@@ -59,12 +61,18 @@ public class ManualShooterSequence extends Command {
         fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
         hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION);
 
-        // Toggle pivot every 2 seconds
-        if (pivotTimer.hasElapsed(2.0)) {
+        // Wait 5 seconds before first pivot up, then toggle every 2 seconds
+        if (!initialDelayDone) {
+            if (pivotTimer.hasElapsed(5.0)) {
+                initialDelayDone = true;
+                pivotIsIn = true;
+                pivotTimer.restart();
+            }
+        } else if (pivotTimer.hasElapsed(2.0)) {
             pivotIsIn = !pivotIsIn;
             pivotTimer.restart();
         }
-        pivotIntake.setPosition(pivotIsIn ? IntakeConstants.PIVOT_IN_POS : IntakeConstants.PIVOT_OUT_POS);
+        pivotIntake.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_POS : IntakeConstants.PIVOT_OUT_POS);
 
         // Only feed balls when flywheel is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {

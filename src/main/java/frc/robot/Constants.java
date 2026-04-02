@@ -314,7 +314,7 @@ public final class Constants {
         // Pivot Positions (in rotations)
         public static final double PIVOT_OUT_POS = -0.29;
         public static final double PIVOT_IN_POS = 0.0;
-        public static final double PIVOT_MID_POS = -0.125;
+        public static final double PIVOT_MID_POS = -0.08;
 
         // Software Limits
         public static final Angle TOP_LIMIT = Rotations.of(0.25);
@@ -394,7 +394,7 @@ public final class Constants {
     // ==================== SMASH AND SHOOT ==================== thing
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
-        public static final double HOOD_POSITION = 0.134;
+        public static final double HOOD_POSITION = 0.014;
 
         // Flywheel speed (RPS)
         public static final double FLYWHEEL_RPS = 40.0;
@@ -403,7 +403,7 @@ public final class Constants {
         public static final double TOWER_DUTY_CYCLE = 0.7;
 
         // Indexer/Hopper duty cycle
-        public static final double INDEXER_DUTY_CYCLE = 1;
+        public static final double INDEXER_DUTY_CYCLE = -1;
     }
 
     public static class DebugConstants {
