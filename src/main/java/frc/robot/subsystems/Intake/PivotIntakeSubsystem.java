@@ -52,7 +52,6 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
         canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
         configMotors();
-        pivotMotor.setPosition(0.0);
         SmartDashboard.putNumber("Intake/Pivot/kP", kP);
         SmartDashboard.putNumber("Intake/Pivot/kI", kI);
         SmartDashboard.putNumber("Intake/Pivot/kD", kD);
