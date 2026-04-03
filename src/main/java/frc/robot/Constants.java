@@ -160,7 +160,7 @@ public final class Constants {
         public static final double AUTO_TRANSLATION_KP = 1.38;
         public static final double AUTO_TRANSLATION_KI = 0.0;
         public static final double AUTO_TRANSLATION_KD = 0.0;
-        public static final double AUTO_ROTATION_KP = 3.3;
+        public static final double AUTO_ROTATION_KP = -3.3;
         public static final double AUTO_ROTATION_KI = 0.0;
         public static final double AUTO_ROTATION_KD = 0.0;
     }

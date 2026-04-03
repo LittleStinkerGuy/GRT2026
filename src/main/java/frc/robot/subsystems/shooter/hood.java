@@ -45,10 +45,10 @@ public class hood extends SubsystemBase {
             .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
         cfg.withCurrentLimits(currLim);
-         cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-         cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
-         cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-         cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
+        cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
+        cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         cfg.Feedback.RotorToSensorRatio = -1 * ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
@@ -72,11 +72,11 @@ public class hood extends SubsystemBase {
     }
 
     public void setHoodAngle(double rotationAngle) {
-         if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
-        hoodMotor.setControl(focThing.withPosition(rotationAngle));
-        System.out.println("HoodControl" + rotationAngle);
-        wantedAngle = rotationAngle;
-         }
+        if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
+            hoodMotor.setControl(focThing.withPosition(rotationAngle));
+            System.out.println("HoodControl" + rotationAngle);
+            wantedAngle = rotationAngle;
+        }
     }
 
 
