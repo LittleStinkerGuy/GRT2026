@@ -118,7 +118,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
     private void configEncoder() {
         CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = 0.0;
+        // config.MagnetSensor.MagnetOffset = 0.0;
         canCoder.getConfigurator().apply(config);
     }
 
