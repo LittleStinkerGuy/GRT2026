@@ -313,7 +313,7 @@ public final class Constants {
 
         // Pivot Positions (in encoder rotations)
         public static final double PIVOT_OUT_POS = 0.0;
-        public static final double PIVOT_IN_POS = 0.3675;
+        public static final double PIVOT_IN_POS = 0.300; // 0.3675
         public static final double PIVOT_MID_UPPER = 0.175;
         public static final double PIVOT_MID_LOWER = 0.091;
 
