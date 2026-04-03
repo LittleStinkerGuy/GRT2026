@@ -106,6 +106,8 @@ public class RobotContainer {
     private VideoSink cameraServer;
     private boolean isCamera1Active = true;
 
+
+    private double desiredHoodSpeed = 0;
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.cameraConfig11);
 
@@ -273,11 +275,17 @@ public class RobotContainer {
 
             hoodSubsystem.setDefaultCommand(Commands.run(() -> {
                 if (mechController.L3().getAsBoolean()) {
+                    desiredHoodSpeed = 0.15;
                     hoodSubsystem.hoodSpeed(0.15);
                 } else if (mechController.R3().getAsBoolean()) {
+                    desiredHoodSpeed = -0.15;
                     hoodSubsystem.hoodSpeed(-0.15);
                 } else {
-                    hoodSubsystem.hoodSpeed(0);
+                    if (desiredHoodSpeed != 0) {
+                        desiredHoodSpeed = 0;
+                        hoodSubsystem.hoodSpeed(0);
+
+                    }
                 }
             }, hoodSubsystem));
 
