@@ -109,9 +109,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         config.withSoftwareLimitSwitch(
             new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitEnable(false)
-                .withForwardSoftLimitThreshold(IntakeConstants.PIVOT_IN_POS + 0.001)
+                .withForwardSoftLimitThreshold(IntakeConstants.PIVOT_FORWARD_LIMIT)
                 .withReverseSoftLimitEnable(false)
-                .withReverseSoftLimitThreshold(IntakeConstants.PIVOT_OUT_POS + 0.001));
+                .withReverseSoftLimitThreshold(IntakeConstants.PIVOT_REVERSE_LIMIT));
 
         pivotMotor.getConfigurator().apply(config);
     }

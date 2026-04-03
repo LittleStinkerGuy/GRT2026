@@ -313,9 +313,12 @@ public final class Constants {
 
         // Pivot Positions (in encoder rotations)
         public static final double PIVOT_OUT_POS = 0.0;
-        public static final double PIVOT_IN_POS = 0.300; // 0.3675
+        public static final double PIVOT_IN_POS = 0.300;
         public static final double PIVOT_MID_UPPER = 0.175;
         public static final double PIVOT_MID_LOWER = 0.091;
+
+        public static final double PIVOT_FORWARD_LIMIT = 0.3675;
+        public static final double PIVOT_REVERSE_LIMIT = PIVOT_OUT_POS - 0.001;
 
         // Pivot Duty Cycle
         public static final double PIVOT_UP_DUTY_CYCLE = 0.3;
