@@ -160,7 +160,7 @@ public final class Constants {
         public static final double AUTO_TRANSLATION_KP = 1.38;
         public static final double AUTO_TRANSLATION_KI = 0.0;
         public static final double AUTO_TRANSLATION_KD = 0.0;
-        public static final double AUTO_ROTATION_KP = -3.3;
+        public static final double AUTO_ROTATION_KP = 3.3;
         public static final double AUTO_ROTATION_KI = 0.0;
         public static final double AUTO_ROTATION_KD = 0.0;
     }
@@ -276,8 +276,8 @@ public final class Constants {
     public static class IntakeConstants {
         // Roller Motor
         public static final int ROLLER_CAN_ID = 14;
-        public static final double ROLLER_IN_SPEED = -1;
-        public static final double ROLLER_OUT_SPEED = 1;
+        public static final double ROLLER_IN_SPEED = -107;
+        public static final double ROLLER_OUT_SPEED = 107;
         public static final double ROLLER_CURRENT_LIMIT = 120.0;
         public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
