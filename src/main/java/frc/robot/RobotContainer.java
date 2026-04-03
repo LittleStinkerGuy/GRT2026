@@ -320,16 +320,16 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-    // return new PathPlannerAuto("auton1");
-    // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+        // return new PathPlannerAuto("auton1");
+        // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
 
-    // Run ManualShooterSequence for 10 seconds
-    return new ManualShooterSequence(
-        flywheelSubsystem,
-        hoodSubsystem,
-        tower,
-        HopperSubsystem,
-        pivotIntake).withTimeout(10);
+        // Run ManualShooterSequence for 10 seconds
+        return new ManualShooterSequence(
+            flywheelSubsystem,
+            hoodSubsystem,
+            tower,
+            HopperSubsystem,
+            pivotIntake).withTimeout(10);
 
     }
 
