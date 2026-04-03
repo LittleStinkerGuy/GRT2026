@@ -31,7 +31,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
     private final TalonFX pivotMotor;
-    // private final CANcoder canCoder;
+    private final CANcoder canCoder;
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private final PositionVoltage voltagePosControl = new PositionVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
@@ -50,8 +50,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
     public PivotIntakeSubsystem(CANBus canBus) {
         pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
-        // canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
-        // configEncoder();
+        canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
+        configEncoder();
         configMotors();
         pivotMotor.setPosition(0.0);
         SmartDashboard.putNumber("Intake/Pivot/kP", kP);
@@ -116,11 +116,11 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         pivotMotor.getConfigurator().apply(config);
     }
 
-    // private void configEncoder() {
-    // CANcoderConfiguration config = new CANcoderConfiguration();
-    // config.MagnetSensor.MagnetOffset = 0.0;
-    // canCoder.getConfigurator().apply(config);
-    // }
+    private void configEncoder() {
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        config.MagnetSensor.MagnetOffset = 0.0;
+        canCoder.getConfigurator().apply(config);
+    }
 
 
     public void updateTunableValues() {
@@ -148,9 +148,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         return pivotMotor.getPosition().getValueAsDouble() * 360.0;
     }
 
-    // public double getAbsolutePosition() {
-    // return canCoder.getAbsolutePosition().getValueAsDouble();
-    // }
+    public double getAbsolutePosition() {
+        return canCoder.getAbsolutePosition().getValueAsDouble();
+    }
 
     /**
      * Get motor position in rotations
@@ -177,13 +177,13 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        // canCoder.setPosition(0.0);
+        canCoder.setPosition(0.0);
         pivotMotor.setPosition(0.0);
     }
 
     public void setEncoderToMax() {
         double maxRotations = IntakeConstants.PIVOT_OUT_POS;
-        // canCoder.setPosition(maxRotations);
+        canCoder.setPosition(maxRotations);
         pivotMotor.setPosition(maxRotations);
     }
 
