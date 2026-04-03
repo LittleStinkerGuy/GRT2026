@@ -404,7 +404,7 @@ public final class Constants {
 
         // Pivot timing
         public static final double INITIAL_DELAY_SECONDS = 2.0;
-        public static final double TOGGLE_INTERVAL_SECONDS = 1.0;
+        public static final double TOGGLE_INTERVAL_SECONDS = 0.5;
     }
 
     // ==================== CYCLE SHOOTER ====================
@@ -423,7 +423,7 @@ public final class Constants {
 
         // Pivot timing
         public static final double INITIAL_DELAY_SECONDS = 2.0;
-        public static final double TOGGLE_INTERVAL_SECONDS = 1.0;
+        public static final double TOGGLE_INTERVAL_SECONDS = 0.5;
     }
 
     public static class DebugConstants {
