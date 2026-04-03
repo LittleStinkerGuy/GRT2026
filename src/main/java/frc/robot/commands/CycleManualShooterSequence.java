@@ -63,12 +63,12 @@ public class CycleManualShooterSequence extends Command {
 
         // Wait 5 seconds before first pivot up, then toggle every 2 seconds
         if (!initialDelayDone) {
-            if (pivotTimer.hasElapsed(5.0)) {
+            if (pivotTimer.hasElapsed(2.0)) {
                 initialDelayDone = true;
                 pivotIsIn = true;
                 pivotTimer.restart();
             }
-        } else if (pivotTimer.hasElapsed(2.0)) {
+        } else if (pivotTimer.hasElapsed(1.0)) {
             pivotIsIn = !pivotIsIn;
             pivotTimer.restart();
         }
