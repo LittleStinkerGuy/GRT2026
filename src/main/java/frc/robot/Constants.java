@@ -417,7 +417,7 @@ public final class Constants {
         public static final double HOOD_POSITION = 0.096;
 
         // Flywheel speed (RPS)
-        public static final double FLYWHEEL_RPS = 96;
+        public static final double FLYWHEEL_RPS = 80;
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 0.7;
