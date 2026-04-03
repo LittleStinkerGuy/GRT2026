@@ -101,8 +101,8 @@ public class RobotContainer {
         VisionConstants.cameraConfig2);
     private final VisionSubsystem visionSubsystem3 = new VisionSubsystem(
         VisionConstants.cameraConfig3);
-    private UsbCamera camera1;
-    private UsbCamera camera2;
+    // private UsbCamera camera1;
+    // private UsbCamera camera2;
     private VideoSink cameraServer;
     private boolean isCamera1Active = true;
 
@@ -119,9 +119,9 @@ public class RobotContainer {
         configureAutoChooser();
 
         // switchable cameras
-        camera1 = CameraServer.startAutomaticCapture(0);
-        camera2 = CameraServer.startAutomaticCapture(1);
-        cameraServer = CameraServer.getServer();
+        // camera1 = CameraServer.startAutomaticCapture(0);
+        // camera2 = CameraServer.startAutomaticCapture(1);
+        // cameraServer = CameraServer.getServer();
 
         SmartDashboard.putData("Field", m_field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
@@ -177,15 +177,15 @@ public class RobotContainer {
                     swerveSubsystem));
 
             // Create button = switch cameras
-            driveController.create().onTrue(
-                Commands.runOnce(() -> {
-                    if (isCamera1Active) {
-                        cameraServer.setSource(camera2);
-                    } else {
-                        cameraServer.setSource(camera1);
-                    }
-                    isCamera1Active = !isCamera1Active;
-                }));
+            // driveController.create().onTrue(
+            // Commands.runOnce(() -> {
+            // if (isCamera1Active) {
+            // cameraServer.setSource(camera2);
+            // } else {
+            // cameraServer.setSource(camera1);
+            // }
+            // isCamera1Active = !isCamera1Active;
+            // }));
 
             /* Pressing the button resets the field axes to the current robot axes. */
             driveController.bindDriverHeadingReset(
@@ -282,7 +282,7 @@ public class RobotContainer {
             }, hoodSubsystem));
 
             // Cross = cycle shooter (hold to run, release to stop)
-            mechController.cross().whileTrue(new CycleManualShooterSequence(
+            mechController.cross().toggleOnTrue(new CycleManualShooterSequence(
                 flywheelSubsystem,
                 hoodSubsystem,
                 tower,
