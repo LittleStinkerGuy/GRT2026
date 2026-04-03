@@ -14,12 +14,12 @@ public class PivotMidCommand extends Command {
 
     @Override
     public void initialize() {
-        pivotIntake.setPosition(IntakeConstants.PIVOT_MID_POS);
+        pivotIntake.setPosition(IntakeConstants.PIVOT_MID_UPPER);
     }
 
     @Override
     public void execute() {
-        pivotIntake.setPosition(IntakeConstants.PIVOT_MID_POS);
+        pivotIntake.setPosition(IntakeConstants.PIVOT_MID_UPPER);
     }
 
     @Override
