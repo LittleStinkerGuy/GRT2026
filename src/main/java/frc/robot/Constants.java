@@ -406,6 +406,25 @@ public final class Constants {
         public static final double INDEXER_DUTY_CYCLE = -1;
     }
 
+    // ==================== CYCLE SHOOTER ====================
+    public static class CycleShooterConstants {
+        // Hood position (rotations)
+        public static final double HOOD_POSITION = 0.014;
+
+        // Flywheel speed (RPS)
+        public static final double FLYWHEEL_RPS = 96;
+
+        // Tower duty cycle
+        public static final double TOWER_DUTY_CYCLE = 0.7;
+
+        // Indexer/Hopper duty cycle
+        public static final double INDEXER_DUTY_CYCLE = -1.0;
+
+        // Pivot timing
+        public static final double INITIAL_DELAY_SECONDS = 5.0;
+        public static final double TOGGLE_INTERVAL_SECONDS = 2.0;
+    }
+
     public static class DebugConstants {
         public static final boolean MASTER_DEBUG = true;
         public static final boolean DRIVE_DEBUG = true;

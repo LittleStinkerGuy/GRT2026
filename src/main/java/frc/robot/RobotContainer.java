@@ -28,6 +28,7 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
+import frc.robot.commands.CycleManualShooterSequence;
 import frc.robot.commands.ManualShooterSequence;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.cycleBallsCommand;
@@ -280,32 +281,13 @@ public class RobotContainer {
                 }
             }, hoodSubsystem));
 
-            // ==================== SYSID AUTO TUNE ====================
-            // Triangle = run all sysID routines sequentially
-            mechController.triangle().onTrue(
-                Commands.sequence(
-                    // Intake Rollers
-                    intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-                    intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-                    intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
-                    intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
-                    // Intake Pivot
-                    pivotIntake.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-                    pivotIntake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-                    pivotIntake.sysIdDynamic(SysIdRoutine.Direction.kForward),
-                    pivotIntake.sysIdDynamic(SysIdRoutine.Direction.kReverse),
-                    // Hopper
-                    HopperSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-                    HopperSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-                    HopperSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
-                    HopperSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
-                    // Tower Rollers
-                    tower.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-                    tower.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
-                    tower.sysIdDynamic(SysIdRoutine.Direction.kForward),
-                    tower.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
-
-            mechController.cross().toggleOnTrue(new cycleBallsCommand(flywheelSubsystem, tower, HopperSubsystem, intakeSubsystem));
+            // Cross = cycle shooter (hold to run, release to stop)
+            mechController.cross().whileTrue(new CycleManualShooterSequence(
+                flywheelSubsystem,
+                hoodSubsystem,
+                tower,
+                HopperSubsystem,
+                pivotIntake));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
