@@ -409,7 +409,7 @@ public final class Constants {
     // ==================== CYCLE SHOOTER ====================
     public static class CycleShooterConstants {
         // Hood position (rotations)
-        public static final double HOOD_POSITION = 0.014;
+        public static final double HOOD_POSITION = 0.096;
 
         // Flywheel speed (RPS)
         public static final double FLYWHEEL_RPS = 96;
