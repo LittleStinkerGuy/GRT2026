@@ -340,6 +340,12 @@ public class RobotContainer {
         if (swerveSubsystem != null) {
             swerveSubsystem.resetDriverHeadingOffset90();
         }
+    }
+
+    /**
+     * Called when autonomous starts to zero the pivot encoder.
+     */
+    public void onAutonInit() {
         pivotIntake.zeroEncoder();
     }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
