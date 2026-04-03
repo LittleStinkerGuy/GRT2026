@@ -105,10 +105,6 @@ public class hood extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (atWantedAngle()) {
-            hoodMotor.stopMotor();
-        }
-
         hoodMotor.updateDashboard();
         sendData();
     }
