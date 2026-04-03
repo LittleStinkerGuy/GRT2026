@@ -53,7 +53,7 @@ public final class VisionConstants {
             Units.inchesToMeters(27.5 / 2 - 8.75),
             Units.inchesToMeters(27.5 / 2 - 2.75),
             Units.inchesToMeters(11.5),
-            ZYXtoXYZeulerConverter.zyxToXyz(Math.PI / 2.0, -Math.toRadians(25), 0)));
+            ZYXtoXYZeulerConverter.zyxToXyz(Math.PI / 2.0, -Math.toRadians(25), Math.PI)));
 
     // intake
     public static final CameraConfig cameraConfig2 = new CameraConfig(// shooter camera
