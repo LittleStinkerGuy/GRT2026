@@ -337,7 +337,8 @@ public class RobotContainer {
             flywheelSubsystem,
             hoodSubsystem,
             tower,
-            HopperSubsystem).withTimeout(10);
+            HopperSubsystem,
+            pivotIntake).withTimeout(10);
 
     }
 
