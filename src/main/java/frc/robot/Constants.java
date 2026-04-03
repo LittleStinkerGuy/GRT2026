@@ -307,14 +307,15 @@ public final class Constants {
         public static final double PIVOT_A = 0.27;
 
         // Pivot Motion Magic
-        public static final double PIVOT_CRUISE_VELOCITY = 2.0;
-        public static final double PIVOT_ACCELERATION = 4.0;
+        public static final double PIVOT_CRUISE_VELOCITY = 3.0;
+        public static final double PIVOT_ACCELERATION = 5.0;
         public static final double GEAR_RATIO = 25.0;
 
         // Pivot Positions (in rotations)
         public static final double PIVOT_OUT_POS = -0.29;
         public static final double PIVOT_IN_POS = 0.0;
-        public static final double PIVOT_MID_POS = -0.08;
+        public static final double PIVOT_MID_UPPER = -0.15;
+        public static final double PIVOT_MID_LOWER = -0.25;
 
         // Software Limits
         public static final Angle TOP_LIMIT = Rotations.of(0.25);
@@ -404,6 +405,10 @@ public final class Constants {
 
         // Indexer/Hopper duty cycle
         public static final double INDEXER_DUTY_CYCLE = -1;
+
+        // Pivot timing
+        public static final double INITIAL_DELAY_SECONDS = 2.0;
+        public static final double TOGGLE_INTERVAL_SECONDS = 1.0;
     }
 
     // ==================== CYCLE SHOOTER ====================
@@ -421,8 +426,8 @@ public final class Constants {
         public static final double INDEXER_DUTY_CYCLE = -1.0;
 
         // Pivot timing
-        public static final double INITIAL_DELAY_SECONDS = 5.0;
-        public static final double TOGGLE_INTERVAL_SECONDS = 2.0;
+        public static final double INITIAL_DELAY_SECONDS = 2.0;
+        public static final double TOGGLE_INTERVAL_SECONDS = 1.0;
     }
 
     public static class DebugConstants {

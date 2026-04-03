@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
@@ -63,16 +64,16 @@ public class CycleManualShooterSequence extends Command {
 
         // Wait 5 seconds before first pivot up, then toggle every 2 seconds
         if (!initialDelayDone) {
-            if (pivotTimer.hasElapsed(2.0)) {
+            if (pivotTimer.hasElapsed(SmashAndShootConstants.INITIAL_DELAY_SECONDS)) {
                 initialDelayDone = true;
                 pivotIsIn = true;
                 pivotTimer.restart();
             }
-        } else if (pivotTimer.hasElapsed(1.0)) {
+        } else if (pivotTimer.hasElapsed(SmashAndShootConstants.TOGGLE_INTERVAL_SECONDS)) {
             pivotIsIn = !pivotIsIn;
             pivotTimer.restart();
         }
-        pivotIntake.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_POS : IntakeConstants.PIVOT_OUT_POS);
+        pivotIntake.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_UPPER : IntakeConstants.PIVOT_MID_LOWER);
 
         // Only feed balls when flywheel is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
