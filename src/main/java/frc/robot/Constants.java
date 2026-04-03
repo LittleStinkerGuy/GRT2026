@@ -309,7 +309,7 @@ public final class Constants {
         // Pivot Motion Magic
         public static final double PIVOT_CRUISE_VELOCITY = 3.0;
         public static final double PIVOT_ACCELERATION = 5.0;
-        public static final double GEAR_RATIO = 25.0;
+        public static final double GEAR_RATIO = 1.0;
 
         // Pivot Positions (in rotations)
         public static final double PIVOT_OUT_POS = -0.29;
