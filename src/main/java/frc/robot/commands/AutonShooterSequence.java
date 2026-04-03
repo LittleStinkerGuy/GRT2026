@@ -22,20 +22,19 @@ public class AutonShooterSequence extends Command {
     private final hood hd;
     private final towerRollers tower;
     private final HopperSubsystem hopper;
-
-    private final Timer pivotTimer = new Timer();
-    private boolean pivotIsIn = true;
-    private boolean initialDelayDone = false;
+    private final PivotIntakeSubsystem pivotIntake;
 
     public AutonShooterSequence(
         flywheel fly,
         hood hood,
         towerRollers tower,
-        HopperSubsystem hopper) {
+        HopperSubsystem hopper,
+        PivotIntakeSubsystem pivotIntake) {
         this.fly = fly;
         this.hd = hood;
         this.tower = tower;
         this.hopper = hopper;
+        this.pivotIntake = pivotIntake;
 
         addRequirements(fly, hood, tower, hopper);
     }
@@ -45,10 +44,7 @@ public class AutonShooterSequence extends Command {
         // Start ramping flywheel and moving hood to position
         fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
         hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION);
-        // Start with pivot out, wait 5 seconds before first toggle
-        pivotIsIn = false;
-        initialDelayDone = false;
-        pivotTimer.restart();
+        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
     }
 
     @Override
@@ -66,6 +62,7 @@ public class AutonShooterSequence extends Command {
             tower.setManualControl(0);
             hopper.setManualControl(0);
         }
+        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
     }
 
     @Override
