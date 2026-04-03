@@ -51,7 +51,6 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     public PivotIntakeSubsystem(CANBus canBus) {
         pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
         canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
-        configEncoder();
         configMotors();
         pivotMotor.setPosition(0.0);
         SmartDashboard.putNumber("Intake/Pivot/kP", kP);
@@ -96,8 +95,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
         // Using internal encoder only (FusedCANcoder disabled for sysID)
         config.withFeedback(new FeedbackConfigs()
-            .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-            .withSensorToMechanismRatio(IntakeConstants.GEAR_RATIO));
+            .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+            .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO)
+            .withSensorToMechanismRatio(1.0));
 
         // StatorCurrent Limits
         config.withCurrentLimits(
@@ -114,12 +114,6 @@ public class PivotIntakeSubsystem extends SubsystemBase {
                 .withReverseSoftLimitThreshold(-0.293));
 
         pivotMotor.getConfigurator().apply(config);
-    }
-
-    private void configEncoder() {
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        // config.MagnetSensor.MagnetOffset = 0.0;
-        canCoder.getConfigurator().apply(config);
     }
 
 
