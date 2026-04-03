@@ -94,7 +94,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
 
         // Using internal encoder only (FusedCANcoder disabled for sysID)
         config.withFeedback(new FeedbackConfigs()
-            .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+            .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+            .withFeedbackRemoteSensorID(canCoder.getDeviceID())
             .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO)
             .withSensorToMechanismRatio(1.0));
 
