@@ -80,8 +80,8 @@ public class hood extends SubsystemBase {
     }
 
 
-    public boolean wantedAngl() {
-        return Math.abs(wantedAngle - hoodMotor.getPosition().getValueAsDouble()) < ShooterConstants.Hood.ANGLE_TOLERANCE;
+    public boolean atWantedAngle() {
+        return Math.abs(wantedAngle - getPos()) < ShooterConstants.Hood.ANGLE_TOLERANCE;
     }
 
     public void hoodSpeed(double speed) {
@@ -105,6 +105,10 @@ public class hood extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (atWantedAngle()) {
+            hoodMotor.stopMotor();
+        }
+
         hoodMotor.updateDashboard();
         sendData();
     }
