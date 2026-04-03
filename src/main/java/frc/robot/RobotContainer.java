@@ -28,6 +28,7 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
+import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.CycleManualShooterSequence;
 import frc.robot.commands.ManualShooterSequence;
 import frc.robot.commands.ShooterSequence;
@@ -332,12 +333,11 @@ public class RobotContainer {
         // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
 
         // Run ManualShooterSequence for 10 seconds
-        return new ManualShooterSequence(
+        return new AutonShooterSequence(
             flywheelSubsystem,
             hoodSubsystem,
             tower,
-            HopperSubsystem,
-            pivotIntake).withTimeout(10);
+            HopperSubsystem).withTimeout(10);
 
     }
 
