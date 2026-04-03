@@ -171,8 +171,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        canCoder.setPosition(0.0);
-        pivotMotor.setPosition(0.0);
+        // canCoder.setPosition(0.0);
+        // pivotMotor.setPosition(0.0);
     }
 
     public void setEncoderToMax() {

@@ -355,7 +355,7 @@ public class RobotContainer {
      * Called when autonomous starts to zero the pivot encoder.
      */
     public void onAutonInit() {
-        pivotIntake.zeroEncoder();
+        // pivotIntake.zeroEncoder();
     }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
     // }
