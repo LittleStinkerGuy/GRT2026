@@ -400,7 +400,7 @@ public final class Constants {
         public static final double FLYWHEEL_RPS = 40.0;
 
         // Tower duty cycle
-        public static final double TOWER_DUTY_CYCLE = 0.7;
+        public static final double TOWER_DUTY_CYCLE = 1;
 
         // Indexer/Hopper duty cycle
         public static final double INDEXER_DUTY_CYCLE = -1;
@@ -419,7 +419,7 @@ public final class Constants {
         public static final double FLYWHEEL_RPS = 60;
 
         // Tower duty cycle
-        public static final double TOWER_DUTY_CYCLE = 0.7;
+        public static final double TOWER_DUTY_CYCLE = 1;
 
         // Indexer/Hopper duty cycle
         public static final double INDEXER_DUTY_CYCLE = -1.0;
