@@ -83,7 +83,7 @@ public class flywheel extends SubsystemBase {
         upperMotor = new LoggedTalon(ShooterConstants.Flywheel.UPPER_MOTOR_ID, cn);
         secondMotor = new LoggedTalon(ShooterConstants.Flywheel.SECOND_MOTOR_ID, cn);
         config();
-        configThruNT();
+        // configThruNT();
     }
 
     public void config() {

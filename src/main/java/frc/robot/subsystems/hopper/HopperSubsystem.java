@@ -44,7 +44,7 @@ public class HopperSubsystem extends SubsystemBase {
     public HopperSubsystem(CANBus canBus) {
         krakenMotor = new LoggedTalon(HopperConstants.KRAKEN_CAN_ID, canBus);
         configureMotor();
-        configThruNT();
+        // configThruNT();
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
