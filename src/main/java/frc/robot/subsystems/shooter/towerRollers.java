@@ -45,7 +45,7 @@ public class towerRollers extends SubsystemBase {
     public towerRollers(CANBus canBus) {
         krakenMotor = new LoggedTalon(TowerConstants.KRAKEN_CAN_ID, canBus);
         configureMotor();
-        configThruNT();
+        // configThruNT();
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(

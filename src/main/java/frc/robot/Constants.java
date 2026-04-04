@@ -430,9 +430,9 @@ public final class Constants {
     }
 
     public static class DebugConstants {
-        public static final boolean MASTER_DEBUG = true;
-        public static final boolean DRIVE_DEBUG = true;
-        public static final boolean STEER_DEBUG = true;
-        public static final boolean STATE_DEBUG = true;
+        public static final boolean MASTER_DEBUG = false;
+        public static final boolean DRIVE_DEBUG = false;
+        public static final boolean STEER_DEBUG = false;
+        public static final boolean STATE_DEBUG = false;
     }
 }
