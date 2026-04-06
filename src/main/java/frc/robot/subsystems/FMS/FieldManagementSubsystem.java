@@ -2,7 +2,6 @@ package frc.robot.subsystems.FMS;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -45,6 +44,17 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private BooleanPublisher isEnabledPublisher;
     private BooleanPublisher isDSAttachedPublisher;
 
+    private DoublePublisher matchTimeRemainingPublisher;
+    private StringPublisher matchPeriodPublisher;
+    private StringPublisher periodInfoPublisher;
+    private DoublePublisher timeUntilNextPhasePublisher;
+    private BooleanPublisher redHubActivePublisher;
+    private BooleanPublisher blueHubActivePublisher;
+    private IntegerPublisher currentShiftPublisher;
+
+    private String periodInfo = "";
+    private double timeUntilNextPhase = 0.0;
+
     /**
      * Initializes subsystem to handle information related to the Field Management System (such as our alliance color).
      */
@@ -68,6 +78,14 @@ public class FieldManagementSubsystem extends SubsystemBase {
         isEnabledPublisher = FmsNtTable.getBooleanTopic("IsEnabled").publish();
         isDSAttachedPublisher = FmsNtTable.getBooleanTopic("IsDSAttached").publish();
 
+        matchTimeRemainingPublisher = FmsNtTable.getDoubleTopic("MatchTimeRemaining").publish();
+        matchPeriodPublisher = FmsNtTable.getStringTopic("MatchPeriod").publish();
+        periodInfoPublisher = FmsNtTable.getStringTopic("PeriodInfo").publish();
+        timeUntilNextPhasePublisher = FmsNtTable.getDoubleTopic("TimeUntilNextPhase").publish();
+        redHubActivePublisher = FmsNtTable.getBooleanTopic("RedHubActive").publish();
+        blueHubActivePublisher = FmsNtTable.getBooleanTopic("BlueHubActive").publish();
+        currentShiftPublisher = FmsNtTable.getIntegerTopic("CurrentShift").publish();
+
         updateNetworkTables();
     }
 
@@ -80,6 +98,14 @@ public class FieldManagementSubsystem extends SubsystemBase {
         isEStoppedPublisher.set(DriverStation.isEStopped());
         isEnabledPublisher.set(DriverStation.isEnabled());
         isDSAttachedPublisher.set(DriverStation.isDSAttached());
+
+        matchTimeRemainingPublisher.set(DriverStation.getMatchTime());
+        matchPeriodPublisher.set(matchStatus.toString());
+        periodInfoPublisher.set(periodInfo);
+        timeUntilNextPhasePublisher.set(timeUntilNextPhase);
+        redHubActivePublisher.set(redHubActive);
+        blueHubActivePublisher.set(blueHubActive);
+        currentShiftPublisher.set(currentShift + 1);
     }
 
     private void updateAllianceColor() {
@@ -158,43 +184,23 @@ public class FieldManagementSubsystem extends SubsystemBase {
             robotStatus = RobotStatus.DISABLED;
         }
 
-        // Game timer
-        // 20s Auto + 10s Transition + 100s Teleop (6 shifts) + 30s Endgame = 160s total
-        SmartDashboard.putNumber("Match Time Remaining", matchTime);
-        SmartDashboard.putString("Match Period", matchStatus.toString());
-
-        int minutes = (int) (matchTime / 60);
-        int seconds = (int) (matchTime % 60);
-        String formattedTime = String.format("%d:%02d", minutes, seconds);
-        SmartDashboard.putString("Match Timer", formattedTime);
-
         // Show period-specific time context and time until next phase
-        double timeUntilNextPhase = 0.0;
+        timeUntilNextPhase = 0.0;
         if (matchStatus == MatchStatus.AUTON) {
-            SmartDashboard.putString("Period Info", "AUTO (0:00-0:20) - All hubs active");
+            periodInfo = "AUTO (0:00-0:20) - All hubs active";
             timeUntilNextPhase = AUTO_END - elapsedTime;
         } else if (matchStatus == MatchStatus.TRANSITION) {
-            SmartDashboard.putString("Period Info", "TRANSITION (0:20-0:30) - All hubs active");
+            periodInfo = "TRANSITION (0:20-0:30) - All hubs active";
             timeUntilNextPhase = TRANSITION_END - elapsedTime;
         } else if (matchStatus == MatchStatus.TELEOP) {
-            SmartDashboard.putString("Period Info", "TELEOP Shift " + (currentShift + 1) + "/6");
+            periodInfo = "TELEOP Shift " + (currentShift + 1) + "/6";
             timeUntilNextPhase = timeUntilNextShift;
         } else if (matchStatus == MatchStatus.ENDGAME) {
-            SmartDashboard.putString("Period Info", "ENDGAME (last 30s) - All hubs active");
+            periodInfo = "ENDGAME (last 30s) - All hubs active";
             timeUntilNextPhase = matchTime; // Time until match end
         } else {
-            SmartDashboard.putString("Period Info", matchStatus.toString());
+            periodInfo = matchStatus.toString();
         }
-
-        // Display time until next phase shift
-        SmartDashboard.putNumber("Time Until Next Phase", timeUntilNextPhase);
-        String nextPhaseFormatted = String.format("%.1fs", timeUntilNextPhase);
-        SmartDashboard.putString("Next Phase In", nextPhaseFormatted);
-
-        // Hub activation status
-        SmartDashboard.putBoolean("Red Hub Active", redHubActive);
-        SmartDashboard.putBoolean("Blue Hub Active", blueHubActive);
-        SmartDashboard.putNumber("Current Shift", currentShift + 1);
 
         updateNetworkTables();
     }
