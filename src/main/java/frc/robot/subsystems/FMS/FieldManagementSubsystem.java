@@ -4,8 +4,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 
 /** The subsystem that manages everything field related. */
 public class FieldManagementSubsystem extends SubsystemBase {
@@ -29,36 +32,53 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private double timeUntilNextShift = 0.0;
     private boolean redWonAuto = false; // Set based on which alliance scored more in auto
 
-    private NetworkTableInstance FMSNTInstance;
-    private NetworkTable FMSNTTable;
-    private NetworkTableEntry stationNumberEntry;
-    private NetworkTableEntry matchNumberEntry;
-    private NetworkTableEntry matchTypeEntry;
-    private NetworkTableEntry timeLeftEntry;
-    private NetworkTableEntry isAutonomousEntry;
-    private NetworkTableEntry isEStoppedEntry;
-    private NetworkTableEntry isEnabledEntry;
-    private NetworkTableEntry isDSAttachedEntry;
+    private NetworkTableInstance FmsNtInstance;
+    private NetworkTable FmsNtTable;
+
+    private IntegerPublisher stationNumberPublisher;
+    private IntegerPublisher matchNumberPublisher;
+    private StringPublisher matchTypePublisher;
+    private DoublePublisher timeLeftPublisher;
+    private BooleanPublisher isAutonomousPublisher;
+    private BooleanPublisher isEStoppedPublisher;
+    private BooleanPublisher isEnabledPublisher;
+    private BooleanPublisher isDSAttachedPublisher;
 
     /**
      * Initializes subsystem to handle information related to the Field Management System (such as our alliance color).
      */
     public FieldManagementSubsystem() {
-
         isRed = false;
         connectedToFMS = false;
         matchStatus = MatchStatus.NOTSTARTED;
 
-        FMSNTInstance = NetworkTableInstance.getDefault();
-        FMSNTTable = FMSNTInstance.getTable("FMS");
-        stationNumberEntry = FMSNTTable.getEntry("StationNumber");
-        matchNumberEntry = FMSNTTable.getEntry("MatchNumber");
-        matchTypeEntry = FMSNTTable.getEntry("MatchType");
-        timeLeftEntry = FMSNTTable.getEntry("TimeLeft");
-        isAutonomousEntry = FMSNTTable.getEntry("IsAutonomous");
-        isEStoppedEntry = FMSNTTable.getEntry("IsEStopped");
-        isEnabledEntry = FMSNTTable.getEntry("IsEnabled");
-        isDSAttachedEntry = FMSNTTable.getEntry("IsDSAttached");
+        initNetworkTable();
+    }
+
+    private void initNetworkTable() {
+        FmsNtInstance = NetworkTableInstance.getDefault();
+        FmsNtTable = FmsNtInstance.getTable("FMS");
+        stationNumberPublisher = FmsNtTable.getIntegerTopic("StationNumber").publish();
+        matchNumberPublisher = FmsNtTable.getIntegerTopic("MatchNumber").publish();
+        matchTypePublisher = FmsNtTable.getStringTopic("MatchType").publish();
+        timeLeftPublisher = FmsNtTable.getDoubleTopic("TimeLeft").publish();
+        isAutonomousPublisher = FmsNtTable.getBooleanTopic("IsAutonomous").publish();
+        isEStoppedPublisher = FmsNtTable.getBooleanTopic("IsEStopped").publish();
+        isEnabledPublisher = FmsNtTable.getBooleanTopic("IsEnabled").publish();
+        isDSAttachedPublisher = FmsNtTable.getBooleanTopic("IsDSAttached").publish();
+
+        updateNetworkTables();
+    }
+
+    private void updateNetworkTables() {
+        stationNumberPublisher.set(DriverStation.getLocation().orElse(-1));
+        matchNumberPublisher.set(DriverStation.getMatchNumber());
+        matchTypePublisher.set(DriverStation.getMatchType().toString());
+        timeLeftPublisher.set(DriverStation.getMatchTime());
+        isAutonomousPublisher.set(DriverStation.isAutonomous());
+        isEStoppedPublisher.set(DriverStation.isEStopped());
+        isEnabledPublisher.set(DriverStation.isEnabled());
+        isDSAttachedPublisher.set(DriverStation.isDSAttached());
     }
 
     public void periodic() {
@@ -141,15 +161,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
             robotStatus = RobotStatus.DISABLED;
         }
 
-        stationNumberEntry.setInteger(DriverStation.getLocation().orElse(-1));
-        matchNumberEntry.setInteger(DriverStation.getMatchNumber());
-        matchTypeEntry.setString(DriverStation.getMatchType().toString());
-        timeLeftEntry.setDouble(DriverStation.getMatchTime());
-        isAutonomousEntry.setBoolean(DriverStation.isAutonomous());
-        isEStoppedEntry.setBoolean(DriverStation.isEStopped());
-        isEnabledEntry.setBoolean(DriverStation.isEnabled());
-        isDSAttachedEntry.setBoolean(DriverStation.isDSAttached());
-
         // Game timer
         // 20s Auto + 10s Transition + 100s Teleop (6 shifts) + 30s Endgame = 160s total
         SmartDashboard.putNumber("Match Time Remaining", matchTime);
@@ -187,6 +198,8 @@ public class FieldManagementSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Red Hub Active", redHubActive);
         SmartDashboard.putBoolean("Blue Hub Active", blueHubActive);
         SmartDashboard.putNumber("Current Shift", currentShift + 1);
+
+        updateNetworkTables();
     }
 
     /**
