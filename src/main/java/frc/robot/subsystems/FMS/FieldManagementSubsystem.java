@@ -35,17 +35,13 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private NetworkTableInstance FmsNtInstance;
     private NetworkTable FmsNtTable;
 
-    private IntegerPublisher stationNumberPublisher;
-    private IntegerPublisher matchNumberPublisher;
-    private StringPublisher matchTypePublisher;
-    private DoublePublisher timeLeftPublisher;
+    private DoublePublisher matchTimePublisher;
     private BooleanPublisher isAutonomousPublisher;
     private BooleanPublisher isEStoppedPublisher;
     private BooleanPublisher isEnabledPublisher;
     private BooleanPublisher isDSAttachedPublisher;
 
-    private DoublePublisher matchTimeRemainingPublisher;
-    private StringPublisher matchPeriodPublisher;
+    private StringPublisher matchStatusPublisher;
     private StringPublisher periodInfoPublisher;
     private DoublePublisher timeUntilNextPhasePublisher;
     private BooleanPublisher redHubActivePublisher;
@@ -68,18 +64,14 @@ public class FieldManagementSubsystem extends SubsystemBase {
 
     private void initNetworkTable() {
         FmsNtInstance = NetworkTableInstance.getDefault();
-        FmsNtTable = FmsNtInstance.getTable("FMS");
-        stationNumberPublisher = FmsNtTable.getIntegerTopic("StationNumber").publish();
-        matchNumberPublisher = FmsNtTable.getIntegerTopic("MatchNumber").publish();
-        matchTypePublisher = FmsNtTable.getStringTopic("MatchType").publish();
-        timeLeftPublisher = FmsNtTable.getDoubleTopic("TimeLeft").publish();
+        FmsNtTable = FmsNtInstance.getTable("FMSInfo");
+        matchTimePublisher = FmsNtTable.getDoubleTopic("MatchTime").publish();
         isAutonomousPublisher = FmsNtTable.getBooleanTopic("IsAutonomous").publish();
         isEStoppedPublisher = FmsNtTable.getBooleanTopic("IsEStopped").publish();
         isEnabledPublisher = FmsNtTable.getBooleanTopic("IsEnabled").publish();
         isDSAttachedPublisher = FmsNtTable.getBooleanTopic("IsDSAttached").publish();
 
-        matchTimeRemainingPublisher = FmsNtTable.getDoubleTopic("MatchTimeRemaining").publish();
-        matchPeriodPublisher = FmsNtTable.getStringTopic("MatchPeriod").publish();
+        matchStatusPublisher = FmsNtTable.getStringTopic("MatchStatus").publish();
         periodInfoPublisher = FmsNtTable.getStringTopic("PeriodInfo").publish();
         timeUntilNextPhasePublisher = FmsNtTable.getDoubleTopic("TimeUntilNextPhase").publish();
         redHubActivePublisher = FmsNtTable.getBooleanTopic("RedHubActive").publish();
@@ -90,17 +82,13 @@ public class FieldManagementSubsystem extends SubsystemBase {
     }
 
     private void updateNetworkTables() {
-        stationNumberPublisher.set(DriverStation.getLocation().orElse(-1));
-        matchNumberPublisher.set(DriverStation.getMatchNumber());
-        matchTypePublisher.set(DriverStation.getMatchType().toString());
-        timeLeftPublisher.set(DriverStation.getMatchTime());
+        matchTimePublisher.set(DriverStation.getMatchTime());
         isAutonomousPublisher.set(DriverStation.isAutonomous());
         isEStoppedPublisher.set(DriverStation.isEStopped());
         isEnabledPublisher.set(DriverStation.isEnabled());
         isDSAttachedPublisher.set(DriverStation.isDSAttached());
 
-        matchTimeRemainingPublisher.set(DriverStation.getMatchTime());
-        matchPeriodPublisher.set(matchStatus.toString());
+        matchStatusPublisher.set(matchStatus.toString());
         periodInfoPublisher.set(periodInfo);
         timeUntilNextPhasePublisher.set(timeUntilNextPhase);
         redHubActivePublisher.set(redHubActive);
