@@ -50,7 +50,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
     public FieldManagementSubsystem() {
         isRed = false;
         connectedToFMS = false;
-        matchStatus = MatchStatus.NOTSTARTED;
+        matchStatus = MatchStatus.NOT_STARTED;
 
         initNetworkTable();
     }
