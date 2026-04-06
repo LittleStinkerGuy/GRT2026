@@ -1,6 +1,7 @@
 package frc.robot.subsystems.FMS;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -81,22 +82,18 @@ public class FieldManagementSubsystem extends SubsystemBase {
         isDSAttachedPublisher.set(DriverStation.isDSAttached());
     }
 
-    public void periodic() {
-        boolean incomingIsRed;
-        try {
-            incomingIsRed = DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red);
-        } catch (Exception e) {
-            incomingIsRed = isRed;
-        }
+    private void updateAllianceColor() {
+        Alliance incomingAllianceColor = DriverStation.getAlliance().orElse(Alliance.Red);
+        boolean incomingIsRed = incomingAllianceColor.equals(Alliance.Red);
 
         if (incomingIsRed != isRed) {
-            if (incomingIsRed) {
-                System.out.println("Alliance color switched to Red.");
-            } else {
-                System.out.println("Alliance color switched to Blue.");
-            }
+            System.out.println("Alliance color switched to " + incomingAllianceColor.toString());
+            isRed = incomingIsRed;
         }
-        isRed = incomingIsRed;
+    }
+
+    public void periodic() {
+        updateAllianceColor();
 
         boolean incomingFMSstatus = DriverStation.isFMSAttached();
         if (incomingFMSstatus != connectedToFMS) {
