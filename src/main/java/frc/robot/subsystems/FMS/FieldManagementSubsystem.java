@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import java.util.Optional;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -17,23 +18,20 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private boolean connectedToFMS;
     private MatchStatus matchStatus;
     private boolean matchStarted = false;
-    private RobotStatus robotStatus;
+    private RobotStatus robotStatus = RobotStatus.DISABLED;
 
-    private static final double AUTO_END = 20.0; // Auto ends at 0:20
+    private static final double AUTO_END = 20.0; // Auton ends at 0:20
     private static final double TRANSITION_END = 30.0; // Transition ends at 0:30
     private static final double ENDGAME_START = 130.0; // Endgame starts at 2:10 (30s before match end)
     private static final double MATCH_TOTAL = 160.0; // Total match time: 2:40
-    private static final double TELEOP_SHIFT_DURATION = (ENDGAME_START - TRANSITION_END) / 6.0; // ~16.67s per shift
+    private static final double TELEOP_SHIFT_DURATION = (ENDGAME_START - TRANSITION_END) / 4.0; // 25s per shift
 
     // Hub activation state
     private boolean redHubActive = true;
     private boolean blueHubActive = true;
     private int currentShift = 0;
     private double timeUntilNextShift = 0.0;
-    private boolean redWonAuto = false; // Set based on which alliance scored more in auto
-
-    private NetworkTableInstance FmsNtInstance;
-    private NetworkTable FmsNtTable;
+    private Optional<Boolean> redWonAuton = Optional.empty();
 
     private DoublePublisher matchTimePublisher;
     private BooleanPublisher isAutonomousPublisher;
@@ -47,6 +45,8 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private BooleanPublisher redHubActivePublisher;
     private BooleanPublisher blueHubActivePublisher;
     private IntegerPublisher currentShiftPublisher;
+
+    private BooleanPublisher isFmsAttachedPublisher;
 
     private String periodInfo = "";
     private double timeUntilNextPhase = 0.0;
@@ -63,37 +63,58 @@ public class FieldManagementSubsystem extends SubsystemBase {
     }
 
     private void initNetworkTable() {
-        FmsNtInstance = NetworkTableInstance.getDefault();
-        FmsNtTable = FmsNtInstance.getTable("FMSInfo");
-        matchTimePublisher = FmsNtTable.getDoubleTopic("MatchTime").publish();
-        isAutonomousPublisher = FmsNtTable.getBooleanTopic("IsAutonomous").publish();
-        isEStoppedPublisher = FmsNtTable.getBooleanTopic("IsEStopped").publish();
-        isEnabledPublisher = FmsNtTable.getBooleanTopic("IsEnabled").publish();
-        isDSAttachedPublisher = FmsNtTable.getBooleanTopic("IsDSAttached").publish();
+        NetworkTableInstance ntInstance = NetworkTableInstance.getDefault();
+        NetworkTable fmsNtTable = ntInstance.getTable("FMSInfo/Extra");
+        matchTimePublisher = fmsNtTable.getDoubleTopic("MatchTime").publish();
+        isAutonomousPublisher = fmsNtTable.getBooleanTopic("IsAutonomous").publish();
+        isEStoppedPublisher = fmsNtTable.getBooleanTopic("IsEStopped").publish();
+        isEnabledPublisher = fmsNtTable.getBooleanTopic("IsEnabled").publish();
+        isDSAttachedPublisher = fmsNtTable.getBooleanTopic("IsDSAttached").publish();
+        isFmsAttachedPublisher = fmsNtTable.getBooleanTopic("IsFMSAttached").publish();
 
-        matchStatusPublisher = FmsNtTable.getStringTopic("MatchStatus").publish();
-        periodInfoPublisher = FmsNtTable.getStringTopic("PeriodInfo").publish();
-        timeUntilNextPhasePublisher = FmsNtTable.getDoubleTopic("TimeUntilNextPhase").publish();
-        redHubActivePublisher = FmsNtTable.getBooleanTopic("RedHubActive").publish();
-        blueHubActivePublisher = FmsNtTable.getBooleanTopic("BlueHubActive").publish();
-        currentShiftPublisher = FmsNtTable.getIntegerTopic("CurrentShift").publish();
+        matchStatusPublisher = fmsNtTable.getStringTopic("MatchStatus").publish();
+        periodInfoPublisher = fmsNtTable.getStringTopic("PeriodInfo").publish();
+        timeUntilNextPhasePublisher = fmsNtTable.getDoubleTopic("TimeUntilNextPhase").publish();
+        redHubActivePublisher = fmsNtTable.getBooleanTopic("RedHubActive").publish();
+        blueHubActivePublisher = fmsNtTable.getBooleanTopic("BlueHubActive").publish();
+        currentShiftPublisher = fmsNtTable.getIntegerTopic("CurrentShift").publish();
 
         updateNetworkTables();
     }
 
     private void updateNetworkTables() {
         matchTimePublisher.set(DriverStation.getMatchTime());
-        isAutonomousPublisher.set(DriverStation.isAutonomous());
-        isEStoppedPublisher.set(DriverStation.isEStopped());
-        isEnabledPublisher.set(DriverStation.isEnabled());
-        isDSAttachedPublisher.set(DriverStation.isDSAttached());
+        // isAutonomousPublisher.set(DriverStation.isAutonomous());
+        // isEStoppedPublisher.set(DriverStation.isEStopped());
+        // isEnabledPublisher.set(DriverStation.isEnabled());
+        // isDSAttachedPublisher.set(DriverStation.isDSAttached());
+        // isFmsAttachedPublisher.set(DriverStation.isFMSAttached());
 
-        matchStatusPublisher.set(matchStatus.toString());
-        periodInfoPublisher.set(periodInfo);
+        // matchStatusPublisher.set(matchStatus.toString());
+        // periodInfoPublisher.set(periodInfo);
         timeUntilNextPhasePublisher.set(timeUntilNextPhase);
         redHubActivePublisher.set(redHubActive);
-        blueHubActivePublisher.set(blueHubActive);
-        currentShiftPublisher.set(currentShift + 1);
+        // blueHubActivePublisher.set(blueHubActive);
+        currentShiftPublisher.set(getCurrentShift());
+    }
+
+    private Optional<Boolean> didRedWinAuton() {
+        if (redWonAuton.isPresent()) {
+            return redWonAuton;
+        }
+
+        String gameData = DriverStation.getGameSpecificMessage();
+        if (gameData.isEmpty()) {
+            return Optional.empty();
+        }
+
+        redWonAuton = switch (gameData.charAt(0)) {
+            case 'R' -> Optional.of(true);
+            case 'B' -> Optional.of(false);
+            default -> Optional.empty();
+        };
+
+        return redWonAuton;
     }
 
     private void updateAllianceColor() {
@@ -106,9 +127,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         }
     }
 
-    public void periodic() {
-        updateAllianceColor();
-
+    private void updateFmsStatus() {
         boolean incomingFMSstatus = DriverStation.isFMSAttached();
         if (incomingFMSstatus != connectedToFMS) {
             if (incomingFMSstatus) {
@@ -116,16 +135,28 @@ public class FieldManagementSubsystem extends SubsystemBase {
             } else {
                 System.out.println("Disconnected from FMS.");
             }
+            connectedToFMS = incomingFMSstatus;
         }
-        connectedToFMS = incomingFMSstatus;
+    }
 
-        double matchTime = DriverStation.getMatchTime();
+    private void updateRobotStatus() {
+        if (DriverStation.isEStopped()) {
+            robotStatus = RobotStatus.ESTOPPED;
+        } else if (DriverStation.isEnabled()) {
+            robotStatus = RobotStatus.ENABLED;
+        } else {
+            robotStatus = RobotStatus.DISABLED;
+        }
+    }
+
+    private void updateMatchStates(double matchTime) {
+        matchTime = Math.max(matchTime, 0);
         double elapsedTime = MATCH_TOTAL - matchTime; // Convert remaining time to elapsed time
 
         if (DriverStation.isAutonomous()) {
             matchStatus = MatchStatus.AUTON;
             matchStarted = true;
-            // Both hubs active during auto
+            // Both hubs active during auton
             redHubActive = true;
             blueHubActive = true;
         } else if (DriverStation.isTeleop()) {
@@ -134,7 +165,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
                 matchStatus = MatchStatus.TRANSITION;
                 redHubActive = true;
                 blueHubActive = true;
-            } else if (elapsedTime >= ENDGAME_START || matchTime <= 30) {
+            } else if (matchTime <= 30) {
                 // Endgame (last 30 seconds): All hubs active
                 matchStatus = MatchStatus.ENDGAME;
                 redHubActive = true;
@@ -143,34 +174,30 @@ public class FieldManagementSubsystem extends SubsystemBase {
                 // Teleop alliance shifts (0:30 - 2:10): Alternating hub activation
                 matchStatus = MatchStatus.TELEOP;
                 double teleopElapsed = elapsedTime - TRANSITION_END;
-                currentShift = (int) (teleopElapsed / TELEOP_SHIFT_DURATION);
+                currentShift = Math.min((int) (teleopElapsed / TELEOP_SHIFT_DURATION), 3);
 
                 // Calculate time until next shift
                 double timeInCurrentShift = teleopElapsed % TELEOP_SHIFT_DURATION;
                 timeUntilNextShift = TELEOP_SHIFT_DURATION - timeInCurrentShift;
 
-                // Determine which hub is inactive based on shift number and auto winner
-                // Even shifts: loser's hub inactive, Odd shifts: winner's hub inactive
-                boolean winnerInactive = (currentShift % 2 == 1);
-                if (redWonAuto) {
-                    redHubActive = !winnerInactive;
-                    blueHubActive = winnerInactive;
+                // Determine which hub is inactive based on shift number and auton winner
+                // 0-indexed: Even shifts: winners's hub inactive, Odd shifts: losers's hub inactive
+                boolean winnerActive = (currentShift % 2 == 1);
+                if (didRedWinAuton().isEmpty()) { // ideally doesn't happen but yk idk what behavior should happen here
+                    redHubActive = true;
+                    blueHubActive = true;
                 } else {
-                    redHubActive = winnerInactive;
-                    blueHubActive = !winnerInactive;
+                    redHubActive = didRedWinAuton().get() ? winnerActive : !winnerActive;
+                    blueHubActive = didRedWinAuton().get() ? !winnerActive : winnerActive;
                 }
             }
-        } else if (matchTime == 0 && matchStarted) {
+        } else if (matchTime <= 0.0 && matchStarted) {
             matchStatus = MatchStatus.ENDED;
         }
+    }
 
-        if (DriverStation.isEnabled()) {
-            robotStatus = RobotStatus.ENABLED;
-        } else if (DriverStation.isEStopped()) {
-            robotStatus = RobotStatus.ESTOPPED;
-        } else if (DriverStation.isDisabled()) {
-            robotStatus = RobotStatus.DISABLED;
-        }
+    private void updatePeriodInfo(double matchTime) {
+        double elapsedTime = MATCH_TOTAL - matchTime; // Convert remaining time to elapsed time
 
         // Show period-specific time context and time until next phase
         timeUntilNextPhase = 0.0;
@@ -181,7 +208,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
             periodInfo = "TRANSITION (0:20-0:30) - All hubs active";
             timeUntilNextPhase = TRANSITION_END - elapsedTime;
         } else if (matchStatus == MatchStatus.TELEOP) {
-            periodInfo = "TELEOP Shift " + (currentShift + 1) + "/6";
+            periodInfo = "TELEOP Shift " + (currentShift + 1) + "/4";
             timeUntilNextPhase = timeUntilNextShift;
         } else if (matchStatus == MatchStatus.ENDGAME) {
             periodInfo = "ENDGAME (last 30s) - All hubs active";
@@ -189,6 +216,16 @@ public class FieldManagementSubsystem extends SubsystemBase {
         } else {
             periodInfo = matchStatus.toString();
         }
+    }
+
+    public void periodic() {
+        updateAllianceColor();
+        updateFmsStatus();
+        updateRobotStatus();
+
+        double matchTime = DriverStation.getMatchTime();
+        updateMatchStates(matchTime);
+        updatePeriodInfo(matchTime);
 
         updateNetworkTables();
     }
@@ -199,7 +236,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
      * @return isRed boolean
      */
     public boolean isRedAlliance() {
-
         return isRed;
     }
 
@@ -209,7 +245,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
      * @return connectedToFMS boolean
      */
     public boolean isConnectedToFMS() {
-
         return connectedToFMS;
     }
 
@@ -219,7 +254,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
      * @return current MatchStatus
      */
     public MatchStatus getMatchStatus() {
-
         return matchStatus;
     }
 
@@ -229,7 +263,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
      * @return current robot status
      */
     public RobotStatus getRobotStatus() {
-
         return robotStatus;
     }
 
@@ -261,17 +294,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
     }
 
     /**
-     * Sets which alliance won auto (scored more fuel).
-     * This determines hub activation order during teleop shifts.
-     *
-     * @param redWon true if red alliance won auto
-     */
-    public void setAutoWinner(boolean redWon) {
-        this.redWonAuto = redWon;
-    }
-
-    /**
-     * Returns the current shift number (1-6) during teleop.
+     * Returns the current shift number (1-4) during teleop.
      *
      * @return current shift number
      */
