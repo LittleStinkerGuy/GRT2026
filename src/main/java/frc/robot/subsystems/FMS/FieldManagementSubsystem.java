@@ -29,8 +29,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
     // Hub activation state
     private boolean redHubActive = true;
     private boolean blueHubActive = true;
-    private int currentShift = 0;
-    private double timeUntilNextShift = 0.0;
+    private int currentShift = 1;
     private Optional<Boolean> redWonAuton = Optional.empty();
 
     private DoublePublisher matchTimePublisher;
@@ -78,8 +77,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
         redHubActivePublisher = fmsNtTable.getBooleanTopic("RedHubActive").publish();
         blueHubActivePublisher = fmsNtTable.getBooleanTopic("BlueHubActive").publish();
         currentShiftPublisher = fmsNtTable.getIntegerTopic("CurrentShift").publish();
-
-        updateNetworkTables();
     }
 
     private void updateNetworkTables() {
@@ -150,8 +147,8 @@ public class FieldManagementSubsystem extends SubsystemBase {
     }
 
     private void updateMatchStates(double matchTime) {
-        matchTime = Math.max(matchTime, 0);
-        double elapsedTime = MATCH_TOTAL - matchTime; // Convert remaining time to elapsed time
+        double clampedMatchTime = Math.max(matchTime, 0);
+        double elapsedTime = MATCH_TOTAL - clampedMatchTime; // Convert remaining time to elapsed time
 
         if (DriverStation.isAutonomous()) {
             matchStatus = MatchStatus.AUTON;
@@ -160,12 +157,13 @@ public class FieldManagementSubsystem extends SubsystemBase {
             redHubActive = true;
             blueHubActive = true;
         } else if (DriverStation.isTeleop()) {
+            matchStarted = true;
             if (elapsedTime < TRANSITION_END) {
                 // Transition period (0:20 - 0:30): Both hubs still active
                 matchStatus = MatchStatus.TRANSITION;
                 redHubActive = true;
                 blueHubActive = true;
-            } else if (matchTime <= 30) {
+            } else if (elapsedTime >= ENDGAME_START) {
                 // Endgame (last 30 seconds): All hubs active
                 matchStatus = MatchStatus.ENDGAME;
                 redHubActive = true;
@@ -174,24 +172,25 @@ public class FieldManagementSubsystem extends SubsystemBase {
                 // Teleop alliance shifts (0:30 - 2:10): Alternating hub activation
                 matchStatus = MatchStatus.TELEOP;
                 double teleopElapsed = elapsedTime - TRANSITION_END;
-                currentShift = Math.min((int) (teleopElapsed / TELEOP_SHIFT_DURATION), 3);
+                currentShift = Math.min((int) (teleopElapsed / TELEOP_SHIFT_DURATION) + 1, 4);
 
                 // Calculate time until next shift
                 double timeInCurrentShift = teleopElapsed % TELEOP_SHIFT_DURATION;
-                timeUntilNextShift = TELEOP_SHIFT_DURATION - timeInCurrentShift;
+                timeUntilNextPhase = TELEOP_SHIFT_DURATION - timeInCurrentShift;
 
-                // Determine which hub is inactive based on shift number and auton winner
-                // 0-indexed: Even shifts: winners's hub inactive, Odd shifts: losers's hub inactive
-                boolean winnerActive = (currentShift % 2 == 1);
-                if (didRedWinAuton().isEmpty()) { // ideally doesn't happen but yk idk what behavior should happen here
+                // Winner's hub is active on shifts 2 and 4; loser's hub is active on shifts 1 and 3.
+                boolean winnerActive = (currentShift % 2 == 0);
+                Optional<Boolean> redWonOpt = didRedWinAuton();
+                if (redWonOpt.isEmpty()) {
                     redHubActive = true;
                     blueHubActive = true;
                 } else {
-                    redHubActive = didRedWinAuton().get() ? winnerActive : !winnerActive;
-                    blueHubActive = didRedWinAuton().get() ? !winnerActive : winnerActive;
+                    boolean redWon = redWonOpt.get();
+                    redHubActive = redWon ? winnerActive : !winnerActive;
+                    blueHubActive = redWon ? !winnerActive : winnerActive;
                 }
             }
-        } else if (matchTime <= 0.0 && matchStarted) {
+        } else if (matchStarted) {
             matchStatus = MatchStatus.ENDED;
         }
     }
@@ -199,8 +198,8 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private void updatePeriodInfo(double matchTime) {
         double elapsedTime = MATCH_TOTAL - matchTime; // Convert remaining time to elapsed time
 
-        // Show period-specific time context and time until next phase
-        timeUntilNextPhase = 0.0;
+        // Show period-specific time context and time until next phase.
+        // Note: TELEOP's timeUntilNextPhase is set inside updateMatchStates and is preserved here.
         if (matchStatus == MatchStatus.AUTON) {
             periodInfo = "AUTO (0:00-0:20) - All hubs active";
             timeUntilNextPhase = AUTO_END - elapsedTime;
@@ -208,13 +207,13 @@ public class FieldManagementSubsystem extends SubsystemBase {
             periodInfo = "TRANSITION (0:20-0:30) - All hubs active";
             timeUntilNextPhase = TRANSITION_END - elapsedTime;
         } else if (matchStatus == MatchStatus.TELEOP) {
-            periodInfo = "TELEOP Shift " + (currentShift + 1) + "/4";
-            timeUntilNextPhase = timeUntilNextShift;
+            periodInfo = "TELEOP Shift " + currentShift + "/4";
         } else if (matchStatus == MatchStatus.ENDGAME) {
             periodInfo = "ENDGAME (last 30s) - All hubs active";
             timeUntilNextPhase = matchTime; // Time until match end
         } else {
             periodInfo = matchStatus.toString();
+            timeUntilNextPhase = 0.0;
         }
     }
 
@@ -294,11 +293,12 @@ public class FieldManagementSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns the current shift number (1-4) during teleop.
+     * Returns the current shift number (1-4) during teleop. The internal field
+     * is also 1-indexed, so this matches the published NetworkTables value.
      *
-     * @return current shift number
+     * @return current shift number (1..4)
      */
     public int getCurrentShift() {
-        return currentShift + 1;
+        return currentShift;
     }
 }
