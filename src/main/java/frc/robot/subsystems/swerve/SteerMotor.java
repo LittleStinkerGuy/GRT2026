@@ -204,7 +204,7 @@ public class SteerMotor extends SubsystemBase {
 
     public void publishStats() {
 
-        motorPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
+        motorPositionPublisher.set(cancoder.getAbsolutePosition().getValueAsDouble());
         targetPositionPublisher.set(motor.getClosedLoopReference().getValueAsDouble());
 
         // encoderPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
