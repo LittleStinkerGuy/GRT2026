@@ -429,6 +429,15 @@ public final class Constants {
         public static final double TOGGLE_INTERVAL_SECONDS = 0.5;
     }
 
+    // ==================== TOWER SHOOT ====================
+    public static class TowerShootConstants {
+        // Hood position (rotations) - placeholder, tune on robot
+        public static final double HOOD_POSITION = 0.05;
+
+        // Flywheel speed (RPS) - placeholder, tune on robot
+        public static final double FLYWHEEL_RPS = 55;
+    }
+
     public static class DebugConstants {
         public static final boolean MASTER_DEBUG = false;
         public static final boolean DRIVE_DEBUG = false;

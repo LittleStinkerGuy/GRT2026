@@ -29,10 +29,12 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 // Commands
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.commands.AutonShooterSequence;
-import frc.robot.commands.CycleManualShooterSequence;
-import frc.robot.commands.ManualShooterSequence;
+import frc.robot.commands.CycleShot;
+import frc.robot.commands.SmashShot;
+import frc.robot.commands.TowerShot;
 import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.shooter.CalibrationCommands;
 import frc.robot.commands.ShooterSequence;
@@ -106,6 +108,7 @@ public class RobotContainer {
             ? new AimToHubCommand(swerveSubsystem, fmsSubsystem)
             : null;
     private boolean shootSeq = false;
+    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_RPS;
 
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
@@ -216,7 +219,7 @@ public class RobotContainer {
             if (aimHelper != null) {
                 driveController.getController().triangle().whileTrue(
                     Commands.defer(
-                        () -> aimHelper.createAimCommand(() -> Math.abs(driveController.getRotatePower()) > 0.1),
+                        () -> aimHelper.createAimCommand(() -> false),
                         java.util.Set.of(swerveSubsystem)));
             }
         }
@@ -259,11 +262,11 @@ public class RobotContainer {
              * }, pivotIntake));
              */
 
-            // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
-            // Square (mech) = manual shooter sequence
+            // ==================== SHOOTING PRESETS ====================
+            // Square (mech) = smash-and-shoot preset (close-range)
             mechController.square().toggleOnTrue(
                 Commands.defer(
-                    () -> new ManualShooterSequence(
+                    () -> new SmashShot(
                         flywheelSubsystem,
                         hoodSubsystem,
                         tower,
@@ -282,14 +285,14 @@ public class RobotContainer {
             // Triangle/Circle: bump hood angle offset (0.005 rotations per press)
             // Options: log current (distance, rpm, angle) to riolog
             // Share: reset both offsets to zero
-            mechController.povUp().onTrue(CalibrationCommands.rpmUp(learner));
-            mechController.povDown().onTrue(CalibrationCommands.rpmDown(learner));
-            mechController.triangle().onTrue(CalibrationCommands.hoodUp(learner));
-            mechController.circle().onTrue(CalibrationCommands.hoodDown(learner));
-            mechController.create().onTrue(CalibrationCommands.resetOffsets(learner));
-            if (aimSubsystem != null) {
-                mechController.options().onTrue(CalibrationCommands.logPoint(learner, aimSubsystem));
-            }
+            // mechController.povUp().onTrue(CalibrationCommands.rpmUp(learner));
+            // mechController.povDown().onTrue(CalibrationCommands.rpmDown(learner));
+            // mechController.triangle().onTrue(CalibrationCommands.hoodUp(learner));
+            // mechController.circle().onTrue(CalibrationCommands.hoodDown(learner));
+            // mechController.create().onTrue(CalibrationCommands.resetOffsets(learner));
+            // if (aimSubsystem != null) {
+            // mechController.options().onTrue(CalibrationCommands.logPoint(learner, aimSubsystem));
+            // }
 
             // Joystick movement cancels it
             // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
@@ -328,13 +331,31 @@ public class RobotContainer {
                 }
             }, hoodSubsystem));
 
-            // Cross = cycle shooter (hold to run, release to stop)
-            mechController.cross().toggleOnTrue(new CycleManualShooterSequence(
+            mechController.povUp().onTrue(Commands.runOnce(() -> {
+                cycleFlywheelVelo += 5;
+            }));
+
+            mechController.povDown().onTrue(Commands.runOnce(() -> {
+                cycleFlywheelVelo -= 5;
+            }));
+
+            // Cross = cycle shooter preset (long-range)
+            mechController.cross().toggleOnTrue(new CycleShot(
                 flywheelSubsystem,
                 hoodSubsystem,
                 tower,
                 HopperSubsystem,
-                pivotIntake));
+                pivotIntake,
+                () -> cycleFlywheelVelo));
+
+            // Touchpad = tower shoot preset
+            mechController.triangle().toggleOnTrue(new TowerShot(
+                flywheelSubsystem,
+                hoodSubsystem,
+                tower,
+                HopperSubsystem,
+                pivotIntake,
+                learner));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {

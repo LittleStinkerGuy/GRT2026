@@ -17,8 +17,8 @@ public class shooterLearner {
 
     public shooterLearner() {
         NetworkTable t = NetworkTableInstance.getDefault().getTable("ShooterLearner");
-        rpmOffsetPub  = t.getDoubleTopic("rpmOffset").publish();
-        rpmOffsetSub  = t.getDoubleTopic("rpmOffset").subscribe(0.0);
+        rpmOffsetPub = t.getDoubleTopic("rpmOffset").publish();
+        rpmOffsetSub = t.getDoubleTopic("rpmOffset").subscribe(0.0);
         hoodOffsetPub = t.getDoubleTopic("hoodOffset").publish();
         hoodOffsetSub = t.getDoubleTopic("hoodOffset").subscribe(0.0);
         rpmOffsetPub.set(0);
