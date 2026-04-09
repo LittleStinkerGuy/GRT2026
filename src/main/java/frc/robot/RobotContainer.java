@@ -345,7 +345,6 @@ public class RobotContainer {
                 hoodSubsystem,
                 tower,
                 HopperSubsystem,
-                pivotIntake,
                 () -> cycleFlywheelVelo));
 
             // Touchpad = tower shoot preset
