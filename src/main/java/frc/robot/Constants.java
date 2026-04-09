@@ -251,7 +251,7 @@ public final class Constants {
             public static final double GEAR_RATIO = 244.411765;
 
             // Position control PID
-            public static final double KP = 3000;
+            public static final double KP = 2500;
             public static final double KI = 30;
             public static final double KD = 60;
             public static final double KS = 120;
