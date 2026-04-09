@@ -175,8 +175,11 @@ public class RobotContainer {
         if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
             swerveSubsystem.setDefaultCommand(
                 new RunCommand(() -> {
-                    // L1 = boost mode (higher accel/velocity)
-                    swerveSubsystem.setBoostMode(driveController.getLeftBumper());
+                    // R2 (>= 90% pressed) = boost mode
+                    swerveSubsystem.setBoostMode(driveController.getRightTriggerAxis() > 0.9);
+
+                    // L1 (hold) = robot-relative drive; release returns to field-relative
+                    swerveSubsystem.setRobotRelative(driveController.getLeftBumper());
 
                     // R1 = slow mode (30% speed), L2 = variable speed limit
                     double speedLimit;
@@ -242,8 +245,8 @@ public class RobotContainer {
             }, HopperSubsystem, tower));
             HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
-            // R2 (drive) = force intake in (pivot up + stop rollers) - hold to override
-            new Trigger(driveController::getRightTrigger)
+            // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
+            driveController.square()
                 .whileTrue(Commands.run(() -> {
                     pivotIntake.setPosition(Constants.IntakeConstants.PIVOT_IN_POS);
                     intakeSubsystem.stop();

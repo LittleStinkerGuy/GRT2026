@@ -94,6 +94,9 @@ public class SwerveSubsystem extends SubsystemBase {
     // Boost mode flag
     private boolean boostModeEnabled = false;
 
+    // Robot-relative mode flag (held button -- release returns to field-relative)
+    private boolean robotRelativeEnabled = false;
+
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
         ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
@@ -200,13 +203,24 @@ public class SwerveSubsystem extends SubsystemBase {
         double limitedMaxVel = MAX_VEL * speedLimit;
         double limitedMaxOmega = MAX_OMEGA * speedLimit;
 
-        Rotation2d heading = getDriverHeading();
-
-        ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xPower * limitedMaxVel,
-            yPower * limitedMaxVel,
-            angularPower * limitedMaxOmega,
-            heading);
+        // Robot-relative (held button): interpret stick forward as the robot's
+        // own +X, which is the physical front (see FL_POS / FR_POS in Constants).
+        // Field-relative (default): rotate stick axes into the robot frame using
+        // the driver heading.
+        ChassisSpeeds desiredSpeeds;
+        if (robotRelativeEnabled) {
+            desiredSpeeds = new ChassisSpeeds(
+                xPower * limitedMaxVel,
+                yPower * limitedMaxVel,
+                angularPower * limitedMaxOmega);
+        } else {
+            Rotation2d heading = getDriverHeading();
+            desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                xPower * limitedMaxVel,
+                yPower * limitedMaxVel,
+                angularPower * limitedMaxOmega,
+                heading);
+        }
 
         ChassisSpeeds speeds;
         if (boostModeEnabled) {
@@ -251,6 +265,17 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void setBoostMode(boolean enabled) {
         this.boostModeEnabled = enabled;
+    }
+
+    /**
+     * Enables or disables robot-relative drive. When enabled, stick inputs are
+     * interpreted in the robot's own frame (forward stick = robot front). When
+     * disabled, stick inputs are field-relative as usual.
+     *
+     * @param enabled true for robot-relative, false for field-relative
+     */
+    public void setRobotRelative(boolean enabled) {
+        this.robotRelativeEnabled = enabled;
     }
 
     /**
