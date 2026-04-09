@@ -141,7 +141,7 @@ public final class Constants {
         public static final double MAX_LINEAR_DECELERATION = 11; // how fast robot stops (m/s²)
 
         public static final double MAX_ANGULAR_ACCELERATION = 20; // how fast robot starts spinning (rad/s²)
-        public static final double MAX_ANGULAR_DECELERATION = 25; // how fast robot stops spinning (rad/s²)
+        public static final double MAX_ANGULAR_DECELERATION = 30; // how fast robot stops spinning (rad/s²)
 
         // Boost Mode Constants (L1 held) - no limits, let motors do max
         public static final double BOOST_MAX_VEL = MAX_VEL;
