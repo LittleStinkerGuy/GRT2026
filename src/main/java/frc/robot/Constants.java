@@ -143,10 +143,10 @@ public final class Constants {
         public static final double MAX_ANGULAR_ACCELERATION = 20; // how fast robot starts spinning (rad/s²)
         public static final double MAX_ANGULAR_DECELERATION = 30; // how fast robot stops spinning (rad/s²)
 
-        // Boost Mode Constants (L1 held) - no limits, let motors do max
-        public static final double BOOST_MAX_VEL = MAX_VEL;
-        public static final double BOOST_MAX_LINEAR_ACCELERATION = 10.0; // ~1g acceleration
-        public static final double BOOST_MAX_ANGULAR_ACCELERATION = MAX_OMEGA; // match max rotation speed
+        // Boost Mode (L1 held) bypasses the drive speed-limit multiplier and the
+        // software acceleration limiter entirely in SwerveSubsystem.setDrivePowers,
+        // so there are no separate boost constants -- it runs at MAX_VEL / MAX_OMEGA
+        // with raw commands straight to the modules.
 
         // Slow Mode Constants (R1 held)
         public static final double SLOW_MODE_SPEED_LIMIT = 0.3; // 30% speed when R1 held

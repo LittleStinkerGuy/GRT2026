@@ -193,13 +193,12 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param angularPower [-1, 1] The rotational power.
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
-        // Determine max velocity based on boost mode and speed limit
-        double baseMaxVel = boostModeEnabled ? BOOST_MAX_VEL : MAX_VEL;
-        double baseMaxOmega = boostModeEnabled ? (BOOST_MAX_VEL / FL_POS.getNorm()) : MAX_OMEGA;
-
-        // Apply drive speed limit (controlled by left trigger)
-        double limitedMaxVel = baseMaxVel * driveSpeedLimit;
-        double limitedMaxOmega = baseMaxOmega * driveSpeedLimit;
+        // Boost mode ignores the drive speed-limit multiplier (L2 / R1 slow) and
+        // bypasses the software acceleration limiter -- raw commands straight to
+        // the modules, capped only by the physical motor maxes.
+        double speedLimit = boostModeEnabled ? 1.0 : driveSpeedLimit;
+        double limitedMaxVel = MAX_VEL * speedLimit;
+        double limitedMaxOmega = MAX_OMEGA * speedLimit;
 
         Rotation2d heading = getDriverHeading();
 
@@ -209,8 +208,16 @@ public class SwerveSubsystem extends SubsystemBase {
             angularPower * limitedMaxOmega,
             heading);
 
-        // Apply acceleration limiting (only limit acceleration, not deceleration)
-        ChassisSpeeds speeds = limitAcceleration(desiredSpeeds);
+        ChassisSpeeds speeds;
+        if (boostModeEnabled) {
+            // Skip accel limiting entirely, but keep the limiter's state in sync
+            // so releasing boost doesn't cause a jerk from a stale previousSpeeds.
+            speeds = desiredSpeeds;
+            previousSpeeds = desiredSpeeds;
+            lastUpdateTime = Timer.getFPGATimestamp();
+        } else {
+            speeds = limitAcceleration(desiredSpeeds);
+        }
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -228,19 +235,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private void updateAccelValues() {
-        if (boostModeEnabled) {
-            // Use boost mode acceleration values
-            maxLinearAcceleration = BOOST_MAX_LINEAR_ACCELERATION;
-            maxLinearDeceleration = MAX_LINEAR_DECELERATION; // Keep decel the same
-            maxAngularAcceleration = BOOST_MAX_ANGULAR_ACCELERATION;
-            maxAngularDeceleration = MAX_ANGULAR_DECELERATION; // Keep decel the same
-        } else {
-            // Use normal values from SmartDashboard
-            maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
-            maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
-            maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
-            maxAngularDeceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
-        }
+        // Boost mode skips limitAcceleration entirely, so there's no boost branch
+        // here -- these values are only consulted on the non-boost path.
+        maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+        maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+        maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+        maxAngularDeceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
     }
 
     /**
