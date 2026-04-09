@@ -5,6 +5,7 @@ import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
+import frc.robot.subsystems.shooter.shooterLearner;
 import frc.robot.subsystems.shooter.towerRollers;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 
@@ -23,6 +24,7 @@ public class ManualShooterSequence extends Command {
     private final towerRollers tower;
     private final HopperSubsystem hopper;
     private final PivotIntakeSubsystem pivotIntake;
+    private final shooterLearner learner;
 
     private final Timer pivotTimer = new Timer();
     private boolean pivotIsIn = true;
@@ -33,12 +35,14 @@ public class ManualShooterSequence extends Command {
         hood hood,
         towerRollers tower,
         HopperSubsystem hopper,
-        PivotIntakeSubsystem pivotIntake) {
+        PivotIntakeSubsystem pivotIntake,
+        shooterLearner learner) {
         this.fly = fly;
         this.hd = hood;
         this.tower = tower;
         this.hopper = hopper;
         this.pivotIntake = pivotIntake;
+        this.learner = learner;
 
         addRequirements(fly, hood, tower, hopper, pivotIntake);
     }
@@ -46,8 +50,8 @@ public class ManualShooterSequence extends Command {
     @Override
     public void initialize() {
         // Start ramping flywheel and moving hood to position
-        fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
-        hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION);
+        fly.shoot(learner.getRPM(SmashAndShootConstants.FLYWHEEL_RPS));
+        hd.setHoodAngle(learner.getHoodAngle(SmashAndShootConstants.HOOD_POSITION));
         // Start with pivot out, wait 5 seconds before first toggle
         pivotIsIn = false;
         initialDelayDone = false;
@@ -57,9 +61,9 @@ public class ManualShooterSequence extends Command {
 
     @Override
     public void execute() {
-        // Keep commanding flywheel and hood targets
-        fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
-        hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION);
+        // Keep commanding flywheel and hood targets (with live operator offsets)
+        fly.shoot(learner.getRPM(SmashAndShootConstants.FLYWHEEL_RPS));
+        hd.setHoodAngle(learner.getHoodAngle(SmashAndShootConstants.HOOD_POSITION));
 
         // Wait 5 seconds before first pivot up, then toggle every 2 seconds
         if (!initialDelayDone) {
