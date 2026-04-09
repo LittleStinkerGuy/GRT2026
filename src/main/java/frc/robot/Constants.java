@@ -317,7 +317,7 @@ public final class Constants {
         public static final double PIVOT_MID_UPPER = 0.175;
         public static final double PIVOT_MID_LOWER = 0.091;
 
-        public static final double PIVOT_FORWARD_LIMIT = 0.360;
+        public static final double PIVOT_FORWARD_LIMIT = 0.358;
         public static final double PIVOT_REVERSE_LIMIT = 0.000;
 
         // Pivot Duty Cycle
