@@ -40,11 +40,13 @@ import frc.robot.commands.shooter.CalibrationCommands;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.cycleBallsCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
+import frc.robot.commands.auton.ToDepotAndShoot;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
+import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -145,6 +147,8 @@ public class RobotContainer {
         SmartDashboard.putData("Field", m_field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
         NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
+        NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
+        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake));
     }
 
     /**
@@ -394,13 +398,20 @@ public class RobotContainer {
         // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
 
         // Run ManualShooterSequence for 10 seconds
-        return new AutonShooterSequence(
+        // return new AutonShooterSequence(
+        // flywheelSubsystem,
+        // hoodSubsystem,
+        // tower,
+        // HopperSubsystem,
+        // pivotIntake).withTimeout(10);
+
+        return new ToDepotAndShoot(
             flywheelSubsystem,
             hoodSubsystem,
             tower,
             HopperSubsystem,
-            pivotIntake).withTimeout(10);
-
+            pivotIntake,
+            intakeSubsystem);
     }
 
     /**
