@@ -141,7 +141,7 @@ public final class Constants {
         public static final double MAX_LINEAR_DECELERATION = 11; // how fast robot stops (m/s²)
 
         public static final double MAX_ANGULAR_ACCELERATION = 20; // how fast robot starts spinning (rad/s²)
-        public static final double MAX_ANGULAR_DECELERATION = 25; // how fast robot stops spinning (rad/s²)
+        public static final double MAX_ANGULAR_DECELERATION = 30; // how fast robot stops spinning (rad/s²)
 
         // Boost Mode Constants (L1 held) - no limits, let motors do max
         public static final double BOOST_MAX_VEL = MAX_VEL;
@@ -251,7 +251,7 @@ public final class Constants {
             public static final double GEAR_RATIO = 244.411765;
 
             // Position control PID
-            public static final double KP = 3000;
+            public static final double KP = 2500;
             public static final double KI = 30;
             public static final double KD = 60;
             public static final double KS = 120;
@@ -427,6 +427,15 @@ public final class Constants {
         // Pivot timing
         public static final double INITIAL_DELAY_SECONDS = 2.0;
         public static final double TOGGLE_INTERVAL_SECONDS = 0.5;
+    }
+
+    // ==================== TOWER SHOOT ====================
+    public static class TowerShootConstants {
+        // Hood position (rotations) - placeholder, tune on robot
+        public static final double HOOD_POSITION = 0.05;
+
+        // Flywheel speed (RPS) - placeholder, tune on robot
+        public static final double FLYWHEEL_RPS = 55;
     }
 
     public static class DebugConstants {
