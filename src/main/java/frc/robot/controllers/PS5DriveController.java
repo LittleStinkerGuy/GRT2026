@@ -74,12 +74,22 @@ public class PS5DriveController extends BaseDriveController {
 
     /**
      * Gets the raw left trigger axis value.
-     * 
+     *
      * @return Value from 0.0 (not pressed) to 1.0 (fully pressed)
      */
     public double getLeftTriggerAxis() {
         // L2Axis returns -1 to 1, convert to 0 to 1
         return (driveController.getL2Axis() + 1) / 2;
+    }
+
+    /**
+     * Gets the raw right trigger axis value.
+     *
+     * @return Value from 0.0 (not pressed) to 1.0 (fully pressed)
+     */
+    public double getRightTriggerAxis() {
+        // R2Axis returns -1 to 1, convert to 0 to 1
+        return (driveController.getR2Axis() + 1) / 2;
     }
 
     @Override
