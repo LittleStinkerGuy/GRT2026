@@ -15,25 +15,6 @@
           "data": {
             "pathName": "BNI"
           }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "NeutralIntakeA"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "pivotAndRollerIntake"
-                }
-              }
-            ]
-          }
         }
       ]
     }
