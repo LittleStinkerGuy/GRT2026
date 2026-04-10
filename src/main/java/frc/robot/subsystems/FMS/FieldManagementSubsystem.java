@@ -98,7 +98,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         // blueHubActivePublisher.set(blueHubActive);
         currentShiftPublisher.set(getCurrentShift());
         Optional<Boolean> redWonAutonLocal = didRedWinAuton();
-        redWonAutonPublisher.set(redWonAutonLocal.orElse(null));
+        redWonAutonPublisher.set(redWonAutonLocal.orElse(false));
         autonWinnerPublishedPublisher.set(redWonAutonLocal.isPresent());
     }
 
