@@ -14,10 +14,10 @@ import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.towerRollers;
 
-public class CenterAuton extends SequentialCommandGroup {
+public class BNeutralIntakeAuton extends SequentialCommandGroup {
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
 
-    public CenterAuton(
+    public BNeutralIntakeAuton(
         flywheel flySubsystem,
         hood hoodSubsystem,
         towerRollers towerSubsystem,
@@ -25,22 +25,23 @@ public class CenterAuton extends SequentialCommandGroup {
         PivotIntakeSubsystem pivotIntakeSubsystem,
         RollerIntakeSubsystem rollerSubsystem) {
 
-        PathPlannerPath pathone;
-        PathPlannerPath pathtwo;
+        PathPlannerPath BNI;
+        PathPlannerPath neutralIntakeA;
 
         try {
-            pathone = PathPlannerPath.fromPathFile("path1");
-            pathtwo = PathPlannerPath.fromPathFile("path2");
+            BNI = PathPlannerPath.fromPathFile("BNI");
+            neutralIntakeA = PathPlannerPath.fromPathFile("NeutralIntakeA");
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
         addCommands(
-            AutoBuilder.followPath(pathone),
+            AutoBuilder.followPath(BNI),
 
-            new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem),
-            AutoBuilder.followPath(pathtwo),
+            Commands.parallel(
+                new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem),
+                AutoBuilder.followPath(neutralIntakeA)),
 
             new AutonShooterSequence(
                 flySubsystem,

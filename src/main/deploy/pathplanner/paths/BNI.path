@@ -3,32 +3,53 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.65103023726852,
-        "y": 5.616738715277778
+        "x": 3.388576388888889,
+        "y": 4.136499493634259
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.65103023726852,
-        "y": 5.964097034428916
+        "x": 3.388576388888889,
+        "y": 4.386499493634259
       },
       "isLocked": false,
-      "linkedName": "NEUTRALA"
+      "linkedName": "HUB"
+    },
+    {
+      "anchor": {
+        "x": 3.527736328125001,
+        "y": 5.616738715277778
+      },
+      "prevControl": {
+        "x": 2.8788132131552677,
+        "y": 5.601694891794424
+      },
+      "nextControl": {
+        "x": 4.001181929976852,
+        "y": 5.627714487135684
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
         "x": 7.65103023726852,
-        "y": 3.276805726145101
+        "y": 5.616738715277778
       },
       "prevControl": {
-        "x": 7.65103023726852,
-        "y": 2.914425385517412
+        "x": 6.65103023726852,
+        "y": 5.616738715277778
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "NEUTRALA"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -48,7 +69,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
