@@ -43,7 +43,7 @@ import frc.robot.commands.auton.ANeutralIntakeAuton;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.auton.ToDepotAndShoot;
 import frc.robot.commands.auton.Turn90AutonPP;
-
+import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -88,6 +88,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_RPS;
+    private DoubleSupplier cycleFlywheelOffsetGetter = () -> (cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_RPS);
+
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
@@ -95,7 +98,7 @@ public class RobotContainer {
     private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
-    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
+    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
     private towerRollers tower = new towerRollers(mechCAN);
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
@@ -114,7 +117,6 @@ public class RobotContainer {
             ? new AimToHubCommand(swerveSubsystem, fmsSubsystem)
             : null;
     private boolean shootSeq = false;
-    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_RPS;
 
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 

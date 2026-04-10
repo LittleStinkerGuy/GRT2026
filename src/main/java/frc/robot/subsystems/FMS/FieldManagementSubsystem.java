@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -48,17 +49,22 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private BooleanPublisher isFmsAttachedPublisher;
     private BooleanPublisher redWonAutonPublisher;
     private BooleanPublisher autonWinnerPublishedPublisher;
+    private DoublePublisher veloOffsetPublisher;
 
     private String periodInfo = "";
     private double timeUntilNextPhase = 0.0;
 
+    private DoubleSupplier veloOffsetSupplier;
+
     /**
      * Initializes subsystem to handle information related to the Field Management System (such as our alliance color).
      */
-    public FieldManagementSubsystem() {
+    public FieldManagementSubsystem(DoubleSupplier veloOffsetSupplier) {
         isRed = false;
         connectedToFMS = false;
         matchStatus = MatchStatus.NOT_STARTED;
+
+        this.veloOffsetSupplier = veloOffsetSupplier;
 
         initNetworkTable();
     }
@@ -81,6 +87,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         currentShiftPublisher = fmsNtTable.getIntegerTopic("CurrentShift").publish();
         redWonAutonPublisher = fmsNtTable.getBooleanTopic("DidRedWinAuton").publish();
         autonWinnerPublishedPublisher = fmsNtTable.getBooleanTopic("AutonWinnerPublished").publish();
+        veloOffsetPublisher = fmsNtTable.getDoubleTopic("veloOffset").publish();
     }
 
     private void updateNetworkTables() {
@@ -100,6 +107,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         Optional<Boolean> redWonAutonLocal = didRedWinAuton();
         redWonAutonPublisher.set(redWonAutonLocal.orElse(false));
         autonWinnerPublishedPublisher.set(redWonAutonLocal.isPresent());
+        veloOffsetPublisher.set(veloOffsetSupplier.getAsDouble());
     }
 
     private Optional<Boolean> didRedWinAuton() {
@@ -208,15 +216,15 @@ public class FieldManagementSubsystem extends SubsystemBase {
         // Show period-specific time context and time until next phase.
         // Note: TELEOP's timeUntilNextPhase is set inside updateMatchStates and is preserved here.
         if (matchStatus == MatchStatus.AUTON) {
-            periodInfo = "AUTO (0:00-0:20) - All hubs active";
+            periodInfo = "AUTO";
             timeUntilNextPhase = AUTO_END - elapsedTime;
         } else if (matchStatus == MatchStatus.TRANSITION) {
-            periodInfo = "TRANSITION (0:20-0:30) - All hubs active";
+            periodInfo = "TRANSITION - Shift 1/6";
             timeUntilNextPhase = TRANSITION_END - elapsedTime;
         } else if (matchStatus == MatchStatus.TELEOP) {
-            periodInfo = "TELEOP Shift " + currentShift + "/4";
+            periodInfo = "TELEOP - Shift " + (currentShift + 1) + "/6";
         } else if (matchStatus == MatchStatus.ENDGAME) {
-            periodInfo = "ENDGAME (last 30s) - All hubs active";
+            periodInfo = "ENDGAME - Shift 6/6";
             timeUntilNextPhase = matchTime; // Time until match end
         } else {
             periodInfo = matchStatus.toString();
