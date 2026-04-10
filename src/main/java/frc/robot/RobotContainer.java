@@ -40,8 +40,8 @@ import frc.robot.commands.shooter.CalibrationCommands;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.cycleBallsCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
-import frc.robot.commands.auton.Turn90Auton;
 import frc.robot.commands.auton.ToDepotAndShoot;
+
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -394,9 +394,6 @@ public class RobotContainer {
     private void configureAutoChooser() {
         // Add auton here
         autoChooser.setDefaultOption("Do Nothing", null);
-        if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
-            autoChooser.addOption("Turn 90", new Turn90Auton(swerveSubsystem));
-        }
 
         SmartDashboard.putData("Auto Selector", autoChooser);
     }
