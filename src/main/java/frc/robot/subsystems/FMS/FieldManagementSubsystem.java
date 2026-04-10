@@ -46,6 +46,8 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private IntegerPublisher currentShiftPublisher;
 
     private BooleanPublisher isFmsAttachedPublisher;
+    private BooleanPublisher redWonAutonPublisher;
+    private BooleanPublisher autonWinnerPublishedPublisher;
 
     private String periodInfo = "";
     private double timeUntilNextPhase = 0.0;
@@ -77,6 +79,8 @@ public class FieldManagementSubsystem extends SubsystemBase {
         redHubActivePublisher = fmsNtTable.getBooleanTopic("RedHubActive").publish();
         blueHubActivePublisher = fmsNtTable.getBooleanTopic("BlueHubActive").publish();
         currentShiftPublisher = fmsNtTable.getIntegerTopic("CurrentShift").publish();
+        redWonAutonPublisher = fmsNtTable.getBooleanTopic("DidRedWinAuton").publish();
+        autonWinnerPublishedPublisher = fmsNtTable.getBooleanTopic("AutonWinnerPublished").publish();
     }
 
     private void updateNetworkTables() {
@@ -93,6 +97,9 @@ public class FieldManagementSubsystem extends SubsystemBase {
         redHubActivePublisher.set(redHubActive);
         // blueHubActivePublisher.set(blueHubActive);
         currentShiftPublisher.set(getCurrentShift());
+        Optional<Boolean> redWonAutonLocal = didRedWinAuton();
+        redWonAutonPublisher.set(redWonAutonLocal.orElse(null));
+        autonWinnerPublishedPublisher.set(redWonAutonLocal.isPresent());
     }
 
     private Optional<Boolean> didRedWinAuton() {
