@@ -3,11 +3,12 @@ package frc.robot.commands.auton;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 
 public class Turn90AutonPP extends SequentialCommandGroup {
 
-    public Turn90AutonPP() {
+    public Turn90AutonPP(SwerveSubsystem swerve) {
         PathPlannerPath path;
 
         try {
@@ -19,5 +20,7 @@ public class Turn90AutonPP extends SequentialCommandGroup {
 
         addCommands(
             AutoBuilder.followPath(path));
+
+        addRequirements(swerve);
     }
 }
