@@ -11,7 +11,6 @@ public class Turnto90Auton extends SequentialCommandGroup {
         double targetAngle = currentAngle + 90;
 
         addCommands(
-            new RotateToFieldAngleCommand(swerveSubsystem, targetAngle, () -> false)
-        );
+            new RotateToFieldAngleCommand(swerveSubsystem, targetAngle, () -> false));
     }
 }

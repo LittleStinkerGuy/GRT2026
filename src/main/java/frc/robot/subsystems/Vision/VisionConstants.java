@@ -50,7 +50,7 @@ public final class VisionConstants {
     public static final CameraConfig cameraConfig1 = new CameraConfig(// climb camera
         "1",
         new Transform3d(
-            Units.inchesToMeters(27.5 / 2 - 8.75),
+            Units.inchesToMeters(27.5 / 2 - 16.75),
             Units.inchesToMeters(27.5 / 2 - 2.75),
             Units.inchesToMeters(11.5),
             ZYXtoXYZeulerConverter.zyxToXyz(Math.PI / 2.0, -Math.toRadians(25), Math.PI)));
