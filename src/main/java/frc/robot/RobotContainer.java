@@ -281,7 +281,7 @@ public class RobotContainer {
 
             // ==================== SHOOTING PRESETS ====================
             // Square (mech) = smash-and-shoot preset (close-range)
-            mechController.square().toggleOnTrue(
+            mechController.square().whileTrue(
                 Commands.defer(
                     () -> new SmashShot(
                         flywheelSubsystem,
@@ -357,7 +357,7 @@ public class RobotContainer {
             }));
 
             // Cross = cycle shooter preset (long-range)
-            mechController.cross().toggleOnTrue(new CycleShot(
+            mechController.cross().whileTrue(new CycleShot(
                 flywheelSubsystem,
                 hoodSubsystem,
                 tower,
@@ -365,7 +365,7 @@ public class RobotContainer {
                 () -> cycleFlywheelVelo));
 
             // Touchpad = tower shoot preset
-            mechController.triangle().toggleOnTrue(new TowerShot(
+            mechController.triangle().whileTrue(new TowerShot(
                 flywheelSubsystem,
                 hoodSubsystem,
                 tower,
