@@ -14,10 +14,10 @@ import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.towerRollers;
 
-public class StopAfterBump extends SequentialCommandGroup {
+public class GoStraightBump extends SequentialCommandGroup {
     private static final double SHOOT_TIMEOUT_SECONDS = 15.0;
 
-    public StopAfterBump(
+    public GoStraightBump(
         flywheel flySubsystem,
         hood hoodSubsystem,
         towerRollers towerSubsystem,
@@ -35,13 +35,6 @@ public class StopAfterBump extends SequentialCommandGroup {
         }
 
         addCommands(
-            new AutonShooterSequence(
-                flySubsystem,
-                hoodSubsystem,
-                towerSubsystem,
-                hopperSubsystem,
-                pivotIntakeSubsystem).withTimeout(SHOOT_TIMEOUT_SECONDS),
-
             AutoBuilder.followPath(BNI));
     }
 }
