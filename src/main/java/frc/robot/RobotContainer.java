@@ -400,7 +400,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new Turn90AutonPP(swerveSubsystem);
+        return new ANeutralIntakeAuton(flySubsystem, hoodSubsystem, tower, HopperSubsystem, rollerSubsystem);
         // return new PathPlannerAuto("auton1");
         // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
 
