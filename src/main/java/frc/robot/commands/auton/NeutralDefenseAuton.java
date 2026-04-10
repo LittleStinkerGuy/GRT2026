@@ -14,10 +14,9 @@ import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.towerRollers;
 
-public class GoStraightBump extends SequentialCommandGroup {
-    private static final double SHOOT_TIMEOUT_SECONDS = 15.0;
+public class NeutralDefenseAuton extends SequentialCommandGroup {
 
-    public GoStraightBump(
+    public NeutralDefenseAuton(
         flywheel flySubsystem,
         hood hoodSubsystem,
         towerRollers towerSubsystem,
@@ -25,16 +24,16 @@ public class GoStraightBump extends SequentialCommandGroup {
         PivotIntakeSubsystem pivotIntakeSubsystem,
         RollerIntakeSubsystem rollerSubsystem) {
 
-        PathPlannerPath BNI;
+        PathPlannerPath ToNeutralA;
 
         try {
-            BNI = PathPlannerPath.fromPathFile("BNI");
+            ToNeutralA = PathPlannerPath.fromPathFile("ToNeutralA");
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
         addCommands(
-            AutoBuilder.followPath(BNI));
+            AutoBuilder.followPath(ToNeutralA));
     }
 }
