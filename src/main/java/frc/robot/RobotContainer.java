@@ -240,6 +240,11 @@ public class RobotContainer {
                         () -> aimHelper.createAimCommand(() -> false),
                         java.util.Set.of(swerveSubsystem)));
             }
+
+            driveController.getController().L2().whileTrue(
+                Commands.run(() -> {
+                    hoodSubsystem.setHoodAngle(0);
+                }, hoodSubsystem));
         }
         if (Constants.MECH_ENABLED) {
             // ==================== INTAKE ROLLER ====================
