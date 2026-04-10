@@ -435,7 +435,7 @@ public final class Constants {
         public static final double HOOD_POSITION = 0.05;
 
         // Flywheel speed (RPS) - placeholder, tune on robot
-        public static final double FLYWHEEL_RPS = 55;
+        public static final double FLYWHEEL_RPS = 52.5;
     }
 
     public static class DebugConstants {
