@@ -51,7 +51,9 @@ import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
 import frc.robot.commands.hopper.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -138,8 +140,14 @@ public class RobotContainer {
 
         // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
         driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
-        driverCam.setResolution(320, 240);
-        driverCam.setFPS(15);
+        driverCam.setVideoMode(PixelFormat.kMJPEG, 640, 480, 30);
+
+        // Throttle what actually streams to the dashboard (the source-side FPS
+        // is just a hint — Arducams often ignore it). These caps are authoritative.
+        MjpegServer driverCamServer = (MjpegServer) CameraServer.getServer("serve_Driver Cam");
+        driverCamServer.setResolution(320, 240);
+        driverCamServer.setFPS(20);
+        driverCamServer.setCompression(50); // 0 = worst, 100 = best; lower = less bandwidth
 
         SmartDashboard.putData("Field", m_field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
