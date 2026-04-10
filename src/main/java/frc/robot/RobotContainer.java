@@ -31,6 +31,7 @@ import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
+import frc.robot.Constants.ShooterConstants.Flywheel;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
@@ -349,11 +350,15 @@ public class RobotContainer {
             }, hoodSubsystem));
 
             mechController.povUp().onTrue(Commands.runOnce(() -> {
-                cycleFlywheelVelo += 5;
+                if (cycleFlywheelVelo < Flywheel.FLYWHEEL_MAX_SPEED) {
+                    cycleFlywheelVelo += 5;
+                }
             }));
 
             mechController.povDown().onTrue(Commands.runOnce(() -> {
-                cycleFlywheelVelo -= 5;
+                if (cycleFlywheelVelo > 0) {
+                    cycleFlywheelVelo -= 5;
+                }
             }));
 
             // Cross = cycle shooter preset (long-range)

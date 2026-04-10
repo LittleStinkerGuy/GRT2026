@@ -241,6 +241,7 @@ public final class Constants {
             // Velocity tolerance for "at speed" check (RPS)
             public static final double VELOCITY_TOLERANCE_RPS = 2.0;
 
+            public static final double FLYWHEEL_MAX_SPEED = 60.0;
         }
 
         // ---- Hood ----
