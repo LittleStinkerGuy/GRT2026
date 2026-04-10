@@ -52,7 +52,6 @@ import frc.robot.commands.hopper.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -121,10 +120,7 @@ public class RobotContainer {
         VisionConstants.cameraConfig2);
     private final VisionSubsystem visionSubsystem3 = new VisionSubsystem(
         VisionConstants.cameraConfig3);
-    // private UsbCamera camera1;
-    // private UsbCamera camera2;
-    private VideoSink cameraServer;
-    private boolean isCamera1Active = true;
+    private UsbCamera driverCam;
 
 
     private double desiredHoodSpeed = 0;
@@ -140,10 +136,10 @@ public class RobotContainer {
         configureBindings();
         configureAutoChooser();
 
-        // switchable cameras
-        // camera1 = CameraServer.startAutomaticCapture(0);
-        // camera2 = CameraServer.startAutomaticCapture(1);
-        // cameraServer = CameraServer.getServer();
+        // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
+        driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
+        driverCam.setResolution(320, 240);
+        driverCam.setFPS(15);
 
         SmartDashboard.putData("Field", m_field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
