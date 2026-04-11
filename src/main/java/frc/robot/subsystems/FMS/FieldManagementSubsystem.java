@@ -92,14 +92,14 @@ public class FieldManagementSubsystem extends SubsystemBase {
 
     private void updateNetworkTables() {
         matchTimePublisher.set(DriverStation.getMatchTime());
-        // isAutonomousPublisher.set(DriverStation.isAutonomous());
+        isAutonomousPublisher.set(DriverStation.isAutonomous());
         // isEStoppedPublisher.set(DriverStation.isEStopped());
-        // isEnabledPublisher.set(DriverStation.isEnabled());
+        isEnabledPublisher.set(DriverStation.isEnabled());
         // isDSAttachedPublisher.set(DriverStation.isDSAttached());
         // isFmsAttachedPublisher.set(DriverStation.isFMSAttached());
 
-        // matchStatusPublisher.set(matchStatus.toString());
-        // periodInfoPublisher.set(periodInfo);
+        matchStatusPublisher.set(matchStatus.toString());
+        periodInfoPublisher.set(periodInfo);
         timeUntilNextPhasePublisher.set(timeUntilNextPhase);
         redHubActivePublisher.set(redHubActive);
         // blueHubActivePublisher.set(blueHubActive);
@@ -217,7 +217,7 @@ public class FieldManagementSubsystem extends SubsystemBase {
         // Note: TELEOP's timeUntilNextPhase is set inside updateMatchStates and is preserved here.
         if (matchStatus == MatchStatus.AUTON) {
             periodInfo = "AUTO";
-            timeUntilNextPhase = AUTO_END - elapsedTime;
+            timeUntilNextPhase = matchTime;
         } else if (matchStatus == MatchStatus.TRANSITION) {
             periodInfo = "TRANSITION - Shift 1/6";
             timeUntilNextPhase = TRANSITION_END - elapsedTime;
