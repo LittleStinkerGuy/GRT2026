@@ -11,13 +11,19 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PivotDown"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "pivotAndRollerIntake"
+                  "name": "rollerIntake"
                 }
               },
               {
@@ -30,6 +36,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "FromNeutralC"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "shootSequence"
@@ -39,6 +51,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "POS C",
   "choreoAuto": false
 }

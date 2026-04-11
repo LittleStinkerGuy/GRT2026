@@ -36,6 +36,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "RollerInCommand"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "path2"
@@ -44,13 +50,13 @@
         {
           "type": "named",
           "data": {
-            "name": "shootSequence"
+            "name": "towerShoot"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "POS B",
   "choreoAuto": false
 }
