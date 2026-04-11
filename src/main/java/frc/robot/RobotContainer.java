@@ -47,6 +47,7 @@ import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.auton.ToDepotAndShoot;
 import frc.robot.commands.auton.Turn90AutonPP;
 import frc.robot.commands.auton.NeutralDefenseAuton;
+import frc.robot.commands.auton.CNeutralIntakeTOWERAuton;
 import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -261,10 +262,10 @@ public class RobotContainer {
             mechController.povLeft().whileTrue(new PivotOutCommand(pivotIntake));
             mechController.povRight().whileTrue(new PivotInCommand(pivotIntake));
 
-            // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
+            // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
                 HopperSubsystem.setManualControl(-1.0); // Max duty cycle for spindexer
-                tower.setManualControl(0.7); // 0.7 duty cycle for tower
+                tower.setManualControl(1.0); // Full duty cycle for tower
             }, HopperSubsystem, tower));
             HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
@@ -369,13 +370,13 @@ public class RobotContainer {
                 }
             }));
 
-            // Cross = cycle shooter preset (long-range)
+            // Cross = passing shot — flywheel pinned to max (120 RPS)
             mechController.cross().whileTrue(new CycleShot(
                 flywheelSubsystem,
                 hoodSubsystem,
                 tower,
                 HopperSubsystem,
-                () -> cycleFlywheelVelo));
+                () -> Flywheel.FLYWHEEL_MAX_SPEED));
 
             // Touchpad = tower shoot preset
             mechController.triangle().whileTrue(new TowerShot(
@@ -417,7 +418,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new CNeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
+        return new CNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
