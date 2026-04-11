@@ -41,6 +41,9 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
         }
 
         addCommands(
+            // Reset odometry
+            AutoBuilder.resetOdom(path1.getStartingHolonomicPose().get()),
+
             new AutonShooterSequence(
                 flySubsystem,
                 hoodSubsystem,
