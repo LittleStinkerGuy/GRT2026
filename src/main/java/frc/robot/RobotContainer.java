@@ -160,6 +160,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
         NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
         NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
+        NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
         NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake));
     }
 
@@ -416,6 +417,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new ToDepotAndShoot(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
+        // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new PathPlannerAuto("auton1");
