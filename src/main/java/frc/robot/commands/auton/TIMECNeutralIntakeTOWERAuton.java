@@ -17,12 +17,12 @@ import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.shooterLearner;
 import frc.robot.subsystems.shooter.towerRollers;
 
-// THIS IS AUTON WHERE WE END SHOOTING @ TOWER
+// WITH TIME!!!!! THIS IS AUTON WHERE WE END SHOOTING @ TOWER
 
-public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
-    private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
+public class TIMECNeutralIntakeTOWERAuton extends SequentialCommandGroup {
+    private static final double SHOOT_TIMEOUT_SECONDS = 6.0;
 
-    public CNeutralIntakeTOWERAuton(
+    public TIMECNeutralIntakeTOWERAuton(
         flywheel flySubsystem,
         hood hoodSubsystem,
         towerRollers towerSubsystem,
@@ -31,29 +31,32 @@ public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
         RollerIntakeSubsystem rollerSubsystem,
         shooterLearner learnerSubsystem) {
 
-        PathPlannerPath toNeutralC;
+        PathPlannerPath optimizedStartC;
         PathPlannerPath neutralIntakeC;
+        PathPlannerPath towerFromNeutralC;
+        PathPlannerPath fromTowerC;
         PathPlannerPath fromNeutralC;
 
         try {
-            toNeutralC = PathPlannerPath.fromPathFile("ToNeutralC");
+            optimizedStartC = PathPlannerPath.fromPathFile("OPTIMIZEDSTARTC");
             neutralIntakeC = PathPlannerPath.fromPathFile("NeutralIntakeC");
-            fromNeutralC = PathPlannerPath.fromPathFile("TOWER_FromNeutralC");
+            towerFromNeutralC = PathPlannerPath.fromPathFile("TOWER_FromNeutralC");
+            fromTowerC = PathPlannerPath.fromPathFile("FROMTOWERC");
+            fromNeutralC = PathPlannerPath.fromPathFile("FromNeutralC");
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
         addCommands(
-            AutoBuilder.resetOdom(toNeutralC.getStartingHolonomicPose().get()),
-            Commands.deadline(
-
-                AutoBuilder.followPath(toNeutralC),
-                new PivotOutCommand(pivotIntakeSubsystem)),
+            AutoBuilder.resetOdom(optimizedStartC.getStartingHolonomicPose().get()),
+            AutoBuilder.followPath(optimizedStartC),
 
             Commands.deadline(
                 AutoBuilder.followPath(neutralIntakeC),
                 new RollerInCommand(rollerSubsystem)),
+
+            AutoBuilder.followPath(towerFromNeutralC),
 
             new TowerShot(
                 flySubsystem,
@@ -61,6 +64,24 @@ public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
                 towerSubsystem,
                 hopperSubsystem,
                 pivotIntakeSubsystem,
-                learnerSubsystem).withTimeout(5));
+                learnerSubsystem).withTimeout(SHOOT_TIMEOUT_SECONDS),
+
+            AutoBuilder.followPath(fromTowerC),
+
+            new PivotOutCommand(pivotIntakeSubsystem),
+
+            Commands.deadline(
+                AutoBuilder.followPath(neutralIntakeC),
+                new RollerInCommand(rollerSubsystem)),
+
+            AutoBuilder.followPath(fromNeutralC),
+
+            new TowerShot(
+                flySubsystem,
+                hoodSubsystem,
+                towerSubsystem,
+                hopperSubsystem,
+                pivotIntakeSubsystem,
+                learnerSubsystem).withTimeout(SHOOT_TIMEOUT_SECONDS));
     }
 }
