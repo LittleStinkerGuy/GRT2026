@@ -43,12 +43,14 @@ import frc.robot.commands.cycleBallsCommand;
 import frc.robot.commands.auton.ANeutralIntakeAuton;
 import frc.robot.commands.auton.CNeutralIntakeAuton;
 import frc.robot.commands.auton.CenterAuton;
+import frc.robot.commands.auton.ISOLATEDAUTO;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.auton.ToDepotAndShoot;
 import frc.robot.commands.auton.Turn90AutonPP;
 import frc.robot.commands.auton.NeutralDefenseAuton;
 import frc.robot.commands.auton.TIMECNeutralIntakeTOWERAuton;
 import java.util.function.DoubleSupplier;
+import org.photonvision.jni.TimeSyncClient;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -418,7 +420,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("isolatedINTAKE");
+        return new TIMECNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
