@@ -50,7 +50,7 @@ public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
 
             new PivotOutCommand(pivotIntakeSubsystem).withTimeout(0.5),
 
-            Commands.parallel(
+            Commands.deadline(
                 new RollerInCommand(rollerSubsystem),
                 AutoBuilder.followPath(neutralIntakeC)),
 
