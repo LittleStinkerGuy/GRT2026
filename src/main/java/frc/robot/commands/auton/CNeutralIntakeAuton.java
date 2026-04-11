@@ -15,6 +15,7 @@ import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.towerRollers;
 
+// THIS IS AUTON WHERE WE END SHOOTING @ HUB
 public class CNeutralIntakeAuton extends SequentialCommandGroup {
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
 
@@ -48,6 +49,9 @@ public class CNeutralIntakeAuton extends SequentialCommandGroup {
             Commands.parallel(
                 new RollerInCommand(rollerSubsystem),
                 AutoBuilder.followPath(neutralIntakeC)),
+
+
+            // back to hub to shoot
 
             AutoBuilder.followPath(fromNeutralC),
 

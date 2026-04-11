@@ -17,6 +17,8 @@ import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.shooterLearner;
 import frc.robot.subsystems.shooter.towerRollers;
 
+// THIS IS AUTON WHERE WE END SHOOTING @ TOWER
+
 public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
 
@@ -36,7 +38,7 @@ public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
         try {
             toNeutralC = PathPlannerPath.fromPathFile("ToNeutralC");
             neutralIntakeC = PathPlannerPath.fromPathFile("NeutralIntakeC");
-            fromNeutralC = PathPlannerPath.fromPathFile("FromNeutralC");
+            fromNeutralC = PathPlannerPath.fromPathFile("TOWER_FromNeutralC");
         } catch (Exception e) {
             e.printStackTrace();
             return;

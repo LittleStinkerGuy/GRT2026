@@ -47,6 +47,7 @@ import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.auton.ToDepotAndShoot;
 import frc.robot.commands.auton.Turn90AutonPP;
 import frc.robot.commands.auton.NeutralDefenseAuton;
+import frc.robot.commands.auton.CNeutralIntakeTOWERAuton;
 import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -417,7 +418,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new CNeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
+        return new CNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
