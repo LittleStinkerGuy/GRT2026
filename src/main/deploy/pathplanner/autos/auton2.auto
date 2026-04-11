@@ -17,22 +17,9 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "pivotAndRollerIntake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 4.0
-                }
-              }
-            ]
+            "name": "runRollers"
           }
         },
         {
