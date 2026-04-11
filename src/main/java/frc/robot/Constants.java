@@ -313,11 +313,11 @@ public final class Constants {
         public static final double GEAR_RATIO = 20.0;
 
         // Pivot Positions (in encoder rotations)
-        public static final double PIVOT_FORWARD_LIMIT = 0.360;
+        public static final double PIVOT_FORWARD_LIMIT = 0.355;
         public static final double PIVOT_REVERSE_LIMIT = 0.000;
 
         public static final double PIVOT_OUT_POS = 0.0;
-        public static final double PIVOT_IN_POS = PIVOT_FORWARD_LIMIT;
+        public static final double PIVOT_IN_POS = 0.335;
         public static final double PIVOT_MID_UPPER = 0.175;
         public static final double PIVOT_MID_LOWER = 0.091;
 
