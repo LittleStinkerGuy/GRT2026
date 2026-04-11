@@ -6,7 +6,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutonShooterSequence;
-import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
+import frc.robot.commands.intake.pivot.PivotOutCommand;
+import frc.robot.commands.intake.roller.RollerInCommand;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
@@ -27,10 +28,12 @@ public class CNeutralIntakeAuton extends SequentialCommandGroup {
 
         PathPlannerPath toNeutralC;
         PathPlannerPath neutralIntakeC;
+        PathPlannerPath fromNeutralC;
 
         try {
             toNeutralC = PathPlannerPath.fromPathFile("ToNeutralC");
             neutralIntakeC = PathPlannerPath.fromPathFile("NeutralIntakeC");
+            fromNeutralC = PathPlannerPath.fromPathFile("FromNeutralC");
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -40,9 +43,13 @@ public class CNeutralIntakeAuton extends SequentialCommandGroup {
             AutoBuilder.resetOdom(toNeutralC.getStartingHolonomicPose().get()),
             AutoBuilder.followPath(toNeutralC),
 
-            Commands.parallel(
-                new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem),
-                AutoBuilder.followPath(neutralIntakeC)),
+            new PivotOutCommand(pivotIntakeSubsystem).withTimeout(0.5),
+
+            Commands.deadline(
+                AutoBuilder.followPath(neutralIntakeC),
+                new RollerInCommand(rollerSubsystem)),
+
+            AutoBuilder.followPath(fromNeutralC),
 
             new AutonShooterSequence(
                 flySubsystem,
