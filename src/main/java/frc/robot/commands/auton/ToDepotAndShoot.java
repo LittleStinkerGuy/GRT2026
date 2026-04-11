@@ -3,10 +3,9 @@ package frc.robot.commands.auton;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutonShooterSequence;
-import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
+import frc.robot.commands.intake.roller.RollerInCommand;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
@@ -48,9 +47,7 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
 
             AutoBuilder.followPath(path1),
 
-            Commands.deadline(
-                Commands.waitSeconds(4.0),
-                new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem)),
+            new RollerInCommand(rollerSubsystem),
 
             AutoBuilder.followPath(path2),
 
