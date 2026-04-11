@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
-import frc.robot.commands.intake.pivot.PivotDownTimedCommand;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
@@ -40,7 +39,6 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
         }
 
         addCommands(
-            new PivotDownTimedCommand(pivotIntakeSubsystem),
             new AutonShooterSequence(
                 flySubsystem,
                 hoodSubsystem,
@@ -48,10 +46,14 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
                 hopperSubsystem,
                 pivotIntakeSubsystem).withTimeout(SHOOT_TIMEOUT_SECONDS),
 
+            AutoBuilder.followPath(path1),
+
             Commands.deadline(
-                AutoBuilder.followPath(path1),
+                Commands.waitSeconds(4.0),
                 new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem)),
+
             AutoBuilder.followPath(path2),
+
             new AutonShooterSequence(
                 flySubsystem,
                 hoodSubsystem,

@@ -9,6 +9,24 @@
           "data": {
             "pathName": "ToNeutralA"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "pivotAndRollerIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NeutralIntakeA"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSequence"
+          }
         }
       ]
     }
