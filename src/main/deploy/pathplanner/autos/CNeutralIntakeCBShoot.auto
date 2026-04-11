@@ -11,13 +11,19 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PivotDown"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "pivotAndRollerIntake"
+                  "name": "rollerIntake"
                 }
               },
               {
