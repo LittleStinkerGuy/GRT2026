@@ -7,11 +7,17 @@
         {
           "type": "path",
           "data": {
-            "pathName": "OPTIMIZEDSTARTC"
+            "pathName": "ToNeutralC"
           }
         },
         {
-          "type": "deadline",
+          "type": "named",
+          "data": {
+            "name": "PivotDown"
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -54,7 +60,7 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -70,12 +76,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FromNeutralC"
           }
         }
       ]

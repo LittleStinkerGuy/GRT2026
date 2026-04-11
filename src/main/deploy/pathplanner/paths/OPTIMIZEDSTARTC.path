@@ -8,11 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.851757725600709,
-        "y": 0.6306105792786503
+        "x": 5.489731702375607,
+        "y": 0.6365056423611115
       },
       "isLocked": false,
       "linkedName": "C"
+    },
+    {
+      "anchor": {
+        "x": 6.278256587658899,
+        "y": 0.6365056423611111
+      },
+      "prevControl": {
+        "x": 5.9352821601241725,
+        "y": 0.6452541524606122
+      },
+      "nextControl": {
+        "x": 6.528175296584693,
+        "y": 0.6301307753927269
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,18 +36,30 @@
         "y": 1.0275221243820625
       },
       "prevControl": {
-        "x": 7.236830711898495,
-        "y": 1.0283134879557219
+        "x": 7.32365212305791,
+        "y": 1.00439326227048
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "NEUTRALC"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": -0.5219408671401637
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "PivotDown",
+      "waypointRelativePos": 0.5557185913705588,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

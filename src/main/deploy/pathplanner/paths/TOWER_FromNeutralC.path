@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.716891165695621,
-        "y": 3.2575702352577682
+        "x": 7.766100481108758,
+        "y": 3.0784425207450568
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.648133606991525,
-        "y": 1.494260626324152
+        "x": 7.621380184031736,
+        "y": 1.2273425172960288
       },
       "isLocked": false,
       "linkedName": "END_NEUTRAL_C"
     },
     {
       "anchor": {
-        "x": 7.377458178848871,
-        "y": 0.9160874602754234
+        "x": 6.446990513620289,
+        "y": 0.6922020105098476
       },
       "prevControl": {
-        "x": 7.622597301805239,
-        "y": 1.0745540364534283
+        "x": 6.696990513620287,
+        "y": 0.6922020105098476
       },
       "nextControl": {
-        "x": 6.9619879191358045,
-        "y": 0.64751282899458
+        "x": 6.196990513620289,
+        "y": 0.6922020105098476
       },
       "isLocked": false,
       "linkedName": null
@@ -36,58 +36,42 @@
         "y": 0.6922020105098476
       },
       "prevControl": {
-        "x": 3.466076851797266,
-        "y": 0.552501856639732
+        "x": 3.702152140138158,
+        "y": 0.6538201864978649
       },
       "nextControl": {
-        "x": 3.0175351402950152,
-        "y": 0.8203907536218863
+        "x": 1.8207424614222438,
+        "y": 0.8074680772006844
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.0269270135581294,
-        "y": 2.2461091284001395
+        "x": 1.6983450320245903,
+        "y": 4.215297692469801
       },
       "prevControl": {
-        "x": 2.863286919278824,
-        "y": 0.7921671673149471
-      },
-      "nextControl": {
-        "x": 1.7182849530800617,
-        "y": 2.78265761621672
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 1.7936341163079437,
-        "y": 4.214387967981974
-      },
-      "prevControl": {
-        "x": 1.7247594958822199,
-        "y": 3.9255549682925723
+        "x": 1.86168867883101,
+        "y": 4.026038999015631
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "TOWERSHOOT"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 0.0
     },
     {
       "waypointRelativePos": 2,
-      "rotationDegrees": 179.61499689449357
+      "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 3,
-      "rotationDegrees": 90.08194295143441
+      "waypointRelativePos": 2.5,
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [],
@@ -103,7 +87,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 89.84845785390584
+    "rotation": 89.56345265464279
   },
   "reversed": false,
   "folder": null,
