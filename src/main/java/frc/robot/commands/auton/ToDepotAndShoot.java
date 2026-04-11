@@ -5,8 +5,10 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
+import frc.robot.commands.intake.roller.RollerInCommand;
 import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
@@ -58,10 +60,15 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
             // path1 alone (no intake yet)
             AutoBuilder.followPath(path1),
 
-            // Run intake until path 1.5 ends
-            Commands.deadline(
+            // Run intake WITH path 1.5 (changed from deadline cmd)
+            Commands.parallel(
                 AutoBuilder.followPath(path1_5),
                 new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem)),
+
+
+            // Run rollers for 3 seconds @ depot
+            new RollerInCommand(rollerSubsystem)
+                .withTimeout(3.0),
 
             AutoBuilder.followPath(path2),
 
