@@ -48,12 +48,12 @@ public class CNeutralIntakeTOWERAuton extends SequentialCommandGroup {
             AutoBuilder.resetOdom(toNeutralC.getStartingHolonomicPose().get()),
             AutoBuilder.followPath(toNeutralC),
 
-            new PivotOutCommand(pivotIntakeSubsystem).withTimeout(0.5),
-
             Commands.deadline(
+                AutoBuilder.followPath(neutralIntakeC),
                 new RollerInCommand(rollerSubsystem),
-                AutoBuilder.followPath(neutralIntakeC)),
-
+                Commands.sequence(
+                    Commands.waitSeconds(1.95),
+                    new PivotOutCommand(pivotIntakeSubsystem))),
             AutoBuilder.followPath(fromNeutralC),
 
             new TowerShot(

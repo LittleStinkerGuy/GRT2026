@@ -66,9 +66,9 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
                 new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem)),
 
 
-            // Run rollers for 3 seconds @ depot
+            // Run rollers @ depot
             new RollerInCommand(rollerSubsystem)
-                .withTimeout(3.0),
+                .withTimeout(1.0),
 
             AutoBuilder.followPath(path2),
 
