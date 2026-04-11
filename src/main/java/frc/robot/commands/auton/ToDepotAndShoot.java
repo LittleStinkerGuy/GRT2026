@@ -28,10 +28,12 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
         RollerIntakeSubsystem rollerSubsystem) {
 
         PathPlannerPath path1;
+        PathPlannerPath path1_5;
         PathPlannerPath path2;
 
         try {
             path1 = PathPlannerPath.fromPathFile("path1");
+            path1_5 = PathPlannerPath.fromPathFile("path 1.5");
             path2 = PathPlannerPath.fromPathFile("path2");
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,9 +48,12 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
                 hopperSubsystem,
                 pivotIntakeSubsystem).withTimeout(SHOOT_TIMEOUT_SECONDS),
 
-            // Run intake during path1
+            // path1 alone (no intake yet)
+            AutoBuilder.followPath(path1),
+
+            // Run intake until path 1.5 ends
             Commands.deadline(
-                AutoBuilder.followPath(path1),
+                AutoBuilder.followPath(path1_5),
                 new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem)),
 
             AutoBuilder.followPath(path2),
