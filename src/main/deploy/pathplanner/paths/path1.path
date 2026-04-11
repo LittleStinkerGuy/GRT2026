@@ -3,58 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.497,
-        "y": 3.98869754320671
+        "x": 3.120951027202167,
+        "y": 4.073710214127629
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.384454456904284,
-        "y": 3.7654633596028306
+        "x": 3.111274291581472,
+        "y": 4.32352286550407
       },
       "isLocked": false,
       "linkedName": "HUB"
     },
     {
       "anchor": {
-        "x": 2.762389467592593,
-        "y": 5.922090133101851
+        "x": 2.699689283658763,
+        "y": 6.127029649813662
       },
       "prevControl": {
-        "x": 3.436563267719235,
-        "y": 5.922090133101851
-      },
-      "nextControl": {
-        "x": 1.629363584624616,
-        "y": 5.922090133101851
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 0.787469521968241,
-        "y": 5.922090133101851
-      },
-      "prevControl": {
-        "x": 1.2031778553015742,
-        "y": 5.926682870370371
+        "x": 2.7719848277179615,
+        "y": 5.887711129199012
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "DEPOT"
+      "linkedName": "PREDEPOT"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 177.9807606769938
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.5,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 0.7,
         "maxAcceleration": 3.0,
@@ -67,7 +46,7 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 2.3,
         "maxAcceleration": 3.0,
@@ -79,14 +58,7 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "pivotAndRollerIntake",
-      "waypointRelativePos": 0.9690773393854749,
-      "endWaypointRelativePos": 2.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -97,7 +69,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -179.8849665054349
+    "rotation": -179.42416207982228
   },
   "reversed": false,
   "folder": null,

@@ -17,9 +17,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "runRollers"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "path 1.5"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "pivotAndRollerIntake"
+                }
+              }
+            ]
           }
         },
         {
