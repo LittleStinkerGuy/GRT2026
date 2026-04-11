@@ -25,7 +25,6 @@ public class CycleManualShooterSequence extends Command {
     private final towerRollers tower;
     private final HopperSubsystem hopper;
     private final PivotIntakeSubsystem pivotIntake;
-    private final RollerIntakeSubsystem rollerIntake;
 
     private final Timer pivotTimer = new Timer();
     private boolean pivotIsIn = true;
@@ -36,16 +35,14 @@ public class CycleManualShooterSequence extends Command {
         hood hood,
         towerRollers tower,
         HopperSubsystem hopper,
-        PivotIntakeSubsystem pivotIntake,
-        RollerIntakeSubsystem rollerIntake) {
+        PivotIntakeSubsystem pivotIntake) {
         this.fly = fly;
         this.hd = hood;
         this.tower = tower;
         this.hopper = hopper;
         this.pivotIntake = pivotIntake;
-        this.rollerIntake = rollerIntake;
 
-        addRequirements(fly, hood, tower, hopper, pivotIntake, rollerIntake);
+        addRequirements(fly, hood, tower, hopper, pivotIntake);
     }
 
     @Override
@@ -58,8 +55,6 @@ public class CycleManualShooterSequence extends Command {
         initialDelayDone = false;
         pivotIntake.setPosition(IntakeConstants.PIVOT_OUT_POS);
         pivotTimer.restart();
-
-        rollerIntake.setVelocity(IntakeConstants.ROLLER_IN_SPEED);
     }
 
     @Override
@@ -67,7 +62,6 @@ public class CycleManualShooterSequence extends Command {
         // Keep commanding flywheel and hood targets
         fly.shoot(CycleShooterConstants.FLYWHEEL_RPS);
         hd.setHoodAngle(CycleShooterConstants.HOOD_POSITION);
-        rollerIntake.setVelocity(IntakeConstants.ROLLER_IN_SPEED);
 
         // Wait 5 seconds before first pivot up, then toggle every 2 seconds
         if (!initialDelayDone) {
@@ -103,7 +97,6 @@ public class CycleManualShooterSequence extends Command {
         hd.setHoodAngle(0);
         tower.setManualControl(0);
         hopper.setManualControl(0);
-        rollerIntake.setDutyCycle(0);
         pivotIntake.setPosition(IntakeConstants.PIVOT_OUT_POS);
     }
 }
