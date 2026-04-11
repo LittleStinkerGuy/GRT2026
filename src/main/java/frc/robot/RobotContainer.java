@@ -41,6 +41,7 @@ import frc.robot.commands.shooter.CalibrationCommands;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.cycleBallsCommand;
 import frc.robot.commands.auton.ANeutralIntakeAuton;
+import frc.robot.commands.auton.CNeutralIntakeAuton;
 import frc.robot.commands.auton.CenterAuton;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.auton.ToDepotAndShoot;
@@ -416,7 +417,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new CNeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        return new CNeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
