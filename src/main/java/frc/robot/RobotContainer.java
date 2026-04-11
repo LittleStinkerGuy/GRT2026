@@ -418,7 +418,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new TIMECNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        return new PathPlannerAuto("isolatedINTAKE");
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
