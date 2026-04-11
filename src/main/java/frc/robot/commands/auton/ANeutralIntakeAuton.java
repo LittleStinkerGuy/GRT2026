@@ -37,6 +37,8 @@ public class ANeutralIntakeAuton extends SequentialCommandGroup {
         }
 
         addCommands(
+            AutoBuilder.resetOdom(toNeutralA.getStartingHolonomicPose().get()),
+
             AutoBuilder.followPath(toNeutralA),
 
             Commands.parallel(
