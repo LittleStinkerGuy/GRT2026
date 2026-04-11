@@ -5,7 +5,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.TowerShot;
 import frc.robot.commands.intake.pivot.PivotOutCommand;
 import frc.robot.commands.intake.roller.RollerInCommand;
@@ -17,7 +16,7 @@ import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.shooterLearner;
 import frc.robot.subsystems.shooter.towerRollers;
 
-// WITH TIME!!!!! THIS IS AUTxON WHERE WE END SHOOTING @ TOWER
+// WITH TIME!!!!! THIS IS AUTON WHERE WE END SHOOTING @ TOWER
 
 // keep in mind that this auton may end before the last command fully executes
 // the goal is just to get as close as possible to the tower so that we can shoot asap when teleop starts
@@ -58,7 +57,7 @@ public class TIMECNeutralIntakeTOWERAuton extends SequentialCommandGroup {
             Commands.deadline(
                 AutoBuilder.followPath(optimizedStartC),
                 Commands.sequence(
-                    Commands.waitSeconds(0.9),
+                    Commands.waitSeconds(0.67),
                     new PivotOutCommand(pivotIntakeSubsystem))),
 
             // NeutralIntakeC with roller intake
@@ -79,7 +78,7 @@ public class TIMECNeutralIntakeTOWERAuton extends SequentialCommandGroup {
             AutoBuilder.followPath(fromTowerC),
 
             // PivotDown before second intake
-            new PivotOutCommand(pivotIntakeSubsystem),
+            new PivotOutCommand(pivotIntakeSubsystem).withTimeout(1.0),
 
             // Second NeutralIntakeC with roller intake
             Commands.deadline(
