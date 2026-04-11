@@ -13,11 +13,14 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
 import frc.robot.subsystems.shooter.towerRollers;
+import frc.robot.commands.TowerShot;
+import frc.robot.subsystems.shooter.shooterLearner;
 
 // This auton shoots preloaded balls, drives to depot & intakes balls, drives back to hub to shoot.
 public class ToDepotAndShoot extends SequentialCommandGroup {
 
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
+    private static final double TOWER_SHOOT_TIMEOUT_SECONDS = 20.0;
 
     public ToDepotAndShoot(
         flywheel flySubsystem,
@@ -25,7 +28,8 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
         towerRollers towerSubsystem,
         HopperSubsystem hopperSubsystem,
         PivotIntakeSubsystem pivotIntakeSubsystem,
-        RollerIntakeSubsystem rollerSubsystem) {
+        RollerIntakeSubsystem rollerSubsystem,
+        shooterLearner learnerSubsystem) {
 
         PathPlannerPath path1;
         PathPlannerPath path1_5;
@@ -61,11 +65,12 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
 
             AutoBuilder.followPath(path2),
 
-            new AutonShooterSequence(
+            new TowerShot(
                 flySubsystem,
                 hoodSubsystem,
                 towerSubsystem,
                 hopperSubsystem,
-                pivotIntakeSubsystem).withTimeout(SHOOT_TIMEOUT_SECONDS));
+                pivotIntakeSubsystem,
+                learnerSubsystem).withTimeout(TOWER_SHOOT_TIMEOUT_SECONDS));
     }
 }

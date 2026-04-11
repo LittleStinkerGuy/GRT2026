@@ -139,10 +139,8 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // update the poseestimator with curent gyro reading
-        // Pigeon is flipped, so negate to match vision coordinate system
-        Rotation2d gyroAngle = getGyroHeading();
         estimatedPose = poseEstimator.update(
-            gyroAngle,
+            getGyroHeading(),
             getModulePositions());
 
         // If all commanded velocities are 0, the system is idle (drivers / commands are
@@ -461,10 +459,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d currentPose) {
-        // Pigeon is flipped, so negate to match vision coordinate system
-        Rotation2d gyroAngle = getGyroHeading().times(-1);
         poseEstimator.resetPosition(
-            gyroAngle,
+            getGyroHeading(),
             getModulePositions(),
             currentPose);
     }
@@ -481,12 +477,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
-        SwerveModuleState[] currentModuleStates = getModuleStates();
-        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            kinematics.toChassisSpeeds(currentModuleStates),
-            getRobotPosition().getRotation() // Could be replaced with getGyroHeading() if desired
-        );
-        return robotRelativeSpeeds;
+        return kinematics.toChassisSpeeds(getModuleStates());
     }
 
     public void setRobotRelativeDrivePowers(ChassisSpeeds robotRelativeSpeeds) {
