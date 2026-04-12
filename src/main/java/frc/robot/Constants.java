@@ -301,7 +301,7 @@ public final class Constants {
 
         // Pivot PID
         public static final double PIVOT_P = 60.0;
-        public static final double PIVOT_I = 0.0;
+        public static final double PIVOT_I = 0.5;
         public static final double PIVOT_D = 4;
         public static final double PIVOT_S = 0.2;
         public static final double PIVOT_V = 3.18;
