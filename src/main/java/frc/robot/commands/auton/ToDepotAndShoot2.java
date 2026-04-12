@@ -19,14 +19,13 @@ import frc.robot.subsystems.shooter.towerRollers;
 import frc.robot.commands.TowerShot;
 import frc.robot.subsystems.shooter.shooterLearner;
 
-// this one is like separated command w no parallel cmd group
 // This auton shoots preloaded balls, drives to depot & intakes balls, drives back to hub to shoot.
-public class ToDepotAndShoot extends SequentialCommandGroup {
+public class ToDepotAndShoot2 extends SequentialCommandGroup {
 
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
     private static final double TOWER_SHOOT_TIMEOUT_SECONDS = 20.0;
 
-    public ToDepotAndShoot(
+    public ToDepotAndShoot2(
         flywheel flySubsystem,
         hood hoodSubsystem,
         towerRollers towerSubsystem,
@@ -62,10 +61,11 @@ public class ToDepotAndShoot extends SequentialCommandGroup {
             // path1 alone (no intake yet)
             AutoBuilder.followPath(path1),
 
-            // Run pivot out WITH path 1.5 - deadline ends when path finishes
+            // Run intake WITH path 1.5 (changed from parallel cmd) formerky deadline
             Commands.deadline(
                 AutoBuilder.followPath(path1_5),
                 new PivotOutCommand(pivotIntakeSubsystem)),
+
 
             // Run rollers @ depot
             new RollerInCommand(rollerSubsystem)

@@ -8,6 +8,7 @@ import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.Constants.TowerConstants;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.ShooterSequence;
 import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.hopper.indexerRun;
@@ -54,8 +55,12 @@ public class ShootAndLeaveAuton extends SequentialCommandGroup {
         this.rollerSubsystem = rollerSubsystem;
 
         addCommands(
-            new PivotDownTimedCommand(pivotIntakeSubsystem),
-            new ShooterSequence(flySubsystem, hoodSubsystem, towerSubsystem, hopperSubsystem, rollerSubsystem)
+            new AutonShooterSequence(
+                flySubsystem,
+                hoodSubsystem,
+                towerSubsystem,
+                hopperSubsystem,
+                pivotIntakeSubsystem).withTimeout(3.0)
         // new SpinFlywheelCommand(flySubsystem, .36)
         // .alongWith(
         // Commands.runOnce(() -> hoodSubsystem.setHoodAngle(0), hoodSubsystem),

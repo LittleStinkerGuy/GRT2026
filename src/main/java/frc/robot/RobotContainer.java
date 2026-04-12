@@ -420,7 +420,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ToDepotAndShoot(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+
+        // return new ToDepotAndShoot(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("90degturn");
 
         // rehturn new PathPlannerAuto("swerve90");
@@ -430,7 +432,6 @@ public class RobotContainer {
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new PathPlannerAuto("auton1");
-        // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
 
         // Run ManualShooterSequence for 10 seconds
         // return new AutonShooterSequence(
