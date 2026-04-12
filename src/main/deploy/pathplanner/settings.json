@@ -10,7 +10,7 @@
     "POS C"
   ],
   "defaultMaxVel": 3.87,
-  "defaultMaxAccel": 11.6,
+  "defaultMaxAccel": 7.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 1718.87,
   "defaultNominalVoltage": 13.0,
