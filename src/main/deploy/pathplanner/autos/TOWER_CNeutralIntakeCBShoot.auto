@@ -11,6 +11,25 @@
           }
         },
         {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "rollerIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "NeutralIntakeC"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "TOWER_FromNeutralC"
