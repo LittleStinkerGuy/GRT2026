@@ -7,11 +7,11 @@
 | X (Cross)              | Reset Heading                                                |          |
 | O (Circle)             |                                                              |          |
 | △ (Triangle)           | Auto Climb (TODO)                                            |          |
-| □ (Square)             | Toggle Robot-Relative Mode                                   |          |
-| L1 (hold)              | Boost Mode                                                   |          |
+| □ (Square) (hold)      | Emergency Force Intake In (pivot up + stop rollers)          |          |
+| L1 (hold)              | Robot-Relative Mode (release returns to field-relative)      |          |
 | L2 (analog)            | Speed Limit (harder press = slower)                          |          |
 | R1 (toggle)            | Shooter Sequence                                             |          |
-| R2 (hold)              | Force Intake In (pivot up + stop rollers)                    |          |
+| R2 (>= 90% pressed)    | Boost Mode                                                   |          |
 | L3 (Left Stick Click)  |                                                              |          |
 | R3 (Right Stick Click) |                                                              |          |
 | D-Pad Up               |                                                              |          |

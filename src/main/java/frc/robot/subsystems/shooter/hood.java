@@ -6,13 +6,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.util.LoggedTalon;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -22,7 +20,7 @@ public class hood extends SubsystemBase {
 
     private final LoggedTalon hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
-    private PositionVoltage focThing = new PositionVoltage(0);
+    private PositionTorqueCurrentFOC focThing = new PositionTorqueCurrentFOC(0);
     private final CANcoder hoodCoder;
 
     private double wantedAngle = 0.1;
@@ -38,7 +36,7 @@ public class hood extends SubsystemBase {
 
     public void config() {
         TalonFXConfiguration cfg = new TalonFXConfiguration();
-        cfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        cfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         CurrentLimitsConfigs currLim = new CurrentLimitsConfigs()
             .withStatorCurrentLimit(
@@ -47,40 +45,43 @@ public class hood extends SubsystemBase {
             .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE);
         cfg.withCurrentLimits(currLim);
-        // cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
-        // cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        // cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
-        cfg.Feedback.RotorToSensorRatio = ShooterConstants.Hood.GEAR_RATIO;
+        cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ShooterConstants.Hood.UPPER_ANGLE_LIMIT;
+        cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
+        cfg.Feedback.RotorToSensorRatio = -1 * ShooterConstants.Hood.GEAR_RATIO;
 
         cfg.Slot0.kP = ShooterConstants.Hood.KP;
         cfg.Slot0.kI = ShooterConstants.Hood.KI;
+        cfg.Slot0.kD = ShooterConstants.Hood.KD;
+        cfg.Slot0.kS = ShooterConstants.Hood.KS;
 
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
-        ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         ccfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // Use full range for absolute position
+        ccfg.MagnetSensor.MagnetOffset = ShooterConstants.Hood.MagnetOffset;
 
         hoodCoder.getConfigurator().apply(ccfg);
 
         // Use FusedCANcoder to preserve absolute position on boot (no re-zeroing)
         cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         cfg.Feedback.FeedbackRemoteSensorID = ShooterConstants.Hood.ENCODER_ID;
-        cfg.Feedback.SensorToMechanismRatio = 1.0; // CANcoder is 1:1 with mechanism
+        cfg.Feedback.SensorToMechanismRatio = -1.0; // CANcoder is 1:1 with mechanism
 
         hoodMotor.getConfigurator().apply(cfg);
     }
 
     public void setHoodAngle(double rotationAngle) {
-        // if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
-        hoodMotor.setControl(focThing.withPosition(rotationAngle));
-        System.out.println("HoodControl" + rotationAngle);
-        wantedAngle = rotationAngle;
-        // }
+        if (rotationAngle >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT && rotationAngle <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT) {
+            hoodMotor.setControl(focThing.withPosition(rotationAngle));
+            System.out.println("HoodControl" + rotationAngle);
+            wantedAngle = rotationAngle;
+        }
     }
 
 
-    public boolean wantedAngl() {
-        return Math.abs(wantedAngle - hoodMotor.getPosition().getValueAsDouble()) < ShooterConstants.Hood.ANGLE_TOLERANCE;
+    public boolean atWantedAngle() {
+        return Math.abs(wantedAngle - getPos()) < ShooterConstants.Hood.ANGLE_TOLERANCE;
     }
 
     public void hoodSpeed(double speed) {

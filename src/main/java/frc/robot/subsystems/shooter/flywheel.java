@@ -83,7 +83,7 @@ public class flywheel extends SubsystemBase {
         upperMotor = new LoggedTalon(ShooterConstants.Flywheel.UPPER_MOTOR_ID, cn);
         secondMotor = new LoggedTalon(ShooterConstants.Flywheel.SECOND_MOTOR_ID, cn);
         config();
-        configThruNT();
+        // configThruNT();
     }
 
     public void config() {
@@ -110,7 +110,8 @@ public class flywheel extends SubsystemBase {
 
     public void shoot(double rps) {
         // wantedVe = rps;
-        upperMotor.setControl(spinner.withVelocity(targetRPS));
+        // upperMotor.setControl(spinner.withVelocity(targetRPS));
+        upperMotor.setControl(spinner.withVelocity(rps));
     }
 
     public double getRPS() {

@@ -7,10 +7,12 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.subsystems.Vision.FuelDetectionSubsystem.FuelDetectionConfig;
 import frc.robot.util.PolynomialRegression;
+import frc.robot.util.ZYXtoXYZeulerConverter;
 
 public final class VisionConstants {
     public static final double FIELD_X = 16.54;
@@ -29,12 +31,6 @@ public final class VisionConstants {
             0.002, 0.004, 0.005, 0.011, 0.031, 0.4, 1.72, 1.89, 2.05, 2.443, 2.804
     };
 
-    public static final CameraConfig cameraConfig7 = new CameraConfig(
-        "7",
-        new Transform3d(
-            0.28, 0, 0,
-            new Rotation3d(0, -Math.toRadians(5), 0)));
-
     // intake
     public static final CameraConfig cameraConfig100 = new CameraConfig(
         "7",
@@ -48,23 +44,36 @@ public final class VisionConstants {
         new Transform3d(
             0.28, 0, 0,
             new Rotation3d(0, -Math.toRadians(5), 0)));
-    public static final CameraConfig cameraConfig12 = new CameraConfig(
-        "12",
+
+
+    // the big 3 cameras
+    public static final CameraConfig cameraConfig1 = new CameraConfig(// climb camera
+        "1",
         new Transform3d(
-            0.28, 0, 0,
-            new Rotation3d(0, -Math.toRadians(5), 0)));
-    public static final CameraConfig cameraConfig11 = new CameraConfig(
-        "11",
+            Units.inchesToMeters(27.5 / 2 - 16.75),
+            Units.inchesToMeters(27.5 / 2 - 2.75),
+            Units.inchesToMeters(11.5),
+            new Rotation3d(Math.PI, -Math.toRadians(30), -Math.PI / 2.0)));
+
+    // intake
+    public static final CameraConfig cameraConfig2 = new CameraConfig(// shooter camera
+        "2",
         new Transform3d(
-            -0.25, -0.313, 0.339,
-            new Rotation3d(
-                new Quaternion(-0.6919944799721134, 0.1678468872622234, 0.15463356158232774,
-                    0.6848792037701769))));
-    public static final CameraConfig cameraConfig6 = new CameraConfig(
-        "6",
+            Units.inchesToMeters(-(27.5 / 2 - 1.5)),
+            Units.inchesToMeters(-(27.5 / 2 - 6.5)),
+            Units.inchesToMeters(18.75),
+            ZYXtoXYZeulerConverter.zyxToXyz(-Math.PI / 2, -Math.toRadians(21), 0)));
+
+    // hopper
+    public static final CameraConfig cameraConfig3 = new CameraConfig(// auxillary camera
+        "3",
         new Transform3d(
-            0.28, 0, 0,
-            new Rotation3d(0, -Math.toRadians(5), 0)));
+            Units.inchesToMeters(-(27.5 / 2 - 2.5)),
+            Units.inchesToMeters(-(27.5 / 2 - 10.5)),
+            Units.inchesToMeters(15),
+            ZYXtoXYZeulerConverter.zyxToXyz(Math.PI, -Math.toRadians(11), 0)));
+
+
     public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
         STD_DEV_DIST, X_STD_DEV, 2);
     public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
