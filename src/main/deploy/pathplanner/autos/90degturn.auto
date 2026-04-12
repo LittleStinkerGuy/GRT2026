@@ -7,6 +7,12 @@
         {
           "type": "path",
           "data": {
+            "pathName": "New New Path"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "90deg"
           }
         }
