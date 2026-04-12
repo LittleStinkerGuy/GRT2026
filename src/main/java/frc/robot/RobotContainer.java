@@ -420,7 +420,11 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("90degturn");
+        return new ToDepotAndShoot(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        // return new PathPlannerAuto("90degturn");
+
+        // return new PathPlannerAuto("swerve90");
+
         // return new CNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);

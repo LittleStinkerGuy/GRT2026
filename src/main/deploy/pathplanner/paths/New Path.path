@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0,
-        "y": 4.5
+        "x": 3.4013704427083336,
+        "y": 4.178663194669273
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.002433248859238,
-        "y": 4.250011841680473
+        "x": 3.129875798733893,
+        "y": 4.24260297218789
       },
       "isLocked": false,
-      "linkedName": "ACTUAL90"
+      "linkedName": "HUB"
     },
     {
       "anchor": {
-        "x": 3.0,
-        "y": 4.5
+        "x": 3.6771751452831207,
+        "y": 6.128613591293142
       },
       "prevControl": {
-        "x": 3.0220792670296532,
-        "y": 4.749023103280465
+        "x": 3.613068672806193,
+        "y": 5.886972617560282
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,21 +29,7 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0,
-      "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 11.6,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 2863.0,
-        "nominalVoltage": 13.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -56,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
