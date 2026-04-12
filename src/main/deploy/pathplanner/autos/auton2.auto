@@ -1,0 +1,62 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSequence"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path1"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "path 1.5"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "pivotAndRollerIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RollerInCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "towerShoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "POS B",
+  "choreoAuto": false
+}

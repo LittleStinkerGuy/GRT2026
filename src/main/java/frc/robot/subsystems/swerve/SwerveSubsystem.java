@@ -75,6 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private NetworkTable swerveTable;
 
     private StructArrayPublisher<SwerveModuleState> swerveStatesPublisher;
+    private StructArrayPublisher<SwerveModuleState> desiredStatesPublisher;
 
     private StructPublisher<Pose2d> estimatedPosePublisher;
     // private StructLogEntry<Pose2d> estimatedPoseLogEntry =
@@ -92,6 +93,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Boost mode flag
     private boolean boostModeEnabled = false;
+
+    // Robot-relative mode flag (held button -- release returns to field-relative)
+    private boolean robotRelativeEnabled = false;
 
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
@@ -130,15 +134,13 @@ public class SwerveSubsystem extends SubsystemBase {
         initAccelValues();
     }
 
-    private final PIDController ROTATION_PID = new PIDController(4.0, 0.0, 0.2);
+    private final PIDController ROTATION_PID = new PIDController(ROTATION_KP, ROTATION_KI, ROTATION_KD);
 
     @Override
     public void periodic() {
         // update the poseestimator with curent gyro reading
-        // Pigeon is flipped, so negate to match vision coordinate system
-        Rotation2d gyroAngle = getGyroHeading();
         estimatedPose = poseEstimator.update(
-            gyroAngle,
+            getGyroHeading(),
             getModulePositions());
 
         // If all commanded velocities are 0, the system is idle (drivers / commands are
@@ -175,6 +177,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
         publishStats();
         logStats();
+
+        // Update current limits from NetworkTables (only first module needed since they share NT entries)
+        frontLeftModule.updateCurrentLimits();
+        frontRightModule.updateCurrentLimits();
+        backLeftModule.updateCurrentLimits();
+        backRightModule.updateCurrentLimits();
     }
 
     /**
@@ -186,24 +194,42 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param angularPower [-1, 1] The rotational power.
      */
     public void setDrivePowers(double xPower, double yPower, double angularPower) {
-        // Determine max velocity based on boost mode and speed limit
-        double baseMaxVel = boostModeEnabled ? BOOST_MAX_VEL : MAX_VEL;
-        double baseMaxOmega = boostModeEnabled ? (BOOST_MAX_VEL / FL_POS.getNorm()) : MAX_OMEGA;
+        // Boost mode ignores the drive speed-limit multiplier (L2 / R1 slow) and
+        // bypasses the software acceleration limiter -- raw commands straight to
+        // the modules, capped only by the physical motor maxes.
+        double speedLimit = boostModeEnabled ? 1.0 : driveSpeedLimit;
+        double limitedMaxVel = MAX_VEL * speedLimit;
+        double limitedMaxOmega = MAX_OMEGA * speedLimit;
 
-        // Apply drive speed limit (controlled by left trigger)
-        double limitedMaxVel = baseMaxVel * driveSpeedLimit;
-        double limitedMaxOmega = baseMaxOmega * driveSpeedLimit;
+        // Robot-relative (held button): interpret stick forward as the robot's
+        // own +X, which is the physical front (see FL_POS / FR_POS in Constants).
+        // Field-relative (default): rotate stick axes into the robot frame using
+        // the driver heading.
+        ChassisSpeeds desiredSpeeds;
+        if (robotRelativeEnabled) {
+            desiredSpeeds = new ChassisSpeeds(
+                xPower * limitedMaxVel,
+                yPower * limitedMaxVel,
+                angularPower * limitedMaxOmega);
+        } else {
+            Rotation2d heading = getDriverHeading();
+            desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                xPower * limitedMaxVel,
+                yPower * limitedMaxVel,
+                angularPower * limitedMaxOmega,
+                heading);
+        }
 
-        Rotation2d heading = getDriverHeading();
-
-        ChassisSpeeds desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xPower * limitedMaxVel,
-            yPower * limitedMaxVel,
-            angularPower * limitedMaxOmega,
-            heading);
-
-        // Apply acceleration limiting (only limit acceleration, not deceleration)
-        ChassisSpeeds speeds = limitAcceleration(desiredSpeeds);
+        ChassisSpeeds speeds;
+        if (boostModeEnabled) {
+            // Skip accel limiting entirely, but keep the limiter's state in sync
+            // so releasing boost doesn't cause a jerk from a stale previousSpeeds.
+            speeds = desiredSpeeds;
+            previousSpeeds = desiredSpeeds;
+            lastUpdateTime = Timer.getFPGATimestamp();
+        } else {
+            speeds = limitAcceleration(desiredSpeeds);
+        }
 
         states = kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -221,19 +247,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private void updateAccelValues() {
-        if (boostModeEnabled) {
-            // Use boost mode acceleration values
-            maxLinearAcceleration = BOOST_MAX_LINEAR_ACCELERATION;
-            maxLinearDeceleration = MAX_LINEAR_DECELERATION; // Keep decel the same
-            maxAngularAcceleration = BOOST_MAX_ANGULAR_ACCELERATION;
-            maxAngularDeceleration = MAX_ANGULAR_DECELERATION; // Keep decel the same
-        } else {
-            // Use normal values from SmartDashboard
-            maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
-            maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
-            maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
-            maxAngularDeceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
-        }
+        // Boost mode skips limitAcceleration entirely, so there's no boost branch
+        // here -- these values are only consulted on the non-boost path.
+        maxLinearAcceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearAccel", MAX_LINEAR_ACCELERATION);
+        maxLinearDeceleration = SmartDashboard.getNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
+        maxAngularAcceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
+        maxAngularDeceleration = SmartDashboard.getNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
     }
 
     /**
@@ -244,6 +263,17 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void setBoostMode(boolean enabled) {
         this.boostModeEnabled = enabled;
+    }
+
+    /**
+     * Enables or disables robot-relative drive. When enabled, stick inputs are
+     * interpreted in the robot's own frame (forward stick = robot front). When
+     * disabled, stick inputs are field-relative as usual.
+     *
+     * @param enabled true for robot-relative, false for field-relative
+     */
+    public void setRobotRelative(boolean enabled) {
+        this.robotRelativeEnabled = enabled;
     }
 
     /**
@@ -429,10 +459,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void resetPose(Pose2d currentPose) {
-        // Pigeon is flipped, so negate to match vision coordinate system
-        Rotation2d gyroAngle = getGyroHeading().times(-1);
         poseEstimator.resetPosition(
-            gyroAngle,
+            getGyroHeading(),
             getModulePositions(),
             currentPose);
     }
@@ -449,12 +477,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
-        SwerveModuleState[] currentModuleStates = getModuleStates();
-        ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            kinematics.toChassisSpeeds(currentModuleStates),
-            getRobotPosition().getRotation() // Could be replaced with getGyroHeading() if desired
-        );
-        return robotRelativeSpeeds;
+        return kinematics.toChassisSpeeds(getModuleStates());
     }
 
     public void setRobotRelativeDrivePowers(ChassisSpeeds robotRelativeSpeeds) {
@@ -533,6 +556,9 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveStatesPublisher = swerveTable.getStructArrayTopic(
             "SwerveStates", SwerveModuleState.struct).publish();
 
+        desiredStatesPublisher = swerveTable.getStructArrayTopic(
+            "DesiredStates", SwerveModuleState.struct).publish();
+
         estimatedPosePublisher = swerveTable.getStructTopic(
             "estimatedPose",
             Pose2d.struct).publish();
@@ -548,6 +574,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (STATE_DEBUG || DRIVE_DEBUG || STEER_DEBUG) {
             swerveStatesPublisher.set(getModuleStates());
+            desiredStatesPublisher.set(states);
         }
 
         if (DRIVE_DEBUG) {
@@ -633,10 +660,9 @@ public class SwerveSubsystem extends SubsystemBase {
             this::getRobotRelativeChassisSpeeds,
             (speeds, feedforwards) -> setRobotRelativeDrivePowers(speeds),
 
-            // 1.25/3.25
             new PPHolonomicDriveController(
-                new PIDConstants(1.38, 0, 0.0),
-                new PIDConstants(3.3, 0.0, 0.0)),
+                new PIDConstants(AUTO_TRANSLATION_KP, AUTO_TRANSLATION_KI, AUTO_TRANSLATION_KD),
+                new PIDConstants(AUTO_ROTATION_KP, AUTO_ROTATION_KI, AUTO_ROTATION_KD)),
 
             config,
             () -> {

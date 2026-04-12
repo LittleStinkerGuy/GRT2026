@@ -8,10 +8,11 @@ import frc.robot.subsystems.Vision.VisionConstants;
 // import frc.robot.Constants.VisionConstants;
 // frc imports
 import frc.robot.controllers.PS5DriveController;
-import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.shooter.flywheel;
 import frc.robot.subsystems.shooter.hood;
+import frc.robot.subsystems.shooter.shooterLearner;
 // Subsystems
+import frc.robot.subsystems.swerve.AimSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 // import frc.robot.subsystems.Vision.VisionSubsystem;
 // import frc.robot.subsystems.Vision.CameraConfig;
@@ -28,21 +29,40 @@ import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
 // Commands
 import frc.robot.commands.vision.GetCameraDisplacement;
 import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
-import frc.robot.commands.ManualShooterSequence;
+import frc.robot.Constants.ShooterConstants.Flywheel;
+import frc.robot.commands.AutonShooterSequence;
+import frc.robot.commands.CycleShot;
+import frc.robot.commands.SmashShot;
+import frc.robot.commands.TowerShot;
+import frc.robot.commands.allign.AimToHubCommand;
+import frc.robot.commands.shooter.CalibrationCommands;
 import frc.robot.commands.ShooterSequence;
+import frc.robot.commands.cycleBallsCommand;
+import frc.robot.commands.auton.ANeutralIntakeAuton;
+import frc.robot.commands.auton.CNeutralIntakeAuton;
+import frc.robot.commands.auton.CenterAuton;
+import frc.robot.commands.auton.ISOLATEDAUTO;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
+import frc.robot.commands.auton.ToDepotAndShoot;
+import frc.robot.commands.auton.Turn90AutonPP;
+import frc.robot.commands.auton.NeutralDefenseAuton;
+import frc.robot.commands.auton.TIMECNeutralIntakeTOWERAuton;
+import java.util.function.DoubleSupplier;
+import org.photonvision.jni.TimeSyncClient;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
+import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
 import frc.robot.commands.hopper.*;
-import frc.robot.commands.climb.ClimbCommands.*;
 import frc.robot.commands.shooter.rampDownFlywheel;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -60,6 +80,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -74,6 +95,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_RPS;
+    private DoubleSupplier cycleFlywheelOffsetGetter = () -> (cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_RPS);
+
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
@@ -81,28 +105,38 @@ public class RobotContainer {
     private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
-    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
-    // private towerRollers tower = new towerRollers(mechCAN);
+    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
+    private towerRollers tower = new towerRollers(mechCAN);
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
     private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
-    // private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
+    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
     private final Field2d m_field = new Field2d();
-    // private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem(mechCAN);
-    // private final flywheel flywheelSubsystem = new flywheel(mechCAN);
-    // private final hood hoodSubsystem = new hood(mechCAN);
+    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
+    private final hood hoodSubsystem = new hood(mechCAN);
+    private final shooterLearner learner = new shooterLearner();
+    private final AimSubsystem aimSubsystem =
+        (Constants.SWERVE_ENABLED && swerveSubsystem != null)
+            ? new AimSubsystem(swerveSubsystem, fmsSubsystem)
+            : null;
+    private final AimToHubCommand aimHelper =
+        (Constants.SWERVE_ENABLED && swerveSubsystem != null)
+            ? new AimToHubCommand(swerveSubsystem, fmsSubsystem)
+            : null;
     private boolean shootSeq = false;
 
     // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
 
-    // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    // VisionConstants.cameraConfig11);
+    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
+        VisionConstants.cameraConfig1);
+    private final VisionSubsystem visionSubsystem2 = new VisionSubsystem(
+        VisionConstants.cameraConfig2);
+    private final VisionSubsystem visionSubsystem3 = new VisionSubsystem(
+        VisionConstants.cameraConfig3);
+    private UsbCamera driverCam;
 
-    private UsbCamera camera1;
-    private UsbCamera camera2;
-    private VideoSink cameraServer;
-    private boolean isCamera1Active = true;
 
+    private double desiredHoodSpeed = 0;
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.cameraConfig11);
 
@@ -115,14 +149,23 @@ public class RobotContainer {
         configureBindings();
         configureAutoChooser();
 
-        // switchable cameras
-        camera1 = CameraServer.startAutomaticCapture(0);
-        camera2 = CameraServer.startAutomaticCapture(1);
-        cameraServer = CameraServer.getServer();
+        // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
+        driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
+        driverCam.setVideoMode(PixelFormat.kMJPEG, 640, 480, 30);
+
+        // Throttle what actually streams to the dashboard (the source-side FPS
+        // is just a hint — Arducams often ignore it). These caps are authoritative.
+        MjpegServer driverCamServer = (MjpegServer) CameraServer.getServer("serve_Driver Cam");
+        driverCamServer.setResolution(320, 240);
+        driverCamServer.setFPS(20);
+        driverCamServer.setCompression(50); // 0 = worst, 100 = best; lower = less bandwidth
 
         SmartDashboard.putData("Field", m_field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
         NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
+        NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
+        NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
+        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake));
     }
 
     /**
@@ -153,12 +196,20 @@ public class RobotContainer {
         if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
             swerveSubsystem.setDefaultCommand(
                 new RunCommand(() -> {
-                    // L1 = boost mode (higher accel/velocity)
-                    swerveSubsystem.setBoostMode(driveController.getLeftBumper());
+                    // R2 (>= 90% pressed) = boost mode
+                    swerveSubsystem.setBoostMode(driveController.getRightTriggerAxis() > 0.9);
 
-                    // L2 = speed limit (harder press = slower)
-                    double leftTrigger = driveController.getLeftTriggerAxis();
-                    double speedLimit = 1.0 - leftTrigger;
+                    // L1 (hold) = robot-relative drive; release returns to field-relative
+                    swerveSubsystem.setRobotRelative(driveController.getLeftBumper());
+
+                    // R1 = slow mode (30% speed), L2 = variable speed limit
+                    double speedLimit;
+                    if (driveController.getRightBumper()) {
+                        speedLimit = Constants.SwerveConstants.SLOW_MODE_SPEED_LIMIT;
+                    } else {
+                        double leftTrigger = driveController.getLeftTriggerAxis();
+                        speedLimit = 1.0 - leftTrigger;
+                    }
                     swerveSubsystem.setDriveSpeedLimit(speedLimit);
 
                     swerveSubsystem.setDrivePowers(
@@ -169,15 +220,15 @@ public class RobotContainer {
                     swerveSubsystem));
 
             // Create button = switch cameras
-            driveController.create().onTrue(
-                Commands.runOnce(() -> {
-                    if (isCamera1Active) {
-                        cameraServer.setSource(camera2);
-                    } else {
-                        cameraServer.setSource(camera1);
-                    }
-                    isCamera1Active = !isCamera1Active;
-                }));
+            // driveController.create().onTrue(
+            // Commands.runOnce(() -> {
+            // if (isCamera1Active) {
+            // cameraServer.setSource(camera2);
+            // } else {
+            // cameraServer.setSource(camera1);
+            // }
+            // isCamera1Active = !isCamera1Active;
+            // }));
 
             /* Pressing the button resets the field axes to the current robot axes. */
             driveController.bindDriverHeadingReset(
@@ -185,54 +236,43 @@ public class RobotContainer {
                     swerveSubsystem.resetDriverHeading();
                 },
                 swerveSubsystem);
+
+            // Triangle (drive) = auto-rotate to face the hub. Held-while-true; rotating
+            // the right stick past the deadband cancels it so the driver can override.
+            // Wrapped in Commands.defer so the target angle is recomputed at every press.
+            if (aimHelper != null) {
+                driveController.getController().triangle().whileTrue(
+                    Commands.defer(
+                        () -> aimHelper.createAimCommand(() -> false),
+                        java.util.Set.of(swerveSubsystem)));
+            }
+
+            driveController.getController().L2().whileTrue(
+                Commands.run(() -> {
+                    hoodSubsystem.setHoodAngle(0);
+                }, hoodSubsystem));
         }
         if (Constants.MECH_ENABLED) {
-            // bind semi auto commands
-            // Cross (mech) = semi auto climb down
-            var crossTrigger = mechController.cross();
-            // crossTrigger.onTrue(new SemiAutoClimbDownCommand(m_ClimbSubsystem, crossTrigger::getAsBoolean));
-
-            // Triangle (mech) = semi auto climb up
-            var triangleTrigger = mechController.triangle();
-            // triangleTrigger.onTrue(new SemiAutoClimbUpCommand(m_ClimbSubsystem, triangleTrigger::getAsBoolean));
-
-            // Manual control with d-pad for winch and left stick for arm
-            // m_ClimbSubsystem.setDefaultCommand(Commands.run(() -> {
-            // var armDutyCycle = mechController.getLeftY();
-            // double winchDutyCycle = 0;
-
-            // if (mechController.povUp().getAsBoolean()) {
-            // winchDutyCycle--;
-            // }
-            // if (mechController.povDown().getAsBoolean()) {
-            // winchDutyCycle++;
-            // }
-            // m_ClimbSubsystem.setArmDutyCycle(armDutyCycle);
-            // m_ClimbSubsystem.setWinchDutyCycle(winchDutyCycle);
-            // }, m_ClimbSubsystem));
-
             // ==================== INTAKE ROLLER ====================
             // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runInDutyCycle(), intakeSubsystem));
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOutDutyCycle(), intakeSubsystem));
+            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
+            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
             intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
 
             // ==================== INTAKE PIVOT ====================
             // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().onTrue(new PivotDownTimedCommand(pivotIntake));
-            mechController.povRight().onTrue(new PivotUpTimedCommand(pivotIntake));
-            pivotIntake.setDefaultCommand(Commands.run(() -> pivotIntake.stop(), pivotIntake));
+            mechController.povLeft().whileTrue(new PivotOutCommand(pivotIntake));
+            mechController.povRight().whileTrue(new PivotInCommand(pivotIntake));
 
-            // L2 (mech) = spin spindexer (hopper) at max RPM and tower at 0.7 duty cycle
-            // mechController.L2().whileTrue(Commands.run(() -> {
-            // HopperSubsystem.setManualControl(1.0); // Max duty cycle for spindexer
-            // tower.setManualControl(
-            // 0.7); // 0.7 duty cycle for tower
-            // }, HopperSubsystem, tower));
-            // HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
+            // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
+            mechController.L2().whileTrue(Commands.run(() -> {
+                HopperSubsystem.setManualControl(-1.0); // Max duty cycle for spindexer
+                tower.setManualControl(1.0); // Full duty cycle for tower
+            }, HopperSubsystem, tower));
+            HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
 
-            // R2 (drive) = force intake in (pivot up + stop rollers) - hold to override
-            new Trigger(driveController::getRightTrigger)
+            // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
+            driveController.square()
                 .whileTrue(Commands.run(() -> {
                     pivotIntake.setPosition(Constants.IntakeConstants.PIVOT_IN_POS);
                     intakeSubsystem.stop();
@@ -251,22 +291,37 @@ public class RobotContainer {
              * }, pivotIntake));
              */
 
-            // ==================== MANUAL SHOOTER SEQUENCE (SMASH AND SHOOT) ====================
-            // R1 (drive) = manual shooter sequence, any other button cancels
-            // mechController.square().toggleOnTrue(
-            // Commands.defer(
-            // () -> new ShooterSequence(
-            // flywheelSubsystem,
-            // hoodSubsystem,
-            // tower,
-            // HopperSubsystem,
-            // intakeSubsystem),
-            // java.util.Set.of(
-            // flywheelSubsystem,
-            // hoodSubsystem,
-            // HopperSubsystem,
-            // tower,
-            // intakeSubsystem)));
+            // ==================== SHOOTING PRESETS ====================
+            // Square (mech) = smash-and-shoot preset (close-range)
+            mechController.square().whileTrue(
+                Commands.defer(
+                    () -> new SmashShot(
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        tower,
+                        HopperSubsystem,
+                        pivotIntake,
+                        learner),
+                    java.util.Set.of(
+                        flywheelSubsystem,
+                        hoodSubsystem,
+                        HopperSubsystem,
+                        tower,
+                        pivotIntake)));
+
+            // ==================== INTERPOLATION TABLE CALIBRATION ====================
+            // D-pad up/down: bump flywheel RPM offset (5 RPS per press)
+            // Triangle/Circle: bump hood angle offset (0.005 rotations per press)
+            // Options: log current (distance, rpm, angle) to riolog
+            // Share: reset both offsets to zero
+            // mechController.povUp().onTrue(CalibrationCommands.rpmUp(learner));
+            // mechController.povDown().onTrue(CalibrationCommands.rpmDown(learner));
+            // mechController.triangle().onTrue(CalibrationCommands.hoodUp(learner));
+            // mechController.circle().onTrue(CalibrationCommands.hoodDown(learner));
+            // mechController.create().onTrue(CalibrationCommands.resetOffsets(learner));
+            // if (aimSubsystem != null) {
+            // mechController.options().onTrue(CalibrationCommands.logPoint(learner, aimSubsystem));
+            // }
 
             // Joystick movement cancels it
             // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
@@ -277,28 +332,62 @@ public class RobotContainer {
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
             // Left stick Y = hood manual control
-            // flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
-            // if (DriverStation.isJoystickConnected(1)) {
-            // flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
-            // } else {
-            // flywheelSubsystem.flySpeed(0);
-            // }
-            // }, flywheelSubsystem));
+            flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (DriverStation.isJoystickConnected(1)) {
+                    flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
+                } else {
+                    flywheelSubsystem.flySpeed(0);
+                }
+            }, flywheelSubsystem));
 
-            // tower.setDefaultCommand(Commands.run(() -> {
-            // tower.setManualControl(0); // Stop tower by default
-            // }, tower));
+            tower.setDefaultCommand(Commands.run(() -> {
+                tower.setManualControl(0); // Stop tower by default
+            }, tower));
 
+            hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+                if (mechController.L3().getAsBoolean()) {
+                    desiredHoodSpeed = 0.15;
+                    hoodSubsystem.hoodSpeed(0.15);
+                } else if (mechController.R3().getAsBoolean()) {
+                    desiredHoodSpeed = -0.15;
+                    hoodSubsystem.hoodSpeed(-0.15);
+                } else {
+                    if (desiredHoodSpeed != 0) {
+                        desiredHoodSpeed = 0;
+                        hoodSubsystem.hoodSpeed(0);
 
-            // hoodSubsystem.setDefaultCommand(Commands.run(() -> {
-            // if (mechController.L3().getAsBoolean()) {
-            // hoodSubsystem.hoodSpeed(0.15);
-            // } else if (mechController.R3().getAsBoolean()) {
-            // hoodSubsystem.hoodSpeed(-0.15);
-            // } else {
-            // hoodSubsystem.hoodSpeed(0);
-            // }
-            // }, hoodSubsystem));
+                    }
+                }
+            }, hoodSubsystem));
+
+            mechController.povUp().onTrue(Commands.runOnce(() -> {
+                if (cycleFlywheelVelo < Flywheel.FLYWHEEL_MAX_SPEED) {
+                    cycleFlywheelVelo += 5;
+                }
+            }));
+
+            mechController.povDown().onTrue(Commands.runOnce(() -> {
+                if (cycleFlywheelVelo > 0) {
+                    cycleFlywheelVelo -= 5;
+                }
+            }));
+
+            // Cross = passing shot — flywheel pinned to max (120 RPS)
+            mechController.cross().whileTrue(new CycleShot(
+                flywheelSubsystem,
+                hoodSubsystem,
+                tower,
+                HopperSubsystem,
+                () -> Flywheel.FLYWHEEL_MAX_SPEED));
+
+            // Touchpad = tower shoot preset
+            mechController.triangle().whileTrue(new TowerShot(
+                flywheelSubsystem,
+                hoodSubsystem,
+                tower,
+                HopperSubsystem,
+                pivotIntake,
+                learner));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
@@ -330,10 +419,23 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Selector", autoChooser);
     }
 
-    // public Command getAutonomousCommand() {
-    // // return new PathPlannerAuto("auton1");
-    // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
-    // }
+    public Command getAutonomousCommand() {
+        return new TIMECNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        // return new PathPlannerAuto("auton2");
+        // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
+        // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
+        // return new PathPlannerAuto("auton1");
+        // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+
+        // Run ManualShooterSequence for 10 seconds
+        // return new AutonShooterSequence(
+        // flywheelSubsystem,
+        // hoodSubsystem,
+        // tower,
+        // HopperSubsystem,
+        // pivotIntake).withTimeout(10);
+
+    }
 
     /**
      * Called when teleop starts to reset driver heading with 90 degree offset.
@@ -343,12 +445,21 @@ public class RobotContainer {
             swerveSubsystem.resetDriverHeadingOffset90();
         }
     }
+
+    /**
+     * Called when autonomous starts to zero the pivot encoder.
+     */
+    public void onAutonInit() {
+        // pivotIntake.zeroEncoder();
+    }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
     // }
 
     // vision shit
     public void visionStuff() {
-        // visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
+        visionSubsystem2.setInterface(swerveSubsystem::addVisionMeasurements);
+        visionSubsystem3.setInterface(swerveSubsystem::addVisionMeasurements);
 
         // CommandScheduler.getInstance().schedule(
         // new GetCameraDisplacement(visionSubsystem1,

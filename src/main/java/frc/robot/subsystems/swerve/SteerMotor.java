@@ -204,8 +204,8 @@ public class SteerMotor extends SubsystemBase {
 
     public void publishStats() {
 
-        motorPositionPublisher.set(motor.getPosition().getValueAsDouble());
-        targetPositionPublisher.set(targetPos);
+        motorPositionPublisher.set(cancoder.getAbsolutePosition().getValueAsDouble());
+        targetPositionPublisher.set(motor.getClosedLoopReference().getValueAsDouble());
 
         // encoderPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
         // targetPositionPublisher.set(rotorRotations); // Just show current position
@@ -223,7 +223,7 @@ public class SteerMotor extends SubsystemBase {
     public SteerMotor(int motorCAN, int encoderID, CANBus canivore) {
         motorID = motorCAN;
         motor = new TalonFX(motorCAN, canivore);
-        cancoder = new CANcoder(encoderID);
+        cancoder = new CANcoder(encoderID, canivore);
         configureMotor();
         initNT(motorCAN);
         initLogs(motorCAN);

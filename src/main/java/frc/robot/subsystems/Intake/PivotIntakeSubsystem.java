@@ -12,35 +12,45 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.IntakeConstants;
 
 import com.ctre.phoenix6.CANBus;
+
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Seconds;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
     private final TalonFX pivotMotor;
     private final CANcoder canCoder;
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-    private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
+    private final PositionVoltage voltagePosControl = new PositionVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
+    private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
+    private final SysIdRoutine sysIdRoutine;
 
     // Tunable PID values
     private double kP = IntakeConstants.PIVOT_P;
     private double kI = IntakeConstants.PIVOT_I;
     private double kD = IntakeConstants.PIVOT_D;
-    private double kV = IntakeConstants.PIVOT_F;
+    private double kS = IntakeConstants.PIVOT_S;
+    private double kV = IntakeConstants.PIVOT_V;
+    private double kA = IntakeConstants.PIVOT_A;
     private double cruiseVelocity = IntakeConstants.PIVOT_CRUISE_VELOCITY;
     private double acceleration = IntakeConstants.PIVOT_ACCELERATION;
 
     public PivotIntakeSubsystem(CANBus canBus) {
         pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
         canCoder = new CANcoder(IntakeConstants.PIVOT_CANCODER_ID, canBus);
-        configEncoder();
         configMotors();
         SmartDashboard.putNumber("Intake/Pivot/kP", kP);
         SmartDashboard.putNumber("Intake/Pivot/kI", kI);
@@ -50,6 +60,22 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Pivot/Acceleration", acceleration);
         SmartDashboard.putNumber("Intake/Pivot/TargetPosition", 0);
         SmartDashboard.putNumber("Intake/Pivot/ManualSpeed", IntakeConstants.MANUAL_PIVOT_SPEED);
+
+        sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(0.5).per(Seconds), // ramp rate: 0.5 V/s (slow for limited range)
+                Volts.of(4), // step voltage
+                Seconds.of(5) // timeout
+            ),
+            new SysIdRoutine.Mechanism(
+                voltage -> pivotMotor.setControl(sysIdVoltage.withOutput(voltage)),
+                log -> {
+                    log.motor("pivotIntake")
+                        .voltage(pivotMotor.getMotorVoltage().getValue())
+                        .angularPosition(pivotMotor.getPosition().getValue())
+                        .angularVelocity(pivotMotor.getVelocity().getValue());
+                },
+                this));
     }
 
     private void configMotors() {
@@ -59,18 +85,19 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         config.Slot0.kP = kP;
         config.Slot0.kI = kI;
         config.Slot0.kD = kD;
+        config.Slot0.kS = kS;
         config.Slot0.kV = kV;
+        config.Slot0.kA = kA;
 
         // Motor Output Config
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        // Using FusedCANcoder! (basically combines combines the cancoder position abs w the internal encoder)
+        // Using internal encoder only (FusedCANcoder disabled for sysID)
         config.withFeedback(new FeedbackConfigs()
-            .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
-            .withFeedbackRemoteSensorID(IntakeConstants.PIVOT_CANCODER_ID)
-            .withSensorToMechanismRatio(1.0) // CANcoder is 1:1 with mechanism
-            .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO) // Motor to CANcoder ratio
-        );
+            .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+            .withFeedbackRemoteSensorID(canCoder.getDeviceID())
+            .withRotorToSensorRatio(IntakeConstants.GEAR_RATIO)
+            .withSensorToMechanismRatio(1.0));
 
         // StatorCurrent Limits
         config.withCurrentLimits(
@@ -78,27 +105,15 @@ public class PivotIntakeSubsystem extends SubsystemBase {
                 .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
                 .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
 
-        // Motion Magic Config
-        config.withMotionMagic(
-            new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(cruiseVelocity)
-                .withMotionMagicAcceleration(acceleration));
-
-        // Software Limits (disabled for tuning)
+        // Software Limits
         config.withSoftwareLimitSwitch(
             new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitEnable(false)
-                .withForwardSoftLimitThreshold(IntakeConstants.TOP_LIMIT)
+                .withForwardSoftLimitThreshold(IntakeConstants.PIVOT_FORWARD_LIMIT)
                 .withReverseSoftLimitEnable(false)
-                .withReverseSoftLimitThreshold(IntakeConstants.BOTTOM_LIMIT));
+                .withReverseSoftLimitThreshold(IntakeConstants.PIVOT_REVERSE_LIMIT));
 
         pivotMotor.getConfigurator().apply(config);
-    }
-
-    private void configEncoder() {
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.MagnetOffset = 0.0;
-        canCoder.getConfigurator().apply(config);
     }
 
 
@@ -124,7 +139,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     }
 
     public double getAngleDegrees() {
-        return canCoder.getPosition().getValueAsDouble() * 360.0;
+        return pivotMotor.getPosition().getValueAsDouble() * 360.0;
     }
 
     public double getAbsolutePosition() {
@@ -132,19 +147,19 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Get motor position in rotations (fused with CANcoder)
+     * Get motor position in rotations
      */
     public double getMotorPosition() {
         return pivotMotor.getPosition().getValueAsDouble();
     }
 
     /**
-     * Set pivot position using Motion Magic
+     * Set pivot position using Velocity Voltage
      * 
-     * @param rotations Target position in mechanism rotations (as read by CANcoder)
+     * @param rotations Target position in mechanism rotations
      */
     public void setPosition(double rotations) {
-        pivotMotor.setControl(motionMagicControl.withPosition(rotations));
+        pivotMotor.setControl(voltagePosControl.withPosition(rotations));
     }
 
     /**
@@ -156,8 +171,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        canCoder.setPosition(0.0);
-        pivotMotor.setPosition(0.0);
+        // canCoder.setPosition(0.0);
+        // pivotMotor.setPosition(0.0);
     }
 
     public void setEncoderToMax() {
@@ -180,12 +195,20 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         pivotMotor.setControl(dutyCycleControl.withOutput(0));
     }
 
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
+    }
+
     @Override
     public void periodic() {
         // SmartDashboard!
         SmartDashboard.putNumber("Intake/Pivot/CANcoder/AngleDegrees", getAngleDegrees());
-        SmartDashboard.putNumber("Intake/Pivot/CANcoder/AbsolutePosition", getAbsolutePosition());
-        SmartDashboard.putNumber("Intake/Pivot/CANcoder/Position", canCoder.getPosition().getValueAsDouble());
+        // SmartDashboard.putNumber("Intake/Pivot/CANcoder/AbsolutePosition", getAbsolutePosition());
+        // SmartDashboard.putNumber("Intake/Pivot/CANcoder/Position", canCoder.getPosition().getValueAsDouble());
 
         SmartDashboard.putNumber("Intake/Pivot/Motor/DutyCycle", pivotMotor.get());
         SmartDashboard.putNumber("Intake/Pivot/Motor/Position", pivotMotor.getPosition().getValueAsDouble());
@@ -196,6 +219,9 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Pivot/Motor/ClosedLoopError", pivotMotor.getClosedLoopError().getValueAsDouble());
         SmartDashboard.putNumber("Intake/Pivot/Motor/Temp", pivotMotor.getDeviceTemp().getValueAsDouble());
         SmartDashboard.putBoolean("Intake/Pivot/Motor/Connected", pivotMotor.isConnected());
-        SmartDashboard.putBoolean("Intake/Pivot/CANcoder/Connected", canCoder.getPosition().getStatus().isOK());
+        // SmartDashboard.putBoolean("Intake/Pivot/CANcoder/Connected", canCoder.getPosition().getStatus().isOK());
+
+        SmartDashboard.putNumber("sysIDTest/pivotSetpoint(Rot.)", pivotMotor.getClosedLoopOutput().getValueAsDouble());
+        SmartDashboard.putNumber("sysIDTest/pivotPos(Rot.)", pivotMotor.getPosition(false).getValueAsDouble());
     }
 }
