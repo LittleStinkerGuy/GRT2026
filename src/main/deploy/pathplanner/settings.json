@@ -2,7 +2,9 @@
   "robotWidth": 0.833,
   "robotLength": 0.83312,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "test"
+  ],
   "autoFolders": [
     "AutoTest",
     "POS A",
