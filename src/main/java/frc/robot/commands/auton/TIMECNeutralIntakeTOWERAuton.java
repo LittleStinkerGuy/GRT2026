@@ -53,17 +53,15 @@ public class TIMECNeutralIntakeTOWERAuton extends SequentialCommandGroup {
         addCommands(
             AutoBuilder.resetOdom(optimizedStartC.getStartingHolonomicPose().get()),
 
-            // OPTIMIZEDSTARTC with timed PivotDown at approx halfway down path
+
             Commands.deadline(
                 AutoBuilder.followPath(optimizedStartC),
                 Commands.sequence(
-                    Commands.waitSeconds(0.67),
-                    new PivotOutCommand(pivotIntakeSubsystem))),
-
-            // NeutralIntakeC with roller intake
-            Commands.deadline(
-                AutoBuilder.followPath(neutralIntakeC),
-                new RollerInCommand(rollerSubsystem)),
+                    Commands.waitSeconds(0.21),
+                    new PivotOutCommand(pivotIntakeSubsystem)),
+                Commands.sequence(
+                    Commands.waitSeconds(1.41),
+                    new RollerInCommand(rollerSubsystem).withTimeout(1.19))),
 
             AutoBuilder.followPath(towerFromNeutralC),
 
@@ -77,13 +75,15 @@ public class TIMECNeutralIntakeTOWERAuton extends SequentialCommandGroup {
 
             AutoBuilder.followPath(fromTowerC),
 
-            // PivotDown before second intake
-            new PivotOutCommand(pivotIntakeSubsystem).withTimeout(1.0),
 
-            // Second NeutralIntakeC with roller intake
             Commands.deadline(
                 AutoBuilder.followPath(neutralIntakeC),
-                new RollerInCommand(rollerSubsystem)),
+                Commands.sequence(
+                    Commands.waitSeconds(0.21),
+                    new PivotOutCommand(pivotIntakeSubsystem)),
+                Commands.sequence(
+                    Commands.waitSeconds(1.41),
+                    new RollerInCommand(rollerSubsystem).withTimeout(1.19))),
 
             AutoBuilder.followPath(fromNeutralC));
     }
