@@ -7,6 +7,12 @@
         {
           "type": "path",
           "data": {
+            "pathName": "straight"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "90deg"
           }
         }

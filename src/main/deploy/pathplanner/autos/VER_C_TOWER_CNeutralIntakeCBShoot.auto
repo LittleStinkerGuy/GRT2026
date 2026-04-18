@@ -5,46 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "shootSequence"
+            "pathName": "OPTIMIZEDSTARTC"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "path1"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "path 1.5"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "PivotDown"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "RollerInCommand"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "path2"
+            "pathName": "TOWER_FromNeutralC"
           }
         },
         {
@@ -52,11 +21,48 @@
           "data": {
             "name": "towerShoot"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FROMTOWERC"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PivotDown"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "rollerIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "NeutralIntakeC"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FromNeutralC"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "POS B",
+  "folder": "POS C",
   "choreoAuto": false
 }

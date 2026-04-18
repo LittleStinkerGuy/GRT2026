@@ -420,12 +420,18 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new TIMECNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+
+        // return new ToDepotAndShoot(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        // return new PathPlannerAuto("90degturn");
+
+        // rehturn new PathPlannerAuto("swerve90");
+
+        // return new CNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
         // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
         // return new PathPlannerAuto("auton1");
-        // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
 
         // Run ManualShooterSequence for 10 seconds
         // return new AutonShooterSequence(

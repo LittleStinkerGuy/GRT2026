@@ -157,10 +157,10 @@ public final class Constants {
         public static final double ROTATION_KD = 0.2;
 
         // PathPlanner Auto PID Constants
-        public static final double AUTO_TRANSLATION_KP = 1.38;
+        public static final double AUTO_TRANSLATION_KP = 1.6;// increased 4/12/26 TONY
         public static final double AUTO_TRANSLATION_KI = 0.0;
         public static final double AUTO_TRANSLATION_KD = 0.0;
-        public static final double AUTO_ROTATION_KP = 3.3;
+        public static final double AUTO_ROTATION_KP = 4.0;// increased 4/12/26 TONY
         public static final double AUTO_ROTATION_KI = 0.0;
         public static final double AUTO_ROTATION_KD = 0.0;
     }
@@ -251,9 +251,9 @@ public final class Constants {
 
             public static final double GEAR_RATIO = 244.411765;
 
-            // Position control PID
-            public static final double KP = 2500;
-            public static final double KI = 30;
+            // Position control PID (BAD BAD BAD)
+            public static final double KP = 2000;
+            public static final double KI = 0;
             public static final double KD = 60;
             public static final double KS = 120;
 
