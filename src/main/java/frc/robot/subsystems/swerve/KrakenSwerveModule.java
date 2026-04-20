@@ -1,24 +1,23 @@
 package frc.robot.subsystems.swerve;
 
-import java.util.EnumSet;
-
-import com.ctre.phoenix6.CANBus;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableEvent;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import static frc.robot.Constants.SwerveConstants.DRIVE_D;
 import static frc.robot.Constants.SwerveConstants.DRIVE_I;
 import static frc.robot.Constants.SwerveConstants.DRIVE_P;
 import static frc.robot.Constants.SwerveConstants.DRIVE_S;
 import static frc.robot.Constants.SwerveConstants.DRIVE_V;
 import static frc.robot.Constants.SwerveConstants.STEER_D;
-import static frc.robot.Constants.SwerveConstants.STEER_S;
 import static frc.robot.Constants.SwerveConstants.STEER_I;
 import static frc.robot.Constants.SwerveConstants.STEER_P;
+import static frc.robot.Constants.SwerveConstants.STEER_S;
+
+import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import java.util.EnumSet;
 
 public class KrakenSwerveModule {
 
@@ -47,8 +46,8 @@ public class KrakenSwerveModule {
         this.steerPort = steerPort;
 
         // very efficient code VVV :)
-        driveIndex = drivePort / 2;// this means that drive must be even IE: 0, 2, 4, 8
-        steerIndex = (steerPort - 1) / 2;// this means that steer must be odd IE: 1,3,5,7
+        driveIndex = drivePort / 2; // this means that drive must be even IE: 0, 2, 4, 8
+        steerIndex = (steerPort - 1) / 2; // this means that steer must be odd IE: 1,3,5,7
 
         // steerMotor = new SteerMotor(steerPort, canCoderPort);
         // steerMotor.configPID(
@@ -212,7 +211,7 @@ public class KrakenSwerveModule {
      * Call this periodically.
      */
     public void updateCurrentLimits() {
-        driveMotor.updateCurrentLimitsFromNT();
+        driveMotor.updateCurrentLimitsFromNt();
     }
 
     /**

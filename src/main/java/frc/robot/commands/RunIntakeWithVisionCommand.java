@@ -3,19 +3,16 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
+import frc.robot.Constants.HopperConstants.HopperIntake;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.vision.FuelDetectionSubsystem;
+import java.util.function.DoubleSupplier;
 
-// WARNING: THIS COMMAND CURRENTLY USES THE HOPPER INSTEAD OF THE INTAKE
-// THIS IS A TEMPORARY WORKAROUND WHILE THE ACTUAL INTAKE IS NOT WORKING
 public class RunIntakeWithVisionCommand extends Command {
     private FuelDetectionSubsystem fuelDetection;
     private HopperSubsystem intake;
@@ -41,7 +38,7 @@ public class RunIntakeWithVisionCommand extends Command {
         });
 
         if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Meters.of(.5))) {
-            intake.setHopper(HOPPER_INTAKE.BALLIN); // TODO: SWITCH TO intake.runIn() or whatever it is now WHEN USING ACTUAL INTAKE SUBSYSTEM
+            intake.setHopper(HopperIntake.BALLIN); // TODO: SWITCH TO intake.runIn() or whatever it is now WHEN USING ACTUAL INTAKE SUBSYSTEM
         } else {
             intake.setManualControl(0);
         }

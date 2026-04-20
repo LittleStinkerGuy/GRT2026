@@ -1,19 +1,19 @@
-package frc.robot.commands.shooter.towerRollers;
+package frc.robot.commands.shooter.towerrollers;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.shooter.towerRollers;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;
-import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import frc.robot.Constants.TowerConstants.TowerIntake;
 
-public class towerRoll extends Command {
+public class TowerRoll extends Command {
 
-    private final towerRollers t;
+    private final TowerRollersSubsystem t;
 
 
-    public towerRoll(towerRollers b) {
+    public TowerRoll(TowerRollersSubsystem b) {
         this.t = b;
 
         addRequirements(t);
@@ -37,6 +37,6 @@ public class towerRoll extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        t.setTower(TOWER_INTAKE.STOP);
+        t.setTower(TowerIntake.STOP);
     }
 }

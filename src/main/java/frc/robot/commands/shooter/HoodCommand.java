@@ -1,21 +1,19 @@
 package frc.robot.commands.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.SmashAndShootConstants;
-import frc.robot.subsystems.FMS.FieldManagementSubsystem;
+import frc.robot.subsystems.fms.FieldManagementSubsystem;
 import frc.robot.subsystems.shooter.Intertable;
-import frc.robot.subsystems.shooter.hood;
+import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-import edu.wpi.first.wpilibj2.command.Command;
+public class HoodCommand extends Command {
 
-import edu.wpi.first.math.geometry.Pose2d;
+    private final HoodSubsystem hd;
 
-public class hoodCommand extends Command {
-
-    private final hood hd;
-
-    public hoodCommand(hood h) {
+    public HoodCommand(HoodSubsystem h) {
         this.hd = h;
         addRequirements(hd);
     }

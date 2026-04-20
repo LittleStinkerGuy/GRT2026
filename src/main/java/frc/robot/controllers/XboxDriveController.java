@@ -31,28 +31,31 @@ public class XboxDriveController extends BaseDriveController {
     @Override
     public double getForwardPower() {
         double forwardPower = -driveController.getLeftY();
-        if (Math.abs(forwardPower) > deadZone)
+        if (Math.abs(forwardPower) > deadZone) {
             return -driveController.getLeftY();
-        else
+        } else {
             return 0;
+        }
     }
 
     @Override
     public double getLeftPower() {
         double leftPower = -driveController.getLeftX();
-        if (Math.abs(leftPower) > deadZone)
+        if (Math.abs(leftPower) > deadZone) {
             return -driveController.getLeftX();
-        else
+        } else {
             return 0;
+        }
     }
 
     @Override
     public double getRotatePower() {
         double rotatePower = -driveController.getRightX();
-        if (Math.abs(rotatePower) > deadZone)
+        if (Math.abs(rotatePower) > deadZone) {
             return -driveController.getRightX();
-        else
+        } else {
             return 0;
+        }
     }
 
     @Override

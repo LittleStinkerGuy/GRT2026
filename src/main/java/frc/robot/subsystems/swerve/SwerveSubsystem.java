@@ -1,14 +1,19 @@
 package frc.robot.subsystems.swerve;
 
+import static frc.robot.Constants.DebugConstants.*;
+import static frc.robot.Constants.LoggingConstants.*;
+import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
+import com.studica.frc.AHRS;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,19 +33,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.Constants.DebugConstants.*;
-import static frc.robot.Constants.LoggingConstants.*;
-import static frc.robot.Constants.SwerveConstants.*;
-import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
-import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
-
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.subsystems.Vision.TimestampedVisionUpdate;
+import frc.robot.subsystems.vision.TimestampedVisionUpdate;
 import frc.robot.util.GRTUtil;
 
 public class SwerveSubsystem extends SubsystemBase {
 
-    private final KrakenSwerveModule frontLeftModule, frontRightModule, backLeftModule, backRightModule;
+    private final KrakenSwerveModule frontLeftModule;
+    private final KrakenSwerveModule frontRightModule;
+    private final KrakenSwerveModule backLeftModule;
+    private final KrakenSwerveModule backRightModule;
     private SwerveModuleState[] states = {
             new SwerveModuleState(),
             new SwerveModuleState(),
@@ -99,9 +101,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public SwerveSubsystem(CANBus canBus) {
         canivore = canBus;
-        ROTATION_PID.enableContinuousInput(-Math.PI, Math.PI);
+        rotationPIDController.enableContinuousInput(-Math.PI, Math.PI);
         // initialize and reset the NavX gyro
-        pidgey = new Pigeon2(SwerveConstants.PigeonID, canivore);
+        pidgey = new Pigeon2(SwerveConstants.PIGEON_ID, canivore);
         pidgey.reset();
 
         frontLeftModule = new KrakenSwerveModule(FL_DRIVE, FL_STEER, FL_OFFSET, FL_ENCODER, canivore);
@@ -118,7 +120,7 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d());
 
         buildAuton();
-        initNT();
+        initNt();
         initLogs();
 
 
@@ -134,7 +136,7 @@ public class SwerveSubsystem extends SubsystemBase {
         initAccelValues();
     }
 
-    private final PIDController ROTATION_PID = new PIDController(ROTATION_KP, ROTATION_KI, ROTATION_KD);
+    private final PIDController rotationPIDController = new PIDController(ROTATION_P, ROTATION_I, ROTATION_D);
 
     @Override
     public void periodic() {
@@ -171,7 +173,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         // logging
-        // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFPGATime());
+        // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFpgaTime());
         SmartDashboard.putNumber("Steer/Current RPM", frontLeftModule.getSteerVelocityRPM());
         SmartDashboard.putNumber("Steer/Max RPM", currentCruiseVelocityRPM);
 
@@ -445,8 +447,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Gets the gyro heading. */
     private Rotation2d getGyroHeading() {
-        return Rotation2d.fromDegrees(pidgey.getYaw().getValueAsDouble()); // Might need to flip depending on the robot
-                                                                           // setup
+        return Rotation2d.fromDegrees(pidgey.getYaw().getValueAsDouble()); // Might need to flip depending on the robot setup
     }
 
     /**
@@ -549,7 +550,7 @@ public class SwerveSubsystem extends SubsystemBase {
         backRightModule.setSteerCruiseVelocity(velocity);
     }
 
-    private void initNT() {
+    private void initNt() {
         ntInstance = NetworkTableInstance.getDefault();
         swerveTable = ntInstance.getTable(SWERVE_TABLE);
 
@@ -602,7 +603,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private void logStats() {
-        long ts = GRTUtil.getFPGATime();
+        long ts = GRTUtil.getFpgaTime();
 
         // Subsystem-level
         poseLogEntry.append(estimatedPose, ts);
@@ -661,8 +662,8 @@ public class SwerveSubsystem extends SubsystemBase {
             (speeds, feedforwards) -> setRobotRelativeDrivePowers(speeds),
 
             new PPHolonomicDriveController(
-                new PIDConstants(AUTO_TRANSLATION_KP, AUTO_TRANSLATION_KI, AUTO_TRANSLATION_KD),
-                new PIDConstants(AUTO_ROTATION_KP, AUTO_ROTATION_KI, AUTO_ROTATION_KD)),
+                new PIDConstants(AUTO_TRANSLATION_P, AUTO_TRANSLATION_I, AUTO_TRANSLATION_D),
+                new PIDConstants(AUTO_ROTATION_P, AUTO_ROTATION_I, AUTO_ROTATION_D)),
 
             config,
             () -> {

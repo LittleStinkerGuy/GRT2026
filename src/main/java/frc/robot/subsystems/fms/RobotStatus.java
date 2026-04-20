@@ -1,4 +1,4 @@
-package frc.robot.subsystems.FMS;
+package frc.robot.subsystems.fms;
 
 public enum RobotStatus {
     ENABLED,

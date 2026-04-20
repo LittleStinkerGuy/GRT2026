@@ -2,7 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 
-public class ZYXtoXYZeulerConverter {
+public class ZyzToXyzEulerConverter {
 
 
     /**
@@ -36,7 +36,9 @@ public class ZYXtoXYZeulerConverter {
         double r22 = cp * cr;
 
         // Extract XYZ angles
-        double x, y, z;
+        double x;
+        double y;
+        double z;
 
         if (Math.abs(r20) < 1.0) {
             y = Math.asin(-r20);

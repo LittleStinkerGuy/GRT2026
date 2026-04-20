@@ -1,16 +1,4 @@
-package frc.robot.subsystems.Vision;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import javax.xml.crypto.dsig.Transform;
-
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
+package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
@@ -29,8 +17,17 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.PolynomialRegression;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import javax.xml.crypto.dsig.Transform;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
     private final PhotonCamera camera;
@@ -50,9 +47,9 @@ public class VisionSubsystem extends SubsystemBase {
     private Consumer<TimestampedVisionUpdate> visionConsumer = (x) -> {
     };
 
-    private PolynomialRegression xStdDevModel = VisionConstants.xStdDevModel;
-    private PolynomialRegression yStdDevModel = VisionConstants.yStdDevModel;
-    private PolynomialRegression oStdDevModel = VisionConstants.oStdDevModel;
+    private PolynomialRegression xStdDevModel = VisionConstants.X_STD_DEV_MODEL;
+    private PolynomialRegression yStdDevModel = VisionConstants.Y_STD_DEV_MODEL;
+    private PolynomialRegression oStdDevModel = VisionConstants.O_STD_DEV_MODEL;
 
     private boolean connected;
     private Transform3d latestTransform3d = new Transform3d();
@@ -77,7 +74,7 @@ public class VisionSubsystem extends SubsystemBase {
         // cameraConfig.getCameraPose()
         // );
 
-        initNT(cameraConfig);
+        initNt(cameraConfig);
         initLog(cameraConfig);
     }
 
@@ -106,9 +103,9 @@ public class VisionSubsystem extends SubsystemBase {
                 latestTransform3d = target.getBestCameraToTarget();
 
                 double distance = Math.sqrt(
-                    Math.pow(translation.getX(), 2) +
-                        Math.pow(translation.getY(), 2) +
-                        Math.pow(translation.getZ(), 2));
+                    Math.pow(translation.getX(), 2)
+                        + Math.pow(translation.getY(), 2)
+                        + Math.pow(translation.getZ(), 2));
                 if (distance < minDistance) {
                     minDistance = distance;
                 }
@@ -122,13 +119,15 @@ public class VisionSubsystem extends SubsystemBase {
             visionDistPublisher.set(minDistance);
 
             // Don't use vision measurement if tags are too far
-            if (minDistance > 4)
+            if (minDistance > 4) {
                 continue;
+            }
 
             Optional<EstimatedRobotPose> estimatedPose = photonPoseEstimator.estimateAverageBestTargetsPose(result);
 
-            if (!estimatedPose.isPresent())
+            if (!estimatedPose.isPresent()) {
                 continue;
+            }
             Pose2d estimatedPose2d = estimatedPose.get().estimatedPose.toPose2d();
 
             // double x = estimatedPose2d.getTranslation().getX();
@@ -161,13 +160,13 @@ public class VisionSubsystem extends SubsystemBase {
      * @param consumer consumer to receive vision updates
      */
     public void setInterface(Consumer<TimestampedVisionUpdate> consumer) {
-        visionConsumer = consumer;// thiing for vision to interface with the swerve subsystem
+        visionConsumer = consumer; // thiing for vision to interface with the swerve subsystem
     }
 
     /**
      * Initializes Networktables.
      */
-    private void initNT(CameraConfig cameraConfig) {
+    private void initNt(CameraConfig cameraConfig) {
         ntInstance = NetworkTableInstance.getDefault();
         visionStatsTable = ntInstance.getTable("Vision Debug " + cameraConfig.getCameraName());
         visionPosePublisher = visionStatsTable.getStructTopic("estimated pose", Pose2d.struct).publish();
@@ -197,7 +196,7 @@ public class VisionSubsystem extends SubsystemBase {
             Pose2d.struct);
     }
 
-    public void snapShot() {// download image from
+    public void snapShot() { // download image from
         camera.takeOutputSnapshot();
     }
 

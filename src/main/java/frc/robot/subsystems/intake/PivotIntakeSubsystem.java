@@ -2,8 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.Intake;
+package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -23,11 +27,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.IntakeConstants;
-
-import com.ctre.phoenix6.CANBus;
-
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.Seconds;
 
 public class PivotIntakeSubsystem extends SubsystemBase {
     private final TalonFX pivotMotor;
@@ -126,8 +125,8 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         double newAccel = SmartDashboard.getNumber("Intake/Pivot/Acceleration", acceleration);
 
         // Only reconfig if values changed
-        if (newP != kP || newI != kI || newD != kD || newV != kV ||
-            newCruise != cruiseVelocity || newAccel != acceleration) {
+        if (newP != kP || newI != kI || newD != kD || newV != kV
+            || newCruise != cruiseVelocity || newAccel != acceleration) {
             kP = newP;
             kI = newI;
             kD = newD;

@@ -5,7 +5,7 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-public class shooterLearner {
+public class ShooterLearner {
 
     private static final double RPM_STEP = 5.0;
     private static final double ANGLE_STEP = 0.005;
@@ -15,7 +15,7 @@ public class shooterLearner {
     private final DoublePublisher hoodOffsetPub;
     private final DoubleSubscriber hoodOffsetSub;
 
-    public shooterLearner() {
+    public ShooterLearner() {
         NetworkTable t = NetworkTableInstance.getDefault().getTable("ShooterLearner");
         rpmOffsetPub = t.getDoubleTopic("rpmOffset").publish();
         rpmOffsetSub = t.getDoubleTopic("rpmOffset").subscribe(0.0);

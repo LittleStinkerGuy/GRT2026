@@ -1,17 +1,15 @@
 package frc.robot.commands.shooter;
 
-import frc.robot.subsystems.shooter.flywheel;
+import com.google.flatbuffers.Table;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.Intertable;
 
-import com.google.flatbuffers.Table;
+public class RampDownFlywheel extends Command {
 
-import edu.wpi.first.wpilibj2.command.Command;
+    private FlywheelSubsystem fly;
 
-public class rampDownFlywheel extends Command {
-
-    private flywheel fly;
-
-    public rampDownFlywheel(flywheel h) {
+    public RampDownFlywheel(FlywheelSubsystem h) {
         this.fly = h;
         addRequirements(fly);
     }
