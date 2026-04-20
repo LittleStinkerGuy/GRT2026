@@ -1,10 +1,5 @@
 package frc.robot.commands.vision;
 
-import java.io.Serial;
-import java.util.function.BooleanSupplier;
-
-import javax.xml.crypto.dsig.Transform;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -14,8 +9,11 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.RotateToAngleConstants;
-import frc.robot.subsystems.Vision.VisionSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import java.io.Serial;
+import java.util.function.BooleanSupplier;
+import javax.xml.crypto.dsig.Transform;
 
 public class GetCameraDisplacement extends Command {
     private final VisionSubsystem visionSubsytem;
@@ -48,7 +46,7 @@ public class GetCameraDisplacement extends Command {
     public void execute() {
 
         cameraToApriltag = visionSubsytem.cameraToApriltag();
-        robotToCamera = robotToApriltag.plus(cameraToApriltag.inverse());// this is what we want
+        robotToCamera = robotToApriltag.plus(cameraToApriltag.inverse()); // this is what we want
         // Pose3d cameraPos = new Pose3d().plus(robotToCamera);
         SmartDashboard.putNumber(camID + "/x", robotToCamera.getX());
         SmartDashboard.putNumber(camID + "/y", robotToCamera.getY());

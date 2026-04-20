@@ -2,7 +2,7 @@ package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.shooter.shooterLearner;
+import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.swerve.AimSubsystem;
 
 /**
@@ -17,23 +17,23 @@ public final class CalibrationCommands {
 
     private CalibrationCommands() {}
 
-    public static Command rpmUp(shooterLearner learner) {
+    public static Command rpmUp(ShooterLearner learner) {
         return Commands.runOnce(learner::rpmUp);
     }
 
-    public static Command rpmDown(shooterLearner learner) {
+    public static Command rpmDown(ShooterLearner learner) {
         return Commands.runOnce(learner::rpmDown);
     }
 
-    public static Command hoodUp(shooterLearner learner) {
+    public static Command hoodUp(ShooterLearner learner) {
         return Commands.runOnce(learner::hoodUp);
     }
 
-    public static Command hoodDown(shooterLearner learner) {
+    public static Command hoodDown(ShooterLearner learner) {
         return Commands.runOnce(learner::hoodDown);
     }
 
-    public static Command resetOffsets(shooterLearner learner) {
+    public static Command resetOffsets(ShooterLearner learner) {
         return Commands.runOnce(learner::reset);
     }
 
@@ -43,7 +43,7 @@ public final class CalibrationCommands {
      * Pulls base values from SmashAndShootConstants so the printed numbers match
      * what the robot is actually doing right now.
      */
-    public static Command logPoint(shooterLearner learner, AimSubsystem aim) {
+    public static Command logPoint(ShooterLearner learner, AimSubsystem aim) {
         return Commands.runOnce(() -> {
             double d = aim.getDistanceToHub();
             double rps = learner.getRPM(frc.robot.Constants.SmashAndShootConstants.FLYWHEEL_RPS);

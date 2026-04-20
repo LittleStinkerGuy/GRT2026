@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SingleModuleSwerveSubsystem extends SubsystemBase {
 
     KrakenSwerveModule module;
-    double MAX_VEL = 1; // change this
+    static final double MAX_VEL = 1; // change this
 
     public SingleModuleSwerveSubsystem(KrakenSwerveModule module) {
         this.module = module;

@@ -8,7 +8,7 @@ public class GRTUtil {
      * 
      * @return seconds
      */
-    public static long getFPGATime() {
+    public static long getFpgaTime() {
         return (long) (RobotController.getFPGATime());
     }
 }

@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class PS5DriveController extends BaseDriveController {
 
     private final CommandPS5Controller driveController = new CommandPS5Controller(0);
-    private Trigger L1 = new Trigger(driveController.L1());
-    private Trigger R1 = new Trigger(driveController.R1());
+    private Trigger l1 = new Trigger(driveController.L1());
+    private Trigger r1 = new Trigger(driveController.R1());
     private Trigger cross = new Trigger(driveController.cross());
     private Trigger square = new Trigger(driveController.square());
     private double deadZone = 0;
@@ -17,28 +17,31 @@ public class PS5DriveController extends BaseDriveController {
     @Override
     public double getForwardPower() {
         double forwardPower = -driveController.getLeftY();
-        if (Math.abs(forwardPower) > deadZone)
+        if (Math.abs(forwardPower) > deadZone) {
             return -driveController.getLeftY();
-        else
+        } else {
             return 0;
+        }
     }
 
     @Override
     public double getLeftPower() {
         double leftPower = -driveController.getLeftX();
-        if (Math.abs(leftPower) > deadZone)
+        if (Math.abs(leftPower) > deadZone) {
             return -driveController.getLeftX();
-        else
+        } else {
             return 0;
+        }
     }
 
     @Override
     public double getRotatePower() {
         double rotatePower = -driveController.getRightX();
-        if (Math.abs(rotatePower) > deadZone)
+        if (Math.abs(rotatePower) > deadZone) {
             return -driveController.getRightX();
-        else
+        } else {
             return 0;
+        }
     }
 
     @Override
@@ -48,20 +51,20 @@ public class PS5DriveController extends BaseDriveController {
 
     @Override
     public boolean getLeftBumper() {
-        return L1.getAsBoolean();
+        return r1.getAsBoolean();
     }
 
-    public Trigger L1() {
-        return L1;
+    public Trigger getL1() {
+        return l1;
     }
 
-    public Trigger R1() {
-        return R1;
+    public Trigger getR1() {
+        return r1;
     }
 
     @Override
     public boolean getRightBumper() {
-        return R1.getAsBoolean();
+        return r1.getAsBoolean();
     }
 
     public boolean getRightTrigger() {

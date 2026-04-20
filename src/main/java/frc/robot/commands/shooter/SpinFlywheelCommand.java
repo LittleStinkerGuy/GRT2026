@@ -1,16 +1,16 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.shooter.flywheel;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
 
 public class SpinFlywheelCommand extends Command {
-    private final flywheel flySubsystem;
+    private final FlywheelSubsystem flySubsystem;
     private final double dutyCycle;
 
-    public SpinFlywheelCommand(flywheel flySubsystem, double dutyCycle) {
+    public SpinFlywheelCommand(FlywheelSubsystem flySubsystem, double dutyCycle) {
         this.flySubsystem = flySubsystem;
         this.dutyCycle = dutyCycle;
-        addRequirements(flySubsystem); // prevents other commands from controlling flywheel
+        addRequirements(flySubsystem); // prevents other commands from controlling FlywheelSubsystem
     }
 
     @Override
@@ -25,7 +25,7 @@ public class SpinFlywheelCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        flySubsystem.dontShoot(); // stop flywheel when command ends
+        flySubsystem.dontShoot(); // stop FlywheelSubsystem when command ends
     }
 
     @Override

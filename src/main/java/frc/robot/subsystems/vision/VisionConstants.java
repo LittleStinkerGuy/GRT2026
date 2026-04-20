@@ -1,18 +1,19 @@
-package frc.robot.subsystems.Vision;
+package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
-import frc.robot.subsystems.Vision.FuelDetectionSubsystem.FuelDetectionConfig;
+import frc.robot.subsystems.vision.FuelDetectionSubsystem.FuelDetectionConfig;
 import frc.robot.util.PolynomialRegression;
-import frc.robot.util.ZYXtoXYZeulerConverter;
+import frc.robot.util.ZyzToXyzEulerConverter;
 
 public final class VisionConstants {
     public static final double FIELD_X = 16.54;
@@ -32,14 +33,14 @@ public final class VisionConstants {
     };
 
     // intake
-    public static final CameraConfig cameraConfig100 = new CameraConfig(
+    public static final CameraConfig CAMERA_CONFIG_100 = new CameraConfig(
         "7",
         new Transform3d(
             0, 0, 0.5334,
             new Rotation3d(-Math.toRadians(50), 0, 0)));
 
     // hopper
-    public static final CameraConfig cameraConfig101 = new CameraConfig(
+    public static final CameraConfig CAMERA_CONFIG_101 = new CameraConfig(
         "7",
         new Transform3d(
             0.28, 0, 0,
@@ -47,7 +48,7 @@ public final class VisionConstants {
 
 
     // the big 3 cameras
-    public static final CameraConfig cameraConfig1 = new CameraConfig(// climb camera
+    public static final CameraConfig CAMERA_CONFIG_1 = new CameraConfig(// climb camera
         "1",
         new Transform3d(
             Units.inchesToMeters(27.5 / 2 - 16.75),
@@ -56,40 +57,40 @@ public final class VisionConstants {
             new Rotation3d(Math.PI, -Math.toRadians(30), -Math.PI / 2.0)));
 
     // intake
-    public static final CameraConfig cameraConfig2 = new CameraConfig(// shooter camera
+    public static final CameraConfig CAMERA_CONFIG_2 = new CameraConfig(// shooter camera
         "2",
         new Transform3d(
             Units.inchesToMeters(-(27.5 / 2 - 1.5)),
             Units.inchesToMeters(-(27.5 / 2 - 6.5)),
             Units.inchesToMeters(18.75),
-            ZYXtoXYZeulerConverter.zyxToXyz(-Math.PI / 2, -Math.toRadians(21), 0)));
+            ZyzToXyzEulerConverter.zyxToXyz(-Math.PI / 2, -Math.toRadians(21), 0)));
 
     // hopper
-    public static final CameraConfig cameraConfig3 = new CameraConfig(// auxillary camera
+    public static final CameraConfig CAMERA_CONFIG_3 = new CameraConfig(// auxillary camera
         "3",
         new Transform3d(
             Units.inchesToMeters(-(27.5 / 2 - 2.5)),
             Units.inchesToMeters(-(27.5 / 2 - 10.5)),
             Units.inchesToMeters(15),
-            ZYXtoXYZeulerConverter.zyxToXyz(Math.PI, -Math.toRadians(11), 0)));
+            ZyzToXyzEulerConverter.zyxToXyz(Math.PI, -Math.toRadians(11), 0)));
 
 
-    public static final PolynomialRegression xStdDevModel = new PolynomialRegression(
+    public static final PolynomialRegression X_STD_DEV_MODEL = new PolynomialRegression(
         STD_DEV_DIST, X_STD_DEV, 2);
-    public static final PolynomialRegression yStdDevModel = new PolynomialRegression(
+    public static final PolynomialRegression Y_STD_DEV_MODEL = new PolynomialRegression(
         STD_DEV_DIST, Y_STD_DEV, 2);
-    public static final PolynomialRegression oStdDevModel = new PolynomialRegression(
+    public static final PolynomialRegression O_STD_DEV_MODEL = new PolynomialRegression(
         STD_DEV_DIST, O_STD_DEV, 1);
 
     public static final Distance FUEL_TARGET_HEIGHT = Inches.of(3);
     public static final int FUEL_PIPELINE_INDEX = 0;
 
-    public static final FuelDetectionConfig fuelDetectionConfig =
+    public static final FuelDetectionConfig FUEL_DETECTION_CONFIG =
         new FuelDetectionSubsystem.FuelDetectionConfig(
-            cameraConfig100.getCameraName(),
-            Meters.of(cameraConfig100.getCameraPose().getZ()),
+            CAMERA_CONFIG_100.getCameraName(),
+            Meters.of(CAMERA_CONFIG_100.getCameraPose().getZ()),
             FUEL_TARGET_HEIGHT,
-            Radians.of(cameraConfig100.getCameraPose().getRotation().getY()),
+            Radians.of(CAMERA_CONFIG_100.getCameraPose().getRotation().getY()),
             FUEL_PIPELINE_INDEX);
 
     public static final int FUEL_SMOOTHING_WINDOW_SIZE = 5;

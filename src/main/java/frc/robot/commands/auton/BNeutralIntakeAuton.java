@@ -2,34 +2,33 @@ package frc.robot.commands.auton;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
-import frc.robot.subsystems.shooter.towerRollers;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 
 public class BNeutralIntakeAuton extends SequentialCommandGroup {
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
 
     public BNeutralIntakeAuton(
-        flywheel flySubsystem,
-        hood hoodSubsystem,
-        towerRollers towerSubsystem,
+        FlywheelSubsystem flySubsystem,
+        HoodSubsystem hoodSubsystem,
+        TowerRollersSubsystem towerSubsystem,
         HopperSubsystem hopperSubsystem,
         PivotIntakeSubsystem pivotIntakeSubsystem,
         RollerIntakeSubsystem rollerSubsystem) {
 
-        PathPlannerPath BNI;
+        PathPlannerPath bni;
         PathPlannerPath neutralIntakeA;
 
         try {
-            BNI = PathPlannerPath.fromPathFile("BNI");
+            bni = PathPlannerPath.fromPathFile("BNI");
             neutralIntakeA = PathPlannerPath.fromPathFile("NeutralIntakeA");
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,7 +36,7 @@ public class BNeutralIntakeAuton extends SequentialCommandGroup {
         }
 
         addCommands(
-            AutoBuilder.followPath(BNI),
+            AutoBuilder.followPath(bni),
 
             Commands.parallel(
                 new PivotAndRollerIntakeCommand(pivotIntakeSubsystem, rollerSubsystem),

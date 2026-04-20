@@ -20,7 +20,7 @@ public class LoggedBooleanSensor {
 
     public LoggedBooleanSensor(String name, int port) {
         sensor = new DigitalInput(port);
-        initNT(name);
+        initNt(name);
         initLogs(name);
     }
 
@@ -52,7 +52,7 @@ public class LoggedBooleanSensor {
      * 
      * @param name
      */
-    private void initNT(String name) {
+    private void initNt(String name) {
         ntInstance = NetworkTableInstance.getDefault();
         sensorStatsTable = ntInstance.getTable(LoggingConstants.SENSOR_TABLE);
         sensorReadingPublisher = sensorStatsTable.getBooleanTopic(name).publish();

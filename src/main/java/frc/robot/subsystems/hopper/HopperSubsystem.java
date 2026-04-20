@@ -1,9 +1,8 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
-
-import java.util.EnumSet;
-import java.util.function.Consumer;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -14,7 +13,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -22,12 +20,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.HopperConstants.HopperIntake;
 import frc.robot.Constants.HopperConstants;
-import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.util.LoggedTalon;
-
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.Seconds;
+import java.util.EnumSet;
+import java.util.function.Consumer;
 
 public class HopperSubsystem extends SubsystemBase {
 
@@ -36,15 +33,15 @@ public class HopperSubsystem extends SubsystemBase {
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
     private final SysIdRoutine sysIdRoutine;
-    private NetworkTableInstance NTinst;
-    private NetworkTable NTtable;
+    private NetworkTableInstance ntInst;
+    private NetworkTable ntTable;
     private TalonFXConfiguration config = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
     public HopperSubsystem(CANBus canBus) {
         krakenMotor = new LoggedTalon(HopperConstants.KRAKEN_CAN_ID, canBus);
         configureMotor();
-        // configThruNT();
+        // configThruNt();
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -69,8 +66,8 @@ public class HopperSubsystem extends SubsystemBase {
      * @param defaultVal The default value to publish to NetworkTables on startup.
      */
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
-        NTtable.getEntry(valueName).setDouble(defaultVal);
-        NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
+        ntTable.getEntry(valueName).setDouble(defaultVal);
+        ntTable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
             configSetter.accept(event.valueData.value.getDouble());
 
             config.withSlot0(pidSlots);
@@ -79,14 +76,14 @@ public class HopperSubsystem extends SubsystemBase {
         });
     }
 
-    private void configThruNT() {
-        NTinst = NetworkTableInstance.getDefault();
-        NTtable = NTinst.getTable("tower");
-        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), HopperConstants.KP);
-        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), HopperConstants.KI);
-        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), HopperConstants.KD);
-        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), HopperConstants.KS);
-        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), HopperConstants.KV);
+    private void configThruNt() {
+        ntInst = NetworkTableInstance.getDefault();
+        ntTable = ntInst.getTable("tower");
+        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), HopperConstants.kP);
+        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), HopperConstants.kI);
+        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), HopperConstants.kD);
+        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), HopperConstants.kS);
+        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), HopperConstants.kV);
         // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
         // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
         yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(dutyCycleControl.withOutput(val)), 0);
@@ -115,17 +112,17 @@ public class HopperSubsystem extends SubsystemBase {
         config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
         config.withSlot0(new Slot0Configs()
-            .withKP(HopperConstants.KP)
-            .withKI(HopperConstants.KI)
-            .withKD(HopperConstants.KD)
-            .withKS(HopperConstants.KS)
-            .withKV(HopperConstants.KV)
-            .withKV(HopperConstants.KA));
+            .withKP(HopperConstants.kP)
+            .withKI(HopperConstants.kI)
+            .withKD(HopperConstants.kD)
+            .withKS(HopperConstants.kS)
+            .withKV(HopperConstants.kV)
+            .withKV(HopperConstants.kA));
 
         krakenMotor.getConfigurator().apply(config);
     }
 
-    public void setHopper(HOPPER_INTAKE state) {
+    public void setHopper(HopperIntake state) {
         switch (state) {
             case BALLIN:
                 krakenMotor.setControl(velocityControl.withVelocity(HopperConstants.TARGET_RPS));
@@ -135,6 +132,8 @@ public class HopperSubsystem extends SubsystemBase {
                 break;
             case STOP:
                 krakenMotor.stopMotor();
+                break;
+            default:
                 break;
         }
     }

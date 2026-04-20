@@ -2,7 +2,7 @@ package frc.robot.commands.intake.pivot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
 
 public class PivotOutCommand extends Command {
     private final PivotIntakeSubsystem pivotIntake;

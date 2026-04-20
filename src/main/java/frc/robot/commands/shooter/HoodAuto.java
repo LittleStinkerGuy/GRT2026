@@ -1,28 +1,25 @@
 package frc.robot.commands.shooter;
 
-import frc.robot.Constants.AlignConstants;
-import frc.robot.commands.allign.AimToHubCommand;
-import frc.robot.commands.allign.AimToPointCommand;
-import frc.robot.subsystems.shooter.Intertable;
-import frc.robot.subsystems.shooter.hood;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.shooter.Intertable;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructSubscriber;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AlignConstants;
+import frc.robot.commands.allign.AimToHubCommand;
+import frc.robot.commands.allign.AimToPointCommand;
+import frc.robot.subsystems.shooter.Intertable;
+import frc.robot.subsystems.shooter.HoodSubsystem;
 
-public class hoodAuto extends Command {
+public class HoodAuto extends Command {
 
-    private hood hd;
+    private HoodSubsystem hd;
     private Intertable tableThing = Intertable.getInstance();
     private boolean redTeam = false;
     NetworkTable table = NetworkTableInstance.getDefault().getTable("SWERVE_TABLE_NAME");
     StructSubscriber<Pose2d> poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
 
-    public hoodAuto(hood h, boolean red) {
+    public HoodAuto(HoodSubsystem h, boolean red) {
         redTeam = red;
         this.hd = h;
         addRequirements(hd);

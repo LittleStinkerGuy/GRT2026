@@ -2,38 +2,34 @@ package frc.robot.commands.auton;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
 import frc.robot.commands.AutonShooterSequence;
+import frc.robot.commands.TowerShot;
 import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
 import frc.robot.commands.intake.pivot.PivotOutCommand;
 import frc.robot.commands.intake.roller.RollerInCommand;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
-import frc.robot.subsystems.shooter.towerRollers;
-import frc.robot.commands.TowerShot;
-import frc.robot.subsystems.shooter.shooterLearner;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.ShooterLearner;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 
-// this one is like separated command w no parallel cmd group
-// This auton shoots preloaded balls, drives to depot & intakes balls, drives back to hub to shoot.
 public class ToDepotAndShoot extends SequentialCommandGroup {
 
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
     private static final double TOWER_SHOOT_TIMEOUT_SECONDS = 20.0;
 
     public ToDepotAndShoot(
-        flywheel flySubsystem,
-        hood hoodSubsystem,
-        towerRollers towerSubsystem,
+        FlywheelSubsystem flySubsystem,
+        HoodSubsystem hoodSubsystem,
+        TowerRollersSubsystem towerSubsystem,
         HopperSubsystem hopperSubsystem,
         PivotIntakeSubsystem pivotIntakeSubsystem,
         RollerIntakeSubsystem rollerSubsystem,
-        shooterLearner learnerSubsystem) {
+        ShooterLearner learnerSubsystem) {
 
         PathPlannerPath path1;
         PathPlannerPath path1_5;

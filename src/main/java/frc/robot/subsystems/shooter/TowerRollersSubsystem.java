@@ -2,8 +2,8 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import java.util.EnumSet;
-import java.util.function.Consumer;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -15,7 +15,6 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
@@ -24,28 +23,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.TowerConstants.TowerIntake;
 import frc.robot.Constants.TowerConstants;
-import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
 import frc.robot.util.LoggedTalon;
+import java.util.EnumSet;
+import java.util.function.Consumer;
 
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.Seconds;
-
-public class towerRollers extends SubsystemBase {
+public class TowerRollersSubsystem extends SubsystemBase {
 
     private final LoggedTalon krakenMotor;
     private final VelocityVoltage velocityControl = new VelocityVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
     private final SysIdRoutine sysIdRoutine;
-    private NetworkTable NTtable;
+    private NetworkTable ntTable;
     private TalonFXConfiguration config = new TalonFXConfiguration();
     private Slot0Configs pidSlots = new Slot0Configs();
 
-    public towerRollers(CANBus canBus) {
+    public TowerRollersSubsystem(CANBus canBus) {
         krakenMotor = new LoggedTalon(TowerConstants.KRAKEN_CAN_ID, canBus);
         configureMotor();
-        // configThruNT();
+        // configThruNt();
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -75,8 +73,8 @@ public class towerRollers extends SubsystemBase {
         // config.withSlot0(pidSlots);
         krakenMotor.getConfigurator().apply(config);
 
-        NTtable.getEntry(valueName).setDouble(defaultVal);
-        NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
+        ntTable.getEntry(valueName).setDouble(defaultVal);
+        ntTable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
             configSetter.accept(event.valueData.value.getDouble());
 
             config.withSlot0(pidSlots);
@@ -85,13 +83,13 @@ public class towerRollers extends SubsystemBase {
         });
     }
 
-    private void configThruNT() {
-        NTtable = NetworkTableInstance.getDefault().getTable("tuneTower");
-        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), TowerConstants.KP);
-        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), TowerConstants.KI);
-        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), TowerConstants.KD);
-        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), TowerConstants.KS);
-        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), TowerConstants.KV);
+    private void configThruNt() {
+        ntTable = NetworkTableInstance.getDefault().getTable("tuneTower");
+        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), TowerConstants.kP);
+        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), TowerConstants.kI);
+        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), TowerConstants.kD);
+        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), TowerConstants.kS);
+        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), TowerConstants.kV);
         // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
         // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
         yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(new DutyCycleOut(val)), 0);
@@ -119,18 +117,18 @@ public class towerRollers extends SubsystemBase {
 
         config.Feedback.SensorToMechanismRatio = TowerConstants.GEAR_REDUCTION;
         // Velocity control PID (Slot 0)
-        pidSlots.withKP(TowerConstants.KP);
-        pidSlots.withKI(TowerConstants.KI);
-        pidSlots.withKD(TowerConstants.KD);
-        pidSlots.withKS(TowerConstants.KS);
-        pidSlots.withKV(TowerConstants.KV);
-        pidSlots.withKA(TowerConstants.KA);
+        pidSlots.withKP(TowerConstants.kP);
+        pidSlots.withKI(TowerConstants.kI);
+        pidSlots.withKD(TowerConstants.kD);
+        pidSlots.withKS(TowerConstants.kS);
+        pidSlots.withKV(TowerConstants.kV);
+        pidSlots.withKA(TowerConstants.kA);
         config.withSlot0(pidSlots);
 
         krakenMotor.getConfigurator().apply(config);
     }
 
-    public void setTower(TOWER_INTAKE state) {
+    public void setTower(TowerIntake state) {
         switch (state) {
             case BALLUP:
                 krakenMotor.setControl(velocityControl.withVelocity(TowerConstants.TARGET_RPS));
@@ -141,12 +139,14 @@ public class towerRollers extends SubsystemBase {
             case STOP:
                 krakenMotor.stopMotor();
                 break;
+            default:
+                break;
         }
     }
 
     public boolean correctRoll() {
         double errorRPS = Math.abs(TowerConstants.TARGET_RPS - krakenMotor.getVelocity().getValueAsDouble());
-        if (errorRPS < TowerConstants.velocityTolerance.in(RotationsPerSecond)) {
+        if (errorRPS < TowerConstants.VELOCITY_TOLERANCE.in(RotationsPerSecond)) {
             return true;
         } else {
             return false;

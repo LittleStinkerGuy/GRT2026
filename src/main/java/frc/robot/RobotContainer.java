@@ -4,86 +4,47 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.Vision.VisionConstants;
-// import frc.robot.Constants.VisionConstants;
-// frc imports
-import frc.robot.controllers.PS5DriveController;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
-import frc.robot.subsystems.shooter.shooterLearner;
-// Subsystems
-import frc.robot.subsystems.swerve.AimSubsystem;
-import frc.robot.subsystems.swerve.SwerveSubsystem;
-// import frc.robot.subsystems.Vision.VisionSubsystem;
-// import frc.robot.subsystems.Vision.CameraConfig;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
-import frc.robot.subsystems.Vision.VisionSubsystem;
-import frc.robot.subsystems.shooter.towerRollers;
-
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.FMS.FieldManagementSubsystem;
-import frc.robot.subsystems.Vision.FuelDetectionSubsystem;
-// import frc.robot.Constants.IntakeConstants;
-
-// Commands
-import frc.robot.commands.vision.GetCameraDisplacement;
-import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
+import com.ctre.phoenix6.CANBus;
+import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CycleShooterConstants;
-import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
 import frc.robot.Constants.ShooterConstants.Flywheel;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
 import frc.robot.commands.TowerShot;
 import frc.robot.commands.allign.AimToHubCommand;
-import frc.robot.commands.shooter.CalibrationCommands;
-import frc.robot.commands.ShooterSequence;
-import frc.robot.commands.cycleBallsCommand;
-import frc.robot.commands.auton.ANeutralIntakeAuton;
-import frc.robot.commands.auton.CNeutralIntakeAuton;
-import frc.robot.commands.auton.CenterAuton;
-import frc.robot.commands.auton.ISOLATEDAUTO;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
-import frc.robot.commands.auton.ToDepotAndShoot;
-import frc.robot.commands.auton.Turn90AutonPP;
-import frc.robot.commands.auton.NeutralDefenseAuton;
-import frc.robot.commands.auton.TIMECNeutralIntakeTOWERAuton;
-import java.util.function.DoubleSupplier;
-import org.photonvision.jni.TimeSyncClient;
-import com.ctre.phoenix6.CANBus;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
+import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
 import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
-import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
-import frc.robot.commands.hopper.*;
-import frc.robot.commands.shooter.rampDownFlywheel;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.util.PixelFormat;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-
-// WPILib imports
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.controllers.PS5DriveController;
+import frc.robot.subsystems.fms.FieldManagementSubsystem;
+import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.ShooterLearner;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.swerve.AimSubsystem;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -101,20 +62,21 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
-    private final CANBus swerveCAN = new CANBus(Constants.Swerve_CAN_BUS);
-    private final CANBus mechCAN = new CANBus(Constants.Mech_CAN_BUS);
+    private final CANBus swerveCan = new CANBus(Constants.SWERVE_CAN_BUS);
+    private final CANBus mechCan = new CANBus(Constants.MECH_CAN_BUS);
 
-    private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCAN) : null;
+    private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
-    private towerRollers tower = new towerRollers(mechCAN);
+    private TowerRollersSubsystem tower = new TowerRollersSubsystem(mechCan);
 
-    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCAN);
-    private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCAN);
-    private final HopperSubsystem HopperSubsystem = new HopperSubsystem(mechCAN);
-    private final Field2d m_field = new Field2d();
-    private final flywheel flywheelSubsystem = new flywheel(mechCAN);
-    private final hood hoodSubsystem = new hood(mechCAN);
-    private final shooterLearner learner = new shooterLearner();
+    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCan);
+    private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCan);
+    private final HopperSubsystem hopper = new HopperSubsystem(mechCan);
+    private final Field2d field = new Field2d();
+    private final FlywheelSubsystem flywheel = new FlywheelSubsystem(mechCan);
+    private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCan);
+    private final ShooterLearner learner = new ShooterLearner();
+    @SuppressWarnings("unused")
     private final AimSubsystem aimSubsystem =
         (Constants.SWERVE_ENABLED && swerveSubsystem != null)
             ? new AimSubsystem(swerveSubsystem, fmsSubsystem)
@@ -123,22 +85,21 @@ public class RobotContainer {
         (Constants.SWERVE_ENABLED && swerveSubsystem != null)
             ? new AimToHubCommand(swerveSubsystem, fmsSubsystem)
             : null;
-    private boolean shootSeq = false;
 
-    // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.fuelDetectionConfig);
+    // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.FUEL_DETECTION_CONFIG);
 
     private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-        VisionConstants.cameraConfig1);
+        VisionConstants.CAMERA_CONFIG_1);
     private final VisionSubsystem visionSubsystem2 = new VisionSubsystem(
-        VisionConstants.cameraConfig2);
+        VisionConstants.CAMERA_CONFIG_2);
     private final VisionSubsystem visionSubsystem3 = new VisionSubsystem(
-        VisionConstants.cameraConfig3);
+        VisionConstants.CAMERA_CONFIG_3);
     private UsbCamera driverCam;
 
 
     private double desiredHoodSpeed = 0;
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    // VisionConstants.cameraConfig11);
+    // VisionConstants.CAMERA_CONFIG_11);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -160,12 +121,12 @@ public class RobotContainer {
         driverCamServer.setFPS(20);
         driverCamServer.setCompression(50); // 0 = worst, 100 = best; lower = less bandwidth
 
-        SmartDashboard.putData("Field", m_field);
+        SmartDashboard.putData("Field", field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
         NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
         NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
         NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
-        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake));
+        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hoodSubsystem, tower, hopper, pivotIntake));
     }
 
     /**
@@ -266,10 +227,10 @@ public class RobotContainer {
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
-                HopperSubsystem.setManualControl(-1.0); // Max duty cycle for spindexer
+                hopper.setManualControl(-1.0); // Max duty cycle for spindexer
                 tower.setManualControl(1.0); // Full duty cycle for tower
-            }, HopperSubsystem, tower));
-            HopperSubsystem.setDefaultCommand(Commands.run(() -> HopperSubsystem.setManualControl(0), HopperSubsystem));
+            }, hopper, tower));
+            hopper.setDefaultCommand(Commands.run(() -> hopper.setManualControl(0), hopper));
 
             // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
             driveController.square()
@@ -296,16 +257,16 @@ public class RobotContainer {
             mechController.square().whileTrue(
                 Commands.defer(
                     () -> new SmashShot(
-                        flywheelSubsystem,
+                        flywheel,
                         hoodSubsystem,
                         tower,
-                        HopperSubsystem,
+                        hopper,
                         pivotIntake,
                         learner),
                     java.util.Set.of(
-                        flywheelSubsystem,
+                        flywheel,
                         hoodSubsystem,
-                        HopperSubsystem,
+                        hopper,
                         tower,
                         pivotIntake)));
 
@@ -332,13 +293,13 @@ public class RobotContainer {
             // ==================== SHOOTER ====================
             // R2 = flywheel (analog speed control)
             // Left stick Y = hood manual control
-            flywheelSubsystem.setDefaultCommand(Commands.run(() -> {
+            flywheel.setDefaultCommand(Commands.run(() -> {
                 if (DriverStation.isJoystickConnected(1)) {
-                    flywheelSubsystem.flySpeed((mechController.getR2Axis() + 1) / 3);
+                    flywheel.flySpeed((mechController.getR2Axis() + 1) / 3);
                 } else {
-                    flywheelSubsystem.flySpeed(0);
+                    flywheel.flySpeed(0);
                 }
-            }, flywheelSubsystem));
+            }, flywheel));
 
             tower.setDefaultCommand(Commands.run(() -> {
                 tower.setManualControl(0); // Stop tower by default
@@ -374,18 +335,18 @@ public class RobotContainer {
 
             // Cross = passing shot — flywheel pinned to max (120 RPS)
             mechController.cross().whileTrue(new CycleShot(
-                flywheelSubsystem,
+                flywheel,
                 hoodSubsystem,
                 tower,
-                HopperSubsystem,
+                hopper,
                 () -> Flywheel.FLYWHEEL_MAX_SPEED));
 
             // Touchpad = tower shoot preset
             mechController.triangle().whileTrue(new TowerShot(
-                flywheelSubsystem,
+                flywheel,
                 hoodSubsystem,
                 tower,
-                HopperSubsystem,
+                hopper,
                 pivotIntake,
                 learner));
 
@@ -420,25 +381,25 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake, intakeSubsystem);
+        return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hoodSubsystem, hopper, tower, pivotIntake, intakeSubsystem);
 
-        // return new ToDepotAndShoot(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        // return new ToDepotAndShoot(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("90degturn");
 
         // rehturn new PathPlannerAuto("swerve90");
 
-        // return new CNeutralIntakeTOWERAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem, learner);
+        // return new CNeutralIntakeTOWERAuton(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
-        // return new NeutralDefenseAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
-        // return new ANeutralIntakeAuton(flywheelSubsystem, hoodSubsystem, tower, HopperSubsystem, pivotIntake, intakeSubsystem);
+        // return new NeutralDefenseAuton(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem);
+        // return new ANeutralIntakeAuton(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem);
         // return new PathPlannerAuto("auton1");
 
         // Run ManualShooterSequence for 10 seconds
         // return new AutonShooterSequence(
-        // flywheelSubsystem,
+        // flywheel,
         // hoodSubsystem,
         // tower,
-        // HopperSubsystem,
+        // hopper,
         // pivotIntake).withTimeout(10);
 
     }
@@ -458,7 +419,7 @@ public class RobotContainer {
     public void onAutonInit() {
         // pivotIntake.zeroEncoder();
     }
-    // return new ShootAndLeaveAuton(swerveSubsystem, flywheelSubsystem, hoodSubsystem, HopperSubsystem, tower, pivotIntake);
+    // return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hoodSubsystem, hopper, tower, pivotIntake);
     // }
 
     // vision shit

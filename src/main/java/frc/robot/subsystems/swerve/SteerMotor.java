@@ -9,8 +9,6 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_RAMP_RATE;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_SUPPLY_CURRENT_LIMIT;
 
-import java.util.EnumSet;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -26,7 +24,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -36,6 +33,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.GRTUtil;
+import java.util.EnumSet;
 
 public class SteerMotor extends SubsystemBase {
     // For NT
@@ -170,7 +168,7 @@ public class SteerMotor extends SubsystemBase {
         motor.getConfigurator().apply(slot0Configs);
     }
 
-    private void initNT(int canId) {
+    private void initNt(int canId) {
         ntInstance = NetworkTableInstance.getDefault();
         steerStatsTable = ntInstance.getTable("SwerveSteer");
         motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
@@ -225,7 +223,7 @@ public class SteerMotor extends SubsystemBase {
         motor = new TalonFX(motorCAN, canivore);
         cancoder = new CANcoder(encoderID, canivore);
         configureMotor();
-        initNT(motorCAN);
+        initNt(motorCAN);
         initLogs(motorCAN);
     }
 
@@ -241,7 +239,7 @@ public class SteerMotor extends SubsystemBase {
     }
 
     public void logStats() {
-        long ts = GRTUtil.getFPGATime();
+        long ts = GRTUtil.getFpgaTime();
         positionLogEntry.append(motor.getPosition().getValueAsDouble(), ts);
         velocityLogEntry.append(motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0, ts);
         targetPositionLogEntry.append(gurtMotorPos, ts);
@@ -254,24 +252,24 @@ public class SteerMotor extends SubsystemBase {
 
     /**
      * 
-     * @param C current rotations domain: 0-1
-     * @param T target rotations domain: 0-1
+     * @param current current rotations domain: 0-1
+     * @param target target rotations domain: 0-1
      * @return MotorPosition target range: -1 - 1
      */
-    public double getOptimalSteerTargetPosition(double C, double T) {
+    public double getOptimalSteerTargetPosition(double current, double target) {
 
-        double d1 = Math.abs((T + 1) - C);// T+1
-        double d2 = Math.abs((T) - C);// T
-        double d3 = Math.abs((T - 1) - C);
+        double d1 = Math.abs((target + 1) - current); // T+1
+        double d2 = Math.abs((target) - current); // T
+        double d3 = Math.abs((target - 1) - current);
         double motorPos = 0;
         if ((d1 <= d2) && (d1 <= d3)) {
-            motorPos = T + 1;
+            motorPos = target + 1;
         }
         if ((d2 <= d1) && (d2 <= d3)) {
-            motorPos = T;
+            motorPos = target;
         }
         if ((d3 <= d1) && (d3 <= d2)) {
-            motorPos = T - 1;
+            motorPos = target - 1;
         }
         return motorPos;
     }

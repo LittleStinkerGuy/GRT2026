@@ -1,17 +1,17 @@
 package frc.robot.commands.hopper;
 
-import frc.robot.Constants.SmashAndShootConstants;
-import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
-import frc.robot.subsystems.hopper.HopperSubsystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.HopperConstants.HopperIntake;
+import frc.robot.Constants.SmashAndShootConstants;
+import frc.robot.subsystems.hopper.HopperSubsystem;
 
-public class indexerRun extends Command {
+public class RunIndexer extends Command {
 
     private HopperSubsystem hop;
     private Timer timer = new Timer();
 
-    public indexerRun(HopperSubsystem h) {
+    public RunIndexer(HopperSubsystem h) {
         hop = h;
         addRequirements(hop);
     }
@@ -25,14 +25,14 @@ public class indexerRun extends Command {
     @Override
     public void execute() {
         if (timer.hasElapsed(1)) {
-            // hop.setHopper(HOPPER_INTAKE.BALLIN);
+            // hop.setHopper(HopperIntake.BALLIN);
             hop.setManualControl(SmashAndShootConstants.INDEXER_DUTY_CYCLE);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        // hop.setHopper(HOPPER_INTAKE.STOP);
+        // hop.setHopper(HopperIntake.STOP);
         hop.setManualControl(0);
 
     }

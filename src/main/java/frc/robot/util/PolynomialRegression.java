@@ -3,9 +3,6 @@ package frc.robot.util;
 import Jama.Matrix;
 import Jama.QRDecomposition;
 
-// NOTE: This file is available at
-// http://algs4.cs.princeton.edu/14analysis/PolynomialRegression.java.html
-
 /**
  * The {@code PolynomialRegression} class performs a polynomial regression on an
  * set of <em>N</em>
@@ -85,8 +82,9 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
 
             // find least squares solution
             qr = new QRDecomposition(matrixX);
-            if (qr.isFullRank())
+            if (qr.isFullRank()) {
                 break;
+            }
 
             // decrease degree and try again
             this.degree--;
@@ -100,8 +98,9 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
 
         // mean of y[] values
         double sum = 0.0;
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             sum += y[i];
+        }
         double mean = sum / n;
 
         // total variation to be accounted for
@@ -123,8 +122,9 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
      */
     public double beta(int j) {
         // to make -0.0 print as 0.0
-        if (Math.abs(beta.get(j, 0)) < 1E-4)
+        if (Math.abs(beta.get(j, 0)) < 1E-4) {
             return 0.0;
+        }
         return beta.get(j, 0);
     }
 
@@ -144,9 +144,10 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
      *         real number between
      *         0 and 1
      */
-    public double R2() {
-        if (sst == 0.0)
+    public double getR2() {
+        if (sst == 0.0) {
             return 1.0; // constant function
+        }
         return 1.0 - sse / sst;
     }
 
@@ -161,8 +162,9 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
     public double predict(double x) {
         // horner's method
         double y = 0.0;
-        for (int j = degree; j >= 0; j--)
+        for (int j = degree; j >= 0; j--) {
             y = beta(j) + (x * y);
+        }
         return y;
     }
 
@@ -179,20 +181,22 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
         int j = degree;
 
         // ignoring leading zero coefficients
-        while (j >= 0 && Math.abs(beta(j)) < 1E-5)
+        while (j >= 0 && Math.abs(beta(j)) < 1E-5) {
             j--;
+        }
 
         // create remaining terms
         while (j >= 0) {
-            if (j == 0)
+            if (j == 0) {
                 s.append(String.format("%.10f ", beta(j)));
-            else if (j == 1)
+            } else if (j == 1) {
                 s.append(String.format("%.10f %s + ", beta(j), variableName));
-            else
+            } else {
                 s.append(String.format("%.10f %s^%d + ", beta(j), variableName, j));
+            }
             j--;
         }
-        s = s.append("  (R^2 = " + String.format("%.3f", R2()) + ")");
+        s = s.append("  (R^2 = " + String.format("%.3f", getR2()) + ")");
 
         // replace "+ -2n" with "- 2n"
         return s.toString().replace("+ -", "- ");
@@ -200,23 +204,28 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
 
     /** Compare lexicographically. */
     public int compareTo(PolynomialRegression that) {
-        double EPSILON = 1E-5;
+        double epsilon = 1E-5;
         int maxDegree = Math.max(this.degree(), that.degree());
         for (int j = maxDegree; j >= 0; j--) {
             double term1 = 0.0;
             double term2 = 0.0;
-            if (this.degree() >= j)
+            if (this.degree() >= j) {
                 term1 = this.beta(j);
-            if (that.degree() >= j)
+            }
+            if (that.degree() >= j) {
                 term2 = that.beta(j);
-            if (Math.abs(term1) < EPSILON)
+            }
+            if (Math.abs(term1) < epsilon) {
                 term1 = 0.0;
-            if (Math.abs(term2) < EPSILON)
+            }
+            if (Math.abs(term2) < epsilon) {
                 term2 = 0.0;
-            if (term1 < term2)
+            }
+            if (term1 < term2) {
                 return -1;
-            else if (term1 > term2)
+            } else if (term1 > term2) {
                 return +1;
+            }
         }
         return 0;
     }
