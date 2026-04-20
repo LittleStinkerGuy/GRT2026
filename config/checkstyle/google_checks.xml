@@ -182,7 +182,7 @@
     <module name="ArrayTypeStyle"/>
     <module name="MissingSwitchDefault">
       <message key="missing.switch.default"
-               value="Add a default case, or document why this switch intentionally has none."/>
+               value="Add a default case to this switch."/>
     </module>
     <module name="FallThrough"/>
     <module name="UpperEll"/>
@@ -326,17 +326,6 @@
       <property name="checks" value="Indentation"/>
       <property name="query" value="//SLIST[not(parent::CASE_GROUP)]/SLIST
                                    | //SLIST[not(parent::CASE_GROUP)]/SLIST/RCURLY"/>
-    </module>
-    <module name="AbbreviationAsWordInName">
-      <property name="ignoreFinal" value="false"/>
-      <property name="allowedAbbreviationLength" value="0"/>
-      <property name="allowedAbbreviations" value="GRT"/>
-      <property name="tokens"
-               value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
-                    PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
-                    RECORD_COMPONENT_DEF"/>
-      <message key="abbreviation.as.word"
-               value="Name {0} uses too many consecutive capital letters. Write acronyms in camel case, like canBus instead of CANBus."/>
     </module>
     <module name="MatchXpath">
       <property name="query"
