@@ -81,6 +81,8 @@
     <module name="NeedBraces">
       <property name="tokens"
                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+      <message key="needBraces"
+               value="Add braces to this {0} statement."/>
     </module>
     <module name="LeftCurly">
       <property name="id" value="LeftCurlyEol"/>
@@ -128,6 +130,8 @@
                     LITERAL_WHILE, LITERAL_DO, LITERAL_FOR, LITERAL_FINALLY, DO_WHILE, ELLIPSIS,
                     LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_CATCH, LAMBDA,
                     LITERAL_YIELD, LITERAL_CASE, LITERAL_WHEN"/>
+      <message key="ws.notFollowed"
+               value="Add a space after {0}."/>
     </module>
     <module name="WhitespaceAround">
       <property name="allowEmptyConstructors" value="true"/>
@@ -147,10 +151,10 @@
                     SR_ASSIGN, STAR, STAR_ASSIGN, LITERAL_ASSERT,
                     TYPE_EXTENSION_AND, LITERAL_WHEN"/>
       <message key="ws.notFollowed"
-              value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks
-               may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
+              value="Add a space after {0}. Empty blocks may be compact only when they are not part
+               of an if/else, do/while, or try/catch/finally block."/>
       <message key="ws.notPreceded"
-              value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
+              value="Add a space before {0}."/>
     </module>
     <module name="SuppressionXpathSingleFilter">
       <property name="checks" value="WhitespaceAround"/>
@@ -165,10 +169,21 @@
                                    may only be represented as '{}' when not part of a
                                    multi-block statement (4.1.3)"/>
     </module>
-    <module name="OneStatementPerLine"/>
-    <module name="MultipleVariableDeclarations"/>
+    <module name="OneStatementPerLine">
+      <message key="multiple.statements.line"
+               value="Put each statement on its own line."/>
+    </module>
+    <module name="MultipleVariableDeclarations">
+      <message key="multiple.variable.declarations"
+               value="Declare only one variable per line."/>
+      <message key="multiple.variable.declarations.comma"
+               value="Split this declaration so each variable has its own statement."/>
+    </module>
     <module name="ArrayTypeStyle"/>
-    <module name="MissingSwitchDefault"/>
+    <module name="MissingSwitchDefault">
+      <message key="missing.switch.default"
+               value="Add a default case, or document why this switch intentionally has none."/>
+    </module>
     <module name="FallThrough"/>
     <module name="UpperEll"/>
     <module name="ModifierOrder"/>
@@ -178,6 +193,14 @@
                     STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF, RECORD_DEF,
                     COMPACT_CTOR_DEF"/>
       <property name="allowNoEmptyLineBetweenFields" value="true"/>
+      <message key="empty.line.separator"
+               value="Add one blank line before {0}."/>
+      <message key="empty.line.separator.multiple.lines"
+               value="Use only one blank line before {0}."/>
+      <message key="empty.line.separator.multiple.lines.after"
+               value="Use only one blank line after {0}."/>
+      <message key="empty.line.separator.multiple.lines.inside"
+               value="Use only one blank line here."/>
     </module>
     <module name="SeparatorWrap">
       <property name="id" value="SeparatorWrapDot"/>
@@ -209,84 +232,84 @@
     <module name="PackageName">
       <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
       <message key="name.invalidPattern"
-             value="Package name ''{0}'' must match pattern ''{1}''."/>
+             value="Package name {0} should be lowercase words separated by dots, with no uppercase letters or underscores."/>
     </module>
     <module name="TypeName">
       <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
                     ANNOTATION_DEF, RECORD_DEF"/>
       <message key="name.invalidPattern"
-             value="Type name ''{0}'' must match pattern ''{1}''."/>
+             value="Type name {0} should be UpperCamelCase."/>
     </module>
     <module name="MemberName">
       <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
       <message key="name.invalidPattern"
-             value="Member name ''{0}'' must match pattern ''{1}''."/>
+             value="Field name {0} should be lowerCamelCase, start with a lowercase letter, and use only letters or digits."/>
     </module>
     <module name="ParameterName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
-             value="Parameter name ''{0}'' must match pattern ''{1}''."/>
+             value="Parameter name {0} should be lowerCamelCase. Avoid underscores and one-letter prefixes followed by uppercase letters."/>
     </module>
     <module name="LambdaParameterName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
-             value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
+             value="Lambda parameter name {0} should be lowerCamelCase. Avoid underscores and one-letter prefixes followed by uppercase letters."/>
     </module>
     <module name="CatchParameterName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
-             value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
+             value="Catch parameter name {0} should be lowerCamelCase. Avoid underscores and one-letter prefixes followed by uppercase letters."/>
     </module>
     <module name="LocalVariableName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
-             value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+             value="Local variable name {0} should be lowerCamelCase. Avoid underscores and one-letter prefixes followed by uppercase letters."/>
     </module>
     <module name="PatternVariableName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
-             value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
+             value="Pattern variable name {0} should be lowerCamelCase. Avoid underscores and one-letter prefixes followed by uppercase letters."/>
     </module>
     <module name="ConstantName">
       <property name="format" value="^(?!K[A-Z]$)(?:[A-Z][A-Z0-9]*(_[A-Z0-9]+)*|k[A-Z])$"/>
       <message key="name.invalidPattern"
-             value="Constant name ''{0}'' must match pattern ''{1}''."/>
+             value="Constant name {0} should be UPPER_SNAKE_CASE. Two-letter control constants should use lowercase k plus an uppercase letter, like kP."/>
     </module>
     <module name="ClassTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
-             value="Class type name ''{0}'' must match pattern ''{1}''."/>
+             value="Class type parameter {0} should be a single uppercase letter, optionally followed by one digit, or an UpperCamelCase name ending in T."/>
     </module>
     <module name="RecordComponentName">
       <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
-               value="Record component name ''{0}'' must match pattern ''{1}''."/>
+               value="Record component name {0} should be lowerCamelCase. Avoid underscores and one-letter prefixes followed by uppercase letters."/>
     </module>
     <module name="RecordTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
-               value="Record type name ''{0}'' must match pattern ''{1}''."/>
+               value="Record type parameter {0} should be a single uppercase letter, optionally followed by one digit, or an UpperCamelCase name ending in T."/>
     </module>
     <module name="MethodTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
-             value="Method type name ''{0}'' must match pattern ''{1}''."/>
+             value="Method type parameter {0} should be a single uppercase letter, optionally followed by one digit, or an UpperCamelCase name ending in T."/>
     </module>
     <module name="InterfaceTypeParameterName">
       <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
       <message key="name.invalidPattern"
-             value="Interface type name ''{0}'' must match pattern ''{1}''."/>
+             value="Interface type parameter {0} should be a single uppercase letter, optionally followed by one digit, or an UpperCamelCase name ending in T."/>
     </module>
     <module name="NoFinalizer"/>
     <module name="GenericWhitespace">
       <message key="ws.followed"
-             value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+             value="Remove the space after {0} in this generic type expression."/>
       <message key="ws.preceded"
-             value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
+             value="Remove the space before {0} in this generic type expression."/>
       <message key="ws.illegalFollow"
-             value="GenericWhitespace ''{0}'' should followed by whitespace."/>
+             value="Fix the spacing after {0} in this generic type expression."/>
       <message key="ws.notPreceded"
-             value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+             value="Add the required space before {0} in this generic type expression."/>
     </module>
     <!-- Local formatter override: eclipse-java-formatter.xml uses 4-space block indentation. -->
     <module name="Indentation">
@@ -311,6 +334,8 @@
                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
                     PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
                     RECORD_COMPONENT_DEF"/>
+      <message key="abbreviation.as.word"
+               value="Name {0} uses too many consecutive capital letters. Write acronyms in camel case, like canBus instead of CANBus."/>
     </module>
     <module name="NoWhitespaceBeforeCaseDefaultColon"/>
     <module name="OverloadMethodsDeclarationOrder"/>
@@ -320,6 +345,18 @@
       <!-- <property name="separateLineBetweenGroups" value="true"/>
       <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
       <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/> -->
+      <message key="custom.import.order"
+               value="Move import {2} to the correct import group."/>
+      <message key="custom.import.order.lex"
+               value="Sort import {0} before {1}."/>
+      <message key="custom.import.order.line.separator"
+               value="Add one blank line before import group {0}."/>
+      <message key="custom.import.order.nonGroup.expected"
+               value="Move import {1} to the correct import group."/>
+      <message key="custom.import.order.nonGroup.import"
+               value="Move import {0} after the grouped imports."/>
+      <message key="custom.import.order.separated.internally"
+               value="Remove the extra blank line before import {0}; imports in the same group should stay together."/>
     </module>
     <module name="MethodParamPad">
       <property name="tokens"
@@ -331,6 +368,8 @@
                value="COMMA, SEMI, POST_INC, POST_DEC, DOT,
                     LABELED_STAT, METHOD_REF"/>
       <property name="allowLineBreaks" value="true"/>
+      <message key="ws.preceded"
+               value="Remove the space before {0}."/>
     </module>
     <module name="ParenPad">
       <property name="tokens"
@@ -346,6 +385,10 @@
                value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR,
                     LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF,
                     TYPE_EXTENSION_AND "/>
+      <message key="line.new"
+               value="Place operator {0} at the beginning of the continuation line."/>
+      <message key="line.previous"
+               value="Move operator {0} to the next line with the continued expression."/>
     </module>
     <module name="AnnotationLocation">
       <property name="id" value="AnnotationLocationMostCases"/>
@@ -361,7 +404,7 @@
     <module name="MethodName">
       <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
       <message key="name.invalidPattern"
-             value="Method name ''{0}'' must match pattern ''{1}''."/>
+             value="Method name {0} should be lowerCamelCase and should not start with an uppercase letter or a one-letter prefix followed by uppercase."/>
     </module>
     <module name="SuppressionXpathSingleFilter">
       <property name="checks" value="MethodName"/>
@@ -375,6 +418,10 @@
     </module>
     <module name="CommentsIndentation">
       <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
+      <message key="comments.indentation.single"
+               value="Indent this comment to match the code around it."/>
+      <message key="comments.indentation.block"
+               value="Indent this block comment to match the code around it."/>
     </module>
     <!-- https://checkstyle.org/filters/suppressionxpathfilter.html -->
     <module name="SuppressionXpathFilter">
