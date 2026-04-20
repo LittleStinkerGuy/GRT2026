@@ -344,7 +344,7 @@
     <module name="CustomImportOrder">
       <!-- <property name="separateLineBetweenGroups" value="true"/>
       <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-      <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/> -->
+      <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/> 
       <message key="custom.import.order"
                value="Move import {2} to the correct import group."/>
       <message key="custom.import.order.lex"
@@ -356,7 +356,7 @@
       <message key="custom.import.order.nonGroup.import"
                value="Move import {0} after the grouped imports."/>
       <message key="custom.import.order.separated.internally"
-               value="Remove the extra blank line before import {0}; imports in the same group should stay together."/>
+               value="Remove the extra blank line before import {0}; imports in the same group should stay together."/> -->
     </module>
     <module name="MethodParamPad">
       <property name="tokens"
