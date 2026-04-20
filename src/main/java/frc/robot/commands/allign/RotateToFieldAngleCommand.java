@@ -1,14 +1,13 @@
 package frc.robot.commands.allign;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.RotateToAngleConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import java.util.function.BooleanSupplier;
 
 public class RotateToFieldAngleCommand extends Command {
     private final SwerveSubsystem swerve;
@@ -16,15 +15,15 @@ public class RotateToFieldAngleCommand extends Command {
     private final double targetDegrees;
     private final BooleanSupplier cancelCondition;
 
-    private static final NetworkTable table = NetworkTableInstance.getDefault().getTable("AutoAim");
-    private static final NetworkTableEntry kPEntry = table.getEntry("kP");
-    private static final NetworkTableEntry kIEntry = table.getEntry("kI");
-    private static final NetworkTableEntry kDEntry = table.getEntry("kD");
-    private static final NetworkTableEntry toleranceEntry = table.getEntry("Tolerance");
-    private static final NetworkTableEntry goalEntry = table.getEntry("Goal");
-    private static final NetworkTableEntry actualEntry = table.getEntry("Actual");
-    private static final NetworkTableEntry errorEntry = table.getEntry("Error");
-    private static final NetworkTableEntry outputEntry = table.getEntry("Output");
+    private static final NetworkTable TABLE = NetworkTableInstance.getDefault().getTable("AutoAim");
+    private static final NetworkTableEntry KP_ENTRY = TABLE.getEntry("kP");
+    private static final NetworkTableEntry KI_ENTRY = TABLE.getEntry("kI");
+    private static final NetworkTableEntry KD_ENTRY = TABLE.getEntry("kD");
+    private static final NetworkTableEntry TOLERANCE_ENTRY = TABLE.getEntry("Tolerance");
+    private static final NetworkTableEntry GOAL_ENTRY = TABLE.getEntry("Goal");
+    private static final NetworkTableEntry ACTUAL_ENTRY = TABLE.getEntry("Actual");
+    private static final NetworkTableEntry ERROR_ENTRY = TABLE.getEntry("Error");
+    private static final NetworkTableEntry OUTPUT_ENTRY = TABLE.getEntry("Output");
 
     private static boolean initialized = false;
 
@@ -42,35 +41,35 @@ public class RotateToFieldAngleCommand extends Command {
         addRequirements(swerve);
 
         if (!initialized) {
-            kPEntry.setDouble(RotateToAngleConstants.kP);
-            kIEntry.setDouble(RotateToAngleConstants.kI);
-            kDEntry.setDouble(RotateToAngleConstants.kD);
-            toleranceEntry.setDouble(RotateToAngleConstants.TOLERANCE_DEGREES);
+            KP_ENTRY.setDouble(RotateToAngleConstants.kP);
+            KI_ENTRY.setDouble(RotateToAngleConstants.kI);
+            KD_ENTRY.setDouble(RotateToAngleConstants.kD);
+            TOLERANCE_ENTRY.setDouble(RotateToAngleConstants.TOLERANCE_DEGREES);
 
-            goalEntry.setDouble(Double.NaN);
-            actualEntry.setDouble(Double.NaN);
-            errorEntry.setDouble(Double.NaN);
-            outputEntry.setDouble(Double.NaN);
+            GOAL_ENTRY.setDouble(Double.NaN);
+            ACTUAL_ENTRY.setDouble(Double.NaN);
+            ERROR_ENTRY.setDouble(Double.NaN);
+            OUTPUT_ENTRY.setDouble(Double.NaN);
             initialized = true;
         }
     }
 
     @Override
     public void initialize() {
-        pid.setP(kPEntry.getDouble(RotateToAngleConstants.kP));
-        pid.setI(kIEntry.getDouble(RotateToAngleConstants.kI));
-        pid.setD(kDEntry.getDouble(RotateToAngleConstants.kD));
-        pid.setTolerance(toleranceEntry.getDouble(RotateToAngleConstants.TOLERANCE_DEGREES));
+        pid.setP(KP_ENTRY.getDouble(RotateToAngleConstants.kP));
+        pid.setI(KI_ENTRY.getDouble(RotateToAngleConstants.kI));
+        pid.setD(KD_ENTRY.getDouble(RotateToAngleConstants.kD));
+        pid.setTolerance(TOLERANCE_ENTRY.getDouble(RotateToAngleConstants.TOLERANCE_DEGREES));
         pid.reset();
     }
 
     @Override
     public void execute() {
         // Live update PID values from NetworkTables
-        pid.setP(kPEntry.getDouble(RotateToAngleConstants.kP));
-        pid.setI(kIEntry.getDouble(RotateToAngleConstants.kI));
-        pid.setD(kDEntry.getDouble(RotateToAngleConstants.kD));
-        pid.setTolerance(toleranceEntry.getDouble(RotateToAngleConstants.TOLERANCE_DEGREES));
+        pid.setP(KP_ENTRY.getDouble(RotateToAngleConstants.kP));
+        pid.setI(KI_ENTRY.getDouble(RotateToAngleConstants.kI));
+        pid.setD(KD_ENTRY.getDouble(RotateToAngleConstants.kD));
+        pid.setTolerance(TOLERANCE_ENTRY.getDouble(RotateToAngleConstants.TOLERANCE_DEGREES));
 
         double currentAngle = normalizeAngle(swerve.getRobotPosition().getRotation().getDegrees());
         double normalizedTarget = normalizeAngle(targetDegrees);
@@ -78,15 +77,17 @@ public class RotateToFieldAngleCommand extends Command {
         swerve.setDrivePowers(0, 0, rotationPower);
 
         // Publish feedback to NetworkTables
-        goalEntry.setDouble(normalizedTarget);
-        actualEntry.setDouble(currentAngle);
+        GOAL_ENTRY.setDouble(normalizedTarget);
+        ACTUAL_ENTRY.setDouble(currentAngle);
         double error = normalizedTarget - currentAngle;
-        if (error > 180)
+        if (error > 180) {
             error -= 360;
-        if (error < -180)
+        }
+        if (error < -180) {
             error += 360;
-        errorEntry.setDouble(error);
-        outputEntry.setDouble(rotationPower);
+        }
+        ERROR_ENTRY.setDouble(error);
+        OUTPUT_ENTRY.setDouble(rotationPower);
     }
 
     /**
@@ -94,10 +95,12 @@ public class RotateToFieldAngleCommand extends Command {
      */
     private double normalizeAngle(double degrees) {
         double angle = degrees % 360;
-        if (angle > 180)
+        if (angle > 180) {
             angle -= 360;
-        if (angle < -180)
+        }
+        if (angle < -180) {
             angle += 360;
+        }
         return angle;
     }
 

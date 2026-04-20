@@ -1,31 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-// Constants Import
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import edu.wpi.first.networktables.DoubleEntry;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
-import frc.robot.util.GRTUtil;
-
 import static frc.robot.Constants.LoggingConstants.SWERVE_TABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
@@ -36,6 +10,29 @@ import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import frc.robot.util.GRTUtil;
 
 public class DriveMotor {
 
@@ -91,7 +88,7 @@ public class DriveMotor {
 
         // Configure CANcoder and Kraken
         configureMotor();
-        initNT(motorID);
+        initNt(motorID);
         initSignals();
         initLogs(motorID);
     }
@@ -101,7 +98,7 @@ public class DriveMotor {
      * 
      * @param canId motor's CAN ID
      */
-    private void initNT(int canId) {
+    private void initNt(int canId) {
         ntInstance = NetworkTableInstance.getDefault();
         swerveStatsTable = ntInstance.getTable(SWERVE_TABLE);
         positionPublisher = swerveStatsTable.getDoubleTopic(canId + "position").publish();
@@ -192,9 +189,7 @@ public class DriveMotor {
      */
     public void setVelocity(double metersPerSec) {
 
-        targetRotationsPerSec = metersPerSec / DRIVE_WHEEL_CIRCUMFERENCE * DRIVE_GEAR_REDUCTION; // turns meters per sec
-                                                                                                 // into wheel rotation
-                                                                                                 // per sec
+        targetRotationsPerSec = metersPerSec / DRIVE_WHEEL_CIRCUMFERENCE * DRIVE_GEAR_REDUCTION; // turns meters per sec into wheel rotation per sec
         // disabled set velocity for noise reduction
         motor.setControl(torqueCurrentFOC.withVelocity(targetRotationsPerSec)); // apply this constant speed
 
@@ -346,7 +341,7 @@ public class DriveMotor {
      * Checks NetworkTables for updated current limits and applies them if changed.
      * Call this periodically (e.g., in periodic()).
      */
-    public void updateCurrentLimitsFromNT() {
+    public void updateCurrentLimitsFromNt() {
         double newSupplyLimit = supplyCurrentLimitEntry.get(DRIVE_SUPPLY_CURRENT_LIMIT);
         double newStatorLimit = statorCurrentLimitEntry.get(DRIVE_STATOR_CURRENT_LIMIT);
 
@@ -382,7 +377,7 @@ public class DriveMotor {
      * Logs drive motor statistics to data log
      */
     public void logStats() {
-        long ts = GRTUtil.getFPGATime();
+        long ts = GRTUtil.getFpgaTime();
         positionLogEntry.append(getDistance(), ts);
         targetVeloEntry.append(targetRotationsPerSec, ts);
         veloErrorLogEntry.append(targetRotationsPerSec - motor.getVelocity().getValueAsDouble(), ts);

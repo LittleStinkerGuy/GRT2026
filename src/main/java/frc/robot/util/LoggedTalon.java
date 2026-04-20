@@ -10,7 +10,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
-
 import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.TorqueUnit;
 import edu.wpi.first.units.Units;
@@ -173,8 +172,7 @@ public class LoggedTalon extends TalonFX {
     private Torque getTorque() {
         // kt = torque constant
         Per<TorqueUnit, CurrentUnit> kt = motorKt.getValue();
-        Current tCurrent = torqueCurrent.getValue();
-        return (Torque) kt.timesDivisor(tCurrent);
+        return (Torque) kt.timesDivisor(torqueCurrent.getValue());
     }
 
     // torque = kt * torqueCurrent

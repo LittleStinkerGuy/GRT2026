@@ -1,22 +1,21 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.Constants.ShooterConstants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.LoggedTalon;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.configs.*;
+import org.littletonrobotics.junction.Logger;
 
-public class hood extends SubsystemBase {
+public class HoodSubsystem extends SubsystemBase {
 
     private final LoggedTalon hoodMotor;
     private final DutyCycleOut dutyCycl = new DutyCycleOut(0);
@@ -28,7 +27,7 @@ public class hood extends SubsystemBase {
     private double commandedDutyCycle = 0.0;
     private static final String LOG_PREFIX = "Hood/";
 
-    public hood(CANBus cn) {
+    public HoodSubsystem(CANBus cn) {
         hoodMotor = new LoggedTalon(ShooterConstants.Hood.MOTOR_ID, cn);
         hoodCoder = new CANcoder(ShooterConstants.Hood.ENCODER_ID, cn);
         config();
@@ -51,15 +50,15 @@ public class hood extends SubsystemBase {
         cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ShooterConstants.Hood.LOWER_ANGLE_LIMIT;
         cfg.Feedback.RotorToSensorRatio = -1 * ShooterConstants.Hood.GEAR_RATIO;
 
-        cfg.Slot0.kP = ShooterConstants.Hood.KP;
-        cfg.Slot0.kI = ShooterConstants.Hood.KI;
-        cfg.Slot0.kD = ShooterConstants.Hood.KD;
-        cfg.Slot0.kS = ShooterConstants.Hood.KS;
+        cfg.Slot0.kP = ShooterConstants.Hood.kP;
+        cfg.Slot0.kI = ShooterConstants.Hood.kI;
+        cfg.Slot0.kD = ShooterConstants.Hood.kD;
+        cfg.Slot0.kS = ShooterConstants.Hood.kS;
 
         CANcoderConfiguration ccfg = new CANcoderConfiguration();
         ccfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         ccfg.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // Use full range for absolute position
-        ccfg.MagnetSensor.MagnetOffset = ShooterConstants.Hood.MagnetOffset;
+        ccfg.MagnetSensor.MagnetOffset = ShooterConstants.Hood.MAGNET_OFFSET;
 
         hoodCoder.getConfigurator().apply(ccfg);
 

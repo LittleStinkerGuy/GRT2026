@@ -5,7 +5,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.subsystems.FMS.FieldManagementSubsystem;
+import frc.robot.subsystems.fms.FieldManagementSubsystem;
 
 /**
  * Computes and continuously publishes aiming-related values (currently just

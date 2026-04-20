@@ -2,27 +2,25 @@ package frc.robot.commands.auton;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.intake.pivot.PivotOutCommand;
 import frc.robot.commands.intake.roller.RollerInCommand;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
-import frc.robot.subsystems.shooter.towerRollers;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 
-// THIS IS AUTON WHERE WE END SHOOTING @ HUB
 public class CNeutralIntakeAuton extends SequentialCommandGroup {
     private static final double SHOOT_TIMEOUT_SECONDS = 3.0;
 
     public CNeutralIntakeAuton(
-        flywheel flySubsystem,
-        hood hoodSubsystem,
-        towerRollers towerSubsystem,
+        FlywheelSubsystem flySubsystem,
+        HoodSubsystem hoodSubsystem,
+        TowerRollersSubsystem towerSubsystem,
         HopperSubsystem hopperSubsystem,
         PivotIntakeSubsystem pivotIntakeSubsystem,
         RollerIntakeSubsystem rollerSubsystem) {

@@ -1,14 +1,12 @@
 package frc.robot.commands.allign;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import frc.robot.Constants.AlignConstants;
-import frc.robot.subsystems.FMS.FieldManagementSubsystem;
+import frc.robot.subsystems.fms.FieldManagementSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import java.util.function.DoubleSupplier;
 
 public class AimWhileDrivingCommand extends Command {
 

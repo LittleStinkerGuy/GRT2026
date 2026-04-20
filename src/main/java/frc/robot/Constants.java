@@ -1,19 +1,15 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 // BOOSTED SWERVE
+
 package frc.robot;
 
-
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import com.ctre.phoenix6.signals.InvertedValue;
 
-// Units library:
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -30,8 +26,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 public final class Constants {
 
     // ==================== GLOBAL ====================
-    public static final String Swerve_CAN_BUS = "swerveCAN";
-    public static final String Mech_CAN_BUS = "mechCAN";
+    public static final String SWERVE_CAN_BUS = "swerveCan";
+    public static final String MECH_CAN_BUS = "mechCan";
     // debug mode / pushing hella stuff to NT tables
     // Subsystem Enable/Disable
     public static final boolean SWERVE_ENABLED = true;
@@ -102,7 +98,7 @@ public final class Constants {
         public static final double[] STEER_S = {1, 1, 1, 1};
 
         // ID
-        public static final int PigeonID = 24;
+        public static final int PIGEON_ID = 24;
         // Module CAN IDs and Offsets (per README)
         public static final int FL_DRIVE = 0;
         public static final int FL_STEER = 1;
@@ -152,17 +148,17 @@ public final class Constants {
         public static final double SLOW_MODE_SPEED_LIMIT = 0.3; // 30% speed when R1 held
 
         // Chassis Rotation PID (for heading lock / field-oriented rotation)
-        public static final double ROTATION_KP = 4.0;
-        public static final double ROTATION_KI = 0.0;
-        public static final double ROTATION_KD = 0.2;
+        public static final double ROTATION_P = 4.0;
+        public static final double ROTATION_I = 0.0;
+        public static final double ROTATION_D = 0.2;
 
         // PathPlanner Auto PID Constants
-        public static final double AUTO_TRANSLATION_KP = 1.6;// increased 4/12/26 TONY
-        public static final double AUTO_TRANSLATION_KI = 0.0;
-        public static final double AUTO_TRANSLATION_KD = 0.0;
-        public static final double AUTO_ROTATION_KP = 4.0;// increased 4/12/26 TONY
-        public static final double AUTO_ROTATION_KI = 0.0;
-        public static final double AUTO_ROTATION_KD = 0.0;
+        public static final double AUTO_TRANSLATION_P = 1.6; // increased 4/12/26 TONY
+        public static final double AUTO_TRANSLATION_I = 0.0;
+        public static final double AUTO_TRANSLATION_D = 0.0;
+        public static final double AUTO_ROTATION_P = 4.0; // increased 4/12/26 TONY
+        public static final double AUTO_ROTATION_I = 0.0;
+        public static final double AUTO_ROTATION_D = 0.0;
     }
 
     public static class RotateToAngleConstants {
@@ -177,7 +173,7 @@ public final class Constants {
     public static class TowerConstants {
         public static final int KRAKEN_CAN_ID = 26;
 
-        public enum TOWER_INTAKE {
+        public enum TowerIntake {
             BALLUP,
             BALLDOWN,
             STOP
@@ -186,24 +182,24 @@ public final class Constants {
         // maths
         public static final double GEAR_REDUCTION = 4.0;
 
-        public static final double TARGET_BPS = 4.0;// frequency
-        public static final double WHEEL_RADIUS = 1.0;// distance
-        public static final double BALL_DIAMETER = 6.0;// distance
-        public static final double TARGET_RPS = 30;// TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+        public static final double TARGET_BPS = 4.0; // frequency
+        public static final double WHEEL_RADIUS = 1.0; // distance
+        public static final double BALL_DIAMETER = 6.0; // distance
+        public static final double TARGET_RPS = 30; // TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
         // Velocity control PID (SysID Derived - Voltage)
-        public static final double KP = 0.00625;
-        public static final double KI = 0.0;
-        public static final double KD = 0.0;
-        public static final double KS = 0.231;
-        public static final double KV = 0.388;
-        public static final double KA = 0.00582;
-        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(7.58);
+        public static final double kP = 0.00625;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kS = 0.231;
+        public static final double kV = 0.388;
+        public static final double kA = 0.00582;
+        public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(7.58);
 
         // motion magic
-        public static final double MM_ACCEL = 1000;// distance
-        public static final double MM_JERK = 100;// distance
-        public static final double MM_MAXVELO = 100;// distance
+        public static final double MM_ACCEL = 1000; // distance
+        public static final double MM_JERK = 100; // distance
+        public static final double MM_MAXVELO = 100; // distance
 
         // Current limits
         public static final int SUPPLY_CURRENT_LIMIT = 80;
@@ -227,11 +223,11 @@ public final class Constants {
             public static final double GEAR_RATIO = 1.0;
 
             // Velocity control PID
-            public static final double KP = 10;
-            public static final double KI = 0.0;
-            public static final double KD = 0.0;
-            public static final double KS = 0.0;
-            public static final double KV = 0.12;
+            public static final double kP = 10;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+            public static final double kS = 0.0;
+            public static final double kV = 0.12;
 
             // Motion Magic
             public static final double MM_ACCEL = 100;
@@ -252,16 +248,16 @@ public final class Constants {
             public static final double GEAR_RATIO = 244.411765;
 
             // Position control PID (BAD BAD BAD)
-            public static final double KP = 2000;
-            public static final double KI = 0;
-            public static final double KD = 60;
-            public static final double KS = 120;
+            public static final double kP = 2000;
+            public static final double kI = 0;
+            public static final double kD = 60;
+            public static final double kS = 120;
 
             // Angle limits (rotations)
             public static final double UPPER_ANGLE_LIMIT = 0.1;
             public static final double LOWER_ANGLE_LIMIT = 0;
             public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
-            public static final double MagnetOffset = -0.05688;
+            public static final double MAGNET_OFFSET = -0.05688;
 
             // Current limits
             public static final double STATOR_CURRENT_LIMIT = 50.0;
@@ -331,25 +327,25 @@ public final class Constants {
     public static class HopperConstants {
         public static final int KRAKEN_CAN_ID = 15;
 
-        public enum HOPPER_INTAKE {
+        public enum HopperIntake {
             BALLIN,
             BALLOUT,
             STOP
         }
 
         // Velocity control PID (SysID Derived - Voltage)
-        public static final double KP = 0.0673;
-        public static final double KI = 0.0;
-        public static final double KD = 0.0;
-        public static final double KS = 0.0;
-        public static final double KV = 0.464;
-        public static final double KA = 0.0127;
-        public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(6.47);
+        public static final double kP = 0.0673;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kS = 0.0;
+        public static final double kV = 0.464;
+        public static final double kA = 0.0127;
+        public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(6.47);
 
         // balls stuff
-        public static final double TARGET_BPS = 4.0;// frequency
+        public static final double TARGET_BPS = 4.0; // frequency
         public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
-        public static final double TARGET_RPS = TARGET_BPS / 4;// divided by 4 cuz 4 vains on spinner
+        public static final double TARGET_RPS = TARGET_BPS / 4; // divided by 4 cuz 4 vains on spinner
 
         // Current limits
         public static final int SUPPLY_CURRENT_LIMIT = 80;
@@ -389,7 +385,6 @@ public final class Constants {
     public static class LoggingConstants {
         public static final String SWERVE_TABLE = "SwerveStats";
         public static final String SENSOR_TABLE = "Sensors";
-        public static final String thing = "hi";
     }
 
     // ==================== SMASH AND SHOOT ==================== thing

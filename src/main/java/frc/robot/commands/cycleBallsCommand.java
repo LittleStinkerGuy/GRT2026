@@ -2,25 +2,25 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.HopperConstants.HopperIntake;
 import frc.robot.Constants.SmashAndShootConstants;
-import frc.robot.Constants.HopperConstants.HOPPER_INTAKE;
-import frc.robot.Constants.TowerConstants.TOWER_INTAKE;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+import frc.robot.Constants.TowerConstants.TowerIntake;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
-import frc.robot.subsystems.shooter.towerRollers;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 
-public class cycleBallsCommand extends Command {
-    private final flywheel flywheel;
-    private final towerRollers tower;
+public class CycleBallsCommand extends Command {
+    private final FlywheelSubsystem flywheel;
+    private final TowerRollersSubsystem tower;
     private final HopperSubsystem hopper;
     private final RollerIntakeSubsystem intakeRoller;
 
     private final Timer startUpTimer = new Timer();
 
-    public cycleBallsCommand(flywheel flywheel, towerRollers tower, HopperSubsystem hopper, RollerIntakeSubsystem intakeRoller) {
+    public CycleBallsCommand(FlywheelSubsystem flywheel, TowerRollersSubsystem tower, HopperSubsystem hopper, RollerIntakeSubsystem intakeRoller) {
         this.flywheel = flywheel;
         this.tower = tower;
         this.hopper = hopper;
@@ -32,8 +32,8 @@ public class cycleBallsCommand extends Command {
     @Override
     public void initialize() {
         flywheel.flySpeed(1);
-        tower.setTower(TOWER_INTAKE.BALLUP);
-        hopper.setHopper(HOPPER_INTAKE.BALLIN);
+        tower.setTower(TowerIntake.BALLUP);
+        hopper.setHopper(HopperIntake.BALLIN);
 
         startUpTimer.restart();
     }
@@ -41,8 +41,8 @@ public class cycleBallsCommand extends Command {
     @Override
     public void execute() {
         flywheel.flySpeed(1);
-        tower.setTower(TOWER_INTAKE.BALLUP);
-        hopper.setHopper(HOPPER_INTAKE.BALLIN);
+        tower.setTower(TowerIntake.BALLUP);
+        hopper.setHopper(HopperIntake.BALLIN);
 
         if (startUpTimer.hasElapsed(1)) {
             intakeRoller.runIn();

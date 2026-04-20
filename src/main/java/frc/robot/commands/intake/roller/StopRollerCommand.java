@@ -1,7 +1,7 @@
 package frc.robot.commands.intake.roller;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.intake.RollerIntakeSubsystem;
 
 public class StopRollerCommand extends Command {
     private final RollerIntakeSubsystem rollerIntake;

@@ -1,38 +1,35 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.SmashAndShootConstants;
-import edu.wpi.first.networktables.NetworkTableEvent;
-import edu.wpi.first.networktables.NetworkTable;
-
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.util.LoggedTalon;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import static edu.wpi.first.units.Units.Volts;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SmashAndShootConstants;
+import frc.robot.util.LoggedTalon;
 import java.util.EnumSet;
 import java.util.function.Consumer;
-
 import org.littletonrobotics.junction.Logger;
 
-public class flywheel extends SubsystemBase {
-    private NetworkTable NTtable;
+public class FlywheelSubsystem extends SubsystemBase {
+    private NetworkTable ntTable;
 
     private final LoggedTalon upperMotor;
     private final LoggedTalon secondMotor;
@@ -48,8 +45,8 @@ public class flywheel extends SubsystemBase {
     private static final String LOG_PREFIX = "FlyWheel/";
 
     private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
-        NTtable.getEntry(valueName).setDouble(defaultVal);
-        NTtable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
+        ntTable.getEntry(valueName).setDouble(defaultVal);
+        ntTable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
             configSetter.accept(event.valueData.value.getDouble());
 
 
@@ -61,13 +58,13 @@ public class flywheel extends SubsystemBase {
         });
     }
 
-    private void configThruNT() {
-        NTtable = NetworkTableInstance.getDefault().getTable("tuneFlywheel");
-        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), ShooterConstants.Flywheel.KP);
-        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), ShooterConstants.Flywheel.KI);
-        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), ShooterConstants.Flywheel.KD);
-        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), ShooterConstants.Flywheel.KS);
-        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), ShooterConstants.Flywheel.KV);
+    private void configThruNt() {
+        ntTable = NetworkTableInstance.getDefault().getTable("tuneFlywheel");
+        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), ShooterConstants.Flywheel.kP);
+        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), ShooterConstants.Flywheel.kI);
+        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), ShooterConstants.Flywheel.kD);
+        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), ShooterConstants.Flywheel.kS);
+        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), ShooterConstants.Flywheel.kV);
         yoTuneThis("setDutyCyclePercent", val -> upperMotor.setControl(new DutyCycleOut(val)), 0);
         yoTuneThis("setMMVTCF", val -> targetRPS = val, 0);
 
@@ -79,11 +76,11 @@ public class flywheel extends SubsystemBase {
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
     }
 
-    public flywheel(CANBus cn) {
+    public FlywheelSubsystem(CANBus cn) {
         upperMotor = new LoggedTalon(ShooterConstants.Flywheel.UPPER_MOTOR_ID, cn);
         secondMotor = new LoggedTalon(ShooterConstants.Flywheel.SECOND_MOTOR_ID, cn);
         config();
-        // configThruNT();
+        // configThruNt();
     }
 
     public void config() {
@@ -93,11 +90,11 @@ public class flywheel extends SubsystemBase {
         cfg.MotionMagic.MotionMagicAcceleration = ShooterConstants.Flywheel.MM_ACCEL;
         cfg.MotionMagic.MotionMagicJerk = ShooterConstants.Flywheel.MM_JERK;
 
-        pidSlots.withKP(ShooterConstants.Flywheel.KP);
-        pidSlots.withKI(ShooterConstants.Flywheel.KI);
-        pidSlots.withKD(ShooterConstants.Flywheel.KD);
-        pidSlots.withKS(ShooterConstants.Flywheel.KS);
-        pidSlots.withKV(ShooterConstants.Flywheel.KV);
+        pidSlots.withKP(ShooterConstants.Flywheel.kP);
+        pidSlots.withKI(ShooterConstants.Flywheel.kI);
+        pidSlots.withKD(ShooterConstants.Flywheel.kD);
+        pidSlots.withKS(ShooterConstants.Flywheel.kS);
+        pidSlots.withKV(ShooterConstants.Flywheel.kV);
         cfg.withSlot0(pidSlots);
 
         cfg.Feedback.SensorToMechanismRatio = ShooterConstants.Flywheel.GEAR_RATIO;

@@ -8,13 +8,13 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBehavior;
-import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -24,18 +24,18 @@ import org.littletonrobotics.junction.LoggedRobot;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends LoggedRobot {
-    private Command m_autonomousCommand;
+    private Command autonomousCommand;
 
-    private final RobotContainer m_robotContainer;
+    private final RobotContainer robotContainer;
 
-    public enum MODE {
+    public enum Mode {
         REAL,
         SIM,
         REPLAY
     }
 
-    public static final MODE simMode = MODE.SIM;
-    public static final MODE currentMode = RobotBase.isReal() ? MODE.REAL : simMode;
+    public static final Mode SIM_MODE = Mode.SIM;
+    public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -49,7 +49,7 @@ public class Robot extends LoggedRobot {
         // Record metadata
         // BUILDCONSTANTS IS GENERATED DURING BUILD
         // IF THIS IS THROWING AN ERROR JUST BUILD
-        Logger.recordMetadata("BuildType", currentMode.toString());
+        Logger.recordMetadata("BuildType", CURRENT_MODE.toString());
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -63,7 +63,7 @@ public class Robot extends LoggedRobot {
                 default -> "Unknown";
             });
 
-        switch (currentMode) {
+        switch (CURRENT_MODE) {
             case REAL:
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
@@ -79,12 +79,14 @@ public class Robot extends LoggedRobot {
                 Logger.setReplaySource(new WPILOGReader(logPath));
                 Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replayed"), AdvantageScopeOpenBehavior.AUTO));
                 break;
+            default:
+                break;
         }
 
         Logger.start();
 
         // Instantiate our RobotContainer. This will perform all our button bindings, and put our autonomous chooser on the dashboard.
-        m_robotContainer = new RobotContainer();
+        robotContainer = new RobotContainer();
     }
 
     /**
@@ -118,12 +120,12 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        m_robotContainer.onAutonInit();
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        robotContainer.onAutonInit();
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().schedule(m_autonomousCommand);
+        if (autonomousCommand != null) {
+            CommandScheduler.getInstance().schedule(autonomousCommand);
         }
     }
 
@@ -137,12 +139,12 @@ public class Robot extends LoggedRobot {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
         }
 
         // Reset driver heading with 90 degree offset at teleop start
-        m_robotContainer.onTeleopInit();
+        robotContainer.onTeleopInit();
     }
 
     /** This function is called periodically during operator control. */

@@ -1,26 +1,26 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.TowerShootConstants;
-import frc.robot.subsystems.Intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.flywheel;
-import frc.robot.subsystems.shooter.hood;
-import frc.robot.subsystems.shooter.shooterLearner;
-import frc.robot.subsystems.shooter.towerRollers;
+import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.ShooterLearner;
+import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 
 /**
  * Tower-shot preset — runs ManualShooterSequence with the hood angle and
- * flywheel RPS from TowerShootConstants. Placeholder values; tune on robot.
+ * FlywheelSubsystem RPS from TowerShootConstants. Placeholder values; tune on robot.
  */
 public class TowerShot extends ManualShooterSequence {
 
     public TowerShot(
-        flywheel fly,
-        hood hood,
-        towerRollers tower,
+        FlywheelSubsystem fly,
+        HoodSubsystem hood,
+        TowerRollersSubsystem tower,
         HopperSubsystem hopper,
         PivotIntakeSubsystem pivotIntake,
-        shooterLearner learner) {
+        ShooterLearner learner) {
         super(
             fly,
             hood,

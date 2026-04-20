@@ -1,23 +1,9 @@
-package frc.robot.subsystems.Vision;
+package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Value;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -26,6 +12,19 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
 public class FuelDetectionSubsystem extends SubsystemBase {
 
@@ -284,6 +283,8 @@ public class FuelDetectionSubsystem extends SubsystemBase {
                 maxDistanceWindowSum = appendSample(maxDistanceWindow, distance, maxDistanceWindowSum);
                 double averageMeters = maxDistanceWindowSum.in(Meters) / maxDistanceWindow.size();
                 filteredMaxDistance = Optional.of(Meters.of(averageMeters));
+            }
+            default -> {
             }
         }
     }
