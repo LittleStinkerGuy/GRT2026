@@ -5,8 +5,8 @@
 ### TODO:
 
 - [ ] Fix code style inconsistencies/overall weirdness
-    - [ ] Add `spotless` code style checking
-    - [ ] Fix things caught by `spotless`
+    - [ ] Add `checkstyle` code style checking
+    - [ ] Fix things caught by `checkstyle`
     - [ ] Consistent command usage (inline commands in robot container and triggers and stuff)
 - [ ] Full advantage kit port
 - [ ] Figure out sim stuff
