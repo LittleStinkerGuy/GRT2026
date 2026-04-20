@@ -4,7 +4,7 @@
 
 ### TODO:
 
-- [] Fix code style inconsistencies/overall weirdness
+- [ ] Fix code style inconsistencies/overall weirdness
     - [ ] Add `spotless` code style checking
     - [ ] Fix things caught by `spotless`
     - [ ] Consistent command usage (inline commands in robot container and triggers and stuff)
