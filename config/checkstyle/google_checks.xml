@@ -330,12 +330,25 @@
     <module name="AbbreviationAsWordInName">
       <property name="ignoreFinal" value="false"/>
       <property name="allowedAbbreviationLength" value="0"/>
+      <property name="allowedAbbreviations" value="GRT"/>
       <property name="tokens"
                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
                     PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
                     RECORD_COMPONENT_DEF"/>
       <message key="abbreviation.as.word"
                value="Name {0} uses too many consecutive capital letters. Write acronyms in camel case, like canBus instead of CANBus."/>
+    </module>
+    <module name="MatchXpath">
+      <property name="query"
+                value="//IDENT[contains(@text, 'grt')
+                       or contains(@text, 'grT')
+                       or contains(@text, 'gRt')
+                       or contains(@text, 'gRT')
+                       or contains(@text, 'Grt')
+                       or contains(@text, 'GrT')
+                       or contains(@text, 'GRt')]"/>
+      <message key="matchxpath.match"
+               value="Use all-caps GRT here; do not write grt or Grt."/>
     </module>
     <module name="NoWhitespaceBeforeCaseDefaultColon"/>
     <module name="OverloadMethodsDeclarationOrder"/>
