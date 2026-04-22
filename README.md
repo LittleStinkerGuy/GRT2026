@@ -5,13 +5,15 @@
 ### TODO:
 
 - [ ] Fix code style inconsistencies/overall weirdness
-    - [ ] Add `checkstyle` code style checking
-    - [ ] Fix things caught by `checkstyle`
+    - [x] Add `checkstyle` code style checking
+        - [ ] Create checkstyle docs
+    - [x] Fix things caught by `checkstyle`
     - [ ] Consistent command usage (inline commands in robot container and triggers and stuff)
 - [ ] Full advantage kit port
 - [ ] Figure out sim stuff
 
 ### Change Log:
+1. Generated checkstyle config found in `./config/checkstyle/google_checks.xml` by running the google checkstyle config on current code and making changes based on preferred outcome
 
 ## Robot Control and Motor Assignments
 
