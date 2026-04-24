@@ -9,9 +9,8 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.CANType;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -30,39 +29,22 @@ public class PhoenixUtil {
         }
     }
 
-    /** Signals for synchronized refresh. */
-    private static BaseStatusSignal[] swerveCANSignals = new BaseStatusSignal[0];
-    private static BaseStatusSignal[] mechCANSignals = new BaseStatusSignal[0];
-    private static BaseStatusSignal[] rioSignals = new BaseStatusSignal[0];
+    /** Signals for synchronized refresh, keyed by bus. */
+    private static final EnumMap<CANType, BaseStatusSignal[]> signalsByBus = new EnumMap<>(CANType.class);
+
+    static {
+        for (CANType type : CANType.values()) {
+            signalsByBus.put(type, new BaseStatusSignal[0]);
+        }
+    }
 
     /** Registers a set of signals for synchronized refresh. */
     public static void registerSignals(CANType canType, BaseStatusSignal... signals) {
-        switch (canType) {
-            case RIO -> {
-                BaseStatusSignal[] newSignals = new BaseStatusSignal[rioSignals.length + signals.length];
-                System.arraycopy(rioSignals, 0, newSignals, 0, rioSignals.length);
-                System.arraycopy(signals, 0, newSignals, rioSignals.length, signals.length);
-                rioSignals = newSignals;
-            }
-            case SWERVE -> {
-                BaseStatusSignal[] newSignals = new BaseStatusSignal[swerveCANSignals.length + signals.length];
-                System.arraycopy(swerveCANSignals, 0, newSignals, 0, swerveCANSignals.length);
-                System.arraycopy(signals, 0, newSignals, swerveCANSignals.length, signals.length);
-                swerveCANSignals = newSignals;
-            }
-            case MECH -> {
-                BaseStatusSignal[] newSignals = new BaseStatusSignal[mechCANSignals.length + signals.length];
-                System.arraycopy(mechCANSignals, 0, newSignals, 0, mechCANSignals.length);
-                System.arraycopy(signals, 0, newSignals, mechCANSignals.length, signals.length);
-                mechCANSignals = newSignals;
-            }
-            default -> {
-                try (Alert missingTypeAlert = new Alert("Missing Canivore Type in PhoenixUtil!!", AlertType.kError)) {
-                    missingTypeAlert.set(true);
-                }
-                System.out.println("Missing Canivore Type in PhoenixUtil!!");
-            }
-        }
+        BaseStatusSignal[] current = signalsByBus.get(canType);
+        BaseStatusSignal[] combined = new BaseStatusSignal[current.length + signals.length];
+        System.arraycopy(current, 0, combined, 0, current.length);
+        System.arraycopy(signals, 0, combined, current.length, signals.length);
+        signalsByBus.put(canType, combined);
     }
 
     public static void registerSignals(CANType canType, List<BaseStatusSignal> signals) {
@@ -71,14 +53,10 @@ public class PhoenixUtil {
 
     /** Refresh all registered signals. */
     public static void refreshAllStatusSignals() {
-        if (swerveCANSignals.length > 0) {
-            BaseStatusSignal.refreshAll(swerveCANSignals);
-        }
-        if (mechCANSignals.length > 0) {
-            BaseStatusSignal.refreshAll(mechCANSignals);
-        }
-        if (rioSignals.length > 0) {
-            BaseStatusSignal.refreshAll(rioSignals);
+        for (BaseStatusSignal[] signals : signalsByBus.values()) {
+            if (signals.length > 0) {
+                BaseStatusSignal.refreshAll(signals);
+            }
         }
     }
 }
