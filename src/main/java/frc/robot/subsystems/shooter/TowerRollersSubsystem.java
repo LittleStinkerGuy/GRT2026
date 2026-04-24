@@ -107,7 +107,7 @@ public class TowerRollersSubsystem extends SubsystemBase {
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
             .withNeutralMode(NeutralModeValue.Coast)
-            .withInverted(TowerConstants.HOPPERINVERTED));
+            .withInverted(TowerConstants.HOPPER_INVERTED));
 
         // Current limits
         config.withCurrentLimits(

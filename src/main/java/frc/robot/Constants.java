@@ -223,7 +223,7 @@ public final class Constants {
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
         // Motor config
-        public static final InvertedValue HOPPERINVERTED = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue HOPPER_INVERTED = InvertedValue.Clockwise_Positive;
     }
 
     public static class ShooterConstants {
@@ -374,7 +374,7 @@ public final class Constants {
         public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
         // Motor config
-        public static final InvertedValue HOPPERINVERTED = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue HOPPER_INVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
     // ==================== ALIGNMENT ====================
