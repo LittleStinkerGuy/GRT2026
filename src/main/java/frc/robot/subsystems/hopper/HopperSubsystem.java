@@ -102,7 +102,7 @@ public class HopperSubsystem extends SubsystemBase {
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
             .withNeutralMode(NeutralModeValue.Coast)
-            .withInverted(HopperConstants.HOPPERINVERTED));
+            .withInverted(HopperConstants.HOPPER_INVERTED));
 
         // Current limits
         config.withCurrentLimits(
