@@ -42,7 +42,7 @@ public class HopperIOTalonFX implements HopperIO {
     private final StatusSignal<Temperature> temp;
     private final StatusSignal<Boolean> tempFault;
 
-    public HopperIOTalonFX(int id, LoggedCanivore canivore) {
+    public HopperIOTalonFX(LoggedCanivore canivore, int id) {
         motor = new TalonFX(id, canivore);
 
         // Motor output
