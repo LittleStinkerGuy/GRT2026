@@ -2,6 +2,12 @@
 
 ## Cool Things added:
 
+### Cool files to checkout:
+- `src/main/java/frc/robot/util/LoggedCanivore.java` — `CANBus` wrapper that polls bus status on a background thread and auto-logs utilization / bus-off / TEC / REC through AdvantageKit.
+- `src/main/java/frc/robot/util/PhoenixUtil.java` — `tryUntilOk` config-retry helper plus a per-bus status-signal registry so every CAN bus refreshes its signals together.
+- `src/main/java/frc/robot/subsystems/hopper/HopperIO.java` — AdvantageKit `@AutoLog` IO interface for the hopper (position, velocity, currents, temp, faults) with `setDutyCycle` / `setVelocity` / `stop`.
+- `src/main/java/frc/robot/subsystems/hopper/HopperIOTalonFX.java` — TalonFX implementation of `HopperIO`: stator current limits, Slot 0 velocity PID, and signal registration into `PhoenixUtil`.
+
 ### TODO:
 
 - [ ] Fix code style inconsistencies/overall weirdness
