@@ -10,6 +10,8 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
@@ -25,6 +27,9 @@ import frc.robot.util.PhoenixUtil;
 public class HopperIOTalonFX implements HopperIO {
     private final TalonFX motor;
     private final TalonFXConfiguration config = new TalonFXConfiguration();
+
+    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0).withEnableFOC(true);
+    private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
     ArrayList<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
@@ -99,5 +104,22 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.torqueCurrent = torqueCurrent.getValue();
         inputs.temp = temp.getValue();
         inputs.tempFault = tempFault.getValue();
+        inputs.connected = BaseStatusSignal.isAllGood(signals);
+    }
+
+    @Override
+    public void setDutyCycle(double dutyCycle) {
+        dutyCycle = Math.max(-1.0, Math.min(1.0, dutyCycle));
+        motor.setControl(dutyCycleControl.withOutput(dutyCycle));
+    }
+
+    @Override
+    public void setVelocity(AngularVelocity velocity) {
+        motor.setControl(velocityControl.withVelocity(velocity));
+    }
+
+    @Override
+    public void stop() {
+        motor.stopMotor();
     }
 }
