@@ -65,7 +65,7 @@ public class PhoenixUtil {
     }
 
     /** Refresh all registered signals. */
-    public static void refreshAll() {
+    public static void refreshAllStatusSignals() {
         if (swerveCANSignals.length > 0) {
             BaseStatusSignal.refreshAll(swerveCANSignals);
         }
