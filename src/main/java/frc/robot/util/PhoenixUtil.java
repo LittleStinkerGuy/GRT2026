@@ -12,6 +12,7 @@ import com.ctre.phoenix6.StatusCode;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.CANType;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -62,6 +63,10 @@ public class PhoenixUtil {
                 System.out.println("Missing Canivore Type in PhoenixUtil!!");
             }
         }
+    }
+
+    public static void registerSignals(CANType canType, List<BaseStatusSignal> signals) {
+        registerSignals(canType, signals.toArray(new BaseStatusSignal[0]));
     }
 
     /** Refresh all registered signals. */
