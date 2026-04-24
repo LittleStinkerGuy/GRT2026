@@ -7,6 +7,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -26,8 +27,22 @@ import edu.wpi.first.units.measure.AngularVelocity;
 public final class Constants {
 
     // ==================== GLOBAL ====================
-    public static final String SWERVE_CAN_BUS = "swerveCan";
-    public static final String MECH_CAN_BUS = "mechCan";
+    public enum CANType {
+        RIO(CANBus.roboRIO().getName()),
+        MECH("mechCan"),
+        SWERVE("swerveCan");
+
+        private final String busName;
+
+        CANType(String busName) {
+            this.busName = busName;
+        }
+
+        public String busName() {
+            return busName;
+        }
+    }
+
     // debug mode / pushing hella stuff to NT tables
     // Subsystem Enable/Disable
     public static final boolean SWERVE_ENABLED = true;

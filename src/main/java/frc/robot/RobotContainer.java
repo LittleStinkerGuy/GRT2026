@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.ShooterConstants.Flywheel;
 import frc.robot.commands.AutonShooterSequence;
@@ -44,6 +45,7 @@ import frc.robot.subsystems.swerve.AimSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.util.LoggedCanivore;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -62,8 +64,8 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
-    private final CANBus swerveCan = new CANBus(Constants.SWERVE_CAN_BUS);
-    private final CANBus mechCan = new CANBus(Constants.MECH_CAN_BUS);
+    private final CANBus swerveCan = new LoggedCanivore(CANType.RIO);
+    private final CANBus mechCan = new LoggedCanivore(CANType.MECH);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
