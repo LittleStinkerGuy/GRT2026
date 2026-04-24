@@ -1,6 +1,7 @@
 package frc.robot.subsystems.hopper;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
+import java.util.ArrayList;
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -25,6 +26,7 @@ public class HopperIOTalonFX implements HopperIO {
     private final TalonFX motor;
     private final TalonFXConfiguration config = new TalonFXConfiguration();
 
+    ArrayList<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
     private final StatusSignal<AngularAcceleration> accel;
@@ -70,29 +72,32 @@ public class HopperIOTalonFX implements HopperIO {
         temp = motor.getDeviceTemp(false);
         tempFault = motor.getFault_DeviceTemp(false);
 
-        tryUntilOk(
-            5,
-            () -> BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0,
-                position,
-                velocity,
-                accel,
-                appliedVoltage,
-                supplyCurrent,
-                statorCurrent,
-                torqueCurrent,
-                temp,
-                tempFault));
-        tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0));
+        signals = new ArrayList<>();
+        signals.add(position);
+        signals.add(velocity);
+        signals.add(accel);
+        signals.add(appliedVoltage);
+        signals.add(supplyCurrent);
+        signals.add(statorCurrent);
+        signals.add(torqueCurrent);
+        signals.add(temp);
+        signals.add(tempFault);
 
-        PhoenixUtil.registerSignals(canivore.getCanType(), position,
-            velocity,
-            accel,
-            appliedVoltage,
-            supplyCurrent,
-            statorCurrent,
-            torqueCurrent,
-            temp,
-            tempFault);
+        tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals));
+        tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0));
+        PhoenixUtil.registerSignals(canivore.getCanType(), signals);
+    }
+
+    @Override
+    public void updateInputs(HopperIOInputs inputs) {
+        inputs.position = position.getValue();
+        inputs.velocity = velocity.getValue();
+        inputs.acceleration = accel.getValue();
+        inputs.appliedVoltage = appliedVoltage.getValue();
+        inputs.supplyCurrent = supplyCurrent.getValue();
+        inputs.statorCurrent = statorCurrent.getValue();
+        inputs.torqueCurrent = torqueCurrent.getValue();
+        inputs.temp = temp.getValue();
+        inputs.tempFault = tempFault.getValue();
     }
 }
