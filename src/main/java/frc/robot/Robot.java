@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBehavior;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import frc.robot.util.LoggedCanivore;
+import frc.robot.util.PhoenixUtil;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -111,6 +112,7 @@ public class Robot extends LoggedRobot {
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
         LoggedCanivore.updateCanivoreStatuses();
+        PhoenixUtil.refreshAllStatusSignals();
     }
 
     /** This function is called once each time the robot enters Disabled mode. */
