@@ -45,6 +45,7 @@ public final class Constants {
 
     // debug mode / pushing hella stuff to NT tables
     // Subsystem Enable/Disable
+    public static final boolean TUNING_MODE = true;
     public static final boolean SWERVE_ENABLED = true;
     public static final boolean MECH_ENABLED = true;
 
