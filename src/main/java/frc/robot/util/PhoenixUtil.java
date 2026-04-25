@@ -30,7 +30,7 @@ public class PhoenixUtil {
     }
 
     /** Signals for synchronized refresh, keyed by bus. */
-    private static final EnumMap<CANType, BaseStatusSignal[]> signalsByBus = new EnumMap<>(CANType.class);
+    private static EnumMap<CANType, BaseStatusSignal[]> signalsByBus = new EnumMap<>(CANType.class);
 
     static {
         for (CANType type : CANType.values()) {
