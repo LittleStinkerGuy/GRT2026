@@ -29,8 +29,8 @@ public final class Constants {
     // ==================== GLOBAL ====================
     public enum CANType {
         RIO(CANBus.roboRIO().getName()),
-        MECH("mechCan"),
-        SWERVE("swerveCan");
+        MECH("mechCAN"),
+        SWERVE("swerveCAN");
 
         private final String busName;
 
@@ -343,8 +343,8 @@ public final class Constants {
         public static final int KRAKEN_CAN_ID = 15;
 
         public enum HopperIntake {
-            BALLIN,
-            BALLOUT,
+            BALL_IN,
+            BALL_OUT,
             STOP
         }
 
@@ -360,7 +360,7 @@ public final class Constants {
         // balls stuff
         public static final double TARGET_BPS = 4.0; // frequency
         public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
-        public static final double TARGET_RPS = TARGET_BPS / 4; // divided by 4 cuz 4 vains on spinner
+        public static final AngularVelocity TARGET_RPS = RotationsPerSecond.of(TARGET_BPS / 4); // divided by 4 cuz 4 vains on spinner
 
         // Current limits
         public static final int SUPPLY_CURRENT_LIMIT = 80;

@@ -64,7 +64,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
-    private final CANBus swerveCan = new LoggedCanivore(CANType.RIO);
+    private final CANBus swerveCan = new LoggedCanivore(CANType.SWERVE);
     private final CANBus mechCan = new LoggedCanivore(CANType.MECH);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
