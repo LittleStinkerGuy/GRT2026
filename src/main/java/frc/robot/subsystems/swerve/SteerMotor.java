@@ -29,11 +29,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.GRTUtil;
 import java.util.EnumSet;
+import org.littletonrobotics.junction.Logger;
 
 public class SteerMotor extends SubsystemBase {
     // For NT
@@ -54,16 +53,6 @@ public class SteerMotor extends SubsystemBase {
     private DoublePublisher closedLoopReferencePublisher;
     private DoublePublisher gurtMotorPos1;
     private NetworkTableEntry motorNewPos;
-
-    // DataLog entries
-    private DoubleLogEntry positionLogEntry;
-    private DoubleLogEntry velocityLogEntry;
-    private DoubleLogEntry targetPositionLogEntry;
-    private DoubleLogEntry appliedVoltsLogEntry;
-    private DoubleLogEntry supplyCurrentLogEntry;
-    private DoubleLogEntry torqueCurrentLogEntry;
-    private DoubleLogEntry temperatureLogEntry;
-    private DoubleLogEntry closedLoopErrorLogEntry;
 
     private double gurtMotorPos = 0.0;
     private double targetPos = 0.0;
@@ -224,30 +213,17 @@ public class SteerMotor extends SubsystemBase {
         cancoder = new CANcoder(encoderID, canivore);
         configureMotor();
         initNt(motorCAN);
-        initLogs(motorCAN);
-    }
-
-    private void initLogs(int canId) {
-        positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/position");
-        velocityLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/velocityRPM");
-        targetPositionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/targetPosition");
-        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/appliedVolts");
-        supplyCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/supplyCurrent");
-        torqueCurrentLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/torqueCurrent");
-        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/temperature");
-        closedLoopErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "steer/" + canId + "/closedLoopError");
     }
 
     public void logStats() {
-        long ts = GRTUtil.getFpgaTime();
-        positionLogEntry.append(motor.getPosition().getValueAsDouble(), ts);
-        velocityLogEntry.append(motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0, ts);
-        targetPositionLogEntry.append(gurtMotorPos, ts);
-        appliedVoltsLogEntry.append(motor.getMotorVoltage().getValueAsDouble(), ts);
-        supplyCurrentLogEntry.append(motor.getSupplyCurrent().getValueAsDouble(), ts);
-        torqueCurrentLogEntry.append(motor.getTorqueCurrent().getValueAsDouble(), ts);
-        temperatureLogEntry.append(motor.getDeviceTemp().getValueAsDouble(), ts);
-        closedLoopErrorLogEntry.append(motor.getClosedLoopError().getValueAsDouble(), ts);
+        Logger.recordOutput("steer/" + motorID + "/position", motor.getPosition().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/velocityRPM", motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0);
+        Logger.recordOutput("steer/" + motorID + "/targetPosition", gurtMotorPos);
+        Logger.recordOutput("steer/" + motorID + "/appliedVolts", motor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/supplyCurrent", motor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/torqueCurrent", motor.getTorqueCurrent().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/temperature", motor.getDeviceTemp().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/closedLoopError", motor.getClosedLoopError().getValueAsDouble());
     }
 
     /**

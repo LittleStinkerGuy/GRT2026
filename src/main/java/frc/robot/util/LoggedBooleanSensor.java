@@ -1,27 +1,25 @@
 package frc.robot.util;
 
+import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.LoggingConstants;
 
 public class LoggedBooleanSensor {
 
     private final DigitalInput sensor;
+    private final String name;
 
     private NetworkTableInstance ntInstance;
     private NetworkTable sensorStatsTable;
     private BooleanPublisher sensorReadingPublisher;
 
-    private BooleanLogEntry sensorReadingLogEntry;
-
     public LoggedBooleanSensor(String name, int port) {
-        sensor = new DigitalInput(port);
+        this.sensor = new DigitalInput(port);
+        this.name = name;
         initNt(name);
-        initLogs(name);
     }
 
     /**
@@ -44,7 +42,7 @@ public class LoggedBooleanSensor {
      * Logs sensor reading
      */
     public void logStats() {
-        sensorReadingLogEntry.append(sensor.get());
+        Logger.recordOutput(name, sensor.get());
     }
 
     /**
@@ -56,15 +54,5 @@ public class LoggedBooleanSensor {
         ntInstance = NetworkTableInstance.getDefault();
         sensorStatsTable = ntInstance.getTable(LoggingConstants.SENSOR_TABLE);
         sensorReadingPublisher = sensorStatsTable.getBooleanTopic(name).publish();
-    }
-
-    /**
-     * Initialize logs
-     * 
-     * @param name
-     */
-    private void initLogs(String name) {
-        sensorReadingLogEntry = new BooleanLogEntry(
-            DataLogManager.getLog(), name);
     }
 }
