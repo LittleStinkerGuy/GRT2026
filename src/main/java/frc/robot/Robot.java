@@ -63,7 +63,7 @@ public class Robot extends LoggedRobot {
 
         switch (CURRENT_MODE) {
             case REAL:
-                Logger.addDataReceiver(new WPILOGWriter());
+                Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs"));
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
 
