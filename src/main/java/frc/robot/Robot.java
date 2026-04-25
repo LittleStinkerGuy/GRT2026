@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -45,9 +44,6 @@ public class Robot extends LoggedRobot {
      * initialization code.
      */
     public Robot() {
-        // Start logging to .wpilog file (saved to USB stick or /home/lvuser/logs/)
-        DataLogManager.start();
-
         // Record metadata
         // BUILDCONSTANTS IS GENERATED DURING BUILD
         // IF THIS IS THROWING AN ERROR JUST BUILD

@@ -5,7 +5,7 @@ import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
-
+import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -26,9 +26,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.StructLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,14 +60,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // Acceleration limiting fields
     private ChassisSpeeds previousSpeeds = new ChassisSpeeds();
     private double lastUpdateTime = 0.0;
-
-    // DataLog entries
-    private StructLogEntry<Pose2d> poseLogEntry;
-    private DoubleLogEntry gyroHeadingLogEntry;
-    private DoubleLogEntry chassisVxLogEntry;
-    private DoubleLogEntry chassisVyLogEntry;
-    private DoubleLogEntry chassisOmegaLogEntry;
-    private DoubleLogEntry steerCruiseRPMLogEntry;
 
     // logging
     private NetworkTableInstance ntInstance;
@@ -121,8 +110,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
         buildAuton();
         initNt();
-        initLogs();
-
 
         if (DRIVE_DEBUG) {
             enableDriveDebug();
@@ -593,29 +580,17 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
-    private void initLogs() {
-        poseLogEntry = StructLogEntry.create(DataLogManager.getLog(), "swerve/estimatedPose", Pose2d.struct);
-        gyroHeadingLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/gyroHeading");
-        chassisVxLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVx");
-        chassisVyLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisVy");
-        chassisOmegaLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/chassisOmega");
-        steerCruiseRPMLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "swerve/steerCruiseRPM");
-    }
-
     private void logStats() {
-        long ts = GRTUtil.getFpgaTime();
-
         // Subsystem-level
-        poseLogEntry.append(estimatedPose, ts);
-        gyroHeadingLogEntry.append(getGyroHeading().getDegrees(), ts);
-        steerCruiseRPMLogEntry.append(currentCruiseVelocityRPM, ts);
+        Logger.recordOutput("swerve/estimatedPose", estimatedPose);
+        Logger.recordOutput("swerve/gyroHeading", getGyroHeading().getDegrees());
+        Logger.recordOutput("swerve/steerCruiseRPM", currentCruiseVelocityRPM);
 
         // Chassis speeds
         ChassisSpeeds speeds = getRobotRelativeChassisSpeeds();
-        chassisVxLogEntry.append(speeds.vxMetersPerSecond, ts);
-        chassisVyLogEntry.append(speeds.vyMetersPerSecond, ts);
-        chassisOmegaLogEntry.append(speeds.omegaRadiansPerSecond, ts);
-
+        Logger.recordOutput("swerve/chassisVx", speeds.vxMetersPerSecond);
+        Logger.recordOutput("swerve/chassisVy", speeds.vyMetersPerSecond);
+        Logger.recordOutput("swerve/chassisOmega", speeds.omegaRadiansPerSecond);
         // Per-module logging
         frontLeftModule.logStats();
         frontRightModule.logStats();

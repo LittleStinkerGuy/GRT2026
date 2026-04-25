@@ -11,10 +11,6 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
-import edu.wpi.first.util.datalog.IntegerArrayLogEntry;
-import edu.wpi.first.util.datalog.StructLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -22,7 +18,7 @@ import frc.robot.util.PolynomialRegression;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import javax.xml.crypto.dsig.Transform;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -30,9 +26,12 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
+    private static AprilTagFieldLayout aprilTagFieldLayout;
+
     private final PhotonCamera camera;
     private final PhotonPoseEstimator photonPoseEstimator;
-    private static AprilTagFieldLayout aprilTagFieldLayout;
+    private final CameraConfig cameraConfig;
+    private final String camID;
 
     private NetworkTableInstance ntInstance;
     private NetworkTable visionStatsTable;
@@ -40,9 +39,6 @@ public class VisionSubsystem extends SubsystemBase {
     private DoublePublisher visionDistPublisher;
     private StructPublisher<Pose3d> cameraPosePublisher;
     private DoubleArrayPublisher tagDistancePublisher;
-    private StructLogEntry<Pose2d> estimatedPoseLogEntry;
-    private DoubleArrayLogEntry tagDistanceLogEntry;
-    private IntegerArrayLogEntry tagIDLogEntry;
 
     private Consumer<TimestampedVisionUpdate> visionConsumer = (x) -> {
     };
@@ -53,12 +49,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     private boolean connected;
     private Transform3d latestTransform3d = new Transform3d();
-    private String camID;
 
     public VisionSubsystem(CameraConfig cameraConfig) {
         // Initialize the camera with its name
-        camera = new PhotonCamera(cameraConfig.getCameraName());
-        camID = cameraConfig.getCameraName();
+        this.camera = new PhotonCamera(cameraConfig.getCameraName());
+        this.camID = cameraConfig.getCameraName();
+        this.cameraConfig = cameraConfig;
         // Load AprilTag field layout
         try {
             aprilTagFieldLayout = new AprilTagFieldLayout(Filesystem.getDeployDirectory() + "/2026-rebuilt-welded.json");
@@ -75,7 +71,6 @@ public class VisionSubsystem extends SubsystemBase {
         // );
 
         initNt(cameraConfig);
-        initLog(cameraConfig);
     }
 
     @Override
@@ -113,10 +108,11 @@ public class VisionSubsystem extends SubsystemBase {
                 tagDistances[i] = distance;
             }
 
-            tagDistancePublisher.set(tagDistances);
-            tagDistanceLogEntry.append(tagDistances);
-            tagIDLogEntry.append(tagIDs);
             visionDistPublisher.set(minDistance);
+            tagDistancePublisher.set(tagDistances);
+
+            Logger.recordOutput(cameraConfig.getCameraName() + " Tag Distances", tagDistances);
+            Logger.recordOutput(cameraConfig.getCameraName() + " Tag IDs", tagIDs);
 
             // Don't use vision measurement if tags are too far
             if (minDistance > 4) {
@@ -149,7 +145,7 @@ public class VisionSubsystem extends SubsystemBase {
                         yStdDevModel.predict(minDistance),
                         oStdDevModel.predict(minDistance))));
             visionPosePublisher.set(estimatedPose2d);
-            estimatedPoseLogEntry.update(estimatedPose2d);
+            Logger.recordOutput(cameraConfig.getCameraName() + " Estimated Pose", estimatedPose2d);
         }
 
     }
@@ -174,26 +170,6 @@ public class VisionSubsystem extends SubsystemBase {
         cameraPosePublisher = visionStatsTable.getStructTopic("camera pose", Pose3d.struct).publish();
         tagDistancePublisher = visionStatsTable.getDoubleArrayTopic("Tag Distances").publish();
         cameraPosePublisher.set(new Pose3d().transformBy(cameraConfig.getCameraPose()));
-    }
-
-    /**
-     * Initializes data logging.
-     * 
-     * @param cameraConfig configuration for the camera
-     */
-    private void initLog(CameraConfig cameraConfig) {
-        tagIDLogEntry = new IntegerArrayLogEntry(
-            DataLogManager.getLog(),
-            cameraConfig.getCameraName() + " Tag IDs");
-        tagDistanceLogEntry = new DoubleArrayLogEntry(
-            DataLogManager.getLog(),
-            cameraConfig.getCameraName() + " Tag Distances"
-
-        );
-        estimatedPoseLogEntry = StructLogEntry.create(
-            DataLogManager.getLog(),
-            cameraConfig.getCameraName() + " Estimated Pose",
-            Pose2d.struct);
     }
 
     public void snapShot() { // download image from

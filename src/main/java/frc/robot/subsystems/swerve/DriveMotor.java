@@ -10,7 +10,7 @@ import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
-
+import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
@@ -30,14 +30,13 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.util.GRTUtil;
 
 public class DriveMotor {
 
     // Motor instance for controlling the drive motor
     private TalonFX motor;
+    private int motorId;
 
     // Configuration for Kraken stored in one Object
     private final TalonFXConfiguration motorConfig = new TalonFXConfiguration();
@@ -71,16 +70,8 @@ public class DriveMotor {
     private StatusSignal<Current> supplyCurrentSignal;
     private StatusSignal<Current> torqueCurrentSignal; // torqueCurrent is Pro
 
-    private DoubleLogEntry positionLogEntry;
-    private DoubleLogEntry veloErrorLogEntry;
-    private DoubleLogEntry veloLogEntry;
-    private DoubleLogEntry targetVeloEntry;
-    private DoubleLogEntry appliedVoltsLogEntry;
-    private DoubleLogEntry supplyCurrLogEntry;
-    private DoubleLogEntry torqueCurrLogEntry;
-    private DoubleLogEntry temperatureLogEntry;
-
     public DriveMotor(int motorID, CANBus canivore) {
+        this.motorId = motorID;
 
         // Set Motor and reset Encoder
         motor = new TalonFX(motorID, canivore);
@@ -90,7 +81,6 @@ public class DriveMotor {
         configureMotor();
         initNt(motorID);
         initSignals();
-        initLogs(motorID);
     }
 
     /**
@@ -133,21 +123,6 @@ public class DriveMotor {
         motor.optimizeBusUtilization(0, 1.0);
     }
 
-    /**
-     * Initializes log entries
-     * 
-     * @param canId drive motor's CAN ID
-     */
-    private void initLogs(int canId) {
-        positionLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/position");
-        veloErrorLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/veloError");
-        veloLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/velo");
-        targetVeloEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/targetVelo");
-        appliedVoltsLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/appliedVolts");
-        supplyCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/supplyCurrent");
-        torqueCurrLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/torqueCurrent");
-        temperatureLogEntry = new DoubleLogEntry(DataLogManager.getLog(), "drive/" + canId + "/temperature");
-    }
 
     /**
      * Set Configurations for Kraken drive
@@ -377,15 +352,14 @@ public class DriveMotor {
      * Logs drive motor statistics to data log
      */
     public void logStats() {
-        long ts = GRTUtil.getFpgaTime();
-        positionLogEntry.append(getDistance(), ts);
-        targetVeloEntry.append(targetRotationsPerSec, ts);
-        veloErrorLogEntry.append(targetRotationsPerSec - motor.getVelocity().getValueAsDouble(), ts);
-        veloLogEntry.append(getVelocity(), ts);
-        appliedVoltsLogEntry.append(appliedVoltsSignal.getValueAsDouble(), ts);
-        supplyCurrLogEntry.append(supplyCurrentSignal.getValueAsDouble(), ts);
-        torqueCurrLogEntry.append(torqueCurrentSignal.getValueAsDouble(), ts);
-        temperatureLogEntry.append(getTemperature(), ts);
+        Logger.recordOutput("drive/" + motorId + "/position", getDistance());
+        Logger.recordOutput("drive/" + motorId + "/veloError", targetRotationsPerSec - motor.getVelocity().getValueAsDouble());
+        Logger.recordOutput("drive/" + motorId + "/velo", getVelocity());
+        Logger.recordOutput("drive/" + motorId + "/targetVelo", targetRotationsPerSec);
+        Logger.recordOutput("drive/" + motorId + "/appliedVolts", appliedVoltsSignal.getValueAsDouble());
+        Logger.recordOutput("drive/" + motorId + "/supplyCurrent", supplyCurrentSignal.getValueAsDouble());
+        Logger.recordOutput("drive/" + motorId + "/torqueCurrent", torqueCurrentSignal.getValueAsDouble());
+        Logger.recordOutput("drive/" + motorId + "/temperature", getTemperature());
     }
 
 }
