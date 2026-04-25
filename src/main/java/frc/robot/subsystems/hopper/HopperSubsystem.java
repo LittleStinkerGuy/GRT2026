@@ -124,11 +124,11 @@ public class HopperSubsystem extends SubsystemBase {
 
     public void setHopper(HopperIntake state) {
         switch (state) {
-            case BALLIN:
+            case BALL_IN:
                 krakenMotor.setControl(velocityControl.withVelocity(HopperConstants.TARGET_RPS));
                 break;
-            case BALLOUT:
-                krakenMotor.setControl(velocityControl.withVelocity(-HopperConstants.TARGET_RPS));
+            case BALL_OUT:
+                krakenMotor.setControl(velocityControl.withVelocity(HopperConstants.TARGET_RPS.unaryMinus()));
                 break;
             case STOP:
                 krakenMotor.stopMotor();

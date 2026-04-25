@@ -28,7 +28,7 @@ public class RunHopperUntilNoBallCommand extends Command {
 
     @Override
     public void execute() {
-        hopper.setHopper(HopperIntake.BALLIN);
+        hopper.setHopper(HopperIntake.BALL_IN);
     }
 
     @Override

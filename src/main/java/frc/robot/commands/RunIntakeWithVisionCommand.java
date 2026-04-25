@@ -38,7 +38,7 @@ public class RunIntakeWithVisionCommand extends Command {
         });
 
         if (closestDistance.lte(Meters.of(2)) && closestDistance.gte(Meters.of(.5))) {
-            intake.setHopper(HopperIntake.BALLIN); // TODO: SWITCH TO intake.runIn() or whatever it is now WHEN USING ACTUAL INTAKE SUBSYSTEM
+            intake.setHopper(HopperIntake.BALL_IN); // TODO: SWITCH TO intake.runIn() or whatever it is now WHEN USING ACTUAL INTAKE SUBSYSTEM
         } else {
             intake.setManualControl(0);
         }
