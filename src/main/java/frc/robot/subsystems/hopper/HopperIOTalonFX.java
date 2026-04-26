@@ -131,6 +131,8 @@ public class HopperIOTalonFX implements HopperIO {
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(120.0, signals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), signals);
+
+        updatePID(HopperConstants.SIM_KP, 0.0, 0.0, 0.0, HopperConstants.SIM_KV, 0.0);
     }
 
     @Override
