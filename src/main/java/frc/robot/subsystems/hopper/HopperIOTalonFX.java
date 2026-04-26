@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.util.LoggedCanivore;
+import frc.robot.util.MotorControlMode;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -55,6 +56,11 @@ public class HopperIOTalonFX implements HopperIO {
     private final StatusSignal<Current> torqueCurrent;
     private final StatusSignal<Temperature> temp;
     private final StatusSignal<Boolean> tempFault;
+
+    private MotorControlMode currentControlMode;
+    private double currentDutyCycleSetpoint;
+    private Voltage currentVoltageSetpoint;
+    private AngularVelocity currentVelocitySetpoint;
 
     public HopperIOTalonFX(LoggedCanivore canivore) {
         motor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, canivore);
@@ -127,6 +133,10 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.temp = temp.getValue();
         inputs.tempFault = tempFault.getValue();
         inputs.connected = BaseStatusSignal.isAllGood(signals);
+        inputs.controlMode = currentControlMode;
+        inputs.dutyCycleSetpoint = currentDutyCycleSetpoint;
+        inputs.voltageSetpoint = currentVoltageSetpoint;
+        inputs.velocitySetpoint = currentVelocitySetpoint;
     }
 
     @Override
@@ -148,15 +158,24 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void setDutyCycle(double dutyCycle) {
         motor.setControl(dutyCycleControl.withOutput(dutyCycle));
+        if (dutyCycle == 0) {
+            currentControlMode = MotorControlMode.Disabled;
+        } else {
+            currentControlMode = MotorControlMode.DutyCycle;
+        }
+        currentDutyCycleSetpoint = dutyCycle;
     }
 
     @Override
     public void setVelocity(AngularVelocity velocity) {
         motor.setControl(velocityControl.withVelocity(velocity));
+        currentControlMode = MotorControlMode.Velocity;
+        currentVelocitySetpoint = velocity;
     }
 
     @Override
     public void stop() {
         motor.stopMotor();
+        currentControlMode = MotorControlMode.Disabled;
     }
 }

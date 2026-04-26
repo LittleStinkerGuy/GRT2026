@@ -9,6 +9,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.MotorControlMode;
 
 public interface HopperIO {
     @AutoLog
@@ -23,7 +24,13 @@ public interface HopperIO {
         public Temperature temp;
         public boolean tempFault;
         public boolean connected;
+
+        MotorControlMode controlMode;
+        double dutyCycleSetpoint;
+        Voltage voltageSetpoint;
+        AngularVelocity velocitySetpoint;
     }
+
 
     default void updateInputs(HopperIOInputs inputs) {}
 
