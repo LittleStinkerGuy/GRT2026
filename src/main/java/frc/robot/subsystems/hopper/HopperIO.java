@@ -34,7 +34,7 @@ public interface HopperIO {
 
         public MotorControlMode controlMode = MotorControlMode.Disabled;
         public double appliedDutyCycle = 0.0;
-        public double closedLoopReference = 0.0;
+        public double closedLoopSetpoint = 0.0;
         public double closedLoopOutput = 0.0;
     }
 

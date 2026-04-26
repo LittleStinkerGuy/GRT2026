@@ -147,7 +147,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.connected = BaseStatusSignal.isAllGood(signals);
         inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
         inputs.appliedDutyCycle = appliedDutyCycle.getValue();
-        inputs.closedLoopReference = closedLoopReference.getValue();
+        inputs.closedLoopSetpoint = closedLoopReference.getValue();
         inputs.closedLoopOutput = closedLoopOutput.getValue();
     }
 
