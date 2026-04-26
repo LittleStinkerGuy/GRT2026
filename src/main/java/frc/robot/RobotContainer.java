@@ -34,7 +34,9 @@ import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.fms.FieldManagementSubsystem;
+import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOTalonFX;
+import frc.robot.subsystems.hopper.HopperIOTalonFXSim;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.intake.RollerIntakeSubsystem;
@@ -47,6 +49,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.util.LoggedCanivore;
+import frc.robot.util.PS5ControllerEmulator;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -74,7 +77,7 @@ public class RobotContainer {
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCan);
     private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCan);
-    private final HopperSubsystem hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
+    private final HopperSubsystem hopper;
     private final Field2d field = new Field2d();
     private final FlywheelSubsystem flywheel = new FlywheelSubsystem(mechCan);
     private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCan);
@@ -108,6 +111,18 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        switch (Constants.CURRENT_MODE) {
+            case REAL:
+                hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
+                break;
+            case SIM:
+                hopper = new HopperSubsystem(new HopperIOTalonFXSim(mechCan));
+                break;
+            case REPLAY:
+            default:
+                hopper = new HopperSubsystem(new HopperIO() {});
+                break;
+        }
         visionStuff();
         constructController();
         configureBindings();
@@ -373,7 +388,9 @@ public class RobotContainer {
     private void constructController() {
         driveController = new PS5DriveController();
         driveController.setDeadZone(0.035);
-        mechController = new CommandPS5Controller(1);
+        mechController = (Constants.CURRENT_MODE == Mode.REAL)
+            ? new CommandPS5Controller(1)
+            : new PS5ControllerEmulator(1);
     }
 
     /**
