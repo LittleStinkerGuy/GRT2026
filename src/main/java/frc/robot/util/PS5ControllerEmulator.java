@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  *   circle   -> B           R1    -> rightBumper      R3    -> rightStick
  *   square   -> X           L2    -> leftTrigger>0.5  options -> start
  *   triangle -> Y           R2    -> rightTrigger>0.5 create  -> back
- *   povX     -> povX        getL2Axis -> leftTriggerAxis remapped to [-1, 1]
- *                           getR2Axis -> rightTriggerAxis remapped to [-1, 1]
+ *   povX     -> povX        getL2Axis -> leftTriggerAxis
+ *                           getR2Axis -> rightTriggerAxis
  * </pre>
  *
  * <p>
@@ -34,11 +34,45 @@ public class PS5ControllerEmulator extends CommandPS5Controller {
 
     private static final double TRIGGER_BUTTON_THRESHOLD = 0.5;
 
+    // macOS's native Xbox HID layout (all sticks & triggers are -1..+1):
+    // axes: 0=LX 1=LY 2=RX 3=RY 4=RT 5=LT
+    // buttons (1-indexed):
+    // 1=A 2=B 3=- 4=X 5=Y 6=- 7=LB 8=RB 9=- 10=-
+    // 11=View 12=Options 13=LStickClick 14=RStickClick 15=Share
+    // WPILib's CommandXboxController assumes the XInput layout, which disagrees on
+    // every axis past LY and most buttons. On macOS we bypass it and read raw
+    // axes/buttons directly.
+    private static final boolean IS_MACOS =
+        System.getProperty("os.name", "").toLowerCase().startsWith("mac");
+
+    private static final int MAC_AXIS_LX = 0;
+    private static final int MAC_AXIS_LY = 1;
+    private static final int MAC_AXIS_RX = 2;
+    private static final int MAC_AXIS_RY = 3;
+    private static final int MAC_AXIS_RT = 4;
+    private static final int MAC_AXIS_LT = 5;
+
+    private static final int MAC_BTN_A = 1;
+    private static final int MAC_BTN_B = 2;
+    private static final int MAC_BTN_X = 4;
+    private static final int MAC_BTN_Y = 5;
+    private static final int MAC_BTN_LB = 7;
+    private static final int MAC_BTN_RB = 8;
+    private static final int MAC_BTN_VIEW = 11; // PS5 "create"
+    private static final int MAC_BTN_OPTIONS = 12;
+    private static final int MAC_BTN_LSTICK = 14;
+    private static final int MAC_BTN_RSTICK = 15;
+    private static final int MAC_BTN_SHARE = 16;
+
     private final CommandXboxController xbox;
 
     public PS5ControllerEmulator(int port) {
         super(port);
         this.xbox = new CommandXboxController(port);
+    }
+
+    private Trigger macButton(int idx) {
+        return new Trigger(() -> xbox.getHID().getRawButton(idx));
     }
 
     /** Underlying Xbox controller, in case raw access is needed. */
@@ -50,74 +84,74 @@ public class PS5ControllerEmulator extends CommandPS5Controller {
 
     @Override
     public Trigger cross() {
-        return xbox.a();
+        return IS_MACOS ? macButton(MAC_BTN_A) : xbox.a();
     }
 
     @Override
     public Trigger circle() {
-        return xbox.b();
+        return IS_MACOS ? macButton(MAC_BTN_B) : xbox.b();
     }
 
     @Override
     public Trigger square() {
-        return xbox.x();
+        return IS_MACOS ? macButton(MAC_BTN_X) : xbox.x();
     }
 
     @Override
     public Trigger triangle() {
-        return xbox.y();
+        return IS_MACOS ? macButton(MAC_BTN_Y) : xbox.y();
     }
 
     // ==================== BUMPERS / TRIGGERS ====================
 
     @Override
     public Trigger L1() {
-        return xbox.leftBumper();
+        return IS_MACOS ? macButton(MAC_BTN_LB) : xbox.leftBumper();
     }
 
     @Override
     public Trigger R1() {
-        return xbox.rightBumper();
+        return IS_MACOS ? macButton(MAC_BTN_RB) : xbox.rightBumper();
     }
 
-    /** L2 as a button — fires when the Xbox left trigger crosses 0.5. */
+    /** L2 as a button — fires when the left trigger crosses 50% pressed. */
     @Override
     public Trigger L2() {
-        return xbox.leftTrigger(TRIGGER_BUTTON_THRESHOLD);
+        return new Trigger(() -> getL2Axis() > TRIGGER_BUTTON_THRESHOLD);
     }
 
-    /** R2 as a button — fires when the Xbox right trigger crosses 0.5. */
+    /** R2 as a button — fires when the right trigger crosses 50% pressed. */
     @Override
     public Trigger R2() {
-        return xbox.rightTrigger(TRIGGER_BUTTON_THRESHOLD);
+        return new Trigger(() -> getR2Axis() > TRIGGER_BUTTON_THRESHOLD);
     }
 
     @Override
     public Trigger L3() {
-        return xbox.leftStick();
+        return IS_MACOS ? macButton(MAC_BTN_LSTICK) : xbox.leftStick();
     }
 
     @Override
     public Trigger R3() {
-        return xbox.rightStick();
+        return IS_MACOS ? macButton(MAC_BTN_RSTICK) : xbox.rightStick();
     }
 
     // ==================== CENTER / SYSTEM BUTTONS ====================
 
     @Override
     public Trigger options() {
-        return xbox.start();
+        return IS_MACOS ? macButton(MAC_BTN_OPTIONS) : xbox.start();
     }
 
     @Override
     public Trigger create() {
-        return xbox.back();
+        return IS_MACOS ? macButton(MAC_BTN_VIEW) : xbox.back();
     }
 
-    /** No Xbox equivalent — never fires. */
+    /** On macOS, mapped to the Xbox Share button. Elsewhere, never fires. */
     @Override
     public Trigger touchpad() {
-        return new Trigger(() -> false);
+        return IS_MACOS ? macButton(MAC_BTN_SHARE) : new Trigger(() -> false);
     }
 
     // ==================== POV ====================
@@ -171,37 +205,52 @@ public class PS5ControllerEmulator extends CommandPS5Controller {
 
     @Override
     public double getLeftX() {
+        if (IS_MACOS) {
+            return xbox.getHID().getRawAxis(MAC_AXIS_LX);
+        }
         return xbox.getLeftX();
     }
 
     @Override
     public double getLeftY() {
+        if (IS_MACOS) {
+            return xbox.getHID().getRawAxis(MAC_AXIS_LY);
+        }
         return xbox.getLeftY();
     }
 
     @Override
     public double getRightX() {
+        if (IS_MACOS) {
+            return xbox.getHID().getRawAxis(MAC_AXIS_RX);
+        }
         return xbox.getRightX();
     }
 
     @Override
     public double getRightY() {
+        if (IS_MACOS) {
+            return xbox.getHID().getRawAxis(MAC_AXIS_RY);
+        }
         return xbox.getRightY();
     }
 
-    /**
-     * PS5-style L2 axis: -1 at rest, +1 fully pressed. Remapped from the
-     * Xbox left trigger's [0, 1] range so existing math like
-     * {@code (getR2Axis() + 1) / 3} keeps working.
-     */
+    /** PS5 L2 axis: 0 at rest, 1 fully pressed (matches CommandPS5Controller). */
     @Override
     public double getL2Axis() {
-        return xbox.getLeftTriggerAxis() * 2.0 - 1.0;
+        if (IS_MACOS) {
+            // macOS reports the trigger as -1 (rest) → +1 (pressed); remap to [0, 1].
+            return (xbox.getHID().getRawAxis(MAC_AXIS_LT) + 1.0) / 2.0;
+        }
+        return xbox.getLeftTriggerAxis();
     }
 
-    /** PS5-style R2 axis: -1 at rest, +1 fully pressed. */
+    /** PS5 R2 axis: 0 at rest, 1 fully pressed (matches CommandPS5Controller). */
     @Override
     public double getR2Axis() {
-        return xbox.getRightTriggerAxis() * 2.0 - 1.0;
+        if (IS_MACOS) {
+            return (xbox.getHID().getRawAxis(MAC_AXIS_RT) + 1.0) / 2.0;
+        }
+        return xbox.getRightTriggerAxis();
     }
 }
