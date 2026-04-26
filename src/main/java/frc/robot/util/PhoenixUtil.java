@@ -9,6 +9,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
+import edu.wpi.first.wpilibj.Alert;
 import frc.robot.Constants.CANType;
 import java.util.EnumMap;
 import java.util.List;
@@ -19,14 +20,24 @@ import java.util.function.Supplier;
  * Taken from 6328's 2025 code
  */
 public class PhoenixUtil {
-    /** Attempts to run the command until no error is produced. */
-    public static void tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
+    /** Attempts to run the command until no error is produced. Returns error code */
+    public static StatusCode tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
+        StatusCode latestError = StatusCode.OK;
         for (int i = 0; i < maxAttempts; i++) {
-            var error = command.get();
-            if (error.isOK()) {
-                break;
+            latestError = command.get();
+            if (latestError.isOK()) {
+                return latestError;
             }
         }
+        return latestError;
+    }
+
+    /** Attempts to run the command until no error is produced. Returns error code */
+    public static StatusCode tryUntilOk(int maxAttempts, Supplier<StatusCode> command, Alert failureAlert) {
+        StatusCode result = tryUntilOk(maxAttempts, command);
+        failureAlert.set(!result.isOK());
+
+        return result;
     }
 
     /** Signals for synchronized refresh, keyed by bus. */
