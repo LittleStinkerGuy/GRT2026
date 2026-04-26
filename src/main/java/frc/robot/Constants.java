@@ -6,11 +6,15 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Velocity;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -357,6 +361,11 @@ public final class Constants {
         public static final double kV = 0.464;
         public static final double kA = 0.0127;
         public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(6.47);
+
+        // Motion Magic Constants
+        public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(100);
+        public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(100);
+        public static final Velocity<AngularAccelerationUnit> MM_JERK = RotationsPerSecondPerSecond.of(100).per(Second);
 
         // balls stuff
         public static final double TARGET_BPS = 4.0; // frequency
