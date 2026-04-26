@@ -33,7 +33,7 @@ import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
-    private final TalonFX motor;
+    protected final TalonFX motor;
     private final Slot0Configs pidConfig;
     private final MotionMagicConfigs mmConfigs;
 
