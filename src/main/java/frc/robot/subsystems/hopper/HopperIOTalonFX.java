@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Amps;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -14,11 +15,13 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -30,15 +33,17 @@ public class HopperIOTalonFX implements HopperIO {
     private final TalonFX motor;
     private final TalonFXConfiguration config = new TalonFXConfiguration();
     private final Slot0Configs pidConfig;
+    private final MotionMagicConfigs mmConfigs;
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
     private final Alert failedToSetFrequencyAlert = new Alert("Hopper", "Failed to set status signal frequency!", AlertType.kError);
-    private final Alert failedToConfigureMotor = new Alert("Hopper", "Failed to configure hopper motor!", AlertType.kError);
+    private final Alert failedToConfigureMotorAlert = new Alert("Hopper", "Failed to configure hopper motor!", AlertType.kError);
 
-    private final Alert didNotOptimizeCAN = new Alert("Hopper", "Didn't optimize motor CAN", AlertType.kWarning);
-    private final Alert pidNotSet = new Alert("Hopper", "Motor PID was not saved", AlertType.kWarning);
+    private final Alert didNotOptimizeCANAlert = new Alert("Hopper", "Didn't optimize motor CAN", AlertType.kWarning);
+    private final Alert pidNotSetAlert = new Alert("Hopper", "Motor PID was not saved", AlertType.kWarning);
+    private final Alert mmNotSetAlert = new Alert("Hopper", "Motion Magic configs were not saved", AlertType.kWarning);
 
     ArrayList<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
@@ -76,7 +81,13 @@ public class HopperIOTalonFX implements HopperIO {
             .withKA(HopperConstants.kA);
         config.withSlot0(pidConfig);
 
-        tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotor);
+        mmConfigs = new MotionMagicConfigs()
+            .withMotionMagicAcceleration(HopperConstants.MM_ACCEL)
+            .withMotionMagicCruiseVelocity(HopperConstants.MM_MAX_VELO)
+            .withMotionMagicJerk(HopperConstants.MM_JERK);
+        config.withMotionMagic(mmConfigs);
+
+        tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotorAlert);
 
         position = motor.getPosition(false);
         velocity = motor.getVelocity(false);
@@ -100,7 +111,7 @@ public class HopperIOTalonFX implements HopperIO {
         signals.add(tempFault);
 
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals), failedToSetFrequencyAlert);
-        tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCAN);
+        tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), signals);
     }
 
@@ -122,7 +133,16 @@ public class HopperIOTalonFX implements HopperIO {
     public void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {
         pidConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
         System.out.println("changes pid");
-        tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig), pidNotSet);
+        tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig), pidNotSetAlert);
+    }
+
+    @Override
+    public void updateMotionMagicConfig(AngularAcceleration accel, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {
+        mmConfigs.withMotionMagicAcceleration(accel)
+            .withMotionMagicCruiseVelocity(velo)
+            .withMotionMagicJerk(jerk);
+        System.out.println("changes mm");
+        tryUntilOk(5, () -> motor.getConfigurator().apply(mmConfigs), mmNotSetAlert);
     }
 
     @Override
