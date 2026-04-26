@@ -20,6 +20,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PhoenixUtil;
@@ -32,6 +34,8 @@ public class HopperIOTalonFX implements HopperIO {
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
+    private final Alert failedToSetFrequencyAlert = new Alert("Hopper", "Failed to set status signal frequency!", AlertType.kError);
+
     ArrayList<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
@@ -43,8 +47,8 @@ public class HopperIOTalonFX implements HopperIO {
     private final StatusSignal<Temperature> temp;
     private final StatusSignal<Boolean> tempFault;
 
-    public HopperIOTalonFX(LoggedCanivore canivore, int id) {
-        motor = new TalonFX(id, canivore);
+    public HopperIOTalonFX(LoggedCanivore canivore) {
+        motor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, canivore);
 
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
@@ -91,7 +95,7 @@ public class HopperIOTalonFX implements HopperIO {
         signals.add(temp);
         signals.add(tempFault);
 
-        tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals));
+        tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0));
         PhoenixUtil.registerSignals(canivore.getCanType(), signals);
     }
