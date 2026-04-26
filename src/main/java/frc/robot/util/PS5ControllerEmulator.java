@@ -15,20 +15,39 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * PS5 button names.
  *
  * <p>
- * Mappings:
- * 
+ * Mappings (PS5 → Xbox):
+ *
  * <pre>
- *   cross    -> A           L1    -> leftBumper       L3    -> leftStick
- *   circle   -> B           R1    -> rightBumper      R3    -> rightStick
- *   square   -> X           L2    -> leftTrigger>0.5  options -> start
- *   triangle -> Y           R2    -> rightTrigger>0.5 create  -> back
- *   povX     -> povX        getL2Axis -> leftTriggerAxis
- *                           getR2Axis -> rightTriggerAxis
+ *   ┌──────────────┬─────────────────────────────┐
+ *   │  PS5         │  Xbox                       │
+ *   ├──────────────┼─────────────────────────────┤
+ *   │  cross       │  A                          │
+ *   │  circle      │  B                          │
+ *   │  square      │  X                          │
+ *   │  triangle    │  Y                          │
+ *   │  L1   / R1   │  Left / Right Bumper        │
+ *   │  L2   / R2   │  Left / Right Trigger       │
+ *   │  L3   / R3   │  Left / Right Stick Click   │
+ *   │  options     │  Menu  (a.k.a. Start)       │
+ *   │  create      │  View  (a.k.a. Back)        │
+ *   │  touchpad    │  Share    (macOS only)      │
+ *   │  povX        │  POV X / D-Pad              │
+ *   │  leftX  / Y  │  Left  Stick X / Y          │
+ *   │  rightX / Y  │  Right Stick X / Y          │
+ *   └──────────────┴─────────────────────────────┘
  * </pre>
  *
  * <p>
- * Touchpad / PS / mute have no Xbox equivalent and return a never-true
- * Trigger.
+ * Trigger axes ({@link #getL2Axis()} / {@link #getR2Axis()}) read
+ * {@code [0, 1]} (rest = 0, fully pressed = 1). The {@link #L2()} /
+ * {@link #R2()} button triggers fire past 50% press. The PS / mute buttons
+ * have no Xbox equivalent and return a never-true Trigger.
+ *
+ * <p>
+ * On macOS the native Xbox HID exposes a different axis order and button
+ * layout than the XInput layout WPILib's {@code CommandXboxController}
+ * assumes. This class detects the platform and reads raw axis / button
+ * indices when needed — see the {@code MAC_*} constants below.
  */
 public class PS5ControllerEmulator extends CommandPS5Controller {
 
