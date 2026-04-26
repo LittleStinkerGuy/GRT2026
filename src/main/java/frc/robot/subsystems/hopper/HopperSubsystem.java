@@ -95,6 +95,17 @@ public class HopperSubsystem extends SubsystemBase {
         return Optional.of(errorRPS < HopperConstants.VELOCITY_TOLERANCE.in(RotationsPerSecond));
     }
 
+    public void setHopperState(HopperIntake state) {
+        switch (state) {
+            case BALL_IN:
+                setVelocity(HopperConstants.TARGET_RPS);
+            case BALL_OUT:
+                setVelocity(HopperConstants.TARGET_RPS.unaryMinus());
+            default:
+                stop();
+        }
+    }
+
     private void logSetpoints(double dutyCycleSetpoint, Voltage voltageSetpoint, AngularVelocity velocitySetpoint) {
         Logger.recordOutput("Hopper/DutyCycleSetpoint", dutyCycleSetpoint);
         Logger.recordOutput("Hopper/VoltageSetpoint", voltageSetpoint);
@@ -158,14 +169,11 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     public Command runHopperStateCommand(HopperIntake state) {
-        switch (state) {
-            case BALL_IN:
-                return this.run(() -> setVelocity(HopperConstants.TARGET_RPS)).finallyDo(interrupted -> stop());
-            case BALL_OUT:
-                return this.run(() -> setVelocity(HopperConstants.TARGET_RPS.unaryMinus())).finallyDo(interrupted -> stop());
-            default:
-                return stopCommand();
-        }
+        return this.runEnd(
+            () -> {
+                setHopperState(state);
+            },
+            this::stop);
     }
 
     public Command runHopperOut() {
