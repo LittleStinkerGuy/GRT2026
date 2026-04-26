@@ -33,7 +33,7 @@ public class CycleBallsCommand extends Command {
     public void initialize() {
         flywheel.flySpeed(1);
         tower.setTower(TowerIntake.BALLUP);
-        hopper.setHopper(HopperIntake.BALL_IN);
+        hopper.setHopperState(HopperIntake.BALL_IN);
 
         startUpTimer.restart();
     }
@@ -42,7 +42,7 @@ public class CycleBallsCommand extends Command {
     public void execute() {
         flywheel.flySpeed(1);
         tower.setTower(TowerIntake.BALLUP);
-        hopper.setHopper(HopperIntake.BALL_IN);
+        hopper.setHopperState(HopperIntake.BALL_IN);
 
         if (startUpTimer.hasElapsed(1)) {
             intakeRoller.runIn();
@@ -60,7 +60,7 @@ public class CycleBallsCommand extends Command {
     public void end(boolean interrupted) {
         flywheel.flySpeed(0);
         tower.setManualControl(0);
-        hopper.setManualControl(0);
+        hopper.stop();
         intakeRoller.stop();
     }
 }
