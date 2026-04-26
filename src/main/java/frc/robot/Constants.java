@@ -15,6 +15,7 @@ import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -31,6 +32,15 @@ import edu.wpi.first.units.measure.Velocity;
 public final class Constants {
 
     // ==================== GLOBAL ====================
+    public enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
+
+    public static final Mode SIM_MODE = Mode.SIM;
+    public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
+
     public enum CANType {
         RIO(CANBus.roboRIO().getName()),
         MECH("mechCAN"),

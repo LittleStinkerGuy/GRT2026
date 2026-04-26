@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -29,14 +28,6 @@ public class Robot extends LoggedRobot {
 
     private final RobotContainer robotContainer;
 
-    public enum Mode {
-        REAL,
-        SIM,
-        REPLAY
-    }
-
-    public static final Mode SIM_MODE = Mode.SIM;
-    public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -47,7 +38,7 @@ public class Robot extends LoggedRobot {
         // Record metadata
         // BUILDCONSTANTS IS GENERATED DURING BUILD
         // IF THIS IS THROWING AN ERROR JUST BUILD
-        Logger.recordMetadata("BuildType", CURRENT_MODE.toString());
+        Logger.recordMetadata("BuildType", Constants.CURRENT_MODE.toString());
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -61,7 +52,7 @@ public class Robot extends LoggedRobot {
                 default -> "Unknown";
             });
 
-        switch (CURRENT_MODE) {
+        switch (Constants.CURRENT_MODE) {
             case REAL:
                 Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs"));
                 Logger.addDataReceiver(new NT4Publisher());
