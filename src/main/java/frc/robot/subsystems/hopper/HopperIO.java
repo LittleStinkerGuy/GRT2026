@@ -31,4 +31,6 @@ public interface HopperIO {
 
     default void stop() {}
 
+    default void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {}
+
 }

@@ -27,6 +27,7 @@ import frc.robot.util.PhoenixUtil;
 public class HopperIOTalonFX implements HopperIO {
     private final TalonFX motor;
     private final TalonFXConfiguration config = new TalonFXConfiguration();
+    private final Slot0Configs pidConfig;
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
@@ -56,14 +57,16 @@ public class HopperIOTalonFX implements HopperIO {
                 .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
                 .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
         config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
+
         // Velocity control PID (Slot 0)
-        config.withSlot0(new Slot0Configs()
+        pidConfig = new Slot0Configs()
             .withKP(HopperConstants.kP)
             .withKI(HopperConstants.kI)
             .withKD(HopperConstants.kD)
             .withKS(HopperConstants.kS)
             .withKV(HopperConstants.kV)
-            .withKV(HopperConstants.kA));
+            .withKA(HopperConstants.kA);
+        config.withSlot0(pidConfig);
 
         tryUntilOk(5, () -> motor.getConfigurator().apply(config));
 
@@ -105,6 +108,13 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.temp = temp.getValue();
         inputs.tempFault = tempFault.getValue();
         inputs.connected = BaseStatusSignal.isAllGood(signals);
+    }
+
+    @Override
+    public void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {
+        pidConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
+        System.out.println("changes pid");
+        tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig));
     }
 
     @Override
