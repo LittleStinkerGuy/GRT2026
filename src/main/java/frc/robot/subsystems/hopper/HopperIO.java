@@ -38,9 +38,11 @@ public interface HopperIO {
 
     default void updateMotionMagicConfig(AngularAcceleration accel, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {}
 
-    default void setDutyCycle(double dutyCycle) {}
+    default void setDutyCycleOut(double dutyCycle) {}
 
-    default void setVelocity(AngularVelocity velocity) {}
+    default void setVoltageOut(Voltage volts) {}
+
+    default void setVelocityOut(AngularVelocity velocity) {}
 
     default void stop() {}
 }
