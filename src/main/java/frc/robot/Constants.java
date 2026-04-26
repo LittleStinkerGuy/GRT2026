@@ -372,6 +372,9 @@ public final class Constants {
         public static final double kA = 0.0127;
         public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(6.47);
 
+        public static final double SIM_KP = 0.8;
+        public static final double SIM_KV = 0.0;
+
         // Motion Magic Constants
         public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(100);
         public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(100);
