@@ -2,6 +2,7 @@ package frc.robot.subsystems.hopper;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.ArrayList;
+import java.util.List;
 import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -49,7 +50,7 @@ public class HopperIOTalonFX implements HopperIO {
     private final Alert pidNotSetAlert = new Alert("Hopper", "Motor PID was not saved", AlertType.kWarning);
     private final Alert mmNotSetAlert = new Alert("Hopper", "Motion Magic configs were not saved", AlertType.kWarning);
 
-    private final ArrayList<BaseStatusSignal> signals = new ArrayList<>();
+    private final List<BaseStatusSignal> signals = new ArrayList<>();
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
     private final StatusSignal<AngularAcceleration> accel;
