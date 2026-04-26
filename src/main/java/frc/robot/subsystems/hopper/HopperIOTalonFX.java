@@ -154,7 +154,6 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {
         pidConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
-        System.out.println("changes pid");
         tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig), pidNotSetAlert);
     }
 
@@ -163,7 +162,6 @@ public class HopperIOTalonFX implements HopperIO {
         mmConfigs.withMotionMagicAcceleration(acceleration)
             .withMotionMagicCruiseVelocity(velo)
             .withMotionMagicJerk(jerk);
-        System.out.println("changes mm");
         tryUntilOk(5, () -> motor.getConfigurator().apply(mmConfigs), mmNotSetAlert);
     }
 
