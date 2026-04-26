@@ -35,6 +35,10 @@ public class HopperIOTalonFX implements HopperIO {
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
     private final Alert failedToSetFrequencyAlert = new Alert("Hopper", "Failed to set status signal frequency!", AlertType.kError);
+    private final Alert failedToConfigureMotor = new Alert("Hopper", "Failed to configure hopper motor!", AlertType.kError);
+
+    private final Alert didNotOptimizeCAN = new Alert("Hopper", "Didn't optimize motor CAN", AlertType.kWarning);
+    private final Alert pidNotSet = new Alert("Hopper", "Motor PID was not saved", AlertType.kWarning);
 
     ArrayList<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
@@ -72,7 +76,7 @@ public class HopperIOTalonFX implements HopperIO {
             .withKA(HopperConstants.kA);
         config.withSlot0(pidConfig);
 
-        tryUntilOk(5, () -> motor.getConfigurator().apply(config));
+        tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotor);
 
         position = motor.getPosition(false);
         velocity = motor.getVelocity(false);
@@ -96,7 +100,7 @@ public class HopperIOTalonFX implements HopperIO {
         signals.add(tempFault);
 
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals), failedToSetFrequencyAlert);
-        tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0));
+        tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCAN);
         PhoenixUtil.registerSignals(canivore.getCanType(), signals);
     }
 
@@ -118,7 +122,7 @@ public class HopperIOTalonFX implements HopperIO {
     public void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {
         pidConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
         System.out.println("changes pid");
-        tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig));
+        tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig), pidNotSet);
     }
 
     @Override
