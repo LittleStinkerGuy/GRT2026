@@ -78,10 +78,10 @@ public class CycleManualShooterSequence extends Command {
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
             tower.setManualControl(CycleShooterConstants.TOWER_DUTY_CYCLE);
-            hopper.setManualControl(CycleShooterConstants.INDEXER_DUTY_CYCLE);
+            hopper.setDutyCycle(CycleShooterConstants.INDEXER_DUTY_CYCLE);
         } else {
             tower.setManualControl(0);
-            hopper.setManualControl(0);
+            hopper.stop();
         }
     }
 
@@ -95,7 +95,7 @@ public class CycleManualShooterSequence extends Command {
         fly.dontShoot();
         hd.setHoodAngle(0);
         tower.setManualControl(0);
-        hopper.setManualControl(0);
+        hopper.stop();
         pivotIntake.setPosition(IntakeConstants.PIVOT_OUT_POS);
     }
 }

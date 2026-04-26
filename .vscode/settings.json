@@ -66,6 +66,8 @@
   "java.format.settings.url": "./eclipse-java-formatter.xml",
   "cSpell.words": [
     "Auton",
+    "Quasistatic",
+    "Setpoints",
     "TELEOP"
   ]
 }
