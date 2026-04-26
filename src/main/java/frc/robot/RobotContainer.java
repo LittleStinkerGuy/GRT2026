@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.ShooterConstants.Flywheel;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.CycleShot;
@@ -112,16 +113,19 @@ public class RobotContainer {
         configureBindings();
         configureAutoChooser();
 
-        // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
-        driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
-        driverCam.setVideoMode(PixelFormat.kMJPEG, 640, 480, 30);
 
-        // Throttle what actually streams to the dashboard (the source-side FPS
-        // is just a hint — Arducams often ignore it). These caps are authoritative.
-        MjpegServer driverCamServer = (MjpegServer) CameraServer.getServer("serve_Driver Cam");
-        driverCamServer.setResolution(320, 240);
-        driverCamServer.setFPS(20);
-        driverCamServer.setCompression(50); // 0 = worst, 100 = best; lower = less bandwidth
+        if (Constants.CURRENT_MODE != Mode.REAL) {
+            // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
+            driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
+            driverCam.setVideoMode(PixelFormat.kMJPEG, 640, 480, 30);
+
+            // Throttle what actually streams to the dashboard (the source-side FPS
+            // is just a hint — Arducams often ignore it). These caps are authoritative.
+            MjpegServer driverCamServer = (MjpegServer) CameraServer.getServer("serve_Driver Cam");
+            driverCamServer.setResolution(320, 240);
+            driverCamServer.setFPS(20);
+            driverCamServer.setCompression(50); // 0 = worst, 100 = best; lower = less bandwidth
+        }
 
         SmartDashboard.putData("Field", field);
         NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
