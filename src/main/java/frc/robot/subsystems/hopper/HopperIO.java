@@ -25,10 +25,10 @@ public interface HopperIO {
         public boolean tempFault;
         public boolean connected;
 
-        MotorControlMode controlMode;
-        double dutyCycleSetpoint;
-        Voltage voltageSetpoint;
-        AngularVelocity velocitySetpoint;
+        public MotorControlMode controlMode;
+        public double appliedDutyCycle;
+        public double closedLoopReference;
+        public double closedLoopOutput;
     }
 
 
