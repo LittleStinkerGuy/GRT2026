@@ -112,8 +112,7 @@ public class HopperSubsystem extends SubsystemBase {
         if (commandedControlMode != MotorControlMode.Velocity) {
             return Optional.empty();
         }
-        double errorRPS = Math.abs(commandedVelocitySetpoint.minus(inputs.velocity).in(RotationsPerSecond));
-        return Optional.of(errorRPS < HopperConstants.VELOCITY_TOLERANCE.in(RotationsPerSecond));
+        return Optional.of(commandedVelocitySetpoint.isNear(inputs.velocity, HopperConstants.VELOCITY_TOLERANCE));
     }
 
     public void setHopperState(HopperIntake state) {
