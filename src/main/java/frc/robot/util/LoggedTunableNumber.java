@@ -21,7 +21,7 @@ import frc.robot.Constants;
  * Taken from team 6328 Mechanical Advantage's 2025 codebase
  */
 public class LoggedTunableNumber implements DoubleSupplier {
-    private static final String tableKey = "/Tuning";
+    private static final String TABLE_KEY = "/Tuning";
 
     private final String key;
     private boolean hasDefault = false;
@@ -35,7 +35,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
      * @param dashboardKey Key on dashboard
      */
     public LoggedTunableNumber(String dashboardKey) {
-        this.key = tableKey + "/" + dashboardKey;
+        this.key = TABLE_KEY + "/" + dashboardKey;
     }
 
     /**
