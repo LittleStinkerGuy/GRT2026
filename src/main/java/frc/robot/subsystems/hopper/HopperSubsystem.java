@@ -147,7 +147,6 @@ public class HopperSubsystem extends SubsystemBase {
         for (int i = 0; i < HOPPER_VANES; i++) {
             vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
         }
-        Logger.recordOutput("Hopper/SpinnerAngleDeg", spinnerDeg);
         Logger.recordOutput("Hopper/Mechanism2d", mechanism);
 
         switch (commandedControlMode) {
