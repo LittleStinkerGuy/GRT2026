@@ -1,141 +1,141 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEvent;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.Optional;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.HopperConstants.HopperIntake;
 import frc.robot.Constants.HopperConstants;
-import frc.robot.util.LoggedTalon;
-import java.util.EnumSet;
-import java.util.function.Consumer;
+import frc.robot.Constants.HopperConstants.HopperIntake;
+import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.MotorControlMode;
 
 public class HopperSubsystem extends SubsystemBase {
+    private final HopperIO io;
+    private final HopperIOInputsAutoLogged inputs = new HopperIOInputsAutoLogged();
 
-    private final LoggedTalon krakenMotor;
-    private final VelocityVoltage velocityControl = new VelocityVoltage(0); // .withEnableFOC(true); enable if re-run with FOC
-    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
-    private final VoltageOut sysIdVoltage = new VoltageOut(0).withEnableFOC(true);
+    private final LoggedTunableNumber kP = new LoggedTunableNumber("Hopper/kP", HopperConstants.kP);
+    private final LoggedTunableNumber kI = new LoggedTunableNumber("Hopper/kI", HopperConstants.kI);
+    private final LoggedTunableNumber kD = new LoggedTunableNumber("Hopper/kD", HopperConstants.kD);
+    private final LoggedTunableNumber kS = new LoggedTunableNumber("Hopper/kS", HopperConstants.kS);
+    private final LoggedTunableNumber kV = new LoggedTunableNumber("Hopper/kV", HopperConstants.kV);
+    private final LoggedTunableNumber kA = new LoggedTunableNumber("Hopper/kA", HopperConstants.kA);
+
+    private final LoggedTunableNumber motionMagicAccel =
+        new LoggedTunableNumber("Hopper/motionMagicAccel_rotPerSec2",
+            HopperConstants.MM_ACCEL.in(RotationsPerSecondPerSecond));
+    private final LoggedTunableNumber motionMagicVelo =
+        new LoggedTunableNumber("Hopper/motionMagicVelocity_rotPerSec",
+            HopperConstants.MM_MAX_VELO.in(RotationsPerSecond));
+    private final LoggedTunableNumber motionMagicJerk =
+        new LoggedTunableNumber("Hopper/motionMagicJerk_rotPerSec3",
+            HopperConstants.MM_JERK.in(RotationsPerSecondPerSecond.per(Second)));
+
+    private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
+    private double commandedDutyCycleSetpoint = 0.0;
+    private Voltage commandedVoltageSetpoint = Volts.of(0.0);
+    private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
+
     private final SysIdRoutine sysIdRoutine;
-    private NetworkTableInstance ntInst;
-    private NetworkTable ntTable;
-    private TalonFXConfiguration config = new TalonFXConfiguration();
-    private Slot0Configs pidSlots = new Slot0Configs();
 
-    public HopperSubsystem(CANBus canBus) {
-        krakenMotor = new LoggedTalon(HopperConstants.KRAKEN_CAN_ID, canBus);
-        configureMotor();
-        // configThruNt();
+    public HopperSubsystem(HopperIO io) {
+        this.io = io;
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
                 Volts.of(1).per(Seconds), // ramp rate: 1 V/s
                 Volts.of(7), // step voltage
-                Seconds.of(10) // timeout
-            ),
+                Seconds.of(10), // timeout
+                (state) -> Logger.recordOutput("Hopper/SysIdTestState", state.toString())),
             new SysIdRoutine.Mechanism(
-                voltage -> krakenMotor.setControl(sysIdVoltage.withOutput(voltage)),
-                log -> {
-                    log.motor("hopper")
-                        .voltage(krakenMotor.getMotorVoltage().getValue())
-                        .angularPosition(krakenMotor.getPosition().getValue())
-                        .angularVelocity(krakenMotor.getVelocity().getValue());
-                },
+                (voltage) -> setVoltage(voltage),
+                null,
                 this));
     }
 
-    /**
-     * @param valueName The name of the value in NetworkTables (ex: "P", "I", "D").
-     * @param configSetter A Consumer that takes the new double value and applies it to the s.withKP(value)).
-     * @param defaultVal The default value to publish to NetworkTables on startup.
-     */
-    private void yoTuneThis(String valueName, Consumer<Double> configSetter, double defaultVal) {
-        ntTable.getEntry(valueName).setDouble(defaultVal);
-        ntTable.addListener(valueName, EnumSet.of(NetworkTableEvent.Kind.kValueAll), (table, key, event) -> {
-            configSetter.accept(event.valueData.value.getDouble());
-
-            config.withSlot0(pidSlots);
-            krakenMotor.getConfigurator().apply(config);
-            System.out.println("Updated: " + valueName + " to this: " + event.valueData.value.getDouble() + "!");
-        });
+    public void setDutyCycle(double speed) {
+        speed = MathUtil.clamp(speed, -1.0, 1.0);
+        io.setDutyCycleOut(speed);
+        commandedControlMode = MotorControlMode.DutyCycle;
+        commandedDutyCycleSetpoint = speed;
     }
 
-    private void configThruNt() {
-        ntInst = NetworkTableInstance.getDefault();
-        ntTable = ntInst.getTable("tower");
-        yoTuneThis("Pids/P", val -> pidSlots.withKP(val), HopperConstants.kP);
-        yoTuneThis("Pids/I", val -> pidSlots.withKI(val), HopperConstants.kI);
-        yoTuneThis("Pids/D", val -> pidSlots.withKD(val), HopperConstants.kD);
-        yoTuneThis("Pids/S", val -> pidSlots.withKS(val), HopperConstants.kS);
-        yoTuneThis("Pids/V", val -> pidSlots.withKV(val), HopperConstants.kV);
-        // tuneThis("A", val -> pidSlots.withKP(val), TowerConstants.KA);
-        // tuneThis("G", val -> pidSlots.withKP(val), TowerConstants.KG);
-        yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(dutyCycleControl.withOutput(val)), 0);
-        yoTuneThis("setMMVTCF", val -> krakenMotor.setControl(new VelocityVoltage(val)), 0);
-
-        yoTuneThis("MMAccel", val -> config.MotionMagic.MotionMagicAcceleration = val, 100);
-        yoTuneThis("MMJerk", val -> config.MotionMagic.MotionMagicJerk = val, 1000);
-        yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, 100);
-
-        yoTuneThis("GearReduction", val -> config.Feedback.SensorToMechanismRatio = val,
-            HopperConstants.GEAR_REDUCTION);
-        yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
+    public void setVoltage(Voltage volts) {
+        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12.5, 12.5));
+        io.setVoltageOut(volts);
+        commandedControlMode = MotorControlMode.Voltage;
+        commandedVoltageSetpoint = volts;
     }
 
-    private void configureMotor() {
-        // Motor output
-        config.withMotorOutput(new MotorOutputConfigs()
-            .withNeutralMode(NeutralModeValue.Coast)
-            .withInverted(HopperConstants.HOPPER_INVERTED));
-
-        // Current limits
-        config.withCurrentLimits(
-            new CurrentLimitsConfigs()
-                .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
-        config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
-        // Velocity control PID (Slot 0)
-        config.withSlot0(new Slot0Configs()
-            .withKP(HopperConstants.kP)
-            .withKI(HopperConstants.kI)
-            .withKD(HopperConstants.kD)
-            .withKS(HopperConstants.kS)
-            .withKV(HopperConstants.kV)
-            .withKV(HopperConstants.kA));
-
-        krakenMotor.getConfigurator().apply(config);
+    public void setVelocity(AngularVelocity velo) {
+        io.setVelocityOut(velo);
+        commandedControlMode = MotorControlMode.Velocity;
+        commandedVelocitySetpoint = velo;
     }
 
-    public void setHopper(HopperIntake state) {
-        switch (state) {
-            case BALL_IN:
-                krakenMotor.setControl(velocityControl.withVelocity(HopperConstants.TARGET_RPS));
+    public void stop() {
+        io.stop();
+        commandedControlMode = MotorControlMode.Disabled;
+    }
+
+    public Optional<Boolean> atSetpoint() {
+        if (commandedControlMode != MotorControlMode.Velocity) {
+            return Optional.empty();
+        }
+        double errorRPS = Math.abs(commandedVelocitySetpoint.minus(inputs.velocity).in(RotationsPerSecond));
+        return Optional.of(errorRPS < HopperConstants.VELOCITY_TOLERANCE.in(RotationsPerSecond));
+    }
+
+    private void logSetpoints(double dutyCycleSetpoint, Voltage voltageSetpoint, AngularVelocity velocitySetpoint) {
+        Logger.recordOutput("Hopper/DutyCycleSetpoint", dutyCycleSetpoint);
+        Logger.recordOutput("Hopper/VoltageSetpoint", voltageSetpoint);
+        Logger.recordOutput("Hopper/VelocitySetpoint", velocitySetpoint);
+    }
+
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Hopper", inputs);
+
+        Logger.recordOutput("Hopper/controlMode", commandedControlMode);
+        Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
+
+        switch (commandedControlMode) {
+            case DutyCycle:
+                logSetpoints(commandedDutyCycleSetpoint, Volts.of(0.0), RotationsPerSecond.of(0.0));
                 break;
-            case BALL_OUT:
-                krakenMotor.setControl(velocityControl.withVelocity(HopperConstants.TARGET_RPS.unaryMinus()));
+            case Voltage:
+                logSetpoints(0.0, commandedVoltageSetpoint, RotationsPerSecond.of(0.0));
                 break;
-            case STOP:
-                krakenMotor.stopMotor();
+            case Velocity:
+                logSetpoints(0.0, Volts.of(0.0), commandedVelocitySetpoint);
                 break;
             default:
+                logSetpoints(0.0, Volts.of(0.0), RotationsPerSecond.of(0.0));
                 break;
         }
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
+            kP, kI, kD, kS, kV, kA);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            values -> io.updateMotionMagicConfig(
+                RotationsPerSecondPerSecond.of(values[0]),
+                RotationsPerSecond.of(values[1]),
+                RotationsPerSecondPerSecond.of(values[2]).per(Second)),
+            motionMagicAccel, motionMagicVelo, motionMagicJerk);
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -146,16 +146,39 @@ public class HopperSubsystem extends SubsystemBase {
         return sysIdRoutine.dynamic(direction);
     }
 
-    public void setManualControl(double percentOutput) {
-        percentOutput = Math.max(-1.0, Math.min(1.0, percentOutput));
-        krakenMotor.setControl(dutyCycleControl.withOutput(percentOutput));
+    public Command fullSysID() {
+        return sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+            .andThen(sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+            .andThen(sysIdDynamic(SysIdRoutine.Direction.kForward))
+            .andThen(sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
-    @Override
-    public void periodic() {
-        krakenMotor.updateDashboard();
+    public Command manualSpeedCommand(DoubleSupplier speedSupplier) {
+        return run(() -> setDutyCycle(speedSupplier.getAsDouble())).finallyDo(interrupted -> stop());
+    }
 
-        SmartDashboard.putNumber("sysIDTest/hopperSetpoint(RPS)", krakenMotor.getClosedLoopOutput().getValueAsDouble());
-        SmartDashboard.putNumber("sysIDTest/hopperVelo(RPS)", krakenMotor.getVelocity(false).getValueAsDouble());
+    public Command runHopperStateCommand(HopperIntake state) {
+        switch (state) {
+            case BALL_IN:
+                return this.run(() -> setVelocity(HopperConstants.TARGET_RPS)).finallyDo(interrupted -> stop());
+            case BALL_OUT:
+                return this.run(() -> setVelocity(HopperConstants.TARGET_RPS.unaryMinus())).finallyDo(interrupted -> stop());
+            default:
+                return stopCommand();
+        }
+    }
+
+    public Command runHopperOut() {
+        return runHopperStateCommand(HopperIntake.BALL_OUT);
+    }
+
+    public Command runHopperIn() {
+        return runHopperStateCommand(HopperIntake.BALL_IN);
+    }
+
+    public Command stopCommand() {
+        return this.runOnce(() -> {
+            stop();
+        });
     }
 }
