@@ -1,7 +1,6 @@
 package frc.robot.subsystems.hopper;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
-import java.util.ArrayList;
 import java.util.List;
 import static edu.wpi.first.units.Units.Amps;
 
@@ -35,7 +34,6 @@ import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
     private final TalonFX motor;
-    private final TalonFXConfiguration config = new TalonFXConfiguration();
     private final Slot0Configs pidConfig;
     private final MotionMagicConfigs mmConfigs;
 
@@ -50,7 +48,7 @@ public class HopperIOTalonFX implements HopperIO {
     private final Alert pidNotSetAlert = new Alert("Hopper", "Motor PID was not saved", AlertType.kWarning);
     private final Alert mmNotSetAlert = new Alert("Hopper", "Motion Magic configs were not saved", AlertType.kWarning);
 
-    private final List<BaseStatusSignal> signals = new ArrayList<>();
+    private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
     private final StatusSignal<AngularAcceleration> accel;
@@ -68,6 +66,7 @@ public class HopperIOTalonFX implements HopperIO {
     public HopperIOTalonFX(LoggedCanivore canivore) {
         motor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, canivore);
 
+        TalonFXConfiguration config = new TalonFXConfiguration();
         // Motor output
         config.withMotorOutput(new MotorOutputConfigs()
             .withNeutralMode(NeutralModeValue.Coast)
@@ -114,19 +113,20 @@ public class HopperIOTalonFX implements HopperIO {
         closedLoopReference = motor.getClosedLoopReference(false);
         closedLoopOutput = motor.getClosedLoopOutput(false);
 
-        signals.add(position);
-        signals.add(velocity);
-        signals.add(accel);
-        signals.add(appliedVoltage);
-        signals.add(supplyCurrent);
-        signals.add(statorCurrent);
-        signals.add(torqueCurrent);
-        signals.add(temp);
-        signals.add(tempFault);
-        signals.add(controlMode);
-        signals.add(appliedDutyCycle);
-        signals.add(closedLoopReference);
-        signals.add(closedLoopOutput);
+        signals = List.of(
+            position,
+            velocity,
+            accel,
+            appliedVoltage,
+            supplyCurrent,
+            statorCurrent,
+            torqueCurrent,
+            temp,
+            tempFault,
+            controlMode,
+            appliedDutyCycle,
+            closedLoopReference,
+            closedLoopOutput);
 
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
