@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.MjpegServer;
@@ -35,6 +34,7 @@ import frc.robot.commands.intake.pivot.*;
 import frc.robot.commands.intake.roller.*;
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.fms.FieldManagementSubsystem;
+import frc.robot.subsystems.hopper.HopperIOTalonFX;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.PivotIntakeSubsystem;
 import frc.robot.subsystems.intake.RollerIntakeSubsystem;
@@ -65,8 +65,8 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller mechController;
-    private final CANBus swerveCan = new LoggedCanivore(CANType.SWERVE);
-    private final CANBus mechCan = new LoggedCanivore(CANType.MECH);
+    private final LoggedCanivore swerveCan = new LoggedCanivore(CANType.SWERVE);
+    private final LoggedCanivore mechCan = new LoggedCanivore(CANType.MECH);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
@@ -74,7 +74,7 @@ public class RobotContainer {
 
     private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCan);
     private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCan);
-    private final HopperSubsystem hopper = new HopperSubsystem(mechCan);
+    private final HopperSubsystem hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
     private final Field2d field = new Field2d();
     private final FlywheelSubsystem flywheel = new FlywheelSubsystem(mechCan);
     private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCan);
@@ -233,10 +233,10 @@ public class RobotContainer {
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
-                hopper.setManualControl(-1.0); // Max duty cycle for spindexer
+                hopper.setDutyCycle(-1.0); // Max duty cycle for spindexer
                 tower.setManualControl(1.0); // Full duty cycle for tower
             }, hopper, tower));
-            hopper.setDefaultCommand(Commands.run(() -> hopper.setManualControl(0), hopper));
+            hopper.setDefaultCommand(hopper.stopCommand());
 
             // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
             driveController.square()
