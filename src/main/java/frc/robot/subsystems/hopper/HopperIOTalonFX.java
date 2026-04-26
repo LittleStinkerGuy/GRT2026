@@ -147,7 +147,6 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void setDutyCycle(double dutyCycle) {
-        dutyCycle = Math.max(-1.0, Math.min(1.0, dutyCycle));
         motor.setControl(dutyCycleControl.withOutput(dutyCycle));
     }
 
