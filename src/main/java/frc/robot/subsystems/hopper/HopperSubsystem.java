@@ -99,10 +99,13 @@ public class HopperSubsystem extends SubsystemBase {
         switch (state) {
             case BALL_IN:
                 setVelocity(HopperConstants.TARGET_RPS);
+                break;
             case BALL_OUT:
                 setVelocity(HopperConstants.TARGET_RPS.unaryMinus());
+                break;
             default:
                 stop();
+                break;
         }
     }
 
