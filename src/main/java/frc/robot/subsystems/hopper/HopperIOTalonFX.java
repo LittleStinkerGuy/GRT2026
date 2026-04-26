@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Amps;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -48,7 +49,7 @@ public class HopperIOTalonFX implements HopperIO {
     private final Alert pidNotSetAlert = new Alert("Hopper", "Motor PID was not saved", AlertType.kWarning);
     private final Alert mmNotSetAlert = new Alert("Hopper", "Motion Magic configs were not saved", AlertType.kWarning);
 
-    ArrayList<BaseStatusSignal> signals;
+    private final ArrayList<BaseStatusSignal> signals = new ArrayList<>();
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
     private final StatusSignal<AngularAcceleration> accel;
@@ -76,7 +77,9 @@ public class HopperIOTalonFX implements HopperIO {
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
                 .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
-        config.Feedback.SensorToMechanismRatio = HopperConstants.GEAR_REDUCTION;
+
+        config.withFeedback(
+            new FeedbackConfigs().withSensorToMechanismRatio(HopperConstants.GEAR_REDUCTION));
 
         // Velocity control PID (Slot 0)
         pidConfig = new Slot0Configs()
@@ -110,7 +113,6 @@ public class HopperIOTalonFX implements HopperIO {
         closedLoopReference = motor.getClosedLoopReference(false);
         closedLoopOutput = motor.getClosedLoopOutput(false);
 
-        signals = new ArrayList<>();
         signals.add(position);
         signals.add(velocity);
         signals.add(accel);
@@ -156,8 +158,8 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
-    public void updateMotionMagicConfig(AngularAcceleration accel, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {
-        mmConfigs.withMotionMagicAcceleration(accel)
+    public void updateMotionMagicConfig(AngularAcceleration acceleration, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {
+        mmConfigs.withMotionMagicAcceleration(acceleration)
             .withMotionMagicCruiseVelocity(velo)
             .withMotionMagicJerk(jerk);
         System.out.println("changes mm");
