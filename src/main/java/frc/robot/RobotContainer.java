@@ -114,7 +114,7 @@ public class RobotContainer {
         configureAutoChooser();
 
 
-        if (Constants.CURRENT_MODE != Mode.REAL) {
+        if (Constants.CURRENT_MODE == Mode.REAL) {
             // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
             driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
             driverCam.setVideoMode(PixelFormat.kMJPEG, 640, 480, 30);
