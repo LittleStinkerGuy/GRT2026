@@ -172,13 +172,13 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
-    public void setVoltageOut(Voltage volts) {
-        motor.setControl(voltageControl.withOutput(volts));
+    public void setVoltageOut(Voltage voltsOut) {
+        motor.setControl(voltageControl.withOutput(voltsOut));
     }
 
     @Override
-    public void setVelocityOut(AngularVelocity velocity) {
-        motor.setControl(velocityControl.withVelocity(velocity));
+    public void setVelocityOut(AngularVelocity velocityOut) {
+        motor.setControl(velocityControl.withVelocity(velocityOut));
     }
 
     @Override

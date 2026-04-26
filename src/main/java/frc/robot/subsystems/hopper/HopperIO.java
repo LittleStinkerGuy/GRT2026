@@ -40,9 +40,9 @@ public interface HopperIO {
 
     default void setDutyCycleOut(double dutyCycle) {}
 
-    default void setVoltageOut(Voltage volts) {}
+    default void setVoltageOut(Voltage voltsOut) {}
 
-    default void setVelocityOut(AngularVelocity velocity) {}
+    default void setVelocityOut(AngularVelocity velocityOut) {}
 
     default void stop() {}
 }
