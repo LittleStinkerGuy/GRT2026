@@ -1,5 +1,6 @@
 package frc.robot.subsystems.hopper;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -8,9 +9,14 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -47,8 +53,23 @@ public class HopperSubsystem extends SubsystemBase {
 
     private final SysIdRoutine sysIdRoutine;
 
+    private static final int HOPPER_VANES = 4;
+    private final LoggedMechanism2d mechanism = new LoggedMechanism2d(1.0, 1.0);
+    private final LoggedMechanismRoot2d mechanismRoot = mechanism.getRoot("HopperSpinner", 0.5, 0.5);
+    private final LoggedMechanismLigament2d[] vaneLigaments = new LoggedMechanismLigament2d[HOPPER_VANES];
+
     public HopperSubsystem(HopperIO io) {
         this.io = io;
+
+        for (int i = 0; i < HOPPER_VANES; i++) {
+            vaneLigaments[i] = mechanismRoot.append(
+                new LoggedMechanismLigament2d(
+                    "Vane" + i,
+                    0.4,
+                    i * (360.0 / HOPPER_VANES),
+                    6.0,
+                    new Color8Bit(Color.kBlueViolet)));
+        }
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -122,6 +143,13 @@ public class HopperSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Hopper/controlMode", commandedControlMode);
         Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
+
+        double spinnerDeg = inputs.position.in(Degrees);
+        for (int i = 0; i < HOPPER_VANES; i++) {
+            vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
+        }
+        Logger.recordOutput("Hopper/SpinnerAngleDeg", spinnerDeg);
+        Logger.recordOutput("Hopper/Mechanism2d", mechanism);
 
         switch (commandedControlMode) {
             case DutyCycle:
