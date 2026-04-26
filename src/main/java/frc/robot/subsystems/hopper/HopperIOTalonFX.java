@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
@@ -27,7 +28,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.util.LoggedCanivore;
-import frc.robot.util.MotorControlMode;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -56,11 +56,10 @@ public class HopperIOTalonFX implements HopperIO {
     private final StatusSignal<Current> torqueCurrent;
     private final StatusSignal<Temperature> temp;
     private final StatusSignal<Boolean> tempFault;
-
-    private MotorControlMode currentControlMode;
-    private double currentDutyCycleSetpoint;
-    private Voltage currentVoltageSetpoint;
-    private AngularVelocity currentVelocitySetpoint;
+    private final StatusSignal<ControlModeValue> controlMode;
+    private final StatusSignal<Double> appliedDutyCycle;
+    private final StatusSignal<Double> closedLoopReference;
+    private final StatusSignal<Double> closedLoopOutput;
 
     public HopperIOTalonFX(LoggedCanivore canivore) {
         motor = new TalonFX(HopperConstants.KRAKEN_CAN_ID, canivore);
@@ -104,6 +103,10 @@ public class HopperIOTalonFX implements HopperIO {
         torqueCurrent = motor.getTorqueCurrent(false);
         temp = motor.getDeviceTemp(false);
         tempFault = motor.getFault_DeviceTemp(false);
+        controlMode = motor.getControlMode(false);
+        appliedDutyCycle = motor.getDutyCycle(false);
+        closedLoopReference = motor.getClosedLoopReference(false);
+        closedLoopOutput = motor.getClosedLoopOutput(false);
 
         signals = new ArrayList<>();
         signals.add(position);
@@ -115,6 +118,10 @@ public class HopperIOTalonFX implements HopperIO {
         signals.add(torqueCurrent);
         signals.add(temp);
         signals.add(tempFault);
+        signals.add(controlMode);
+        signals.add(appliedDutyCycle);
+        signals.add(closedLoopReference);
+        signals.add(closedLoopOutput);
 
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, signals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
@@ -133,10 +140,10 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.temp = temp.getValue();
         inputs.tempFault = tempFault.getValue();
         inputs.connected = BaseStatusSignal.isAllGood(signals);
-        inputs.controlMode = currentControlMode;
-        inputs.dutyCycleSetpoint = currentDutyCycleSetpoint;
-        inputs.voltageSetpoint = currentVoltageSetpoint;
-        inputs.velocitySetpoint = currentVelocitySetpoint;
+        inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
+        inputs.appliedDutyCycle = appliedDutyCycle.getValue();
+        inputs.closedLoopReference = closedLoopReference.getValue();
+        inputs.closedLoopOutput = closedLoopOutput.getValue();
     }
 
     @Override
@@ -158,24 +165,15 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void setDutyCycle(double dutyCycle) {
         motor.setControl(dutyCycleControl.withOutput(dutyCycle));
-        if (dutyCycle == 0) {
-            currentControlMode = MotorControlMode.Disabled;
-        } else {
-            currentControlMode = MotorControlMode.DutyCycle;
-        }
-        currentDutyCycleSetpoint = dutyCycle;
     }
 
     @Override
     public void setVelocity(AngularVelocity velocity) {
         motor.setControl(velocityControl.withVelocity(velocity));
-        currentControlMode = MotorControlMode.Velocity;
-        currentVelocitySetpoint = velocity;
     }
 
     @Override
     public void stop() {
         motor.stopMotor();
-        currentControlMode = MotorControlMode.Disabled;
     }
 }

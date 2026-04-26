@@ -9,6 +9,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.signals.ControlModeValue;
 import edu.wpi.first.wpilibj.Alert;
 import frc.robot.Constants.CANType;
 import java.util.EnumMap;
@@ -68,6 +69,56 @@ public class PhoenixUtil {
             if (signals.length > 0) {
                 BaseStatusSignal.refreshAll(signals);
             }
+        }
+    }
+
+    /** Maps Phoenix 6's hardware-specific {@link ControlModeValue} to the hardware-agnostic {@link MotorControlMode}. */
+    public static MotorControlMode toMotorControlMode(ControlModeValue value) {
+        switch (value) {
+            case DisabledOutput:
+            case NeutralOut:
+            case StaticBrake:
+            case CoastOut:
+                return MotorControlMode.Disabled;
+            case Follower:
+                return MotorControlMode.Follower;
+            case DutyCycleOut:
+            case DutyCycleFOC:
+                return MotorControlMode.DutyCycle;
+            case VoltageOut:
+            case VoltageFOC:
+                return MotorControlMode.Voltage;
+            case TorqueCurrentFOC:
+                return MotorControlMode.TorqueCurrent;
+            case PositionDutyCycle:
+            case PositionDutyCycleFOC:
+            case PositionVoltage:
+            case PositionVoltageFOC:
+            case PositionTorqueCurrentFOC:
+            case MotionMagicDutyCycle:
+            case MotionMagicDutyCycleFOC:
+            case MotionMagicVoltage:
+            case MotionMagicVoltageFOC:
+            case MotionMagicTorqueCurrentFOC:
+            case MotionMagicExpoDutyCycle:
+            case MotionMagicExpoDutyCycleFOC:
+            case MotionMagicExpoVoltage:
+            case MotionMagicExpoVoltageFOC:
+            case MotionMagicExpoTorqueCurrentFOC:
+                return MotorControlMode.Position;
+            case VelocityDutyCycle:
+            case VelocityDutyCycleFOC:
+            case VelocityVoltage:
+            case VelocityVoltageFOC:
+            case VelocityTorqueCurrentFOC:
+            case MotionMagicVelocityDutyCycle:
+            case MotionMagicVelocityDutyCycleFOC:
+            case MotionMagicVelocityVoltage:
+            case MotionMagicVelocityVoltageFOC:
+            case MotionMagicVelocityTorqueCurrentFOC:
+                return MotorControlMode.Velocity;
+            default:
+                return MotorControlMode.Disabled;
         }
     }
 }
