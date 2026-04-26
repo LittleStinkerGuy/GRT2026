@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -37,6 +38,7 @@ public class HopperIOTalonFX implements HopperIO {
     private final MotionMagicConfigs mmConfigs;
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0).withEnableFOC(true);
+    private final VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
     private final Alert failedToSetFrequencyAlert = new Alert("Hopper", "Failed to set status signal frequency!", AlertType.kError);
@@ -163,12 +165,17 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
-    public void setDutyCycle(double dutyCycle) {
+    public void setDutyCycleOut(double dutyCycle) {
         motor.setControl(dutyCycleControl.withOutput(dutyCycle));
     }
 
     @Override
-    public void setVelocity(AngularVelocity velocity) {
+    public void setVoltageOut(Voltage volts) {
+        motor.setControl(voltageControl.withOutput(volts));
+    }
+
+    @Override
+    public void setVelocityOut(AngularVelocity velocity) {
         motor.setControl(velocityControl.withVelocity(velocity));
     }
 
