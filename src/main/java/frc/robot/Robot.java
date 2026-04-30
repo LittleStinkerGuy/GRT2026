@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBehavior;
+import com.ctre.phoenix6.SignalLogger;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PhoenixUtil;
@@ -35,6 +36,8 @@ public class Robot extends LoggedRobot {
      * initialization code.
      */
     public Robot() {
+        SignalLogger.enableAutoLogging(false);
+
         // Record metadata
         // BUILDCONSTANTS IS GENERATED DURING BUILD
         // IF THIS IS THROWING AN ERROR JUST BUILD
