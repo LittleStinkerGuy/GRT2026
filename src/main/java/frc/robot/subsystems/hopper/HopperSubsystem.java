@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.HopperConstants.HopperIntake;
 import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.MotorControlMode;
+import frc.robot.util.ComponentStatus.MotorControlMode;
 
 public class HopperSubsystem extends SubsystemBase {
     private final HopperIO io;

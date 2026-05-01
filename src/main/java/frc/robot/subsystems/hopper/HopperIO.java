@@ -16,7 +16,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.MotorControlMode;
+import frc.robot.util.ComponentStatus.MotorControlMode;
 
 public interface HopperIO {
     @AutoLog

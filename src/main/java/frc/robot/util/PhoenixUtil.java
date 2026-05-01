@@ -15,6 +15,7 @@ import frc.robot.Constants.CANType;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.function.Supplier;
+import frc.robot.util.ComponentStatus.MotorControlMode;
 
 /**
  * Class to refresh all phoenix status signals
