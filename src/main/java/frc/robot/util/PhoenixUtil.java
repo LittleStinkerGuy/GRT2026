@@ -10,11 +10,13 @@ package frc.robot.util;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.signals.ControlModeValue;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.wpilibj.Alert;
 import frc.robot.Constants.CANType;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.function.Supplier;
+import frc.robot.util.ComponentStatus.EncoderHealth;
 import frc.robot.util.ComponentStatus.MotorControlMode;
 
 /**
@@ -120,6 +122,20 @@ public class PhoenixUtil {
                 return MotorControlMode.Velocity;
             default:
                 return MotorControlMode.Disabled;
+        }
+    }
+
+    public EncoderHealth toEncoderHealth(MagnetHealthValue value) {
+        switch (value) {
+            case Magnet_Green:
+                return EncoderHealth.Good;
+            case Magnet_Orange:
+                return EncoderHealth.Marginal;
+            case Magnet_Red:
+                return EncoderHealth.Bad;
+            case Magnet_Invalid:
+            default:
+                return EncoderHealth.Unknown;
         }
     }
 }
