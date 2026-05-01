@@ -8,6 +8,14 @@ public class ComponentStatus {
         Voltage,
         TorqueCurrent,
         Position,
-        Velocity
+        Velocity;
+
+    }
+
+    public enum EncoderHealth {
+        Good,
+        Marginal,
+        Bad,
+        Unknown
     }
 }
