@@ -23,6 +23,8 @@ import edu.wpi.first.units.MomentOfInertiaUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -357,6 +359,8 @@ public final class Constants {
         public static final double PIVOT_SIM_G = 0.27;
 
         public static final double GEAR_RATIO = 20.0;
+        public static final MomentOfInertia PIVOT_MOMENT_OF_INERTIA = PoundInchesSquared.of(598.456909); // Onshape
+        public static final Distance PIVOT_COM_LENGTH = Inches.of(Math.sqrt(0.121549 * 9.035458)); // Onshape
 
         // Pivot Positions (in encoder rotations)
         public static final Angle PIVOT_FORWARD_LIMIT = Rotations.of(0.3568);
