@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -15,10 +14,10 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.IntakeConstants;
@@ -163,29 +162,17 @@ public class PivotSubsystem extends SubsystemBase {
     }
 
     public Command jigglePivot() {
-        Timer jiggleTimer = new Timer();
-        AtomicBoolean atLowerSetpoint = new AtomicBoolean(false);
-        return this.startRun(
-            () -> {
-                jiggleTimer.restart();
-                setPosition(IntakeConstants.PIVOT_MID_LOWER);
-                atLowerSetpoint.set(true);
-            },
-            () -> {
-                if (jiggleTimer.advanceIfElapsed(3)) {
-                    if (!atLowerSetpoint.get()) {
-                        setPosition(IntakeConstants.PIVOT_MID_LOWER);
-                        atLowerSetpoint.set(true);
-                    } else {
-                        setPosition(IntakeConstants.PIVOT_MID_UPPER);
-                        atLowerSetpoint.set(false);
-                    }
+        Command jigglePivotCommand = Commands.sequence(
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_LOWER)),
+            Commands.waitSeconds(3),
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_UPPER)),
+            Commands.waitSeconds(3)).repeatedly();
+        jigglePivotCommand.addRequirements(this);
 
-                }
-            });
+        return jigglePivotCommand;
     }
 
-    public Command stopCommand() {
+    public Command stopPivot() {
         return this.runOnce(() -> {
             stop();
         });
