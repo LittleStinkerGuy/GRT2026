@@ -154,12 +154,6 @@ public class HopperSubsystem extends SubsystemBase {
         Logger.recordOutput("Hopper/controlMode", commandedControlMode);
         Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
 
-        double spinnerDeg = inputs.position.in(Degrees);
-        for (int i = 0; i < HOPPER_VANES; i++) {
-            vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
-        }
-        Logger.recordOutput("Hopper/Mechanism2d", mechanism);
-
         switch (commandedControlMode) {
             case DutyCycle:
                 logSetpoints(commandedDutyCycleSetpoint, Volts.of(0.0), RotationsPerSecond.of(0.0));
@@ -174,6 +168,12 @@ public class HopperSubsystem extends SubsystemBase {
                 logSetpoints(0.0, Volts.of(0.0), RotationsPerSecond.of(0.0));
                 break;
         }
+
+        double spinnerDeg = inputs.position.in(Degrees);
+        for (int i = 0; i < HOPPER_VANES; i++) {
+            vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
+        }
+        Logger.recordOutput("Hopper/Mechanism2d", mechanism);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
