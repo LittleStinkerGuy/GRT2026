@@ -5,6 +5,10 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.InchesPerSecond;
+import static edu.wpi.first.units.Units.Pound;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -13,6 +17,9 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularMomentumUnit;
+import edu.wpi.first.units.LinearMomentumUnit;
+import edu.wpi.first.units.MomentOfInertiaUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -32,6 +39,16 @@ import edu.wpi.first.wpilibj.RobotBase;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final LinearMomentumUnit lbInPerSec =
+        LinearMomentumUnit.combine(Pound, InchesPerSecond);
+
+    // (lb · in/s) · in -> angular momentum (lb·in²/s)
+    public static final AngularMomentumUnit lbIn2PerSec =
+        AngularMomentumUnit.combine(lbInPerSec, Inches);
+
+    // (lb·in²/s) / (rad/s) -> moment of inertia (lb·in², since rad is dimensionless)
+    public static final MomentOfInertiaUnit PoundInchesSquared =
+        MomentOfInertiaUnit.combine(lbIn2PerSec, RadiansPerSecond);
 
     // ==================== GLOBAL ====================
     public enum Mode {
@@ -334,6 +351,10 @@ public final class Constants {
         public static final double PIVOT_S = 0.2;
         public static final double PIVOT_V = 3.18;
         public static final double PIVOT_A = 0.27;
+
+        public static final double PIVOT_SIM_P = 60.0;
+        public static final double PIVOT_SIM_D = 4;
+        public static final double PIVOT_SIM_G = 0.27;
 
         public static final double GEAR_RATIO = 20.0;
 
