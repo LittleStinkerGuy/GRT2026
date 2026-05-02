@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.util.LoggedCanivore;
+import frc.robot.util.PIDConstants;
 
 public class HopperIOTalonFXSim extends HopperIOTalonFX {
     private static final double LOOP_PERIOD_SECONDS = 0.02;
@@ -34,6 +35,13 @@ public class HopperIOTalonFXSim extends HopperIOTalonFX {
         motorSimState.Orientation = HopperConstants.HOPPER_INVERTED == InvertedValue.Clockwise_Positive
             ? ChassisReference.Clockwise_Positive
             : ChassisReference.CounterClockwise_Positive;
+    }
+
+    @Override
+    public PIDConstants getDefaultPID() {
+        return PIDConstants.ZERO
+            .withKP(HopperConstants.SIM_KP)
+            .withKV(HopperConstants.SIM_KV);
     }
 
     @Override

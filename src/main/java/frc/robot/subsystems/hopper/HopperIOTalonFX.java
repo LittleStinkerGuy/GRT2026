@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.util.LoggedCanivore;
+import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -131,8 +132,17 @@ public class HopperIOTalonFX implements HopperIO {
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(120.0, signals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), signals);
+    }
 
-        updatePID(HopperConstants.SIM_KP, 0.0, 0.0, 0.0, HopperConstants.SIM_KV, 0.0);
+    @Override
+    public PIDConstants getDefaultPID() {
+        return PIDConstants.ZERO
+            .withKP(HopperConstants.kP)
+            .withKI(HopperConstants.kI)
+            .withKD(HopperConstants.kD)
+            .withKS(HopperConstants.kS)
+            .withKV(HopperConstants.kV)
+            .withKA(HopperConstants.kA);
     }
 
     @Override

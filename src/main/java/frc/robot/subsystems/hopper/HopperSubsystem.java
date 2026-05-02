@@ -20,30 +20,22 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.HopperConstants.HopperIntake;
 import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.PIDConstants;
 import frc.robot.util.ComponentStatus.MotorControlMode;
 
 public class HopperSubsystem extends SubsystemBase {
     private final HopperIO io;
     private final HopperIOInputsAutoLogged inputs = new HopperIOInputsAutoLogged();
 
-    private static final boolean IS_SIM = Constants.CURRENT_MODE == Constants.Mode.SIM;
-
-    private final LoggedTunableNumber kP = new LoggedTunableNumber("Hopper/kP",
-        IS_SIM ? HopperConstants.SIM_KP : HopperConstants.kP);
-    private final LoggedTunableNumber kI = new LoggedTunableNumber("Hopper/kI",
-        IS_SIM ? HopperConstants.SIM_KI : HopperConstants.kI);
-    private final LoggedTunableNumber kD = new LoggedTunableNumber("Hopper/kD",
-        IS_SIM ? HopperConstants.SIM_KD : HopperConstants.kD);
-    private final LoggedTunableNumber kS = new LoggedTunableNumber("Hopper/kS",
-        IS_SIM ? HopperConstants.SIM_KS : HopperConstants.kS);
-    private final LoggedTunableNumber kV = new LoggedTunableNumber("Hopper/kV",
-        IS_SIM ? HopperConstants.SIM_KV : HopperConstants.kV);
-    private final LoggedTunableNumber kA = new LoggedTunableNumber("Hopper/kA",
-        IS_SIM ? HopperConstants.SIM_KA : HopperConstants.kA);
+    private final LoggedTunableNumber kP;
+    private final LoggedTunableNumber kI;
+    private final LoggedTunableNumber kD;
+    private final LoggedTunableNumber kS;
+    private final LoggedTunableNumber kV;
+    private final LoggedTunableNumber kA;
 
     private final LoggedTunableNumber motionMagicAccel =
         new LoggedTunableNumber("Hopper/motionMagicAccel_rotPerSec2",
@@ -69,6 +61,16 @@ public class HopperSubsystem extends SubsystemBase {
 
     public HopperSubsystem(HopperIO io) {
         this.io = io;
+
+        PIDConstants pid = io.getDefaultPID();
+        kP = new LoggedTunableNumber("Hopper/kP", pid.kP());
+        kI = new LoggedTunableNumber("Hopper/kI", pid.kI());
+        kD = new LoggedTunableNumber("Hopper/kD", pid.kD());
+        kS = new LoggedTunableNumber("Hopper/kS", pid.kS());
+        kV = new LoggedTunableNumber("Hopper/kV", pid.kV());
+        kA = new LoggedTunableNumber("Hopper/kA", pid.kA());
+
+        io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
 
         for (int i = 0; i < HOPPER_VANES; i++) {
             vaneLigaments[i] = mechanismRoot.append(
