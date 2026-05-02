@@ -355,9 +355,9 @@ public final class Constants {
         public static final double PIVOT_V = 3.18;
         public static final double PIVOT_A = 0.27;
 
-        public static final double PIVOT_SIM_P = 60.0;
-        public static final double PIVOT_SIM_D = 4;
-        public static final double PIVOT_SIM_G = 0.27;
+        public static final double PIVOT_SIM_P = 40.0;
+        public static final double PIVOT_SIM_D = .7;
+        public static final double PIVOT_SIM_G = 0.73;
 
         public static final double GEAR_RATIO = 20.0;
         public static final MomentOfInertia PIVOT_MOMENT_OF_INERTIA = PoundInchesSquared.of(598.456909); // Onshape
