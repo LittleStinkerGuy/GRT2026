@@ -33,6 +33,7 @@ public class PivotSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kI;
     private final LoggedTunableNumber kD;
     private final LoggedTunableNumber kS;
+    private final LoggedTunableNumber kG;
     private final LoggedTunableNumber kV;
     private final LoggedTunableNumber kA;
 
@@ -60,10 +61,11 @@ public class PivotSubsystem extends SubsystemBase {
         kI = new LoggedTunableNumber("Pivot/kI", pid.kI());
         kD = new LoggedTunableNumber("Pivot/kD", pid.kD());
         kS = new LoggedTunableNumber("Pivot/kS", pid.kS());
+        kG = new LoggedTunableNumber("Pivot/kG", pid.kG());
         kV = new LoggedTunableNumber("Pivot/kV", pid.kV());
         kA = new LoggedTunableNumber("Pivot/kA", pid.kA());
 
-        io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
+        io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kG.get(), kV.get(), kA.get());
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -126,8 +128,8 @@ public class PivotSubsystem extends SubsystemBase {
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
-            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
-            kP, kI, kD, kS, kV, kA);
+            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5], values[6]),
+            kP, kI, kD, kS, kG, kV, kA);
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

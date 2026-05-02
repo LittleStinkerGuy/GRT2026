@@ -49,7 +49,7 @@ public interface PivotIO {
         return PIDConstants.ZERO;
     }
 
-    default void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {}
+    default void updatePID(double kP, double kI, double kD, double kS, double kG, double kV, double kA) {}
 
     default void setDutyCycleOut(double dutyCycle) {}
 

@@ -19,6 +19,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -41,6 +42,7 @@ public class PivotIOTalonFX implements PivotIO {
         .withKI(IntakeConstants.PIVOT_I)
         .withKD(IntakeConstants.PIVOT_D)
         .withKS(IntakeConstants.PIVOT_S)
+        .withKG(IntakeConstants.PIVOT_G)
         .withKV(IntakeConstants.PIVOT_V)
         .withKA(IntakeConstants.PIVOT_A);
 
@@ -120,8 +122,10 @@ public class PivotIOTalonFX implements PivotIO {
             .withKI(IntakeConstants.PIVOT_I)
             .withKD(IntakeConstants.PIVOT_D)
             .withKS(IntakeConstants.PIVOT_S)
+            .withKG(IntakeConstants.PIVOT_G)
             .withKV(IntakeConstants.PIVOT_V)
-            .withKA(IntakeConstants.PIVOT_A);
+            .withKA(IntakeConstants.PIVOT_A)
+            .withGravityType(GravityTypeValue.Arm_Cosine);
         config.withSlot0(pidConfig);
 
         // Motor Output Config
@@ -217,8 +221,8 @@ public class PivotIOTalonFX implements PivotIO {
     }
 
     @Override
-    public void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {
-        pidConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
+    public void updatePID(double kP, double kI, double kD, double kS, double kG, double kV, double kA) {
+        pidConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withKV(kV).withKA(kA);
         tryUntilOk(5, () -> motor.getConfigurator().apply(pidConfig), pidNotSetAlert);
     }
 
