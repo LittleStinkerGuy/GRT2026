@@ -34,6 +34,14 @@ import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
+    private static final PIDConstants DEFAULT_PID = PIDConstants.ZERO
+        .withKP(HopperConstants.kP)
+        .withKI(HopperConstants.kI)
+        .withKD(HopperConstants.kD)
+        .withKS(HopperConstants.kS)
+        .withKV(HopperConstants.kV)
+        .withKA(HopperConstants.kA);
+
     protected final TalonFX motor;
     private final Slot0Configs pidConfig;
     private final MotionMagicConfigs mmConfigs;
@@ -136,13 +144,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public PIDConstants getDefaultPID() {
-        return PIDConstants.ZERO
-            .withKP(HopperConstants.kP)
-            .withKI(HopperConstants.kI)
-            .withKD(HopperConstants.kD)
-            .withKS(HopperConstants.kS)
-            .withKV(HopperConstants.kV)
-            .withKA(HopperConstants.kA);
+        return DEFAULT_PID;
     }
 
     @Override

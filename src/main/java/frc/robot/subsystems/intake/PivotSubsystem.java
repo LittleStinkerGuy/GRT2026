@@ -38,8 +38,6 @@ public class PivotSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private double commandedDutyCycleSetpoint = 0.0;
-    private Voltage commandedVoltageSetpoint = Volts.of(0.0);
     private Angle commandedPositionSetpoint = Rotations.of(0.0);
 
     private final SysIdRoutine sysIdRoutine;
@@ -84,20 +82,25 @@ public class PivotSubsystem extends SubsystemBase {
         speed = MathUtil.clamp(speed, -1.0, 1.0);
         io.setDutyCycleOut(speed);
         commandedControlMode = MotorControlMode.DutyCycle;
-        commandedDutyCycleSetpoint = speed;
+        Logger.recordOutput("Pivot/DutyCycleSetpoint", speed);
     }
 
     public void setVoltage(Voltage volts) {
         volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12, 12));
         io.setVoltageOut(volts);
         commandedControlMode = MotorControlMode.Voltage;
-        commandedVoltageSetpoint = volts;
+        Logger.recordOutput("Pivot/VoltageSetpoint", volts);
     }
 
     public void setPosition(Angle position) {
+        position = Rotations.of(MathUtil.clamp(
+            position.in(Rotations),
+            IntakeConstants.PIVOT_REVERSE_LIMIT.in(Rotations),
+            IntakeConstants.PIVOT_FORWARD_LIMIT.in(Rotations)));
         io.setPositionOut(position);
         commandedControlMode = MotorControlMode.Position;
         commandedPositionSetpoint = position;
+        Logger.recordOutput("Pivot/PositionSetpoint", position);
     }
 
     public void stop() {
@@ -112,12 +115,6 @@ public class PivotSubsystem extends SubsystemBase {
         return Optional.of(commandedPositionSetpoint.isNear(inputs.position, Degrees.of(5)));
     }
 
-    private void logSetpoints(double dutyCycleSetpoint, Voltage voltageSetpoint, Angle positionSetpoint) {
-        Logger.recordOutput("Pivot/DutyCycleSetpoint", dutyCycleSetpoint);
-        Logger.recordOutput("Pivot/VoltageSetpoint", voltageSetpoint);
-        Logger.recordOutput("Pivot/PositionSetpoint", positionSetpoint);
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -125,21 +122,6 @@ public class PivotSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Pivot/controlMode", commandedControlMode);
         Logger.recordOutput("Pivot/atPositionSetpoint", atPositionSetpoint().orElse(false));
-
-        switch (commandedControlMode) {
-            case DutyCycle:
-                logSetpoints(commandedDutyCycleSetpoint, Volts.of(0.0), Degrees.of(0.0));
-                break;
-            case Voltage:
-                logSetpoints(0.0, commandedVoltageSetpoint, Degrees.of(0.0));
-                break;
-            case Position:
-                logSetpoints(0.0, Volts.of(0.0), commandedPositionSetpoint);
-                break;
-            default:
-                logSetpoints(0.0, Volts.of(0.0), Degrees.of(0.0));
-                break;
-        }
 
         pivotMech.setAngle(inputs.encoderAbsolutePosition.in(Degrees));
 

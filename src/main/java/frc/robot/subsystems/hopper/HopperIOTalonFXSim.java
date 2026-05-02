@@ -15,6 +15,10 @@ import frc.robot.util.PIDConstants;
 public class HopperIOTalonFXSim extends HopperIOTalonFX {
     private static final double LOOP_PERIOD_SECONDS = 0.02;
 
+    private static final PIDConstants DEFAULT_PID = PIDConstants.ZERO
+        .withKP(HopperConstants.SIM_KP)
+        .withKV(HopperConstants.SIM_KV);
+
     private final DCMotor gearbox = DCMotor.getKrakenX60Foc(1);
     private final DCMotorSim sim;
     private final TalonFXSimState motorSimState;
@@ -39,9 +43,7 @@ public class HopperIOTalonFXSim extends HopperIOTalonFX {
 
     @Override
     public PIDConstants getDefaultPID() {
-        return PIDConstants.ZERO
-            .withKP(HopperConstants.SIM_KP)
-            .withKV(HopperConstants.SIM_KV);
+        return DEFAULT_PID;
     }
 
     @Override

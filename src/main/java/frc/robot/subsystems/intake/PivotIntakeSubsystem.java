@@ -45,8 +45,6 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     private double kS = IntakeConstants.PIVOT_S;
     private double kV = IntakeConstants.PIVOT_V;
     private double kA = IntakeConstants.PIVOT_A;
-    private double cruiseVelocity = IntakeConstants.PIVOT_CRUISE_VELOCITY;
-    private double acceleration = IntakeConstants.PIVOT_ACCELERATION;
 
     public PivotIntakeSubsystem(CANBus canBus) {
         pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_ID, canBus);
@@ -56,8 +54,6 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Intake/Pivot/kI", kI);
         SmartDashboard.putNumber("Intake/Pivot/kD", kD);
         SmartDashboard.putNumber("Intake/Pivot/kV", kV);
-        SmartDashboard.putNumber("Intake/Pivot/CruiseVelocity", cruiseVelocity);
-        SmartDashboard.putNumber("Intake/Pivot/Acceleration", acceleration);
         SmartDashboard.putNumber("Intake/Pivot/TargetPosition", 0);
         SmartDashboard.putNumber("Intake/Pivot/ManualSpeed", IntakeConstants.MANUAL_PIVOT_SPEED);
 
@@ -122,18 +118,13 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         double newI = SmartDashboard.getNumber("Intake/Pivot/kI", kI);
         double newD = SmartDashboard.getNumber("Intake/Pivot/kD", kD);
         double newV = SmartDashboard.getNumber("Intake/Pivot/kV", kV);
-        double newCruise = SmartDashboard.getNumber("Intake/Pivot/CruiseVelocity", cruiseVelocity);
-        double newAccel = SmartDashboard.getNumber("Intake/Pivot/Acceleration", acceleration);
 
         // Only reconfig if values changed
-        if (newP != kP || newI != kI || newD != kD || newV != kV
-            || newCruise != cruiseVelocity || newAccel != acceleration) {
+        if (newP != kP || newI != kI || newD != kD || newV != kV) {
             kP = newP;
             kI = newI;
             kD = newD;
             kV = newV;
-            cruiseVelocity = newCruise;
-            acceleration = newAccel;
             configMotors();
         }
     }
