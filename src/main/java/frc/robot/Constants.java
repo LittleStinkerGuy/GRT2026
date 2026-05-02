@@ -361,7 +361,7 @@ public final class Constants {
 
         public static final double GEAR_RATIO = 20.0;
         public static final MomentOfInertia PIVOT_MOMENT_OF_INERTIA = PoundInchesSquared.of(598.456909); // Onshape
-        public static final Distance PIVOT_COM_LENGTH = Inches.of(Math.sqrt(0.121549 * 9.035458)); // Onshape
+        public static final Distance PIVOT_COM_LENGTH = Inches.of(Math.hypot(0.121549, 9.035458)); // Onshape COM offset (x, y) from pivot
 
         // Pivot Positions (in encoder rotations)
         public static final Angle PIVOT_FORWARD_LIMIT = Rotations.of(0.3568);
