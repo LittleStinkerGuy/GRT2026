@@ -30,7 +30,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.GRTUtil;
 import java.util.EnumSet;
 import org.littletonrobotics.junction.Logger;
 
