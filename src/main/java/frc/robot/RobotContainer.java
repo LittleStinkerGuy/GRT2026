@@ -251,7 +251,7 @@ public class RobotContainer {
                 hopper.setDutyCycle(-1.0); // Max duty cycle for spindexer
                 tower.setManualControl(1.0); // Full duty cycle for tower
             }, hopper, tower));
-            hopper.setDefaultCommand(hopper.stopCommand());
+            hopper.setDefaultCommand(hopper.stopHopper());
 
             // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
             driveController.square()

@@ -182,11 +182,11 @@ public class HopperSubsystem extends SubsystemBase {
             .andThen(sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
-    public Command manualSpeedCommand(DoubleSupplier speedSupplier) {
+    public Command setHopperManualSpeed(DoubleSupplier speedSupplier) {
         return run(() -> setDutyCycle(speedSupplier.getAsDouble())).finallyDo(interrupted -> stop());
     }
 
-    public Command runHopperStateCommand(HopperIntake state) {
+    public Command runHopperState(HopperIntake state) {
         return this.runEnd(
             () -> {
                 setHopperState(state);
@@ -195,14 +195,14 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     public Command runHopperOut() {
-        return runHopperStateCommand(HopperIntake.BALL_OUT);
+        return runHopperState(HopperIntake.BALL_OUT);
     }
 
     public Command runHopperIn() {
-        return runHopperStateCommand(HopperIntake.BALL_IN);
+        return runHopperState(HopperIntake.BALL_IN);
     }
 
-    public Command stopCommand() {
+    public Command stopHopper() {
         return this.runOnce(() -> {
             stop();
         });
