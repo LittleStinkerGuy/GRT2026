@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.vision.TimestampedVisionUpdate;
-import frc.robot.util.GRTUtil;
 
 public class SwerveSubsystem extends SubsystemBase {
 
