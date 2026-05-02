@@ -8,16 +8,15 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLog;
-import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.ComponentStatus.EncoderHealth;
 import frc.robot.util.ComponentStatus.MotorControlMode;
+import frc.robot.util.PIDConstants;
 
 public interface PivotIO {
     @AutoLog
@@ -46,9 +45,11 @@ public interface PivotIO {
 
     default void updateInputs(HopperIOInputs inputs) {}
 
-    default void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {}
+    default PIDConstants getDefaultPID() {
+        return PIDConstants.ZERO;
+    }
 
-    default void updateMotionMagicConfig(AngularAcceleration accel, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {}
+    default void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {}
 
     default void setDutyCycleOut(double dutyCycle) {}
 
