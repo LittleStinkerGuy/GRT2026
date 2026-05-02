@@ -125,7 +125,7 @@ public class PhoenixUtil {
         }
     }
 
-    public EncoderHealth toEncoderHealth(MagnetHealthValue value) {
+    public static EncoderHealth toEncoderHealth(MagnetHealthValue value) {
         switch (value) {
             case Magnet_Green:
                 return EncoderHealth.Good;
