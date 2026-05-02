@@ -162,6 +162,10 @@ public class PivotIntakeSubsystem extends SubsystemBase {
         pivotMotor.setControl(voltagePosControl.withPosition(rotations));
     }
 
+    public void setPosition(Angle rotations) {
+        pivotMotor.setControl(voltagePosControl.withPosition(rotations));
+    }
+
     /**
      * Go to target position from SmartDashboard
      */
