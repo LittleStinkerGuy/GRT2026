@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -12,6 +13,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Velocity;
@@ -339,13 +341,13 @@ public final class Constants {
         public static final double GEAR_RATIO = 20.0;
 
         // Pivot Positions (in encoder rotations)
-        public static final double PIVOT_FORWARD_LIMIT = 0.3568;
-        public static final double PIVOT_REVERSE_LIMIT = 0.000;
+        public static final Angle PIVOT_FORWARD_LIMIT = Rotations.of(0.3568);
+        public static final Angle PIVOT_REVERSE_LIMIT = Rotations.of(0.000);
 
-        public static final double PIVOT_OUT_POS = 0.0;
-        public static final double PIVOT_IN_POS = 0.33;
-        public static final double PIVOT_MID_UPPER = 0.175;
-        public static final double PIVOT_MID_LOWER = 0.091;
+        public static final Angle PIVOT_OUT_POS = Rotations.of(0.0);
+        public static final Angle PIVOT_IN_POS = Rotations.of(0.33);
+        public static final Angle PIVOT_MID_UPPER = Rotations.of(0.175);
+        public static final Angle PIVOT_MID_LOWER = Rotations.of(0.091);
 
         // Pivot Duty Cycle
         public static final double PIVOT_UP_DUTY_CYCLE = 0.3;
