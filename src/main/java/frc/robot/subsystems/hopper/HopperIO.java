@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PIDConstants;
 import frc.robot.util.ComponentStatus.MotorControlMode;
 
 public interface HopperIO {
@@ -40,6 +41,10 @@ public interface HopperIO {
 
 
     default void updateInputs(HopperIOInputs inputs) {}
+
+    default PIDConstants getDefaultPID() {
+        return PIDConstants.ZERO;
+    }
 
     default void updatePID(double kP, double kI, double kD, double kS, double kV, double kA) {}
 
