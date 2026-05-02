@@ -48,8 +48,6 @@ public class HopperSubsystem extends SubsystemBase {
             HopperConstants.MM_JERK.in(RotationsPerSecondPerSecond.per(Second)));
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private double commandedDutyCycleSetpoint = 0.0;
-    private Voltage commandedVoltageSetpoint = Volts.of(0.0);
     private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
 
     private final SysIdRoutine sysIdRoutine;
@@ -98,20 +96,21 @@ public class HopperSubsystem extends SubsystemBase {
         speed = MathUtil.clamp(speed, -1.0, 1.0);
         io.setDutyCycleOut(speed);
         commandedControlMode = MotorControlMode.DutyCycle;
-        commandedDutyCycleSetpoint = speed;
+        Logger.recordOutput("Hopper/DutyCycleSetpoint", speed);
     }
 
     public void setVoltage(Voltage volts) {
-        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12.5, 12.5));
+        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12.0, 12.0));
         io.setVoltageOut(volts);
         commandedControlMode = MotorControlMode.Voltage;
-        commandedVoltageSetpoint = volts;
+        Logger.recordOutput("Hopper/VoltageSetpoint", volts);
     }
 
     public void setVelocity(AngularVelocity velo) {
         io.setVelocityOut(velo);
         commandedControlMode = MotorControlMode.Velocity;
         commandedVelocitySetpoint = velo;
+        Logger.recordOutput("Hopper/VelocitySetpoint", velo);
     }
 
     public void stop() {
@@ -140,12 +139,6 @@ public class HopperSubsystem extends SubsystemBase {
         }
     }
 
-    private void logSetpoints(double dutyCycleSetpoint, Voltage voltageSetpoint, AngularVelocity velocitySetpoint) {
-        Logger.recordOutput("Hopper/DutyCycleSetpoint", dutyCycleSetpoint);
-        Logger.recordOutput("Hopper/VoltageSetpoint", voltageSetpoint);
-        Logger.recordOutput("Hopper/VelocitySetpoint", velocitySetpoint);
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -153,21 +146,6 @@ public class HopperSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Hopper/controlMode", commandedControlMode);
         Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
-
-        switch (commandedControlMode) {
-            case DutyCycle:
-                logSetpoints(commandedDutyCycleSetpoint, Volts.of(0.0), RotationsPerSecond.of(0.0));
-                break;
-            case Voltage:
-                logSetpoints(0.0, commandedVoltageSetpoint, RotationsPerSecond.of(0.0));
-                break;
-            case Velocity:
-                logSetpoints(0.0, Volts.of(0.0), commandedVelocitySetpoint);
-                break;
-            default:
-                logSetpoints(0.0, Volts.of(0.0), RotationsPerSecond.of(0.0));
-                break;
-        }
 
         double spinnerDeg = inputs.position.in(Degrees);
         for (int i = 0; i < HOPPER_VANES; i++) {

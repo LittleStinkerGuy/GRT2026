@@ -36,6 +36,14 @@ import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class PivotIOTalonFX implements PivotIO {
+    private static final PIDConstants DEFAULT_PID = PIDConstants.ZERO
+        .withKP(IntakeConstants.PIVOT_P)
+        .withKI(IntakeConstants.PIVOT_I)
+        .withKD(IntakeConstants.PIVOT_D)
+        .withKS(IntakeConstants.PIVOT_S)
+        .withKV(IntakeConstants.PIVOT_V)
+        .withKA(IntakeConstants.PIVOT_A);
+
     protected final TalonFX motor;
     private final Slot0Configs pidConfig;
 
@@ -205,13 +213,7 @@ public class PivotIOTalonFX implements PivotIO {
 
     @Override
     public PIDConstants getDefaultPID() {
-        return PIDConstants.ZERO
-            .withKP(IntakeConstants.PIVOT_P)
-            .withKI(IntakeConstants.PIVOT_I)
-            .withKD(IntakeConstants.PIVOT_D)
-            .withKS(IntakeConstants.PIVOT_S)
-            .withKV(IntakeConstants.PIVOT_V)
-            .withKA(IntakeConstants.PIVOT_A);
+        return DEFAULT_PID;
     }
 
     @Override
