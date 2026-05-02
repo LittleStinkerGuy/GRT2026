@@ -22,6 +22,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -175,7 +176,7 @@ public class PivotIntakeSubsystem extends SubsystemBase {
     }
 
     public void setEncoderToMax() {
-        double maxRotations = IntakeConstants.PIVOT_OUT_POS;
+        Angle maxRotations = IntakeConstants.PIVOT_OUT_POS;
         canCoder.setPosition(maxRotations);
         pivotMotor.setPosition(maxRotations);
     }
