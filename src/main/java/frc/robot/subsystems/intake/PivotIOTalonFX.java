@@ -53,7 +53,7 @@ public class PivotIOTalonFX implements PivotIO {
     private final Alert failedToSetCancoderSignalFrequencyAlert = new Alert("Pivot", "Failed to set cancoder status signal frequency!", AlertType.kError);
 
     private final Alert didNotOptimizeMotorCANAlert = new Alert("Pivot", "Didn't optimize motor CAN", AlertType.kWarning);
-    private final Alert didNotOptimizeCancoderCANAlert = new Alert("Pivot", "Didn't optimize motor CAN", AlertType.kWarning);
+    private final Alert didNotOptimizeCancoderCANAlert = new Alert("Pivot", "Didn't optimize cancoder CAN", AlertType.kWarning);
     private final Alert pidNotSetAlert = new Alert("Pivot", "Motor PID was not saved", AlertType.kWarning);
 
     private final List<BaseStatusSignal> motorSignals;
@@ -137,9 +137,9 @@ public class PivotIOTalonFX implements PivotIO {
         // Software Limits
         config.withSoftwareLimitSwitch(
             new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitEnable(false)
+                .withForwardSoftLimitEnable(true)
                 .withForwardSoftLimitThreshold(IntakeConstants.PIVOT_FORWARD_LIMIT)
-                .withReverseSoftLimitEnable(false)
+                .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(IntakeConstants.PIVOT_REVERSE_LIMIT));
 
         tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotorAlert);
@@ -182,7 +182,7 @@ public class PivotIOTalonFX implements PivotIO {
     }
 
     @Override
-    public void updateInputs(HopperIOInputs inputs) {
+    public void updateInputs(PivotIOInputs inputs) {
         inputs.position = position.getValue();
         inputs.velocity = velocity.getValue();
         inputs.acceleration = accel.getValue();

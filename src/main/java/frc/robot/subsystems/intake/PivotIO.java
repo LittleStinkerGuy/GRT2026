@@ -20,7 +20,7 @@ import frc.robot.util.PIDConstants;
 
 public interface PivotIO {
     @AutoLog
-    public static class HopperIOInputs {
+    public static class PivotIOInputs {
         public Angle position = Rotations.of(0);
         public AngularVelocity velocity = RotationsPerSecond.of(0);
         public AngularAcceleration acceleration = RotationsPerSecondPerSecond.of(0);
@@ -32,8 +32,8 @@ public interface PivotIO {
         public boolean tempFault = false;
         public boolean motorConnected = false;
 
-        public Angle encoderAbsolutePosition;
-        public EncoderHealth encoderHealth;
+        public Angle encoderAbsolutePosition = Rotations.of(0.0);
+        public EncoderHealth encoderHealth = EncoderHealth.Unknown;
         public boolean encoderConnected = false;
 
         public MotorControlMode controlMode = MotorControlMode.Disabled;
@@ -43,7 +43,7 @@ public interface PivotIO {
     }
 
 
-    default void updateInputs(HopperIOInputs inputs) {}
+    default void updateInputs(PivotIOInputs inputs) {}
 
     default PIDConstants getDefaultPID() {
         return PIDConstants.ZERO;
