@@ -83,11 +83,10 @@ public class PivotIOTalonFX implements PivotIO {
         CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
         tryUntilOk(5, () -> cancoder.getConfigurator().refresh(cancoderConfig), cancoderConfigRefreshAlert);
 
-        // mean(lowerLimit, upperLimit) + 0.5
-        Angle discontinuityPoint = IntakeConstants.PIVOT_FORWARD_LIMIT
-            .plus(IntakeConstants.PIVOT_REVERSE_LIMIT)
-            .div(2)
-            .plus(Rotations.of(0.5));
+        double midRotation = (IntakeConstants.PIVOT_FORWARD_LIMIT.in(Rotations)
+            + IntakeConstants.PIVOT_REVERSE_LIMIT.in(Rotations)) / 2.0;
+        double discontinuityRotation = ((midRotation + 0.5) % 1.0 + 1.0) % 1.0;
+        Angle discontinuityPoint = Rotations.of(discontinuityRotation);
         cancoderConfig.withMagnetSensor(cancoderConfig.MagnetSensor
             .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
             .withAbsoluteSensorDiscontinuityPoint(discontinuityPoint));
