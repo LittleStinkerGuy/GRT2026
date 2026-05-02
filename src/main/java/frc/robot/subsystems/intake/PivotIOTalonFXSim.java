@@ -43,8 +43,6 @@ public class PivotIOTalonFXSim extends PivotIOTalonFX {
 
         motorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
         cancoderSimState.Orientation = ChassisReference.CounterClockwise_Positive;
-
-        cancoder.getPosition(false).setUpdateFrequency(250);
     }
 
     @Override
@@ -62,7 +60,8 @@ public class PivotIOTalonFXSim extends PivotIOTalonFX {
         cancoderSimState.setRawPosition(Radians.of(sim.getAngleRads()));
         cancoderSimState.setVelocity(RadiansPerSecond.of(sim.getVelocityRadPerSec()));
 
-        motorSimState.setRawRotorPosition(Radians.of(sim.getAngleRads()).times(IntakeConstants.GEAR_RATIO));
+        motorSimState.setRawRotorPosition(Radians.of(sim.getAngleRads() * IntakeConstants.GEAR_RATIO));
+        motorSimState.setRotorVelocity(RadiansPerSecond.of(sim.getVelocityRadPerSec() * IntakeConstants.GEAR_RATIO));
 
         super.updateInputs(inputs);
     }
