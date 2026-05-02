@@ -372,8 +372,13 @@ public final class Constants {
         public static final double kA = 0.0127;
         public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(6.47);
 
+        // Sim-only PID gains (no friction / different plant — match the dashboard defaults).
         public static final double SIM_KP = 0.8;
+        public static final double SIM_KI = 0.0;
+        public static final double SIM_KD = 0.0;
+        public static final double SIM_KS = 0.0;
         public static final double SIM_KV = 0.0;
+        public static final double SIM_KA = 0.0;
 
         // Motion Magic Constants
         public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(100);
