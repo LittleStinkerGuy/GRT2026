@@ -32,7 +32,7 @@ public interface PivotIO {
         public boolean tempFault = false;
         public boolean motorConnected = false;
 
-        public double encoderAbsolutePosition;
+        public Angle encoderAbsolutePosition;
         public EncoderHealth encoderHealth;
         public boolean encoderConnected = false;
 
