@@ -203,8 +203,6 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     public Command stopHopper() {
-        return this.runOnce(() -> {
-            stop();
-        });
+        return this.runOnce(this::stop);
     }
 }
