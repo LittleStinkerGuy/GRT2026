@@ -41,16 +41,19 @@ import edu.wpi.first.wpilibj.RobotBase;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final LinearMomentumUnit lbInPerSec =
+    @SuppressWarnings("checkstyle:constantname")
+    public static final LinearMomentumUnit PoundInchesPerSec =
         LinearMomentumUnit.combine(Pound, InchesPerSecond);
 
     // (lb · in/s) · in -> angular momentum (lb·in²/s)
-    public static final AngularMomentumUnit lbIn2PerSec =
-        AngularMomentumUnit.combine(lbInPerSec, Inches);
+    @SuppressWarnings("checkstyle:constantname")
+    public static final AngularMomentumUnit PoundInchesSquaredPerSec =
+        AngularMomentumUnit.combine(PoundInchesPerSec, Inches);
 
     // (lb·in²/s) / (rad/s) -> moment of inertia (lb·in², since rad is dimensionless)
+    @SuppressWarnings("checkstyle:constantname")
     public static final MomentOfInertiaUnit PoundInchesSquared =
-        MomentOfInertiaUnit.combine(lbIn2PerSec, RadiansPerSecond);
+        MomentOfInertiaUnit.combine(PoundInchesSquaredPerSec, RadiansPerSecond);
 
     // ==================== GLOBAL ====================
     public enum Mode {
