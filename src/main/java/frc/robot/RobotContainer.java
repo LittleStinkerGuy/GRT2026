@@ -46,11 +46,14 @@ import frc.robot.subsystems.intake.roller.RollerIOTalonFXSim;
 import frc.robot.subsystems.intake.roller.RollerSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterLearner;
-import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFXSim;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.tower.TowerIO;
+import frc.robot.subsystems.shooter.tower.TowerIOTalonFX;
+import frc.robot.subsystems.shooter.tower.TowerIOTalonFXSim;
+import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.swerve.AimSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -81,12 +84,12 @@ public class RobotContainer {
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
-    private TowerRollersSubsystem tower = new TowerRollersSubsystem(mechCan);
+    private final Field2d field = new Field2d();
 
     private final PivotSubsystem pivot;
     private final RollerSubsystem roller;
     private final HopperSubsystem hopper;
-    private final Field2d field = new Field2d();
+    private final TowerSubsystem tower;
     private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCan);
     private final ShooterLearner learner = new ShooterLearner();
@@ -124,12 +127,14 @@ public class RobotContainer {
                 pivot = new PivotSubsystem(new PivotIOTalonFX(mechCan));
                 roller = new RollerSubsystem(new RollerIOTalonFX(mechCan));
                 hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
+                tower = new TowerSubsystem(new TowerIOTalonFX(mechCan));
                 flywheel = new FlywheelSubsystem(new FlywheelIOTalonFX(mechCan));
                 break;
             case SIM:
                 pivot = new PivotSubsystem(new PivotIOTalonFXSim(mechCan));
                 roller = new RollerSubsystem(new RollerIOTalonFXSim(mechCan));
                 hopper = new HopperSubsystem(new HopperIOTalonFXSim(mechCan));
+                tower = new TowerSubsystem(new TowerIOTalonFXSim(mechCan));
                 flywheel = new FlywheelSubsystem(new FlywheelIOTalonFXSim(mechCan));
                 break;
             case REPLAY:
@@ -137,6 +142,7 @@ public class RobotContainer {
                 pivot = new PivotSubsystem(new PivotIO() {});
                 roller = new RollerSubsystem(new RollerIO() {});
                 hopper = new HopperSubsystem(new HopperIO() {});
+                tower = new TowerSubsystem(new TowerIO() {});
                 flywheel = new FlywheelSubsystem(new FlywheelIO() {});
                 break;
         }
@@ -266,7 +272,7 @@ public class RobotContainer {
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
                 hopper.setDutyCycle(-1.0); // Max duty cycle for spindexer
-                tower.setManualControl(1.0); // Full duty cycle for tower
+                tower.setDutyCycle(1.0); // Full duty cycle for tower
             }, hopper, tower));
             hopper.setDefaultCommand(hopper.stopHopper());
 
@@ -336,7 +342,7 @@ public class RobotContainer {
             }, flywheel));
 
             tower.setDefaultCommand(Commands.run(() -> {
-                tower.setManualControl(0); // Stop tower by default
+                tower.stop(); // Stop tower by default
             }, tower));
 
             hoodSubsystem.setDefaultCommand(Commands.run(() -> {
