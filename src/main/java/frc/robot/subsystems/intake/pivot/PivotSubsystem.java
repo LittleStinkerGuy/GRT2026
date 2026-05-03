@@ -132,32 +132,25 @@ public class PivotSubsystem extends SubsystemBase {
             kP, kI, kD, kS, kG, kV, kA);
     }
 
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.quasistatic(direction);
+    public Command runSysID() {
+        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+            .andThen(sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse))
+            .andThen(sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward))
+            .andThen(sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
     }
 
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.dynamic(direction);
+    public Command setPivotManualSpeed(DoubleSupplier speedSupplier) {
+        return this.run(() -> setDutyCycle(speedSupplier.getAsDouble()))
+            .finallyDo(this::stop);
     }
 
-    public Command fullSysID() {
-        return sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-            .andThen(sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
-            .andThen(sysIdDynamic(SysIdRoutine.Direction.kForward))
-            .andThen(sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    }
-
-    public Command manualSpeedCommand(DoubleSupplier speedSupplier) {
-        return run(() -> setDutyCycle(speedSupplier.getAsDouble())).finallyDo(interrupted -> stop());
-    }
-
-    public Command runPivotOut() {
+    public Command deployPivot() {
         return this.runOnce(() -> {
             setPosition(IntakeConstants.PIVOT_OUT_POS);
         });
     }
 
-    public Command runPivotIn() {
+    public Command retractPivot() {
         return this.runOnce(() -> {
             setPosition(IntakeConstants.PIVOT_IN_POS);
         });
@@ -175,8 +168,6 @@ public class PivotSubsystem extends SubsystemBase {
     }
 
     public Command stopPivot() {
-        return this.runOnce(() -> {
-            stop();
-        });
+        return this.runOnce(this::stop);
     }
 }

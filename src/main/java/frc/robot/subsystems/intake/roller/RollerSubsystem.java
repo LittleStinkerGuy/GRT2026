@@ -142,6 +142,7 @@ public class RollerSubsystem extends SubsystemBase {
         return Math.abs(inputs.appliedDutyCycle) > 0.01;
     }
 
+
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -156,23 +157,15 @@ public class RollerSubsystem extends SubsystemBase {
             kP, kI, kD, kS, kV, kA);
     }
 
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.quasistatic(direction);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.dynamic(direction);
-    }
-
-    public Command fullSysID() {
-        return sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-            .andThen(sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
-            .andThen(sysIdDynamic(SysIdRoutine.Direction.kForward))
-            .andThen(sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    public Command runSysID() {
+        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+            .andThen(sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse))
+            .andThen(sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward))
+            .andThen(sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
     }
 
     public Command setRollerManualSpeed(DoubleSupplier speedSupplier) {
-        return run(() -> setDutyCycle(speedSupplier.getAsDouble())).finallyDo(interrupted -> stop());
+        return this.run(() -> setDutyCycle(speedSupplier.getAsDouble())).finallyDo(this::stop);
     }
 
     public Command runRollerIn() {
