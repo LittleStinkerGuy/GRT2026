@@ -30,9 +30,9 @@ public class RollerSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private final LoggedTunableNumber inSpeed =
-        new LoggedTunableNumber("Roller/InSpeed_rps", Math.abs(IntakeConstants.ROLLER_IN_SPEED));
+        new LoggedTunableNumber("Roller/InSpeed_rps", IntakeConstants.ROLLER_IN_SPEED.abs(RotationsPerSecond));
     private final LoggedTunableNumber outSpeed =
-        new LoggedTunableNumber("Roller/OutSpeed_rps", Math.abs(IntakeConstants.ROLLER_OUT_SPEED));
+        new LoggedTunableNumber("Roller/OutSpeed_rps", IntakeConstants.ROLLER_OUT_SPEED.abs(RotationsPerSecond));
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
     private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
