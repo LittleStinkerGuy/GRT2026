@@ -4,7 +4,7 @@ import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 
 /**
@@ -16,7 +16,7 @@ public class SmashShot extends ManualShooterSequence {
     public SmashShot(
         FlywheelSubsystem flywheel,
         HoodSubsystem hood,
-        TowerRollersSubsystem tower,
+        TowerSubsystem tower,
         HopperSubsystem hopper,
         PivotSubsystem pivot) {
         super(

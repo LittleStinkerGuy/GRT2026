@@ -5,7 +5,7 @@ import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -24,7 +24,7 @@ public class CycleShot extends Command {
 
     private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hood;
-    private final TowerRollersSubsystem tower;
+    private final TowerSubsystem tower;
     private final HopperSubsystem hopper;
 
     private final DoubleSupplier flywheelVelo;
@@ -32,7 +32,7 @@ public class CycleShot extends Command {
     public CycleShot(
         FlywheelSubsystem flywheel,
         HoodSubsystem hood,
-        TowerRollersSubsystem tower,
+        TowerSubsystem tower,
         HopperSubsystem hopper,
         DoubleSupplier flyWheelVeloSupplier) {
         this.flywheel = flywheel;
@@ -60,10 +60,10 @@ public class CycleShot extends Command {
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
-            tower.setManualControl(SmashAndShootConstants.TOWER_DUTY_CYCLE);
+            tower.setDutyCycle(SmashAndShootConstants.TOWER_DUTY_CYCLE);
             hopper.setDutyCycle(SmashAndShootConstants.INDEXER_DUTY_CYCLE);
         } else {
-            tower.setManualControl(0);
+            tower.stop();
             hopper.stop();
         }
     }
@@ -77,7 +77,7 @@ public class CycleShot extends Command {
     public void end(boolean interrupted) {
         flywheel.stop();
         hood.setHoodAngle(0);
-        tower.setManualControl(0);
+        tower.stop();
         hopper.stop();
     }
 }
