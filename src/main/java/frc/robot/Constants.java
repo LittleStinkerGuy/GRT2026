@@ -301,7 +301,7 @@ public final class Constants {
             // Velocity tolerance for "at speed" check
             public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(2.0);
 
-            public static final double FLYWHEEL_MAX_SPEED = 120.0;
+            public static final AngularVelocity FLYWHEEL_MAX_SPEED = RotationsPerSecond.of(120.0);
         }
 
         // ---- Hood ----
@@ -475,10 +475,10 @@ public final class Constants {
     // ==================== SMASH AND SHOOT ==================== thing
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
-        public static final double HOOD_POSITION = 0.014;
+        public static final Angle HOOD_POSITION = Rotations.of(0.014);
 
         // Flywheel speed (RPS)
-        public static final double FLYWHEEL_RPS = 40.0;
+        public static final AngularVelocity FLYWHEEL_VELO = RotationsPerSecond.of(40.0);
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 1;
@@ -494,10 +494,10 @@ public final class Constants {
     // ==================== CYCLE SHOOTER ====================
     public static class CycleShooterConstants {
         // Hood position (rotations)
-        public static final double HOOD_POSITION = 0.096;
+        public static final Angle HOOD_POSITION = Rotations.of(0.096);
 
         // Flywheel speed (RPS)
-        public static final double FLYWHEEL_RPS = 60;
+        public static final AngularVelocity FLYWHEEL_VELO = RotationsPerSecond.of(60.0);
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 1;
@@ -513,10 +513,10 @@ public final class Constants {
     // ==================== TOWER SHOOT ====================
     public static class TowerShootConstants {
         // Hood position (rotations) - placeholder, tune on robot
-        public static final double HOOD_POSITION = 0.05;
+        public static final Angle HOOD_POSITION = Rotations.of(0.05);
 
         // Flywheel speed (RPS) - placeholder, tune on robot
-        public static final double FLYWHEEL_RPS = 49;
+        public static final AngularVelocity FLYWHEEL_VELO = RotationsPerSecond.of(49.0);
     }
 
     public static class DebugConstants {

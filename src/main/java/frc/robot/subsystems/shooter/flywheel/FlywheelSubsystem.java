@@ -113,36 +113,6 @@ public class FlywheelSubsystem extends SubsystemBase {
         return inputs.velocity;
     }
 
-    // ---- Backwards-compat shims for existing commands ---------------------------------
-
-    /** @deprecated use {@link #setVelocity(AngularVelocity)} */
-    @Deprecated
-    public void shoot(double rps) {
-        setVelocity(RotationsPerSecond.of(rps));
-    }
-
-    /** @deprecated use {@link #stop()} */
-    @Deprecated
-    public void dontShoot() {
-        stop();
-    }
-
-    /** @deprecated use {@link #setVelocity(AngularVelocity)} or {@link #stop()} directly */
-    @Deprecated
-    public void flySpeed(double speed) {
-        if (speed > 0.1) {
-            setVelocity(RotationsPerSecond.of(ShooterConstants.Flywheel.FLYWHEEL_MAX_SPEED));
-        } else {
-            stop();
-        }
-    }
-
-    /** @deprecated use {@link #atSetpoint()} */
-    @Deprecated
-    public boolean wantedVel() {
-        return atSetpoint().orElse(false);
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);

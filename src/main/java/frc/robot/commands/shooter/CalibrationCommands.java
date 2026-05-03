@@ -1,7 +1,10 @@
 package frc.robot.commands.shooter;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.swerve.AimSubsystem;
 
@@ -46,8 +49,8 @@ public final class CalibrationCommands {
     public static Command logPoint(ShooterLearner learner, AimSubsystem aim) {
         return Commands.runOnce(() -> {
             double d = aim.getDistanceToHub();
-            double rps = learner.getRPM(frc.robot.Constants.SmashAndShootConstants.FLYWHEEL_RPS);
-            double angle = learner.getHoodAngle(frc.robot.Constants.SmashAndShootConstants.HOOD_POSITION);
+            double rps = learner.getRPM(SmashAndShootConstants.FLYWHEEL_VELO.in(RotationsPerSecond));
+            double angle = learner.getHoodAngle(SmashAndShootConstants.HOOD_POSITION.in(Rotations));
             learner.log(d, rps, angle);
         });
     }

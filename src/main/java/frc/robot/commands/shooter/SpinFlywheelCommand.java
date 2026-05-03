@@ -15,17 +15,17 @@ public class SpinFlywheelCommand extends Command {
 
     @Override
     public void initialize() {
-        flySubsystem.flySpeed(dutyCycle); // start spinning
+        flySubsystem.setDutyCycle(dutyCycle); // start spinning
     }
 
     @Override
     public void execute() {
-        flySubsystem.flySpeed(dutyCycle); // keep it running
+        flySubsystem.setDutyCycle(dutyCycle); // keep it running
     }
 
     @Override
     public void end(boolean interrupted) {
-        flySubsystem.dontShoot(); // stop FlywheelSubsystem when command ends
+        flySubsystem.stop(); // stop FlywheelSubsystem when command ends
     }
 
     @Override

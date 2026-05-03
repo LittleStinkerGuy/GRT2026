@@ -57,6 +57,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PS5ControllerEmulator;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -69,8 +70,8 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_RPS;
-    private DoubleSupplier cycleFlywheelOffsetGetter = () -> (cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_RPS);
+    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond);
+    private DoubleSupplier cycleFlywheelOffsetGetter = () -> (cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond));
 
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
@@ -295,8 +296,7 @@ public class RobotContainer {
                         hoodSubsystem,
                         tower,
                         hopper,
-                        pivot,
-                        learner),
+                        pivot),
                     java.util.Set.of(
                         flywheel,
                         hoodSubsystem,
@@ -329,9 +329,9 @@ public class RobotContainer {
             // Left stick Y = hood manual control
             flywheel.setDefaultCommand(Commands.run(() -> {
                 if (DriverStation.isJoystickConnected(1)) {
-                    flywheel.flySpeed((mechController.getR2Axis() + 1) / 3);
+                    flywheel.setVelocity(RotationsPerSecond.of((mechController.getR2Axis()) / 3));
                 } else {
-                    flywheel.flySpeed(0);
+                    flywheel.stop();
                 }
             }, flywheel));
 
@@ -356,7 +356,7 @@ public class RobotContainer {
             }, hoodSubsystem));
 
             mechController.povUp().onTrue(Commands.runOnce(() -> {
-                if (cycleFlywheelVelo < Flywheel.FLYWHEEL_MAX_SPEED) {
+                if (Flywheel.FLYWHEEL_MAX_SPEED.gt(RotationsPerSecond.of(cycleFlywheelVelo))) {
                     cycleFlywheelVelo += 5;
                 }
             }));
@@ -373,7 +373,7 @@ public class RobotContainer {
                 hoodSubsystem,
                 tower,
                 hopper,
-                () -> Flywheel.FLYWHEEL_MAX_SPEED));
+                () -> cycleFlywheelVelo));
 
             // Touchpad = tower shoot preset
             mechController.triangle().whileTrue(new TowerShot(
