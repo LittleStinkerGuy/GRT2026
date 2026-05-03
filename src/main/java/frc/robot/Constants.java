@@ -283,14 +283,20 @@ public final class Constants {
             public static final double kD = 0.0;
             public static final double kS = 0.0;
             public static final double kV = 0.12;
+            public static final double kA = 0.0;
+
+            // Sim-only PID gains (no friction / different plant).
+            public static final double SIM_KP = 0.8;
+            public static final double SIM_KV = 0.0;
 
             // Motion Magic
-            public static final double MM_ACCEL = 100;
-            public static final double MM_JERK = 150.0;
-            public static final double MM_CRUISE_VELOCITY = 500.0;
+            public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(100);
+            public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(500);
+            public static final Velocity<AngularAccelerationUnit> MM_JERK =
+                RotationsPerSecondPerSecond.of(150).per(Second);
 
-            // Velocity tolerance for "at speed" check (RPS)
-            public static final double VELOCITY_TOLERANCE_RPS = 2.0;
+            // Velocity tolerance for "at speed" check
+            public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(2.0);
 
             public static final double FLYWHEEL_MAX_SPEED = 120.0;
         }
