@@ -1,14 +1,21 @@
 package frc.robot.subsystems.intake.roller;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -38,6 +45,17 @@ public class RollerSubsystem extends SubsystemBase {
 
     private final SysIdRoutine sysIdRoutine;
 
+    private static final int ROLLER_SIDES = 20;
+    private static final double ROLLER_RADIUS = 0.4;
+    private static final double EDGE_LENGTH = 2.0 * ROLLER_RADIUS * Math.sin(Math.PI / ROLLER_SIDES);
+    private static final double EDGE_TURN_DEG = 360.0 / ROLLER_SIDES;
+    private static final double FIRST_EDGE_OFFSET_DEG = 90.0 + EDGE_TURN_DEG / 2.0;
+
+    @AutoLogOutput(key = "Roller/Mechanism2D")
+    private final LoggedMechanism2d mechanism = new LoggedMechanism2d(1.0, 1.0);
+    private final LoggedMechanismRoot2d mechanismRoot = mechanism.getRoot("RollerSpinner", 0.5, 0.5);
+    private final LoggedMechanismLigament2d spike;
+
     public RollerSubsystem(RollerIO io) {
         this.io = io;
 
@@ -50,6 +68,19 @@ public class RollerSubsystem extends SubsystemBase {
         kA = new LoggedTunableNumber("Roller/kA", pid.kA());
 
         io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
+
+        spike = mechanismRoot.append(
+            new LoggedMechanismLigament2d(
+                "Spike", ROLLER_RADIUS, 0.0, 6.0, new Color8Bit(Color.kOrange)));
+
+        LoggedMechanismLigament2d previous = spike.append(
+            new LoggedMechanismLigament2d(
+                "Edge0", EDGE_LENGTH, FIRST_EDGE_OFFSET_DEG, 4.0, new Color8Bit(Color.kBlueViolet)));
+        for (int i = 1; i < ROLLER_SIDES; i++) {
+            previous = previous.append(
+                new LoggedMechanismLigament2d(
+                    "Edge" + i, EDGE_LENGTH, EDGE_TURN_DEG, 4.0, new Color8Bit(Color.kBlueViolet)));
+        }
 
         sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
