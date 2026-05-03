@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake.roller;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -114,21 +115,9 @@ public class RollerSubsystem extends SubsystemBase {
         Logger.recordOutput("Roller/VelocitySetpoint", velo);
     }
 
-    public void setVelocity(double rps) {
-        setVelocity(RotationsPerSecond.of(rps));
-    }
-
     public void stop() {
         io.stop();
         commandedControlMode = MotorControlMode.Disabled;
-    }
-
-    public void runIn() {
-        setVelocity(RotationsPerSecond.of(-Math.abs(inSpeed.get())));
-    }
-
-    public void runOut() {
-        setVelocity(RotationsPerSecond.of(Math.abs(outSpeed.get())));
     }
 
     public Optional<Boolean> atSetpoint() {
@@ -151,6 +140,8 @@ public class RollerSubsystem extends SubsystemBase {
         Logger.recordOutput("Roller/controlMode", commandedControlMode);
         Logger.recordOutput("Roller/atVelocitySetpoint", atSetpoint().orElse(false));
 
+        spike.setAngle(inputs.position.in(Degrees));
+
         LoggedTunableNumber.ifChanged(
             hashCode(),
             values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
@@ -169,11 +160,15 @@ public class RollerSubsystem extends SubsystemBase {
     }
 
     public Command runRollerIn() {
-        return this.runEnd(this::runIn, this::stop);
+        return this.runEnd(
+            () -> setVelocity(RotationsPerSecond.of(Math.abs(inSpeed.get()))),
+            this::stop);
     }
 
     public Command runRollerOut() {
-        return this.runEnd(this::runOut, this::stop);
+        return this.runEnd(
+            () -> setVelocity(RotationsPerSecond.of(Math.abs(outSpeed.get()))),
+            this::stop);
     }
 
     public Command stopRoller() {
