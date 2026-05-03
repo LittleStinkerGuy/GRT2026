@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.pivot.PivotSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterLearner;
@@ -26,7 +26,7 @@ public class ManualShooterSequence extends Command {
     private final HoodSubsystem hd;
     private final TowerRollersSubsystem tower;
     private final HopperSubsystem hopper;
-    private final PivotIntakeSubsystem pivotIntake;
+    private final PivotSubsystem pivot;
     private final ShooterLearner learner;
 
     private final double hoodPosition;
@@ -41,7 +41,7 @@ public class ManualShooterSequence extends Command {
         HoodSubsystem hood,
         TowerRollersSubsystem tower,
         HopperSubsystem hopper,
-        PivotIntakeSubsystem pivotIntake,
+        PivotSubsystem pivot,
         ShooterLearner learner,
         double hoodPosition,
         double flywheelRps) {
@@ -49,12 +49,12 @@ public class ManualShooterSequence extends Command {
         this.hd = hood;
         this.tower = tower;
         this.hopper = hopper;
-        this.pivotIntake = pivotIntake;
+        this.pivot = pivot;
         this.learner = learner;
         this.hoodPosition = hoodPosition;
         this.flywheelRps = flywheelRps;
 
-        addRequirements(fly, hood, tower, hopper, pivotIntake);
+        addRequirements(fly, hood, tower, hopper, pivot);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ManualShooterSequence extends Command {
         // Start with pivot out, wait the initial-delay before first toggle
         pivotIsIn = false;
         initialDelayDone = false;
-        pivotIntake.setPosition(IntakeConstants.PIVOT_OUT_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
         pivotTimer.restart();
     }
 
@@ -85,7 +85,7 @@ public class ManualShooterSequence extends Command {
             pivotIsIn = !pivotIsIn;
             pivotTimer.restart();
         }
-        pivotIntake.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_UPPER : IntakeConstants.PIVOT_MID_LOWER);
+        pivot.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_UPPER : IntakeConstants.PIVOT_MID_LOWER);
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
@@ -108,6 +108,6 @@ public class ManualShooterSequence extends Command {
         hd.setHoodAngle(0);
         tower.setManualControl(0);
         hopper.stop();
-        pivotIntake.setPosition(IntakeConstants.PIVOT_OUT_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
     }
 }

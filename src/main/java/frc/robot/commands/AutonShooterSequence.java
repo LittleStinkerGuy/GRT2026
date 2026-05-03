@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.intake.PivotIntakeSubsystem;
+import frc.robot.subsystems.intake.pivot.PivotSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.TowerRollersSubsystem;
@@ -21,19 +21,19 @@ public class AutonShooterSequence extends Command {
     private final HoodSubsystem hd;
     private final TowerRollersSubsystem tower;
     private final HopperSubsystem hopper;
-    private final PivotIntakeSubsystem pivotIntake;
+    private final PivotSubsystem pivot;
 
     public AutonShooterSequence(
         FlywheelSubsystem fly,
         HoodSubsystem hood,
         TowerRollersSubsystem tower,
         HopperSubsystem hopper,
-        PivotIntakeSubsystem pivotIntake) {
+        PivotSubsystem pivot) {
         this.fly = fly;
         this.hd = hood;
         this.tower = tower;
         this.hopper = hopper;
-        this.pivotIntake = pivotIntake;
+        this.pivot = pivot;
 
         addRequirements(fly, hood, tower, hopper);
     }
@@ -43,7 +43,7 @@ public class AutonShooterSequence extends Command {
         // Start ramping FlywheelSubsystem and moving hood to position
         fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
         hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION);
-        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_IN_POS);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class AutonShooterSequence extends Command {
             tower.setManualControl(0);
             hopper.stop();
         }
-        pivotIntake.setPosition(IntakeConstants.PIVOT_IN_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_IN_POS);
     }
 
     @Override
