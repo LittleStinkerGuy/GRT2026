@@ -3,7 +3,7 @@ package frc.robot.commands;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 

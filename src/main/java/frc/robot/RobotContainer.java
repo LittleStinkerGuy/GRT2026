@@ -44,7 +44,10 @@ import frc.robot.subsystems.intake.roller.RollerIO;
 import frc.robot.subsystems.intake.roller.RollerIOTalonFX;
 import frc.robot.subsystems.intake.roller.RollerIOTalonFXSim;
 import frc.robot.subsystems.intake.roller.RollerSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOTalonFX;
+import frc.robot.subsystems.shooter.hood.HoodIOTalonFXSim;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
@@ -91,7 +94,7 @@ public class RobotContainer {
     private final HopperSubsystem hopper;
     private final TowerSubsystem tower;
     private final FlywheelSubsystem flywheel;
-    private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCan);
+    private final HoodSubsystem hood;
     private final ShooterLearner learner = new ShooterLearner();
     @SuppressWarnings("unused")
     private final AimSubsystem aimSubsystem =
@@ -129,6 +132,7 @@ public class RobotContainer {
                 hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
                 tower = new TowerSubsystem(new TowerIOTalonFX(mechCan));
                 flywheel = new FlywheelSubsystem(new FlywheelIOTalonFX(mechCan));
+                hood = new HoodSubsystem(new HoodIOTalonFX(mechCan));
                 break;
             case SIM:
                 pivot = new PivotSubsystem(new PivotIOTalonFXSim(mechCan));
@@ -136,6 +140,7 @@ public class RobotContainer {
                 hopper = new HopperSubsystem(new HopperIOTalonFXSim(mechCan));
                 tower = new TowerSubsystem(new TowerIOTalonFXSim(mechCan));
                 flywheel = new FlywheelSubsystem(new FlywheelIOTalonFXSim(mechCan));
+                hood = new HoodSubsystem(new HoodIOTalonFXSim(mechCan));
                 break;
             case REPLAY:
             default:
@@ -144,6 +149,7 @@ public class RobotContainer {
                 hopper = new HopperSubsystem(new HopperIO() {});
                 tower = new TowerSubsystem(new TowerIO() {});
                 flywheel = new FlywheelSubsystem(new FlywheelIO() {});
+                hood = new HoodSubsystem(new HoodIO() {});
                 break;
         }
         visionStuff();
@@ -170,7 +176,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("runRollers", roller.runRollerIn());
         NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivot, roller));
         NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivot, roller));
-        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hoodSubsystem, tower, hopper, pivot));
+        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hood, tower, hopper, pivot));
     }
 
     /**
@@ -252,10 +258,7 @@ public class RobotContainer {
                         java.util.Set.of(swerveSubsystem)));
             }
 
-            driveController.getController().L2().whileTrue(
-                Commands.run(() -> {
-                    hoodSubsystem.setHoodAngle(0);
-                }, hoodSubsystem));
+            driveController.getController().L2().whileTrue(hood.holdDownHood());
         }
         if (Constants.MECH_ENABLED) {
             // ==================== INTAKE ROLLER ====================
@@ -299,13 +302,13 @@ public class RobotContainer {
                 Commands.defer(
                     () -> new SmashShot(
                         flywheel,
-                        hoodSubsystem,
+                        hood,
                         tower,
                         hopper,
                         pivot),
                     java.util.Set.of(
                         flywheel,
-                        hoodSubsystem,
+                        hood,
                         hopper,
                         tower,
                         pivot)));
@@ -345,21 +348,21 @@ public class RobotContainer {
                 tower.stop(); // Stop tower by default
             }, tower));
 
-            hoodSubsystem.setDefaultCommand(Commands.run(() -> {
+            hood.setDefaultCommand(Commands.run(() -> {
                 if (mechController.L3().getAsBoolean()) {
                     desiredHoodSpeed = 0.15;
-                    hoodSubsystem.hoodSpeed(0.15);
+                    hood.setDutyCycle(0.15);
                 } else if (mechController.R3().getAsBoolean()) {
                     desiredHoodSpeed = -0.15;
-                    hoodSubsystem.hoodSpeed(-0.15);
+                    hood.setDutyCycle(-0.15);
                 } else {
                     if (desiredHoodSpeed != 0) {
                         desiredHoodSpeed = 0;
-                        hoodSubsystem.hoodSpeed(0);
+                        hood.stop();
 
                     }
                 }
-            }, hoodSubsystem));
+            }, hood));
 
             mechController.povUp().onTrue(Commands.runOnce(() -> {
                 if (Flywheel.FLYWHEEL_MAX_SPEED.gt(RotationsPerSecond.of(cycleFlywheelVelo))) {
@@ -376,7 +379,7 @@ public class RobotContainer {
             // Cross = passing shot — flywheel pinned to max (120 RPS)
             mechController.cross().whileTrue(new CycleShot(
                 flywheel,
-                hoodSubsystem,
+                hood,
                 tower,
                 hopper,
                 () -> cycleFlywheelVelo));
@@ -384,7 +387,7 @@ public class RobotContainer {
             // Touchpad = tower shoot preset
             mechController.triangle().whileTrue(new TowerShot(
                 flywheel,
-                hoodSubsystem,
+                hood,
                 tower,
                 hopper,
                 pivot,
@@ -423,7 +426,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hoodSubsystem, hopper, tower, pivot, roller);
+        return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hood, hopper, tower, pivot, roller);
 
         // return new ToDepotAndShoot(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("90degturn");

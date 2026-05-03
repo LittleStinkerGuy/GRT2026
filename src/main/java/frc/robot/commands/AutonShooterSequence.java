@@ -1,12 +1,12 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 
@@ -42,7 +42,7 @@ public class AutonShooterSequence extends Command {
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
         flywheel.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO);
-        hood.setHoodAngle(SmashAndShootConstants.HOOD_POSITION.in(Rotations));
+        hood.setPosition(SmashAndShootConstants.HOOD_POSITION);
         pivot.setPosition(IntakeConstants.PIVOT_IN_POS);
     }
 
@@ -50,8 +50,7 @@ public class AutonShooterSequence extends Command {
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets
         flywheel.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO);
-        hood.setHoodAngle(SmashAndShootConstants.HOOD_POSITION.in(Rotations));
-
+        hood.setPosition(SmashAndShootConstants.HOOD_POSITION);
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
@@ -72,7 +71,7 @@ public class AutonShooterSequence extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.stop();
-        hood.setHoodAngle(0);
+        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
         tower.stop();
         hopper.stop();
     }

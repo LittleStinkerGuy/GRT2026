@@ -165,6 +165,10 @@ public class HoodSubsystem extends SubsystemBase {
             .andThen(Commands.waitUntil(() -> atPositionSetpoint().orElse(false)));
     }
 
+    public Command holdDownHood() {
+        return this.run(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
+    }
+
     public Command stopHood() {
         return this.runOnce(this::stop);
     }
