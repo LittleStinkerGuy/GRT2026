@@ -191,3 +191,6 @@ compile_commands.json
 
 # gversion generated constants file (needed for advantage kit)
 src/main/java/frc/robot/BuildConstants.java
+
+# advantage kit robot assets are too large
+ascope_assets/Robot_*
