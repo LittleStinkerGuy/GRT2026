@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -53,6 +54,7 @@ public class HopperSubsystem extends SubsystemBase {
     private final SysIdRoutine sysIdRoutine;
 
     private static final int HOPPER_VANES = 4;
+    @AutoLogOutput(key = "Hopper/Mechanism2d")
     private final LoggedMechanism2d mechanism = new LoggedMechanism2d(1.0, 1.0);
     private final LoggedMechanismRoot2d mechanismRoot = mechanism.getRoot("HopperSpinner", 0.5, 0.5);
     private final LoggedMechanismLigament2d[] vaneLigaments = new LoggedMechanismLigament2d[HOPPER_VANES];
@@ -87,7 +89,7 @@ public class HopperSubsystem extends SubsystemBase {
                 Seconds.of(10), // timeout
                 (state) -> Logger.recordOutput("Hopper/SysIdTestState", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) -> setVoltage(voltage),
+                this::setVoltage,
                 null,
                 this));
     }
@@ -151,7 +153,6 @@ public class HopperSubsystem extends SubsystemBase {
         for (int i = 0; i < HOPPER_VANES; i++) {
             vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
         }
-        Logger.recordOutput("Hopper/Mechanism2d", mechanism);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -167,19 +168,11 @@ public class HopperSubsystem extends SubsystemBase {
             motionMagicAccel, motionMagicVelo, motionMagicJerk);
     }
 
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.quasistatic(direction);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.dynamic(direction);
-    }
-
-    public Command fullSysID() {
-        return sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-            .andThen(sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
-            .andThen(sysIdDynamic(SysIdRoutine.Direction.kForward))
-            .andThen(sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    public Command runSysID() {
+        return sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward)
+            .andThen(sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse))
+            .andThen(sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward))
+            .andThen(sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse));
     }
 
     public Command setHopperManualSpeed(DoubleSupplier speedSupplier) {
