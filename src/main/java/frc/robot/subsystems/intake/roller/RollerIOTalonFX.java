@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake.roller;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.List;
-import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -79,7 +78,7 @@ public class RollerIOTalonFX implements RollerIO {
         config.withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(true)
-                .withStatorCurrentLimit(Amps.of(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT)));
+                .withStatorCurrentLimit(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT));
 
         // Velocity control PID (Slot 0)
         pidConfig = new Slot0Configs()
