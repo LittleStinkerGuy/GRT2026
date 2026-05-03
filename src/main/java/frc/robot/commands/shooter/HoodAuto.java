@@ -1,28 +1,27 @@
 package frc.robot.commands.shooter;
 
+import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.commands.allign.AimToHubCommand;
-import frc.robot.commands.allign.AimToPointCommand;
 import frc.robot.subsystems.shooter.Intertable;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 
 public class HoodAuto extends Command {
 
-    private HoodSubsystem hd;
+    private HoodSubsystem hood;
     private Intertable tableThing = Intertable.getInstance();
     private boolean redTeam = false;
     NetworkTable table = NetworkTableInstance.getDefault().getTable("SWERVE_TABLE_NAME");
     StructSubscriber<Pose2d> poseSub = table.getStructTopic("estimatedPose", Pose2d.struct).subscribe(new Pose2d());
 
-    public HoodAuto(HoodSubsystem h, boolean red) {
+    public HoodAuto(HoodSubsystem hood, boolean red) {
         redTeam = red;
-        this.hd = h;
-        addRequirements(hd);
+        this.hood = hood;
+        addRequirements(hood);
     }
 
     @Override
@@ -30,33 +29,33 @@ public class HoodAuto extends Command {
 
     @Override
     public void execute() {
-        double ang;
+        double angle;
 
         if (redTeam) {
             if (poseSub.get().getX() > AlignConstants.RED_WALL_X) {
-                ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
+                angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
             } else {
                 if (poseSub.get().getY() > AlignConstants.HUB_Y) {
-                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_TOP));
+                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_TOP));
                 } else {
-                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_BOTTOM));
+                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_BOTTOM));
                 }
             }
 
         } else {
             if (poseSub.get().getX() < AlignConstants.BLUE_WALL_X) {
-                ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
+                angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
             } else {
                 if (poseSub.get().getY() > AlignConstants.HUB_Y) {
-                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_TOP));
+                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_TOP));
                 } else {
-                    ang = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_BOTTOM));
+                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_BOTTOM));
                 }
             }
         }
 
-        System.out.println("hood angle: " + ang);
-        hd.setHoodAngle(ang);
+        System.out.println("hood angle: " + angle);
+        hood.setPosition(Rotations.of(angle));
 
     }
 

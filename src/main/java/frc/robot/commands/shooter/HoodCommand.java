@@ -1,17 +1,16 @@
 package frc.robot.commands.shooter;
 
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.SmashAndShootConstants;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 
 public class HoodCommand extends Command {
 
-    private final HoodSubsystem hd;
+    private final HoodSubsystem hood;
 
-    public HoodCommand(HoodSubsystem h) {
-        this.hd = h;
-        addRequirements(hd);
+    public HoodCommand(HoodSubsystem hood) {
+        this.hood = hood;
+        addRequirements(hood);
     }
 
     @Override
@@ -19,7 +18,7 @@ public class HoodCommand extends Command {
 
     @Override
     public void execute() {
-        hd.setHoodAngle(SmashAndShootConstants.HOOD_POSITION.in(Rotations));
+        hood.setPosition(SmashAndShootConstants.HOOD_POSITION);
     }
 
     @Override

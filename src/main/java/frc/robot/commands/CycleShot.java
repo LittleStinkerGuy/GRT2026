@@ -2,9 +2,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.CycleShooterConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 import static edu.wpi.first.units.Units.Rotations;
@@ -48,14 +49,14 @@ public class CycleShot extends Command {
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
         flywheel.setVelocity(RotationsPerSecond.of(flywheelVelo.getAsDouble()));
-        hood.setHoodAngle(CycleShooterConstants.HOOD_POSITION.in(Rotations));
+        hood.setPosition(CycleShooterConstants.HOOD_POSITION);
     }
 
     @Override
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets (with live operator offsets)
         flywheel.setVelocity(RotationsPerSecond.of(flywheelVelo.getAsDouble()));
-        hood.setHoodAngle(CycleShooterConstants.HOOD_POSITION.in(Rotations));
+        hood.setPosition(CycleShooterConstants.HOOD_POSITION);
 
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
@@ -76,7 +77,7 @@ public class CycleShot extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.stop();
-        hood.setHoodAngle(0);
+        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
         tower.stop();
         hopper.stop();
     }

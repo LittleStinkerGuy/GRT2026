@@ -1,15 +1,15 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 
@@ -25,7 +25,7 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 public class ManualShooterSequence extends Command {
 
     private final FlywheelSubsystem flywheel;
-    private final HoodSubsystem hood;
+    private final frc.robot.subsystems.shooter.hood.HoodSubsystem hood;
     private final TowerSubsystem tower;
     private final HopperSubsystem hopper;
     private final PivotSubsystem pivot;
@@ -60,7 +60,7 @@ public class ManualShooterSequence extends Command {
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
         flywheel.setVelocity(flywheelVelo);
-        hood.setHoodAngle(hoodPosition.in(Rotations));
+        hood.setPosition(hoodPosition);
         // Start with pivot out, wait the initial-delay before first toggle
         pivotIsIn = false;
         initialDelayDone = false;
@@ -72,7 +72,7 @@ public class ManualShooterSequence extends Command {
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets (with live operator offsets)
         flywheel.setVelocity(flywheelVelo);
-        hood.setHoodAngle(hoodPosition.in(Rotations));
+        hood.setPosition(hoodPosition);
 
         if (!initialDelayDone) {
             if (pivotTimer.hasElapsed(SmashAndShootConstants.INITIAL_DELAY_SECONDS)) {
@@ -104,7 +104,7 @@ public class ManualShooterSequence extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.stop();
-        hood.setHoodAngle(0);
+        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
         tower.stop();
         hopper.stop();
         pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
