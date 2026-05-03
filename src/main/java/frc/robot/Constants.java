@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Pound;
@@ -23,6 +24,7 @@ import edu.wpi.first.units.MomentOfInertiaUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Velocity;
@@ -260,9 +262,8 @@ public final class Constants {
         public static final Velocity<AngularAccelerationUnit> MM_JERK = RotationsPerSecondPerSecond.of(100).per(Second);
 
         // Current limits
-        public static final int SUPPLY_CURRENT_LIMIT = 80;
-        public static final int STATOR_CURRENT_LIMIT = 60;
-        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
+        public static final Current SUPPLY_CURRENT_LIMIT = Amps.of(80);
+        public static final Current STATOR_CURRENT_LIMIT = Amps.of(120.0);
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
         // Motor config
@@ -318,17 +319,17 @@ public final class Constants {
             public static final double kS = 120;
 
             // Angle limits (rotations)
-            public static final double UPPER_ANGLE_LIMIT = 0.1;
-            public static final double LOWER_ANGLE_LIMIT = 0;
-            public static final double INIT_ANGLE = UPPER_ANGLE_LIMIT;
+            public static final Angle UPPER_ANGLE_LIMIT = Rotations.of(0.1);
+            public static final Angle LOWER_ANGLE_LIMIT = Rotations.of(0.0);
+            public static final Angle INIT_ANGLE = UPPER_ANGLE_LIMIT;
             public static final double MAGNET_OFFSET = -0.05688;
 
             // Current limits
-            public static final double STATOR_CURRENT_LIMIT = 50.0;
-            public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+            public static final Current STATOR_CURRENT_LIMIT = Amps.of(50.0);
+            public static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40.0);
             public static final boolean CURRENT_LIMIT_ENABLE = true;
 
-            public static final double ANGLE_TOLERANCE = 0.01;
+            public static final Angle ANGLE_TOLERANCE = Rotations.of(0.01);
         }
     }
 
@@ -337,10 +338,10 @@ public final class Constants {
     public static class IntakeConstants {
         // Roller Motor
         public static final int ROLLER_CAN_ID = 14;
-        public static final double ROLLER_IN_SPEED = -85;
-        public static final double ROLLER_OUT_SPEED = 85;
-        public static final double ROLLER_CURRENT_LIMIT = 120.0;
-        public static final double ROLLER_STATOR_CURRENT_LIMIT = 120.0;
+        public static final AngularVelocity ROLLER_IN_SPEED = RotationsPerSecond.of(-85);
+        public static final AngularVelocity ROLLER_OUT_SPEED = RotationsPerSecond.of(85);
+        public static final Current ROLLER_CURRENT_LIMIT = Amps.of(120.0);
+        public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(120.0);
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
         public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
@@ -360,7 +361,7 @@ public final class Constants {
         public static final int PIVOT_MOTOR_ID = 12;
         public static final int PIVOT_CANCODER_ID = 13;
         public static final double MANUAL_PIVOT_SPEED = 1;
-        public static final double PIVOT_STATOR_CURRENT_LIMIT = 40.0;
+        public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(40.0);
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
         // Pivot PID
@@ -433,13 +434,11 @@ public final class Constants {
         public static final AngularVelocity TARGET_RPS = RotationsPerSecond.of(TARGET_BPS / 4); // divided by 4 cuz 4 vains on spinner
 
         // Current limits
-        public static final int SUPPLY_CURRENT_LIMIT = 80;
-        public static final int STATOR_CURRENT_LIMIT = 60;
-        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
+        public static final Current SUPPLY_CURRENT_LIMIT = Amps.of(80);
+        public static final Current STATOR_CURRENT_LIMIT = Amps.of(120);
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
         // Voltage and ramping
-        public static final int VOLTAGE_COMPENSATION = 12;
         public static final double OPEN_LOOP_RAMP = 0.5;
         public static final double DUTY_CYCLE_OPEN_LOOP_RAMP = 0.05;
 
