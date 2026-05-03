@@ -225,8 +225,8 @@ public final class Constants {
         public static final int KRAKEN_CAN_ID = 26;
 
         public enum TowerIntake {
-            BALLUP,
-            BALLDOWN,
+            BALL_UP,
+            BALL_DOWN,
             STOP
         }
 
@@ -236,7 +236,7 @@ public final class Constants {
         public static final double TARGET_BPS = 4.0; // frequency
         public static final double WHEEL_RADIUS = 1.0; // distance
         public static final double BALL_DIAMETER = 6.0; // distance
-        public static final double TARGET_RPS = 30; // TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+        public static final AngularVelocity TARGET_VELO = RotationsPerSecond.of(30); // TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
         // Velocity control PID (SysID Derived - Voltage)
         public static final double kP = 0.00625;
@@ -248,9 +248,9 @@ public final class Constants {
         public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(7.58);
 
         // motion magic
-        public static final double MM_ACCEL = 1000; // distance
-        public static final double MM_JERK = 100; // distance
-        public static final double MM_MAXVELO = 100; // distance
+        public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(1000);
+        public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(100);
+        public static final Velocity<AngularAccelerationUnit> MM_JERK = RotationsPerSecondPerSecond.of(100).per(Second);
 
         // Current limits
         public static final int SUPPLY_CURRENT_LIMIT = 80;

@@ -95,9 +95,9 @@ public class TowerRollersSubsystem extends SubsystemBase {
         yoTuneThis("setDutyCyclePercent", val -> krakenMotor.setControl(new DutyCycleOut(val)), 0);
         yoTuneThis("setMMVTCF", val -> krakenMotor.setControl(new VelocityVoltage(val)), 0);
 
-        yoTuneThis("MMAccel", val -> config.MotionMagic.MotionMagicAcceleration = val, TowerConstants.MM_ACCEL);
-        yoTuneThis("MMJerk", val -> config.MotionMagic.MotionMagicJerk = val, TowerConstants.MM_JERK);
-        yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, TowerConstants.MM_MAXVELO);
+        // yoTuneThis("MMAccel", val -> config.MotionMagic.MotionMagicAcceleration = val, TowerConstants.MM_ACCEL);
+        // yoTuneThis("MMJerk", val -> config.MotionMagic.MotionMagicJerk = val, TowerConstants.MM_JERK);
+        // yoTuneThis("MMMaxVelo", val -> config.MotionMagic.MotionMagicCruiseVelocity = val, TowerConstants.MM_MAX_VELO);
 
         yoTuneThis("GearReduction", val -> config.Feedback.SensorToMechanismRatio = val, TowerConstants.GEAR_REDUCTION);
         yoTuneThis("printThisYo", val -> System.out.println("printed this yo: " + val), 0);
@@ -130,11 +130,11 @@ public class TowerRollersSubsystem extends SubsystemBase {
 
     public void setTower(TowerIntake state) {
         switch (state) {
-            case BALLUP:
-                krakenMotor.setControl(velocityControl.withVelocity(TowerConstants.TARGET_RPS));
+            case BALL_UP:
+                krakenMotor.setControl(velocityControl.withVelocity(TowerConstants.TARGET_VELO));
                 break;
-            case BALLDOWN:
-                krakenMotor.setControl(velocityControl.withVelocity(-TowerConstants.TARGET_RPS));
+            case BALL_DOWN:
+                krakenMotor.setControl(velocityControl.withVelocity(TowerConstants.TARGET_VELO.unaryMinus()));
                 break;
             case STOP:
                 krakenMotor.stopMotor();
@@ -145,7 +145,7 @@ public class TowerRollersSubsystem extends SubsystemBase {
     }
 
     public boolean correctRoll() {
-        double errorRPS = Math.abs(TowerConstants.TARGET_RPS - krakenMotor.getVelocity().getValueAsDouble());
+        double errorRPS = Math.abs(TowerConstants.TARGET_VELO.in(RotationsPerSecond) - krakenMotor.getVelocity().getValueAsDouble());
         if (errorRPS < TowerConstants.VELOCITY_TOLERANCE.in(RotationsPerSecond)) {
             return true;
         } else {
