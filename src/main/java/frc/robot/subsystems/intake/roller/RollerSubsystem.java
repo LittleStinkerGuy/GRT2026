@@ -167,7 +167,7 @@ public class RollerSubsystem extends SubsystemBase {
 
     public Command runRollerOut() {
         return this.runEnd(
-            () -> setVelocity(RotationsPerSecond.of(Math.abs(outSpeed.get()))),
+            () -> setVelocity(RotationsPerSecond.of(-Math.abs(outSpeed.get()))),
             this::stop);
     }
 
