@@ -340,8 +340,8 @@ public final class Constants {
         public static final double ROLLER_A = 0.0116;
 
         // Roller Sim PID
-        public static final double ROLLER_SIM_P = 0.1;
-        public static final double ROLLER_SIM_V = 0.1;
+        public static final double ROLLER_SIM_P = 0.9;
+        public static final double ROLLER_SIM_V = 0.12;
 
         // Pivot Motor
         public static final int PIVOT_MOTOR_ID = 12;
