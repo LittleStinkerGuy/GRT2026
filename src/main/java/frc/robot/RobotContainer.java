@@ -30,16 +30,20 @@ import frc.robot.commands.TowerShot;
 import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
-import frc.robot.commands.intake.pivot.*;
-import frc.robot.commands.intake.roller.*;
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.fms.FieldManagementSubsystem;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOTalonFX;
 import frc.robot.subsystems.hopper.HopperIOTalonFXSim;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.intake.PivotIntakeSubsystem;
-import frc.robot.subsystems.intake.RollerIntakeSubsystem;
+import frc.robot.subsystems.intake.pivot.PivotIO;
+import frc.robot.subsystems.intake.pivot.PivotIOTalonFX;
+import frc.robot.subsystems.intake.pivot.PivotIOTalonFXSim;
+import frc.robot.subsystems.intake.pivot.PivotSubsystem;
+import frc.robot.subsystems.intake.roller.RollerIO;
+import frc.robot.subsystems.intake.roller.RollerIOTalonFX;
+import frc.robot.subsystems.intake.roller.RollerIOTalonFXSim;
+import frc.robot.subsystems.intake.roller.RollerSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterLearner;
@@ -75,8 +79,8 @@ public class RobotContainer {
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
     private TowerRollersSubsystem tower = new TowerRollersSubsystem(mechCan);
 
-    private final RollerIntakeSubsystem intakeSubsystem = new RollerIntakeSubsystem(mechCan);
-    private final PivotIntakeSubsystem pivotIntake = new PivotIntakeSubsystem(mechCan);
+    private final PivotSubsystem pivot;
+    private final RollerSubsystem roller;
     private final HopperSubsystem hopper;
     private final Field2d field = new Field2d();
     private final FlywheelSubsystem flywheel = new FlywheelSubsystem(mechCan);
@@ -113,13 +117,19 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.CURRENT_MODE) {
             case REAL:
+                pivot = new PivotSubsystem(new PivotIOTalonFX(mechCan));
+                roller = new RollerSubsystem(new RollerIOTalonFX(mechCan));
                 hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
                 break;
             case SIM:
+                pivot = new PivotSubsystem(new PivotIOTalonFXSim(mechCan));
+                roller = new RollerSubsystem(new RollerIOTalonFXSim(mechCan));
                 hopper = new HopperSubsystem(new HopperIOTalonFXSim(mechCan));
                 break;
             case REPLAY:
             default:
+                pivot = new PivotSubsystem(new PivotIO() {});
+                roller = new RollerSubsystem(new RollerIO() {});
                 hopper = new HopperSubsystem(new HopperIO() {});
                 break;
         }
@@ -143,11 +153,11 @@ public class RobotContainer {
         }
 
         SmartDashboard.putData("Field", field);
-        NamedCommands.registerCommand("deployIntake", new PivotDownTimedCommand(pivotIntake));
-        NamedCommands.registerCommand("runRollers", new RollerInCommand(intakeSubsystem));
-        NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
-        NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivotIntake, intakeSubsystem));
-        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hoodSubsystem, tower, hopper, pivotIntake));
+        NamedCommands.registerCommand("deployIntake", pivot.deployPivot());
+        NamedCommands.registerCommand("runRollers", roller.runRollerIn());
+        NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivot, roller));
+        NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivot, roller));
+        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hoodSubsystem, tower, hopper, pivot));
     }
 
     /**
@@ -237,14 +247,14 @@ public class RobotContainer {
         if (Constants.MECH_ENABLED) {
             // ==================== INTAKE ROLLER ====================
             // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
-            mechController.L1().whileTrue(Commands.run(() -> intakeSubsystem.runIn(), intakeSubsystem));
-            mechController.R1().whileTrue(Commands.run(() -> intakeSubsystem.runOut(), intakeSubsystem));
-            intakeSubsystem.setDefaultCommand(Commands.run(() -> intakeSubsystem.stop(), intakeSubsystem));
+            mechController.L1().whileTrue(roller.runRollerIn());
+            mechController.R1().whileTrue(roller.runRollerOut());
+            roller.setDefaultCommand(roller.stopRoller());
 
             // ==================== INTAKE PIVOT ====================
             // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().whileTrue(new PivotOutCommand(pivotIntake));
-            mechController.povRight().whileTrue(new PivotInCommand(pivotIntake));
+            mechController.povLeft().whileTrue(pivot.deployPivot());
+            mechController.povRight().whileTrue(pivot.retractPivot());
 
             // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
             mechController.L2().whileTrue(Commands.run(() -> {
@@ -255,10 +265,7 @@ public class RobotContainer {
 
             // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
             driveController.square()
-                .whileTrue(Commands.run(() -> {
-                    pivotIntake.setPosition(Constants.IntakeConstants.PIVOT_IN_POS);
-                    intakeSubsystem.stop();
-                }, pivotIntake, intakeSubsystem));
+                .whileTrue(Commands.parallel(pivot.retractPivot(), roller.stopRoller()));
 
             // ==================== INTAKE PIVOT ====================
             // Right stick Y controls pivot manually
@@ -282,14 +289,14 @@ public class RobotContainer {
                         hoodSubsystem,
                         tower,
                         hopper,
-                        pivotIntake,
+                        pivot,
                         learner),
                     java.util.Set.of(
                         flywheel,
                         hoodSubsystem,
                         hopper,
                         tower,
-                        pivotIntake)));
+                        pivot)));
 
             // ==================== INTERPOLATION TABLE CALIBRATION ====================
             // D-pad up/down: bump flywheel RPM offset (5 RPS per press)
@@ -368,7 +375,7 @@ public class RobotContainer {
                 hoodSubsystem,
                 tower,
                 hopper,
-                pivotIntake,
+                pivot,
                 learner));
 
             // Swerve-dependent drive controller commands
@@ -404,7 +411,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hoodSubsystem, hopper, tower, pivotIntake, intakeSubsystem);
+        return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hoodSubsystem, hopper, tower, pivot, roller);
 
         // return new ToDepotAndShoot(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("90degturn");
