@@ -4,9 +4,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 import java.util.function.DoubleSupplier;
 
 /**
