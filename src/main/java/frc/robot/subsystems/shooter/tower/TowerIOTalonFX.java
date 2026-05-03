@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter.tower;
 
-import static edu.wpi.first.units.Units.Amps;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.List;
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -83,7 +82,7 @@ public class TowerIOTalonFX implements TowerIO {
         config.withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(TowerConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                .withStatorCurrentLimit(Amps.of(TowerConstants.STATOR_CURRENT_LIMIT_AMPS)));
+                .withStatorCurrentLimit(TowerConstants.STATOR_CURRENT_LIMIT));
 
         // Velocity control PID (Slot 0)
         pidConfig = new Slot0Configs()
