@@ -48,6 +48,9 @@ import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFXSim;
 import frc.robot.subsystems.swerve.AimSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -83,7 +86,7 @@ public class RobotContainer {
     private final RollerSubsystem roller;
     private final HopperSubsystem hopper;
     private final Field2d field = new Field2d();
-    private final FlywheelSubsystem flywheel = new FlywheelSubsystem(mechCan);
+    private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hoodSubsystem = new HoodSubsystem(mechCan);
     private final ShooterLearner learner = new ShooterLearner();
     @SuppressWarnings("unused")
@@ -120,17 +123,20 @@ public class RobotContainer {
                 pivot = new PivotSubsystem(new PivotIOTalonFX(mechCan));
                 roller = new RollerSubsystem(new RollerIOTalonFX(mechCan));
                 hopper = new HopperSubsystem(new HopperIOTalonFX(mechCan));
+                flywheel = new FlywheelSubsystem(new FlywheelIOTalonFX(mechCan));
                 break;
             case SIM:
                 pivot = new PivotSubsystem(new PivotIOTalonFXSim(mechCan));
                 roller = new RollerSubsystem(new RollerIOTalonFXSim(mechCan));
                 hopper = new HopperSubsystem(new HopperIOTalonFXSim(mechCan));
+                flywheel = new FlywheelSubsystem(new FlywheelIOTalonFXSim(mechCan));
                 break;
             case REPLAY:
             default:
                 pivot = new PivotSubsystem(new PivotIO() {});
                 roller = new RollerSubsystem(new RollerIO() {});
                 hopper = new HopperSubsystem(new HopperIO() {});
+                flywheel = new FlywheelSubsystem(new FlywheelIO() {});
                 break;
         }
         visionStuff();
