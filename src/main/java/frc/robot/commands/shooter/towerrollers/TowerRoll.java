@@ -2,7 +2,7 @@ package frc.robot.commands.shooter.towerrollers;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.TowerRollersSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SmashAndShootConstants;

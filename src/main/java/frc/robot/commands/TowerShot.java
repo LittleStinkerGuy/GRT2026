@@ -3,10 +3,10 @@ package frc.robot.commands;
 import frc.robot.Constants.TowerShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.shooter.TowerRollersSubsystem;
+import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 
 /**
  * Tower-shot preset — runs ManualShooterSequence with the hood angle and
