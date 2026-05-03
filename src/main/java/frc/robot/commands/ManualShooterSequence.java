@@ -1,5 +1,8 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Rotations;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
@@ -7,7 +10,6 @@ import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.shooter.TowerRollersSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 
@@ -22,46 +24,43 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
  */
 public class ManualShooterSequence extends Command {
 
-    private final FlywheelSubsystem fly;
-    private final HoodSubsystem hd;
+    private final FlywheelSubsystem flywheel;
+    private final HoodSubsystem hood;
     private final TowerRollersSubsystem tower;
     private final HopperSubsystem hopper;
     private final PivotSubsystem pivot;
-    private final ShooterLearner learner;
 
-    private final double hoodPosition;
-    private final double flywheelRps;
+    private final Angle hoodPosition;
+    private final AngularVelocity flywheelVelo;
 
     private final Timer pivotTimer = new Timer();
     private boolean pivotIsIn = true;
     private boolean initialDelayDone = false;
 
     public ManualShooterSequence(
-        FlywheelSubsystem fly,
+        FlywheelSubsystem flywheel,
         HoodSubsystem hood,
         TowerRollersSubsystem tower,
         HopperSubsystem hopper,
         PivotSubsystem pivot,
-        ShooterLearner learner,
-        double hoodPosition,
-        double flywheelRps) {
-        this.fly = fly;
-        this.hd = hood;
+        Angle hoodPosition,
+        AngularVelocity flywheelVelo) {
+        this.flywheel = flywheel;
+        this.hood = hood;
         this.tower = tower;
         this.hopper = hopper;
         this.pivot = pivot;
-        this.learner = learner;
         this.hoodPosition = hoodPosition;
-        this.flywheelRps = flywheelRps;
+        this.flywheelVelo = flywheelVelo;
 
-        addRequirements(fly, hood, tower, hopper, pivot);
+        addRequirements(flywheel, hood, tower, hopper, pivot);
     }
 
     @Override
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
-        fly.shoot(learner.getRPM(flywheelRps));
-        hd.setHoodAngle(learner.getHoodAngle(hoodPosition));
+        flywheel.setVelocity(flywheelVelo);
+        hood.setHoodAngle(hoodPosition.in(Rotations));
         // Start with pivot out, wait the initial-delay before first toggle
         pivotIsIn = false;
         initialDelayDone = false;
@@ -72,8 +71,8 @@ public class ManualShooterSequence extends Command {
     @Override
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets (with live operator offsets)
-        fly.shoot(learner.getRPM(flywheelRps));
-        hd.setHoodAngle(learner.getHoodAngle(hoodPosition));
+        flywheel.setVelocity(flywheelVelo);
+        hood.setHoodAngle(hoodPosition.in(Rotations));
 
         if (!initialDelayDone) {
             if (pivotTimer.hasElapsed(SmashAndShootConstants.INITIAL_DELAY_SECONDS)) {
@@ -104,8 +103,8 @@ public class ManualShooterSequence extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        fly.dontShoot();
-        hd.setHoodAngle(0);
+        flywheel.stop();
+        hood.setHoodAngle(0);
         tower.setManualControl(0);
         hopper.stop();
         pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);

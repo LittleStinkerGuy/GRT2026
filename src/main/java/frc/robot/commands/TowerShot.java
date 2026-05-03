@@ -27,8 +27,7 @@ public class TowerShot extends ManualShooterSequence {
             tower,
             hopper,
             pivot,
-            learner,
             TowerShootConstants.HOOD_POSITION,
-            TowerShootConstants.FLYWHEEL_RPS);
+            TowerShootConstants.FLYWHEEL_VELO);
     }
 }

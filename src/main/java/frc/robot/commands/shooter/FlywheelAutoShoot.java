@@ -1,5 +1,6 @@
 package frc.robot.commands.shooter;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.google.flatbuffers.Table;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -60,7 +61,7 @@ public class FlywheelAutoShoot extends Command {
             }
         }
 
-        fly.shoot(rps + offsetEntry.getDouble(0.0));
+        fly.setVelocity(RotationsPerSecond.of(rps + offsetEntry.getDouble(0.0)));
     }
 
     @Override
@@ -70,7 +71,7 @@ public class FlywheelAutoShoot extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        fly.dontShoot();
+        fly.stop();
     }
 
 }

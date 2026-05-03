@@ -28,7 +28,7 @@ public class RampFlywheel extends Command {
 
     @Override
     public void execute() {
-        fly.shoot(SmashAndShootConstants.FLYWHEEL_RPS);
+        fly.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class RampFlywheel extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        fly.dontShoot();
+        fly.stop();
     }
 
 }
