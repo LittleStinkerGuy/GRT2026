@@ -2,7 +2,6 @@ package frc.robot.subsystems.hopper;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.List;
-import static edu.wpi.first.units.Units.Amps;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -85,7 +84,7 @@ public class HopperIOTalonFX implements HopperIO {
         config.withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                .withStatorCurrentLimit(Amps.of(HopperConstants.STATOR_CURRENT_LIMIT_AMPS)));
+                .withStatorCurrentLimit(HopperConstants.STATOR_CURRENT_LIMIT));
 
         config.withFeedback(
             new FeedbackConfigs().withSensorToMechanismRatio(HopperConstants.GEAR_REDUCTION));
