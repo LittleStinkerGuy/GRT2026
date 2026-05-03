@@ -167,6 +167,12 @@ public class PivotSubsystem extends SubsystemBase {
         return jigglePivotCommand;
     }
 
+    public Command holdPivotOut() {
+        return this.startEnd(
+            () -> setPosition(IntakeConstants.PIVOT_OUT_POS),
+            () -> setPosition(IntakeConstants.PIVOT_IN_POS));
+    }
+
     public Command stopPivot() {
         return this.runOnce(this::stop);
     }
