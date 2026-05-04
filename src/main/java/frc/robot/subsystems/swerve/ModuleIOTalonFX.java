@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.List;
 import java.util.Queue;
@@ -161,11 +162,9 @@ public class ModuleIOTalonFX implements ModuleIO {
             .withKI(drivePID.kI())
             .withKD(drivePID.kD())
             .withKS(drivePID.kS())
-            .withKV(drivePID.kV())
-            .withKA(drivePID.kA());
+            .withKV(drivePID.kV());
         driveConfig.withSlot0(drivePIDConfig);
         tryUntilOk(5, () -> driveMotor.getConfigurator().apply(driveConfig), failedToConfigureDrive);
-
 
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
         steerConfig.withTorqueCurrent(new TorqueCurrentConfigs()
@@ -190,8 +189,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             .withKI(steerPID.kI())
             .withKD(steerPID.kD())
             .withKS(steerPID.kS())
-            .withKV(steerPID.kV())
-            .withKA(steerPID.kA());
+            .withKV(steerPID.kV());
         steerConfig.withSlot0(steerPIDConfig);
         tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerConfig), failedToConfigureSteer);
 
@@ -339,8 +337,13 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
+    public void setDriveVelocity(AngularVelocity velocity, Voltage feedforward) {
+        driveMotor.setControl(velocityControl.withVelocity(velocity).withFeedForward(feedforward));
+    }
+
+    @Override
     public void setDriveVelocity(AngularVelocity velocity) {
-        driveMotor.setControl(velocityControl.withVelocity(velocity));
+        setDriveVelocity(velocity, Volts.of(0.0));
     }
 
     @Override
@@ -369,14 +372,14 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
-    public void setDrivePID(double kP, double kI, double kD, double kS, double kV, double kA) {
-        drivePIDConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
+    public void setDrivePID(double kP, double kI, double kD, double kS, double kV) {
+        drivePIDConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV);
         tryUntilOk(5, () -> driveMotor.getConfigurator().apply(drivePIDConfig), drivePIDNotSetAlert);
     }
 
     @Override
-    public void setSteerPID(double kP, double kI, double kD, double kS, double kV, double kA) {
-        steerPIDConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV).withKA(kA);
+    public void setSteerPID(double kP, double kI, double kD, double kS, double kV) {
+        steerPIDConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV);
         tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerPIDConfig), steerPIDNotSetAlert);
     }
 }

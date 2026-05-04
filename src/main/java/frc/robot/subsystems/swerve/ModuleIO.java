@@ -62,6 +62,8 @@ public interface ModuleIO {
 
     public default void updateInputs(ModuleIOInputs inputs) {}
 
+    public default void setDriveVelocity(AngularVelocity velocity, Voltage feedForward) {}
+
     public default void setDriveVelocity(AngularVelocity velocity) {}
 
     public default void setDriveVoltage(Voltage voltage) {}
@@ -74,8 +76,8 @@ public interface ModuleIO {
 
     public default void stopDrive() {}
 
-    public default void setDrivePID(double kP, double kI, double kD, double kS, double kV, double kA) {}
+    public default void setDrivePID(double kP, double kI, double kD, double kS, double kV) {}
 
-    public default void setSteerPID(double kP, double kI, double kD, double kS, double kV, double kA) {}
+    public default void setSteerPID(double kP, double kI, double kD, double kS, double kV) {}
 
 }
