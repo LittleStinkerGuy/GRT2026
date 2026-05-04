@@ -116,7 +116,6 @@ public class RobotContainer {
         VisionConstants.CAMERA_CONFIG_3);
     private UsbCamera driverCam;
 
-
     private double desiredHoodSpeed = 0;
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.CAMERA_CONFIG_11);
@@ -156,7 +155,6 @@ public class RobotContainer {
         constructController();
         configureBindings();
         configureAutoChooser();
-
 
         if (Constants.CURRENT_MODE == Mode.REAL) {
             // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams

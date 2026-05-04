@@ -9,7 +9,6 @@ public class TowerRoll extends Command {
 
     private final TowerSubsystem tower;
 
-
     public TowerRoll(TowerSubsystem tower) {
         this.tower = tower;
 
