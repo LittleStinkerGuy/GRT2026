@@ -160,9 +160,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         drivePIDConfig = new Slot0Configs()
             .withKP(drivePID.kP())
             .withKI(drivePID.kI())
-            .withKD(drivePID.kD())
-            .withKS(drivePID.kS())
-            .withKV(drivePID.kV());
+            .withKD(drivePID.kD());
         driveConfig.withSlot0(drivePIDConfig);
         tryUntilOk(5, () -> driveMotor.getConfigurator().apply(driveConfig), failedToConfigureDrive);
 
@@ -372,8 +370,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
-    public void setDrivePID(double kP, double kI, double kD, double kS, double kV) {
-        drivePIDConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV);
+    public void setDrivePID(double kP, double kI, double kD) {
+        drivePIDConfig.withKP(kP).withKI(kI).withKD(kD);
         tryUntilOk(5, () -> driveMotor.getConfigurator().apply(drivePIDConfig), drivePIDNotSetAlert);
     }
 
