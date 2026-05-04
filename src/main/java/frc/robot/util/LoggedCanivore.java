@@ -29,12 +29,12 @@ public class LoggedCanivore extends CANBus {
         thread =
             new Thread(
                 () -> {
-                    while (!Thread.currentThread().isInterrupted()) {
+                    while (true) {
                         canivoreStatus = Optional.of(getStatus());
                         try {
                             Thread.sleep(400);
                         } catch (InterruptedException e) {
-                            break;
+                            e.printStackTrace();
                         }
                     }
                 });
