@@ -51,9 +51,7 @@ public class AimBot extends Command {
     }
 
     @Override
-    public void execute() {
-
-    }
+    public void execute() {}
 
     @Override
     public boolean isFinished() {
@@ -61,8 +59,6 @@ public class AimBot extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
-
-    }
+    public void end(boolean interrupted) {}
 
 }

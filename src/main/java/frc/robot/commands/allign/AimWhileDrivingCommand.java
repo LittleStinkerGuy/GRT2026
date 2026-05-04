@@ -9,7 +9,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class AimWhileDrivingCommand extends Command {
-
     private final SwerveSubsystem swerve;
     private final FieldManagementSubsystem fms;
 
@@ -40,12 +39,10 @@ public class AimWhileDrivingCommand extends Command {
      * Select the correct aim point depending on robot location.
      */
     private Translation2d getTargetPoint() {
-
         boolean redTeam = fms.isRedAlliance();
         Pose2d pose = swerve.getRobotPosition();
 
         if (redTeam) {
-
             if (pose.getX() > AlignConstants.RED_WALL_X) {
                 return AlignConstants.RED_HUB_TRANS;
             }
@@ -55,9 +52,7 @@ public class AimWhileDrivingCommand extends Command {
             }
 
             return AlignConstants.RED_AIM_BOTTOM;
-
         } else {
-
             if (pose.getX() < AlignConstants.BLUE_WALL_X) {
                 return AlignConstants.BLUE_HUB_TRANS;
             }
@@ -74,7 +69,6 @@ public class AimWhileDrivingCommand extends Command {
      * Compute the angle the robot should face to aim the shooter.
      */
     private Rotation2d getTargetRotation() {
-
         Pose2d robotPose = swerve.getRobotPosition();
         Translation2d target = getTargetPoint();
 
@@ -89,7 +83,6 @@ public class AimWhileDrivingCommand extends Command {
 
     @Override
     public void execute() {
-
         double x = xSupplier.getAsDouble();
         double y = ySupplier.getAsDouble();
 

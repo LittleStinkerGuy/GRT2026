@@ -58,7 +58,6 @@ public class CycleShot extends Command {
         flywheel.setVelocity(RotationsPerSecond.of(flywheelVelo.getAsDouble()));
         hood.setPosition(CycleShooterConstants.HOOD_POSITION);
 
-
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
             tower.setDutyCycle(SmashAndShootConstants.TOWER_DUTY_CYCLE);
