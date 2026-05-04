@@ -43,17 +43,17 @@ import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class ModuleIOTalonFX implements ModuleIO {
-    private TalonFX driveMotor;
-    private Slot0Configs drivePIDConfig;
+    private final TalonFX driveMotor;
+    private final Slot0Configs drivePIDConfig;
 
-    private TalonFX steerMotor;
-    private Slot0Configs steerPIDConfig;
+    private final TalonFX steerMotor;
+    private final Slot0Configs steerPIDConfig;
 
-    private CANcoder steerEncoder;
+    private final CANcoder steerEncoder;
 
-    private PositionVoltage positionControl = new PositionVoltage(0.0).withEnableFOC(true);
-    private VelocityVoltage velocityControl = new VelocityVoltage(0.0).withEnableFOC(true);
-    private VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
+    private final PositionVoltage positionControl = new PositionVoltage(0.0).withEnableFOC(true);
+    private final VelocityVoltage velocityControl = new VelocityVoltage(0.0).withEnableFOC(true);
+    private final VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
 
     private final List<BaseStatusSignal> driveSignals;
     private StatusSignal<Angle> drivePosition;
@@ -94,13 +94,13 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     private final List<BaseStatusSignal> odometrySignals;
 
-    private Alert failedToConfigureDrive;
-    private Alert failedToSetDriveFrequencyAlert;
-    private Alert drivePIDNotSetAlert;
+    private final Alert failedToConfigureDrive;
+    private final Alert failedToSetDriveFrequencyAlert;
+    private final Alert drivePIDNotSetAlert;
 
-    private Alert failedToConfigureSteer;
-    private Alert failedToSetSteerFrequencyAlert;
-    private Alert steerPIDNotSetAlert;
+    private final Alert failedToConfigureSteer;
+    private final Alert failedToSetSteerFrequencyAlert;
+    private final Alert steerPIDNotSetAlert;
 
     private final Alert cancoderConfigRefreshAlert;
     private final Alert cancoderConfigAlert;
