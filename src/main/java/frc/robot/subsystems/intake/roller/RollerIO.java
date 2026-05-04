@@ -37,7 +37,6 @@ public interface RollerIO {
         public double closedLoopOutput = 0.0;
     }
 
-
     default void updateInputs(RollerIOInputs inputs) {}
 
     default PIDConstants getDefaultPID() {
