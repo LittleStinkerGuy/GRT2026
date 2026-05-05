@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveSteerConstants;
+import frc.robot.subsystems.swerve.DriveSubsystem.SwerveModule;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
@@ -109,35 +110,57 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final Alert failedToSetOdometrySignalFrequencyAlert;
     private final Alert didNotOptimizeCanBusesAlert;
 
-    public ModuleIOTalonFX(PIDConstants drivePID, PIDConstants steerPID, int driveMotorID, int steerMotorID, int cancoderID, LoggedCanivore canivore) {
-        failedToConfigureDrive = new Alert("Swerve", "Failed to configure drive motor " + driveMotorID, AlertType.kError);
+    public ModuleIOTalonFX(SwerveModule module, int driveMotorID, int steerMotorID, int cancoderID, LoggedCanivore canivore, PIDConstants drivePID, PIDConstants steerPID) {
+        String driveDescription = "Drive Motor " + driveMotorID + " in " + module.toString();
+        String steerDescription = "Steer Motor " + steerMotorID + " in " + module.toString();
+        String cancoderDescription = "Cancoder " + cancoderID + " in " + module.toString();
+
+        failedToConfigureDrive = new Alert(
+            "Swerve",
+            "Failed to configure " + driveDescription,
+            AlertType.kError);
         failedToSetDriveFrequencyAlert = new Alert(
             "Swerve",
-            "Failed to set drive motor " + driveMotorID + "'s status signal frequency!",
+            "Failed to set status signal frequency for " + driveDescription,
             AlertType.kError);
-        drivePIDNotSetAlert = new Alert("Swerve", "PID not set for drive motor " + driveMotorID, AlertType.kWarning);
+        drivePIDNotSetAlert = new Alert(
+            "Swerve",
+            "PID not set for " + driveDescription,
+            AlertType.kWarning);
 
-        failedToConfigureSteer = new Alert("Swerve", "Failed to configure steer motor " + steerMotorID, AlertType.kError);
+        failedToConfigureSteer = new Alert(
+            "Swerve",
+            "Failed to configure " + steerDescription,
+            AlertType.kError);
         failedToSetSteerFrequencyAlert = new Alert(
             "Swerve",
-            "Failed to set steer motor " + steerMotorID + "'s status signal frequency!",
+            "Failed to set status signal frequency for " + steerDescription,
             AlertType.kError);
-        steerPIDNotSetAlert = new Alert("Swerve", "PID not set for steer motor " + steerMotorID, AlertType.kWarning);
+        steerPIDNotSetAlert = new Alert(
+            "Swerve",
+            "PID not set for " + steerDescription,
+            AlertType.kWarning);
 
-        cancoderConfigRefreshAlert = new Alert("Swerve", "Failed to refresh cancoder config", AlertType.kError);
-        cancoderConfigAlert = new Alert("Swerve", "Failed to configure cancoder", AlertType.kError);
+        cancoderConfigRefreshAlert = new Alert(
+            "Swerve",
+            "Failed to refresh config for " + cancoderDescription,
+            AlertType.kError);
+        cancoderConfigAlert = new Alert(
+            "Swerve",
+            "Failed to configure " + cancoderDescription,
+            AlertType.kError);
         failedToSetCancoderSignalFrequencyAlert = new Alert(
             "Swerve",
-            "Failed to set cancoder status signal frequency!",
+            "Failed to set status signal frequency for " + cancoderDescription,
             AlertType.kError);
 
         failedToSetOdometrySignalFrequencyAlert = new Alert(
             "Swerve",
-            "Failed to set odometry signal frequency for ids: " + driveMotorID + " " + steerMotorID + " " + cancoderID,
+            "Failed to set odometry signal frequency for " + module.toString(),
             AlertType.kError);
         didNotOptimizeCanBusesAlert = new Alert(
             "Swerve",
-            "Failed to optimize CAN for ids: " + driveMotorID + " " + steerMotorID + " " + cancoderID,
+            "Failed to optimize CAN for " + module.toString(),
             AlertType.kWarning);
 
         driveMotor = new TalonFX(driveMotorID, canivore);
