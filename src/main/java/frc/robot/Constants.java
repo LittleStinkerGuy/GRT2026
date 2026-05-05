@@ -6,6 +6,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Pound;
@@ -389,6 +390,8 @@ public final class Constants {
         public static final Angle PIVOT_IN_POS = Rotations.of(0.33);
         public static final Angle PIVOT_MID_UPPER = Rotations.of(0.175);
         public static final Angle PIVOT_MID_LOWER = Rotations.of(0.091);
+
+        public static final Angle PIVOT_POSITION_TOLERANCE = Degrees.of(5);
 
         // Pivot Duty Cycle
         public static final double PIVOT_UP_DUTY_CYCLE = 0.3;

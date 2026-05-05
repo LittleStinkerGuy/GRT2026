@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -50,6 +51,7 @@ public class HopperSubsystem extends SubsystemBase {
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
     private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
+    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -102,10 +104,12 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(Voltage volts) {
-        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12.0, 12.0));
-        io.setVoltageOut(volts);
+        commandedVoltageSetpoint.mut_replace(
+            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
+            Volts);
+        io.setVoltageOut(commandedVoltageSetpoint);
         commandedControlMode = MotorControlMode.Voltage;
-        Logger.recordOutput("Hopper/VoltageSetpoint", volts);
+        Logger.recordOutput("Hopper/VoltageSetpoint", commandedVoltageSetpoint);
     }
 
     public void setVelocity(AngularVelocity velo) {

@@ -13,6 +13,8 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -38,7 +40,8 @@ public class PivotSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private Angle commandedPositionSetpoint = Rotations.of(0.0);
+    private final MutAngle commandedPositionSetpoint = Rotations.mutable(0.0);
+    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -87,21 +90,24 @@ public class PivotSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(Voltage volts) {
-        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12, 12));
-        io.setVoltageOut(volts);
+        commandedVoltageSetpoint.mut_replace(
+            MathUtil.clamp(volts.in(Volts), -12, 12),
+            Volts);
+        io.setVoltageOut(commandedVoltageSetpoint);
         commandedControlMode = MotorControlMode.Voltage;
-        Logger.recordOutput("Pivot/VoltageSetpoint", volts);
+        Logger.recordOutput("Pivot/VoltageSetpoint", commandedVoltageSetpoint);
     }
 
     public void setPosition(Angle position) {
-        position = Rotations.of(MathUtil.clamp(
-            position.in(Rotations),
-            IntakeConstants.PIVOT_REVERSE_LIMIT.in(Rotations),
-            IntakeConstants.PIVOT_FORWARD_LIMIT.in(Rotations)));
-        io.setPositionOut(position);
+        commandedPositionSetpoint.mut_replace(
+            MathUtil.clamp(
+                position.in(Rotations),
+                IntakeConstants.PIVOT_REVERSE_LIMIT.in(Rotations),
+                IntakeConstants.PIVOT_FORWARD_LIMIT.in(Rotations)),
+            Rotations);
+        io.setPositionOut(commandedPositionSetpoint);
         commandedControlMode = MotorControlMode.Position;
-        commandedPositionSetpoint = position;
-        Logger.recordOutput("Pivot/PositionSetpoint", position);
+        Logger.recordOutput("Pivot/PositionSetpoint", commandedPositionSetpoint);
     }
 
     public void stop() {
@@ -113,7 +119,7 @@ public class PivotSubsystem extends SubsystemBase {
         if (commandedControlMode != MotorControlMode.Position) {
             return Optional.empty();
         }
-        return Optional.of(commandedPositionSetpoint.isNear(inputs.position, Degrees.of(5)));
+        return Optional.of(commandedPositionSetpoint.isNear(inputs.position, IntakeConstants.PIVOT_POSITION_TOLERANCE));
     }
 
     @Override

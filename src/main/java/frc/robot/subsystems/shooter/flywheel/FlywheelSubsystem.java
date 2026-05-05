@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,7 +51,8 @@ public class FlywheelSubsystem extends SubsystemBase {
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
     private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
-    private final MutVoltage voltsOut = Volts.mutable(0.0);
+    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
+    private final MutAngularVelocity veloCommand = RotationsPerSecond.mutable(0.0);
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -91,10 +93,12 @@ public class FlywheelSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(Voltage volts) {
-        voltsOut.mut_replace(MathUtil.clamp(volts.in(Volts), -12.0, 12.0), Volts);
-        io.setVoltageOut(voltsOut);
+        commandedVoltageSetpoint.mut_replace(
+            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
+            Volts);
+        io.setVoltageOut(commandedVoltageSetpoint);
         commandedControlMode = MotorControlMode.Voltage;
-        Logger.recordOutput("Flywheel/VoltageSetpoint", voltsOut);
+        Logger.recordOutput("Flywheel/VoltageSetpoint", commandedVoltageSetpoint);
     }
 
     public void setVelocity(AngularVelocity velo) {
@@ -156,7 +160,10 @@ public class FlywheelSubsystem extends SubsystemBase {
     }
 
     public Command rampToVelocity(DoubleSupplier rpsSupplier) {
-        return this.run(() -> setVelocity(RotationsPerSecond.of(rpsSupplier.getAsDouble())))
+        return this.run(() -> {
+            veloCommand.mut_replace(rpsSupplier.getAsDouble(), RotationsPerSecond);
+            setVelocity(veloCommand);
+        })
             .finallyDo(this::stop);
     }
 

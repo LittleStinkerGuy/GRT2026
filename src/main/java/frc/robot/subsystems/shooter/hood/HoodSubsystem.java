@@ -16,6 +16,8 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -40,7 +42,8 @@ public class HoodSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private Angle commandedPositionSetpoint = Rotations.of(0.0);
+    private final MutAngle commandedPositionSetpoint = Rotations.mutable(0.0);
+    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -88,22 +91,25 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(Voltage volts) {
-        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12.0, 12.0));
-        io.setVoltageOut(volts);
+        commandedVoltageSetpoint.mut_replace(
+            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
+            Volts);
+        io.setVoltageOut(commandedVoltageSetpoint);
         commandedControlMode = MotorControlMode.Voltage;
-        Logger.recordOutput("Hood/VoltageSetpoint", volts);
+        Logger.recordOutput("Hood/VoltageSetpoint", commandedVoltageSetpoint);
     }
 
     public void setPosition(Angle position) {
-        position = Rotations.of(MathUtil.clamp(
-            position.in(Rotations),
-            ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations),
-            ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations)));
+        commandedPositionSetpoint.mut_replace(
+            MathUtil.clamp(
+                position.in(Rotations),
+                ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations),
+                ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations)),
+            Rotations);
 
-        io.setPositionOut(position);
+        io.setPositionOut(commandedPositionSetpoint);
         commandedControlMode = MotorControlMode.Position;
-        commandedPositionSetpoint = position;
-        Logger.recordOutput("Hood/PositionSetpoint", position);
+        Logger.recordOutput("Hood/PositionSetpoint", commandedPositionSetpoint);
     }
 
     public void stop() {

@@ -64,6 +64,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PS5ControllerEmulator;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -117,6 +118,7 @@ public class RobotContainer {
     private UsbCamera driverCam;
 
     private double desiredHoodSpeed = 0;
+    private final MutAngularVelocity flywheelManualVeloCommand = RotationsPerSecond.mutable(0.0);
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.CAMERA_CONFIG_11);
 
@@ -336,7 +338,8 @@ public class RobotContainer {
             // Left stick Y = hood manual control
             flywheel.setDefaultCommand(Commands.run(() -> {
                 if (DriverStation.isJoystickConnected(1)) {
-                    flywheel.setVelocity(RotationsPerSecond.of((mechController.getR2Axis()) / 3));
+                    flywheelManualVeloCommand.mut_replace((mechController.getR2Axis()) / 3, RotationsPerSecond);
+                    flywheel.setVelocity(flywheelManualVeloCommand);
                 } else {
                     flywheel.stop();
                 }
