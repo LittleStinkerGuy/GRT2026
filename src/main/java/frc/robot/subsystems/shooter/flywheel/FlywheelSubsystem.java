@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,6 +50,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
     private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
+    private final MutVoltage voltsOut = Volts.mutable(0.0);
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -89,10 +91,10 @@ public class FlywheelSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(Voltage volts) {
-        volts = Volts.of(MathUtil.clamp(volts.in(Volts), -12.0, 12.0));
-        io.setVoltageOut(volts);
+        voltsOut.mut_replace(MathUtil.clamp(volts.in(Volts), -12.0, 12.0), Volts);
+        io.setVoltageOut(voltsOut);
         commandedControlMode = MotorControlMode.Voltage;
-        Logger.recordOutput("Flywheel/VoltageSetpoint", volts);
+        Logger.recordOutput("Flywheel/VoltageSetpoint", voltsOut);
     }
 
     public void setVelocity(AngularVelocity velo) {
