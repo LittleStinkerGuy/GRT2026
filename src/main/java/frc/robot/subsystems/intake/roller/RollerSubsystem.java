@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -40,6 +42,8 @@ public class RollerSubsystem extends SubsystemBase {
     private final SysIdRoutine sysIdRoutine;
 
     private final RollerMechanism2D mechanism = new RollerMechanism2D(0.2);
+    @AutoLogOutput(key = "Roller/Mechanism2D")
+    private final LoggedMechanism2d mechanism2d = mechanism.getMechanism2d();
 
     public RollerSubsystem(RollerIO io) {
         this.io = io;
@@ -108,7 +112,6 @@ public class RollerSubsystem extends SubsystemBase {
         Logger.recordOutput("Roller/atVelocitySetpoint", atSetpoint().orElse(false));
 
         mechanism.setPosition(inputs.position);
-        Logger.recordOutput("Roller/Mechanism2D", mechanism.getMechanism2d());
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
