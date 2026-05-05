@@ -42,7 +42,6 @@ public interface PivotIO {
         public double closedLoopOutput = 0.0;
     }
 
-
     default void updateInputs(PivotIOInputs inputs) {}
 
     default PIDConstants getDefaultPID() {

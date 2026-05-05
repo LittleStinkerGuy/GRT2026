@@ -122,7 +122,6 @@ public class DriveMotor {
         motor.optimizeBusUtilization(0, 1.0);
     }
 
-
     /**
      * Set Configurations for Kraken drive
      */

@@ -39,7 +39,6 @@ public interface HopperIO {
         public double closedLoopOutput = 0.0;
     }
 
-
     default void updateInputs(HopperIOInputs inputs) {}
 
     default PIDConstants getDefaultPID() {

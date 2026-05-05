@@ -430,7 +430,6 @@ public class SwerveSubsystem extends SubsystemBase {
         resetDriverHeading(Rotation2d.fromDegrees(90));
     }
 
-
     /** Gets the gyro heading. */
     private Rotation2d getGyroHeading() {
         return Rotation2d.fromDegrees(pidgey.getYaw().getValueAsDouble()); // Might need to flip depending on the robot setup

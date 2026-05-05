@@ -183,7 +183,6 @@ public class PivotIOTalonFX implements PivotIO {
             closedLoopReference,
             closedLoopOutput);
 
-
         tryUntilOk(5,
             () -> BaseStatusSignal.setUpdateFrequencyForAll(120.0, motorSignals),
             failedToSetMotorSignalFrequencyAlert);

@@ -38,14 +38,12 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private static final Consumer<Detection> NO_OP_CONSUMER = detection -> {
     };
 
-
     public record Detection(
         double timestampSeconds,
         double yawDegrees,
         double pitchDegrees,
         double area,
-        Optional<Distance> distanceMeters) {
-    }
+        Optional<Distance> distanceMeters) {}
 
     private final PhotonCamera camera;
     private int pipelineIndex;
@@ -80,7 +78,6 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         MIN,
         MAX
     }
-
 
     /**
      * Creates the subsystem with a custom configuration.

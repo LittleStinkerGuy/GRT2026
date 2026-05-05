@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 public class ZyzToXyzEulerConverter {
 
-
     /**
      * Convert ZYX (yaw, pitch, roll) → XYZ (roll, pitch, yaw)
      *
@@ -53,6 +52,4 @@ public class ZyzToXyzEulerConverter {
 
         return new Rotation3d(x, y, z);
     }
-
-
 }

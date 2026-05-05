@@ -46,7 +46,6 @@ public final class VisionConstants {
             0.28, 0, 0,
             new Rotation3d(0, -Math.toRadians(5), 0)));
 
-
     // the big 3 cameras
     public static final CameraConfig CAMERA_CONFIG_1 = new CameraConfig(// climb camera
         "1",
@@ -73,7 +72,6 @@ public final class VisionConstants {
             Units.inchesToMeters(-(27.5 / 2 - 10.5)),
             Units.inchesToMeters(15),
             ZyzToXyzEulerConverter.zyxToXyz(Math.PI, -Math.toRadians(11), 0)));
-
 
     public static final PolynomialRegression X_STD_DEV_MODEL = new PolynomialRegression(
         STD_DEV_DIST, X_STD_DEV, 2);
