@@ -44,6 +44,10 @@ import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class ModuleIOTalonFX implements ModuleIO {
+    private final SwerveModule module;
+    private final PIDConstants defaultDrivePID;
+    private final PIDConstants defaultSteerPID;
+
     private final TalonFX driveMotor;
     private final Slot0Configs drivePIDConfig;
 
@@ -111,6 +115,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final Alert didNotOptimizeCanBusesAlert;
 
     public ModuleIOTalonFX(SwerveModule module, int driveMotorID, int steerMotorID, int cancoderID, LoggedCanivore canivore, PIDConstants drivePID, PIDConstants steerPID) {
+        this.module = module;
+        this.defaultDrivePID = drivePID;
+        this.defaultSteerPID = steerPID;
+
         String driveDescription = "Drive Motor " + driveMotorID + " in " + module.toString();
         String steerDescription = "Steer Motor " + steerMotorID + " in " + module.toString();
         String cancoderDescription = "Cancoder " + cancoderID + " in " + module.toString();
@@ -181,9 +189,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfig.withFeedback(new FeedbackConfigs()
             .withSensorToMechanismRatio(SwerveDriveConstants.DRIVE_GEAR_REDUCTION));
         drivePIDConfig = new Slot0Configs()
-            .withKP(drivePID.kP())
-            .withKI(drivePID.kI())
-            .withKD(drivePID.kD());
+            .withKP(defaultDrivePID.kP())
+            .withKI(defaultDrivePID.kI())
+            .withKD(defaultDrivePID.kD());
         driveConfig.withSlot0(drivePIDConfig);
         tryUntilOk(5, () -> driveMotor.getConfigurator().apply(driveConfig), failedToConfigureDrive);
 
@@ -206,11 +214,11 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerConfig.withClosedLoopGeneral(new ClosedLoopGeneralConfigs()
             .withContinuousWrap(true));
         steerPIDConfig = new Slot0Configs()
-            .withKP(steerPID.kP())
-            .withKI(steerPID.kI())
-            .withKD(steerPID.kD())
-            .withKS(steerPID.kS())
-            .withKV(steerPID.kV());
+            .withKP(defaultSteerPID.kP())
+            .withKI(defaultSteerPID.kI())
+            .withKD(defaultSteerPID.kD())
+            .withKS(defaultSteerPID.kS())
+            .withKV(defaultSteerPID.kV());
         steerConfig.withSlot0(steerPIDConfig);
         tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerConfig), failedToConfigureSteer);
 
@@ -355,6 +363,21 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.odometrySteerPositions = steerPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
         drivePositionQueue.clear();
         steerPositionQueue.clear();
+    }
+
+    @Override
+    public PIDConstants getDefaultDrivePID() {
+        return defaultDrivePID;
+    }
+
+    @Override
+    public PIDConstants getDefaultSteerPID() {
+        return defaultSteerPID;
+    }
+
+    @Override
+    public SwerveModule getModule() {
+        return module;
     }
 
     @Override

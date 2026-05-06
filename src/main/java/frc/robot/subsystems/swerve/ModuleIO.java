@@ -14,8 +14,10 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.swerve.DriveSubsystem.SwerveModule;
 import frc.robot.util.ComponentStatus.EncoderHealth;
 import frc.robot.util.ComponentStatus.MotorControlMode;
+import frc.robot.util.PIDConstants;
 
 public interface ModuleIO {
     @AutoLog
@@ -61,6 +63,19 @@ public interface ModuleIO {
     }
 
     public default void updateInputs(ModuleIOInputs inputs) {}
+
+
+    public default PIDConstants getDefaultDrivePID() {
+        return PIDConstants.ZERO;
+    }
+
+    public default PIDConstants getDefaultSteerPID() {
+        return PIDConstants.ZERO;
+    }
+
+    public default SwerveModule getModule() {
+        return SwerveModule.FL;
+    }
 
     public default void setDriveVelocity(AngularVelocity velocity, Voltage feedForward) {}
 
