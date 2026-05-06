@@ -9,7 +9,7 @@ import static frc.robot.Constants.SwerveDriveConstants.DRIVE_PEAK_STATOR_CURRENT
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_RAMP_RATE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_SUPPLY_CURRENT_LIMIT;
-import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE;
+import static frc.robot.Constants.SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS;
 import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
@@ -162,7 +162,7 @@ public class DriveMotor {
      */
     public void setVelocity(double metersPerSec) {
 
-        targetRotationsPerSec = metersPerSec / DRIVE_WHEEL_CIRCUMFERENCE * DRIVE_GEAR_REDUCTION; // turns meters per sec into wheel rotation per sec
+        targetRotationsPerSec = metersPerSec / DRIVE_WHEEL_CIRCUMFERENCE_METERS * DRIVE_GEAR_REDUCTION; // turns meters per sec into wheel rotation per sec
         // disabled set velocity for noise reduction
         motor.setControl(torqueCurrentFOC.withVelocity(targetRotationsPerSec)); // apply this constant speed
 
@@ -289,7 +289,7 @@ public class DriveMotor {
      * @return distance the drive wheel has traveled in meters
      */
     public double getDistance() {
-        return DRIVE_WHEEL_CIRCUMFERENCE / DRIVE_GEAR_REDUCTION * (motor.getPosition().getValueAsDouble());
+        return DRIVE_WHEEL_CIRCUMFERENCE_METERS / DRIVE_GEAR_REDUCTION * (motor.getPosition().getValueAsDouble());
     }
 
     /**

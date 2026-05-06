@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pound;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -107,7 +108,8 @@ public final class Constants {
 
         // Physical Measurements (
         public static final double DRIVE_WHEEL_RADIUS_METERS = 0.051; // meters
-        public static final double DRIVE_WHEEL_CIRCUMFERENCE = 2.0 * Math.PI * DRIVE_WHEEL_RADIUS_METERS; // meters
+        public static final double DRIVE_WHEEL_CIRCUMFERENCE_METERS = 2.0 * Math.PI * DRIVE_WHEEL_RADIUS_METERS; // meters
+        public static final Distance DRIVE_WHEEL_CIRCUMFERENCE = Meters.of(DRIVE_WHEEL_CIRCUMFERENCE_METERS);
         public static final double DRIVE_GEAR_REDUCTION = 8.25; // L2 gearing
 
         // Measured max drive speed
