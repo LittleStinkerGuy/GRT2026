@@ -24,7 +24,7 @@ public class DriveSubsystem {
         public String toKey() {
             return fullName.replace(" ", "");
         }
-    };
+    }
 
     static final Lock ODOMETRY_LOCK = new ReentrantLock();
 
