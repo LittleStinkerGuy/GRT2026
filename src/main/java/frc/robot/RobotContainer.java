@@ -391,8 +391,7 @@ public class RobotContainer {
                 hood,
                 tower,
                 hopper,
-                pivot,
-                learner));
+                pivot));
 
             // Swerve-dependent drive controller commands
             if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
