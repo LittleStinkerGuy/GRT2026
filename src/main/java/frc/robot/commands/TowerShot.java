@@ -4,7 +4,6 @@ import frc.robot.Constants.TowerShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
 import frc.robot.subsystems.shooter.hood.HoodSubsystem;
-import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 
@@ -19,8 +18,7 @@ public class TowerShot extends ManualShooterSequence {
         HoodSubsystem hood,
         TowerSubsystem tower,
         HopperSubsystem hopper,
-        PivotSubsystem pivot,
-        ShooterLearner learner) {
+        PivotSubsystem pivot) {
         super(
             fly,
             hood,
