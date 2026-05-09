@@ -48,7 +48,6 @@ import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shooter.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shooter.hood.HoodSubsystem;
-import frc.robot.subsystems.shooter.ShooterLearner;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFXSim;
@@ -96,7 +95,6 @@ public class RobotContainer {
     private final TowerSubsystem tower;
     private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hood;
-    private final ShooterLearner learner = new ShooterLearner();
     @SuppressWarnings("unused")
     private final AimSubsystem aimSubsystem =
         (Constants.SWERVE_ENABLED && swerveSubsystem != null)
