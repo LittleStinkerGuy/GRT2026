@@ -106,7 +106,7 @@ public class HoodIOTalonFX implements HoodIO {
         cancoderSignals = List.of(absolutePosition, magnetHealth);
 
         tryUntilOk(5,
-            () -> BaseStatusSignal.setUpdateFrequencyForAll(120.0, cancoderSignals),
+            () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0, cancoderSignals),
             failedToSetCancoderSignalFrequencyAlert);
         tryUntilOk(5, () -> cancoder.optimizeBusUtilization(0, 1.0), didNotOptimizeCancoderCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), cancoderSignals);
@@ -177,7 +177,7 @@ public class HoodIOTalonFX implements HoodIO {
             closedLoopOutput);
 
         tryUntilOk(5,
-            () -> BaseStatusSignal.setUpdateFrequencyForAll(120.0, motorSignals),
+            () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0, motorSignals),
             failedToSetMotorSignalFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeMotorCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), motorSignals);

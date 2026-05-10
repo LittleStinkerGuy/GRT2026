@@ -167,7 +167,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         List<BaseStatusSignal> allSignals = new ArrayList<>(signals);
         allSignals.addAll(followerSignals);
 
-        tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(120.0, allSignals.toArray(new BaseStatusSignal[0])), failedToSetFrequencyAlert);
+        tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0, allSignals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> leader.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         tryUntilOk(5, () -> follower.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), allSignals);
