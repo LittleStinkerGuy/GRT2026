@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.ComponentStatus.MotorControlMode;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PIDConstants;
 
@@ -142,6 +143,8 @@ public class HoodSubsystem extends SubsystemBase {
             hashCode(),
             values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
             kP, kI, kD, kS, kV, kA);
+
+        LoggedTracer.record("Hood");
     }
 
     public Command runSysID() {

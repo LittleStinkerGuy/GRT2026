@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBeha
 import com.ctre.phoenix6.SignalLogger;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import frc.robot.util.LoggedCanivore;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
 
 /**
@@ -92,9 +93,13 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotPeriodic() {
+        LoggedTracer.reset();
         PhoenixUtil.refreshAllStatusSignals();
+        LoggedTracer.record("PhoenixRefresh");
         CommandScheduler.getInstance().run();
+        LoggedTracer.record("Commands");
         LoggedCanivore.updateCanivoreStatuses();
+        LoggedTracer.record("Canivore");
     }
 
     /** This function is called once each time the robot enters Disabled mode. */

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.ComponentStatus.MotorControlMode;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.RollerMechanism2D;
@@ -146,6 +147,8 @@ public class FlywheelSubsystem extends SubsystemBase {
                 RotationsPerSecond.of(values[1]),
                 RotationsPerSecondPerSecond.of(values[2]).per(Second)),
             motionMagicAccel, motionMagicVelo, motionMagicJerk);
+
+        LoggedTracer.record("Flywheel");
     }
 
     public Command runSysID() {
