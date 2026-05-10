@@ -62,6 +62,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PS5ControllerEmulator;
+import frc.robot.util.TracerSentinel;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import java.util.function.DoubleSupplier;
@@ -76,6 +77,11 @@ import java.util.function.DoubleSupplier;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+    // Must be the first SubsystemBase constructed
+    // Captures pre-subsystem scheduler overhead
+    @SuppressWarnings("unused")
+    private final TracerSentinel tracerSentinel = new TracerSentinel();
+
     private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond);
     private DoubleSupplier cycleFlywheelOffsetGetter = () -> (cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond));
 
