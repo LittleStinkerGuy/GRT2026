@@ -7,9 +7,12 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 
 public class RollerMechanism2D {
-    private static final int ROLLER_SIDES = 20;
+    // Coarse polygon on the RIO to keep AdvantageKit serialization cheap; full detail in sim.
+    private static final int ROLLER_SIDES = Constants.CURRENT_MODE == Mode.REAL ? 3 : 20;
     private static final double ROLLER_RADIUS = 0.4;
 
     private final LoggedMechanism2d mechanism = new LoggedMechanism2d(1.0, 1.0);
