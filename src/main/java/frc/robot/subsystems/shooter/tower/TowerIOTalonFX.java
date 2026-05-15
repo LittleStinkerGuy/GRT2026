@@ -47,12 +47,14 @@ public class TowerIOTalonFX implements TowerIO {
     private final VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
-    private final Alert failedToSetFrequencyAlert = new Alert("Tower", "Failed to set status signal frequency!", AlertType.kError);
-    private final Alert failedToConfigureMotorAlert = new Alert("Tower", "Failed to configure tower motor!", AlertType.kError);
+    private static final String MOTOR_ALERT_PREFIX = "Tower Motor (ID " + TowerConstants.KRAKEN_CAN_ID + "): ";
 
-    private final Alert didNotOptimizeCANAlert = new Alert("Tower", "Didn't optimize motor CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert("Tower", "Motor PID was not saved", AlertType.kWarning);
-    private final Alert mmNotSetAlert = new Alert("Tower", "Motion Magic configs were not saved", AlertType.kWarning);
+    private final Alert failedToSetFrequencyAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
+    private final Alert failedToConfigureMotorAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
+
+    private final Alert didNotOptimizeCANAlert = new Alert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
+    private final Alert pidNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
+    private final Alert mmNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning);
 
     private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;

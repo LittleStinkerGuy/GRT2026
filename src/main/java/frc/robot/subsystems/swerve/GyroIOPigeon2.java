@@ -23,7 +23,9 @@ public class GyroIOPigeon2 implements GyroIO {
     // private final Queue<Double> yawPositionQueue;
     // private final Queue<Double> yawTimestampQueue;
 
-    private final Alert failedToConfigureAlert = new Alert("Swerve", "Failed to configure Pigeon", AlertType.kError);
+    private static final String PIGEON_ALERT_PREFIX = "Swerve Pigeon (ID " + SwerveConstants.PIGEON_ID + "): ";
+
+    private final Alert failedToConfigureAlert = new Alert(PIGEON_ALERT_PREFIX + "Failed to configure", AlertType.kError);
 
     public GyroIOPigeon2(LoggedCanivore canivore) {
         pigeon = new Pigeon2(SwerveConstants.PIGEON_ID, canivore);

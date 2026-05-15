@@ -119,56 +119,46 @@ public class ModuleIOTalonFX implements ModuleIO {
         this.defaultDrivePID = drivePID;
         this.defaultSteerPID = steerPID;
 
-        String driveDescription = "Drive Motor " + driveMotorID + " in " + module.toString();
-        String steerDescription = "Steer Motor " + steerMotorID + " in " + module.toString();
-        String cancoderDescription = "Cancoder " + cancoderID + " in " + module.toString();
+        String drivePrefix = "Swerve Drive Motor (ID " + driveMotorID + ", " + module + "): ";
+        String steerPrefix = "Swerve Steer Motor (ID " + steerMotorID + ", " + module + "): ";
+        String cancoderPrefix = "Swerve Cancoder (ID " + cancoderID + ", " + module + "): ";
+        String modulePrefix = "Swerve Module (" + module + "): ";
 
         failedToConfigureDrive = new Alert(
-            "Swerve",
-            "Failed to configure " + driveDescription,
+            drivePrefix + "Failed to configure",
             AlertType.kError);
         failedToSetDriveFrequencyAlert = new Alert(
-            "Swerve",
-            "Failed to set status signal frequency for " + driveDescription,
+            drivePrefix + "Failed to set status signal frequency",
             AlertType.kError);
         drivePIDNotSetAlert = new Alert(
-            "Swerve",
-            "PID not set for " + driveDescription,
+            drivePrefix + "PID not set",
             AlertType.kWarning);
 
         failedToConfigureSteer = new Alert(
-            "Swerve",
-            "Failed to configure " + steerDescription,
+            steerPrefix + "Failed to configure",
             AlertType.kError);
         failedToSetSteerFrequencyAlert = new Alert(
-            "Swerve",
-            "Failed to set status signal frequency for " + steerDescription,
+            steerPrefix + "Failed to set status signal frequency",
             AlertType.kError);
         steerPIDNotSetAlert = new Alert(
-            "Swerve",
-            "PID not set for " + steerDescription,
+            steerPrefix + "PID not set",
             AlertType.kWarning);
 
         cancoderConfigRefreshAlert = new Alert(
-            "Swerve",
-            "Failed to refresh config for " + cancoderDescription,
+            cancoderPrefix + "Failed to refresh config",
             AlertType.kError);
         cancoderConfigAlert = new Alert(
-            "Swerve",
-            "Failed to configure " + cancoderDescription,
+            cancoderPrefix + "Failed to configure",
             AlertType.kError);
         failedToSetCancoderSignalFrequencyAlert = new Alert(
-            "Swerve",
-            "Failed to set status signal frequency for " + cancoderDescription,
+            cancoderPrefix + "Failed to set status signal frequency",
             AlertType.kError);
 
         failedToSetOdometrySignalFrequencyAlert = new Alert(
-            "Swerve",
-            "Failed to set odometry signal frequency for " + module.toString(),
+            modulePrefix + "Failed to set odometry signal frequency",
             AlertType.kError);
         didNotOptimizeCanBusesAlert = new Alert(
-            "Swerve",
-            "Failed to optimize CAN for " + module.toString(),
+            modulePrefix + "Failed to optimize CAN",
             AlertType.kWarning);
 
         driveMotor = new TalonFX(driveMotorID, canivore);

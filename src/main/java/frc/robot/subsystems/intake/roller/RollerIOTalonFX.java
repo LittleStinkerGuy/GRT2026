@@ -44,11 +44,13 @@ public class RollerIOTalonFX implements RollerIO {
     private final VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
-    private final Alert failedToSetFrequencyAlert = new Alert("Roller", "Failed to set status signal frequency!", AlertType.kError);
-    private final Alert failedToConfigureMotorAlert = new Alert("Roller", "Failed to configure roller motor!", AlertType.kError);
+    private static final String MOTOR_ALERT_PREFIX = "Roller Motor (ID " + IntakeConstants.ROLLER_CAN_ID + "): ";
 
-    private final Alert didNotOptimizeCANAlert = new Alert("Roller", "Didn't optimize motor CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert("Roller", "Motor PID was not saved", AlertType.kWarning);
+    private final Alert failedToSetFrequencyAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
+    private final Alert failedToConfigureMotorAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
+
+    private final Alert didNotOptimizeCANAlert = new Alert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
+    private final Alert pidNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
 
     private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;

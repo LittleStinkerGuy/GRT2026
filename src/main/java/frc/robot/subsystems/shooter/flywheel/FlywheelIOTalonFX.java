@@ -54,14 +54,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     private final VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withEnableFOC(true);
 
-    private final Alert failedToSetFrequencyAlert = new Alert("Flywheel", "Failed to set status signal frequency!", AlertType.kError);
-    private final Alert failedToConfigureLeaderAlert = new Alert("Flywheel", "Failed to configure leader motor!", AlertType.kError);
-    private final Alert failedToConfigureFollowerAlert = new Alert("Flywheel", "Failed to configure follower motor!", AlertType.kError);
-    private final Alert failedToSetFollowerAlert = new Alert("Flywheel", "Failed to set follower control!", AlertType.kError);
+    private static final String LEADER_ALERT_PREFIX = "Flywheel Leader Motor (ID " + ShooterConstants.Flywheel.UPPER_MOTOR_ID + "): ";
+    private static final String FOLLOWER_ALERT_PREFIX = "Flywheel Follower Motor (ID " + ShooterConstants.Flywheel.SECOND_MOTOR_ID + "): ";
 
-    private final Alert didNotOptimizeCANAlert = new Alert("Flywheel", "Didn't optimize motor CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert("Flywheel", "Motor PID was not saved", AlertType.kWarning);
-    private final Alert mmNotSetAlert = new Alert("Flywheel", "Motion Magic configs were not saved", AlertType.kWarning);
+    private final Alert failedToSetFrequencyAlert = new Alert(LEADER_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
+    private final Alert failedToConfigureLeaderAlert = new Alert(LEADER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
+    private final Alert failedToConfigureFollowerAlert = new Alert(FOLLOWER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
+    private final Alert failedToSetFollowerAlert = new Alert(FOLLOWER_ALERT_PREFIX + "Failed to set follower control", AlertType.kError);
+
+    private final Alert didNotOptimizeCANAlert = new Alert(LEADER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
+    private final Alert pidNotSetAlert = new Alert(LEADER_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
+    private final Alert mmNotSetAlert = new Alert(LEADER_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning);
 
     private final List<BaseStatusSignal> signals;
 

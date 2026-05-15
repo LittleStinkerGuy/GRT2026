@@ -54,16 +54,19 @@ public class HoodIOTalonFX implements HoodIO {
     private final VoltageOut voltageControl = new VoltageOut(0.0).withEnableFOC(true);
     private final PositionTorqueCurrentFOC positionControl = new PositionTorqueCurrentFOC(0);
 
-    private final Alert failedToSetMotorSignalFrequencyAlert = new Alert("Hood", "Failed to set motor status signal frequency!", AlertType.kError);
-    private final Alert failedToConfigureMotorAlert = new Alert("Hood", "Failed to configure hood motor!", AlertType.kError);
+    private static final String MOTOR_ALERT_PREFIX = "Hood Motor (ID " + ShooterConstants.Hood.MOTOR_ID + "): ";
+    private static final String CANCODER_ALERT_PREFIX = "Hood Cancoder (ID " + ShooterConstants.Hood.ENCODER_ID + "): ";
 
-    private final Alert cancoderConfigRefreshAlert = new Alert("Pivot", "Failed to refresh cancoder config", AlertType.kError);
-    private final Alert cancoderConfigAlert = new Alert("Hood", "Failed to configure cancoder", AlertType.kError);
-    private final Alert failedToSetCancoderSignalFrequencyAlert = new Alert("Hood", "Failed to set cancoder status signal frequency!", AlertType.kError);
+    private final Alert failedToSetMotorSignalFrequencyAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
+    private final Alert failedToConfigureMotorAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
 
-    private final Alert didNotOptimizeMotorCANAlert = new Alert("Hood", "Didn't optimize motor CAN", AlertType.kWarning);
-    private final Alert didNotOptimizeCancoderCANAlert = new Alert("Hood", "Didn't optimize cancoder CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert("Hood", "Motor PID was not saved", AlertType.kWarning);
+    private final Alert cancoderConfigRefreshAlert = new Alert(CANCODER_ALERT_PREFIX + "Failed to refresh config", AlertType.kError);
+    private final Alert cancoderConfigAlert = new Alert(CANCODER_ALERT_PREFIX + "Failed to configure", AlertType.kError);
+    private final Alert failedToSetCancoderSignalFrequencyAlert = new Alert(CANCODER_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
+
+    private final Alert didNotOptimizeMotorCANAlert = new Alert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
+    private final Alert didNotOptimizeCancoderCANAlert = new Alert(CANCODER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
+    private final Alert pidNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
 
     private final List<BaseStatusSignal> motorSignals;
     private final StatusSignal<Angle> position;
