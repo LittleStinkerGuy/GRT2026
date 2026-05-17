@@ -12,8 +12,10 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -22,6 +24,7 @@ import frc.robot.Constants.TowerConstants.TowerIntake;
 import frc.robot.util.ComponentStatus.MotorControlMode;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.MeasureConstants;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.RollerMechanism2D;
 
@@ -47,8 +50,9 @@ public class TowerSubsystem extends SubsystemBase {
             TowerConstants.MM_JERK.in(RotationsPerSecondPerSecond.per(Second)));
 
     private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private AngularVelocity commandedVelocitySetpoint = RotationsPerSecond.of(0.0);
+    private double commandedDutyCycleSetpoint = 0.0;
     private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
+    private final MutAngularVelocity commandedVelocitySetpoint = RotationsPerSecond.mutable(0.0);
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -84,8 +88,8 @@ public class TowerSubsystem extends SubsystemBase {
     public void setDutyCycle(double speed) {
         speed = MathUtil.clamp(speed, -1.0, 1.0);
         io.setDutyCycleOut(speed);
+        commandedDutyCycleSetpoint = speed;
         commandedControlMode = MotorControlMode.DutyCycle;
-        Logger.recordOutput("Tower/DutyCycleSetpoint", speed);
     }
 
     public void setVoltage(Voltage volts) {
@@ -94,14 +98,12 @@ public class TowerSubsystem extends SubsystemBase {
             Volts);
         io.setVoltageOut(commandedVoltageSetpoint);
         commandedControlMode = MotorControlMode.Voltage;
-        Logger.recordOutput("Tower/VoltageSetpoint", commandedVoltageSetpoint);
     }
 
     public void setVelocity(AngularVelocity velo) {
         io.setVelocityOut(velo);
+        commandedVelocitySetpoint.mut_replace(velo);
         commandedControlMode = MotorControlMode.Velocity;
-        commandedVelocitySetpoint = velo;
-        Logger.recordOutput("Tower/VelocitySetpoint", velo);
     }
 
     public void stop() {
@@ -132,13 +134,34 @@ public class TowerSubsystem extends SubsystemBase {
         }
     }
 
+    private void updateSetpoints(double dutyCycle, Voltage voltage, AngularVelocity velocity) {
+        commandedDutyCycleSetpoint = dutyCycle;
+        commandedVoltageSetpoint.mut_replace(voltage);
+        commandedVelocitySetpoint.mut_replace(velocity);
+    }
+
     @Override
     public void periodic() {
 
         io.updateInputs(inputs);
         Logger.processInputs("Tower", inputs);
 
+        if (DriverStation.isDisabled()) {
+            commandedControlMode = MotorControlMode.Disabled;
+        }
+
+        switch (commandedControlMode) {
+            case DutyCycle -> updateSetpoints(commandedDutyCycleSetpoint, MeasureConstants.ZERO_VOLTAGE, MeasureConstants.ZERO_ANGULAR_VELOCITY);
+            case Voltage -> updateSetpoints(0.0, commandedVoltageSetpoint, MeasureConstants.ZERO_ANGULAR_VELOCITY);
+            case Velocity -> updateSetpoints(0.0, MeasureConstants.ZERO_VOLTAGE, commandedVelocitySetpoint);
+            default -> updateSetpoints(0.0, MeasureConstants.ZERO_VOLTAGE, MeasureConstants.ZERO_ANGULAR_VELOCITY);
+        }
+
         Logger.recordOutput("Tower/controlMode", commandedControlMode);
+        Logger.recordOutput("Tower/DutyCycleSetpoint", commandedDutyCycleSetpoint);
+        Logger.recordOutput("Tower/VoltageSetpoint", commandedVoltageSetpoint);
+        Logger.recordOutput("Tower/VelocitySetpoint", commandedVelocitySetpoint);
+
         Logger.recordOutput("Tower/atVelocitySetpoint", atSetpoint().orElse(false));
 
         mechanism.setPosition(inputs.position);
