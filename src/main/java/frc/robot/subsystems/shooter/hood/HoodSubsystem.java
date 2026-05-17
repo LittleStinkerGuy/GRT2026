@@ -28,9 +28,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.ComponentStatus.MotorControlMode;
+import frc.robot.util.LoggedSetpointTracker;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.MeasureConstants;
 import frc.robot.util.PIDConstants;
 
 public class HoodSubsystem extends SubsystemBase {
@@ -44,8 +44,11 @@ public class HoodSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kV;
     private final LoggedTunableNumber kA;
 
-    private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private double commandedDutyCycleSetpoint = 0.0;
+    private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
+        "Hood",
+        MotorControlMode.DutyCycle,
+        MotorControlMode.Voltage,
+        MotorControlMode.Position);
     private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
     private final MutAngle commandedPositionSetpoint = Rotations.mutable(0.0);
 
@@ -90,8 +93,7 @@ public class HoodSubsystem extends SubsystemBase {
     public void setDutyCycle(double speed) {
         speed = MathUtil.clamp(speed, -1.0, 1.0);
         io.setDutyCycleOut(speed);
-        commandedDutyCycleSetpoint = speed;
-        commandedControlMode = MotorControlMode.DutyCycle;
+        setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
     public void setVoltage(Voltage volts) {
@@ -99,7 +101,7 @@ public class HoodSubsystem extends SubsystemBase {
             MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
             Volts);
         io.setVoltageOut(commandedVoltageSetpoint);
-        commandedControlMode = MotorControlMode.Voltage;
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
     }
 
     public void setPosition(Angle position) {
@@ -111,16 +113,16 @@ public class HoodSubsystem extends SubsystemBase {
             Rotations);
 
         io.setPositionOut(commandedPositionSetpoint);
-        commandedControlMode = MotorControlMode.Position;
+        setpointTracker.updateSetpoint(commandedPositionSetpoint.in(Rotations), MotorControlMode.Position);
     }
 
     public void stop() {
         io.stop();
-        commandedControlMode = MotorControlMode.Disabled;
+        setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
     public Optional<Boolean> atPositionSetpoint() {
-        if (commandedControlMode != MotorControlMode.Position) {
+        if (setpointTracker.getControlMode() != MotorControlMode.Position) {
             return Optional.empty();
         }
         return Optional.of(commandedPositionSetpoint.isNear(inputs.position, ShooterConstants.Hood.ANGLE_TOLERANCE));
@@ -130,33 +132,16 @@ public class HoodSubsystem extends SubsystemBase {
         return inputs.position;
     }
 
-    private void updateSetpoints(double dutyCycle, Voltage voltage, Angle position) {
-        commandedDutyCycleSetpoint = dutyCycle;
-        commandedVoltageSetpoint.mut_replace(voltage);
-        commandedPositionSetpoint.mut_replace(position);
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Hood", inputs);
 
         if (DriverStation.isDisabled()) {
-            commandedControlMode = MotorControlMode.Disabled;
+            setpointTracker.setControlMode(MotorControlMode.Disabled);
         }
 
-        switch (commandedControlMode) {
-            case DutyCycle -> updateSetpoints(commandedDutyCycleSetpoint, MeasureConstants.ZERO_VOLTAGE, MeasureConstants.ZERO_ANGLE);
-            case Voltage -> updateSetpoints(0.0, commandedVoltageSetpoint, MeasureConstants.ZERO_ANGLE);
-            case Position -> updateSetpoints(0.0, MeasureConstants.ZERO_VOLTAGE, commandedPositionSetpoint);
-            default -> updateSetpoints(0.0, MeasureConstants.ZERO_VOLTAGE, MeasureConstants.ZERO_ANGLE);
-        }
-
-        Logger.recordOutput("Hood/controlMode", commandedControlMode);
-        Logger.recordOutput("Hood/DutyCycleSetpoint", commandedDutyCycleSetpoint);
-        Logger.recordOutput("Hood/VoltageSetpoint", commandedVoltageSetpoint);
-        Logger.recordOutput("Hood/PositionSetpoint", commandedPositionSetpoint);
-
+        setpointTracker.logAll();
         Logger.recordOutput("Hood/atPositionSetpoint", atPositionSetpoint().orElse(false));
 
         hoodMech.setAngle(inputs.position.in(Degrees));

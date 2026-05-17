@@ -25,9 +25,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.ComponentStatus.MotorControlMode;
+import frc.robot.util.LoggedSetpointTracker;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.MeasureConstants;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.RollerMechanism2D;
 
@@ -52,8 +52,11 @@ public class FlywheelSubsystem extends SubsystemBase {
         new LoggedTunableNumber("Flywheel/motionMagicJerk_rotPerSec3",
             ShooterConstants.Flywheel.MM_JERK.in(RotationsPerSecondPerSecond.per(Second)));
 
-    private MotorControlMode commandedControlMode = MotorControlMode.Disabled;
-    private double commandedDutyCycleSetpoint = 0.0;
+    private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
+        "Flywheel",
+        MotorControlMode.DutyCycle,
+        MotorControlMode.Voltage,
+        MotorControlMode.Velocity);
     private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
     private final MutAngularVelocity commandedVelocitySetpoint = RotationsPerSecond.mutable(0.0);
 
@@ -93,8 +96,7 @@ public class FlywheelSubsystem extends SubsystemBase {
     public void setDutyCycle(double speed) {
         speed = MathUtil.clamp(speed, -1.0, 1.0);
         io.setDutyCycleOut(speed);
-        commandedDutyCycleSetpoint = speed;
-        commandedControlMode = MotorControlMode.DutyCycle;
+        setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
     public void setVoltage(Voltage volts) {
@@ -102,22 +104,22 @@ public class FlywheelSubsystem extends SubsystemBase {
             MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
             Volts);
         io.setVoltageOut(commandedVoltageSetpoint);
-        commandedControlMode = MotorControlMode.Voltage;
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
     }
 
     public void setVelocity(AngularVelocity velo) {
         io.setVelocityOut(velo);
         commandedVelocitySetpoint.mut_replace(velo);
-        commandedControlMode = MotorControlMode.Velocity;
+        setpointTracker.updateSetpoint(commandedVelocitySetpoint.in(RotationsPerSecond), MotorControlMode.Velocity);
     }
 
     public void stop() {
         io.stop();
-        commandedControlMode = MotorControlMode.Disabled;
+        setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
     public Optional<Boolean> atSetpoint() {
-        if (commandedControlMode != MotorControlMode.Velocity) {
+        if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
             return Optional.empty();
         }
         return Optional.of(commandedVelocitySetpoint.isNear(inputs.velocity, ShooterConstants.Flywheel.VELOCITY_TOLERANCE));
@@ -127,33 +129,16 @@ public class FlywheelSubsystem extends SubsystemBase {
         return inputs.velocity;
     }
 
-    private void updateSetpoints(double dutyCycle, Voltage voltage, AngularVelocity velocity) {
-        commandedDutyCycleSetpoint = dutyCycle;
-        commandedVoltageSetpoint.mut_replace(voltage);
-        commandedVelocitySetpoint.mut_replace(velocity);
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Flywheel", inputs);
 
         if (DriverStation.isDisabled()) {
-            commandedControlMode = MotorControlMode.Disabled;
+            setpointTracker.setControlMode(MotorControlMode.Disabled);
         }
 
-        switch (commandedControlMode) {
-            case DutyCycle -> updateSetpoints(commandedDutyCycleSetpoint, MeasureConstants.ZERO_VOLTAGE, MeasureConstants.ZERO_ANGULAR_VELOCITY);
-            case Voltage -> updateSetpoints(0.0, commandedVoltageSetpoint, MeasureConstants.ZERO_ANGULAR_VELOCITY);
-            case Velocity -> updateSetpoints(0.0, MeasureConstants.ZERO_VOLTAGE, commandedVelocitySetpoint);
-            default -> updateSetpoints(0.0, MeasureConstants.ZERO_VOLTAGE, MeasureConstants.ZERO_ANGULAR_VELOCITY);
-        }
-
-        Logger.recordOutput("Flywheel/controlMode", commandedControlMode);
-        Logger.recordOutput("Flywheel/DutyCycleSetpoint", commandedDutyCycleSetpoint);
-        Logger.recordOutput("Flywheel/VoltageSetpoint", commandedVoltageSetpoint);
-        Logger.recordOutput("Flywheel/VelocitySetpoint", commandedVelocitySetpoint);
-
+        setpointTracker.logAll();
         Logger.recordOutput("Flywheel/atVelocitySetpoint", atSetpoint().orElse(false));
 
         mechanism.setPosition(inputs.position);
