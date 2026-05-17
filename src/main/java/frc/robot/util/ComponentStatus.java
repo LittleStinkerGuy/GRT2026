@@ -9,7 +9,6 @@ public class ComponentStatus {
         TorqueCurrent,
         Position,
         Velocity;
-
     }
 
     public enum EncoderHealth {
