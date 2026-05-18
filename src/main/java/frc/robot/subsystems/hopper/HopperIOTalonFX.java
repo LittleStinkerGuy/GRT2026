@@ -28,6 +28,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.HopperConstants;
+import frc.robot.util.GatedAlert;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
@@ -51,12 +52,23 @@ public class HopperIOTalonFX implements HopperIO {
 
     private static final String MOTOR_ALERT_PREFIX = "Hopper Motor (ID " + HopperConstants.KRAKEN_CAN_ID + "): ";
 
-    private final Alert failedToSetFrequencyAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
-    private final Alert failedToConfigureMotorAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
+    private boolean motorConnected = false;
 
-    private final Alert didNotOptimizeCANAlert = new Alert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
-    private final Alert mmNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning);
+    private final Alert motorDisconnectedAlert = new Alert(MOTOR_ALERT_PREFIX + "Disconnected", AlertType.kError);
+
+    private final GatedAlert failedToSetFrequencyAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError, () -> motorConnected);
+    private final GatedAlert failedToConfigureMotorAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError, () -> motorConnected);
+
+    private final GatedAlert didNotOptimizeCANAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning, () -> motorConnected);
+    private final GatedAlert pidNotSetAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning, () -> motorConnected);
+    private final GatedAlert mmNotSetAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning, () -> motorConnected);
+
+    private final List<GatedAlert> alerts = List.of(
+        failedToSetFrequencyAlert,
+        failedToConfigureMotorAlert,
+        didNotOptimizeCANAlert,
+        pidNotSetAlert,
+        mmNotSetAlert);
 
     private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
@@ -141,6 +153,9 @@ public class HopperIOTalonFX implements HopperIO {
         tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0, signals), failedToSetFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), signals);
+
+        BaseStatusSignal.refreshAll(signals);
+        refreshMotorAlerts(BaseStatusSignal.isAllGood(signals));
     }
 
     @Override
@@ -164,6 +179,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.appliedDutyCycle = appliedDutyCycle.getValue();
         inputs.closedLoopSetpoint = closedLoopReference.getValue();
         inputs.closedLoopOutput = closedLoopOutput.getValue();
+        refreshMotorAlerts(inputs.connected);
     }
 
     @Override
@@ -198,5 +214,13 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void stop() {
         motor.stopMotor();
+    }
+
+    private void refreshMotorAlerts(boolean connected) {
+        motorConnected = connected;
+        motorDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : alerts) {
+            alert.push();
+        }
     }
 }
