@@ -321,6 +321,14 @@ public final class Constants {
             public static final double kD = 60;
             public static final double kS = 120;
 
+            // Sim-only PID gains
+            public static final double SIM_P = 60.0;
+            public static final double SIM_D = 2.0;
+
+            // Plant model (matches Intake pivot until Hood CAD numbers exist)
+            public static final MomentOfInertia MOMENT_OF_INERTIA = PoundInchesSquared.of(598.456909);
+            public static final Distance COM_LENGTH = Inches.of(Math.hypot(0.121549, 9.035458));
+
             // Angle limits (rotations)
             public static final Angle UPPER_ANGLE_LIMIT = Rotations.of(0.1);
             public static final Angle LOWER_ANGLE_LIMIT = Rotations.of(0.0);
