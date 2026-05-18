@@ -10,6 +10,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.util.GatedAlert;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PhoenixUtil;
 
@@ -25,7 +26,10 @@ public class GyroIOPigeon2 implements GyroIO {
 
     private static final String PIGEON_ALERT_PREFIX = "Swerve Pigeon (ID " + SwerveConstants.PIGEON_ID + "): ";
 
-    private final Alert failedToConfigureAlert = new Alert(PIGEON_ALERT_PREFIX + "Failed to configure", AlertType.kError);
+    private boolean pigeonConnected = false;
+
+    private final Alert pigeonDisconnectedAlert = new Alert(PIGEON_ALERT_PREFIX + "Disconnected", AlertType.kError);
+    private final GatedAlert failedToConfigureAlert = new GatedAlert(PIGEON_ALERT_PREFIX + "Failed to configure", AlertType.kError, () -> pigeonConnected);
 
     public GyroIOPigeon2(LoggedCanivore canivore) {
         pigeon = new Pigeon2(SwerveConstants.PIGEON_ID, canivore);
@@ -44,6 +48,8 @@ public class GyroIOPigeon2 implements GyroIO {
 
         // yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
         // yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
+
+        refreshPigeonAlerts(BaseStatusSignal.refreshAll(yaw, yawVelocity).isOK());
     }
 
     @Override
@@ -51,6 +57,8 @@ public class GyroIOPigeon2 implements GyroIO {
         inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
         inputs.yawPosition = yaw.getValue();
         inputs.yawVelocity = yawVelocity.getValue();
+
+        refreshPigeonAlerts(inputs.connected);
 
         // inputs.odometryYawTimestamps =
         // yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
@@ -60,5 +68,11 @@ public class GyroIOPigeon2 implements GyroIO {
         // .toArray(Rotation2d[]::new);
         // yawTimestampQueue.clear();
         // yawPositionQueue.clear();
+    }
+
+    private void refreshPigeonAlerts(boolean connected) {
+        pigeonConnected = connected;
+        pigeonDisconnectedAlert.set(!connected);
+        failedToConfigureAlert.push();
     }
 }

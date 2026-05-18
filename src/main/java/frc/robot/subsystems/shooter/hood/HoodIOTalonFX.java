@@ -34,6 +34,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.util.GatedAlert;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
@@ -57,16 +58,34 @@ public class HoodIOTalonFX implements HoodIO {
     private static final String MOTOR_ALERT_PREFIX = "Hood Motor (ID " + ShooterConstants.Hood.MOTOR_ID + "): ";
     private static final String CANCODER_ALERT_PREFIX = "Hood Cancoder (ID " + ShooterConstants.Hood.ENCODER_ID + "): ";
 
-    private final Alert failedToSetMotorSignalFrequencyAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
-    private final Alert failedToConfigureMotorAlert = new Alert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
+    private boolean motorConnected = false;
+    private boolean encoderConnected = false;
 
-    private final Alert cancoderConfigRefreshAlert = new Alert(CANCODER_ALERT_PREFIX + "Failed to refresh config", AlertType.kError);
-    private final Alert cancoderConfigAlert = new Alert(CANCODER_ALERT_PREFIX + "Failed to configure", AlertType.kError);
-    private final Alert failedToSetCancoderSignalFrequencyAlert = new Alert(CANCODER_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
+    private final Alert motorDisconnectedAlert = new Alert(MOTOR_ALERT_PREFIX + "Disconnected", AlertType.kError);
+    private final Alert encoderDisconnectedAlert = new Alert(CANCODER_ALERT_PREFIX + "Disconnected", AlertType.kError);
 
-    private final Alert didNotOptimizeMotorCANAlert = new Alert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
-    private final Alert didNotOptimizeCancoderCANAlert = new Alert(CANCODER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
+    private final GatedAlert failedToSetMotorSignalFrequencyAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError, () -> motorConnected);
+    private final GatedAlert failedToConfigureMotorAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Failed to configure motor", AlertType.kError, () -> motorConnected);
+
+    private final GatedAlert cancoderConfigRefreshAlert = new GatedAlert(CANCODER_ALERT_PREFIX + "Failed to refresh config", AlertType.kError, () -> encoderConnected);
+    private final GatedAlert cancoderConfigAlert = new GatedAlert(CANCODER_ALERT_PREFIX + "Failed to configure", AlertType.kError, () -> encoderConnected);
+    private final GatedAlert failedToSetCancoderSignalFrequencyAlert = new GatedAlert(CANCODER_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError, () -> encoderConnected);
+
+    private final GatedAlert didNotOptimizeMotorCANAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning, () -> motorConnected);
+    private final GatedAlert didNotOptimizeCancoderCANAlert = new GatedAlert(CANCODER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning, () -> encoderConnected);
+    private final GatedAlert pidNotSetAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning, () -> motorConnected);
+
+    private final List<GatedAlert> motorAlerts = List.of(
+        failedToSetMotorSignalFrequencyAlert,
+        failedToConfigureMotorAlert,
+        didNotOptimizeMotorCANAlert,
+        pidNotSetAlert);
+
+    private final List<GatedAlert> encoderAlerts = List.of(
+        cancoderConfigRefreshAlert,
+        cancoderConfigAlert,
+        failedToSetCancoderSignalFrequencyAlert,
+        didNotOptimizeCancoderCANAlert);
 
     private final List<BaseStatusSignal> motorSignals;
     private final StatusSignal<Angle> position;
@@ -184,6 +203,11 @@ public class HoodIOTalonFX implements HoodIO {
             failedToSetMotorSignalFrequencyAlert);
         tryUntilOk(5, () -> motor.optimizeBusUtilization(0, 1.0), didNotOptimizeMotorCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), motorSignals);
+
+        BaseStatusSignal.refreshAll(motorSignals);
+        BaseStatusSignal.refreshAll(cancoderSignals);
+        refreshMotorAlerts(BaseStatusSignal.isAllGood(motorSignals));
+        refreshEncoderAlerts(BaseStatusSignal.isAllGood(cancoderSignals));
     }
 
     @Override
@@ -212,6 +236,9 @@ public class HoodIOTalonFX implements HoodIO {
         inputs.appliedDutyCycle = appliedDutyCycle.getValue();
         inputs.closedLoopSetpoint = closedLoopReference.getValue();
         inputs.closedLoopOutput = closedLoopOutput.getValue();
+
+        refreshMotorAlerts(inputs.motorConnected);
+        refreshEncoderAlerts(inputs.encoderConnected);
     }
 
     @Override
@@ -238,5 +265,21 @@ public class HoodIOTalonFX implements HoodIO {
     @Override
     public void stop() {
         motor.stopMotor();
+    }
+
+    private void refreshMotorAlerts(boolean connected) {
+        motorConnected = connected;
+        motorDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : motorAlerts) {
+            alert.push();
+        }
+    }
+
+    private void refreshEncoderAlerts(boolean connected) {
+        encoderConnected = connected;
+        encoderDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : encoderAlerts) {
+            alert.push();
+        }
     }
 }

@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.SwerveSteerConstants;
 import frc.robot.subsystems.swerve.DriveSubsystem.SwerveModule;
+import frc.robot.util.GatedAlert;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
@@ -99,20 +100,32 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     private final List<BaseStatusSignal> odometrySignals;
 
-    private final Alert failedToConfigureDrive;
-    private final Alert failedToSetDriveFrequencyAlert;
-    private final Alert drivePIDNotSetAlert;
+    private boolean driveConnected = false;
+    private boolean steerConnected = false;
+    private boolean encoderConnected = false;
 
-    private final Alert failedToConfigureSteer;
-    private final Alert failedToSetSteerFrequencyAlert;
-    private final Alert steerPIDNotSetAlert;
+    private final Alert driveDisconnectedAlert;
+    private final Alert steerDisconnectedAlert;
+    private final Alert encoderDisconnectedAlert;
 
-    private final Alert cancoderConfigRefreshAlert;
-    private final Alert cancoderConfigAlert;
-    private final Alert failedToSetCancoderSignalFrequencyAlert;
+    private final GatedAlert failedToConfigureDrive;
+    private final GatedAlert failedToSetDriveFrequencyAlert;
+    private final GatedAlert drivePIDNotSetAlert;
+
+    private final GatedAlert failedToConfigureSteer;
+    private final GatedAlert failedToSetSteerFrequencyAlert;
+    private final GatedAlert steerPIDNotSetAlert;
+
+    private final GatedAlert cancoderConfigRefreshAlert;
+    private final GatedAlert cancoderConfigAlert;
+    private final GatedAlert failedToSetCancoderSignalFrequencyAlert;
 
     private final Alert failedToSetOdometrySignalFrequencyAlert;
     private final Alert didNotOptimizeCanBusesAlert;
+
+    private final List<GatedAlert> driveAlerts;
+    private final List<GatedAlert> steerAlerts;
+    private final List<GatedAlert> encoderAlerts;
 
     public ModuleIOTalonFX(SwerveModule module, int driveMotorID, int steerMotorID, int cancoderID, LoggedCanivore canivore, PIDConstants drivePID, PIDConstants steerPID) {
         this.module = module;
@@ -124,35 +137,54 @@ public class ModuleIOTalonFX implements ModuleIO {
         String cancoderPrefix = "Swerve Cancoder (ID " + cancoderID + ", " + module + "): ";
         String modulePrefix = "Swerve Module (" + module + "): ";
 
-        failedToConfigureDrive = new Alert(
+        driveDisconnectedAlert = new Alert(
+            drivePrefix + "Disconnected",
+            AlertType.kError);
+        steerDisconnectedAlert = new Alert(
+            steerPrefix + "Disconnected",
+            AlertType.kError);
+        encoderDisconnectedAlert = new Alert(
+            cancoderPrefix + "Disconnected",
+            AlertType.kError);
+
+        failedToConfigureDrive = new GatedAlert(
             drivePrefix + "Failed to configure",
-            AlertType.kError);
-        failedToSetDriveFrequencyAlert = new Alert(
+            AlertType.kError,
+            () -> driveConnected);
+        failedToSetDriveFrequencyAlert = new GatedAlert(
             drivePrefix + "Failed to set status signal frequency",
-            AlertType.kError);
-        drivePIDNotSetAlert = new Alert(
+            AlertType.kError,
+            () -> driveConnected);
+        drivePIDNotSetAlert = new GatedAlert(
             drivePrefix + "PID not set",
-            AlertType.kWarning);
+            AlertType.kWarning,
+            () -> driveConnected);
 
-        failedToConfigureSteer = new Alert(
+        failedToConfigureSteer = new GatedAlert(
             steerPrefix + "Failed to configure",
-            AlertType.kError);
-        failedToSetSteerFrequencyAlert = new Alert(
+            AlertType.kError,
+            () -> steerConnected);
+        failedToSetSteerFrequencyAlert = new GatedAlert(
             steerPrefix + "Failed to set status signal frequency",
-            AlertType.kError);
-        steerPIDNotSetAlert = new Alert(
+            AlertType.kError,
+            () -> steerConnected);
+        steerPIDNotSetAlert = new GatedAlert(
             steerPrefix + "PID not set",
-            AlertType.kWarning);
+            AlertType.kWarning,
+            () -> steerConnected);
 
-        cancoderConfigRefreshAlert = new Alert(
+        cancoderConfigRefreshAlert = new GatedAlert(
             cancoderPrefix + "Failed to refresh config",
-            AlertType.kError);
-        cancoderConfigAlert = new Alert(
+            AlertType.kError,
+            () -> encoderConnected);
+        cancoderConfigAlert = new GatedAlert(
             cancoderPrefix + "Failed to configure",
-            AlertType.kError);
-        failedToSetCancoderSignalFrequencyAlert = new Alert(
+            AlertType.kError,
+            () -> encoderConnected);
+        failedToSetCancoderSignalFrequencyAlert = new GatedAlert(
             cancoderPrefix + "Failed to set status signal frequency",
-            AlertType.kError);
+            AlertType.kError,
+            () -> encoderConnected);
 
         failedToSetOdometrySignalFrequencyAlert = new Alert(
             modulePrefix + "Failed to set odometry signal frequency",
@@ -160,6 +192,19 @@ public class ModuleIOTalonFX implements ModuleIO {
         didNotOptimizeCanBusesAlert = new Alert(
             modulePrefix + "Failed to optimize CAN",
             AlertType.kWarning);
+
+        driveAlerts = List.of(
+            failedToConfigureDrive,
+            failedToSetDriveFrequencyAlert,
+            drivePIDNotSetAlert);
+        steerAlerts = List.of(
+            failedToConfigureSteer,
+            failedToSetSteerFrequencyAlert,
+            steerPIDNotSetAlert);
+        encoderAlerts = List.of(
+            cancoderConfigRefreshAlert,
+            cancoderConfigAlert,
+            failedToSetCancoderSignalFrequencyAlert);
 
         driveMotor = new TalonFX(driveMotorID, canivore);
         steerMotor = new TalonFX(steerMotorID, canivore);
@@ -309,6 +354,13 @@ public class ModuleIOTalonFX implements ModuleIO {
         PhoenixUtil.registerSignals(canivore.getCanType(), driveSignals);
         PhoenixUtil.registerSignals(canivore.getCanType(), steerSignals);
         PhoenixUtil.registerSignals(canivore.getCanType(), cancoderSignals);
+
+        BaseStatusSignal.refreshAll(driveSignals);
+        BaseStatusSignal.refreshAll(steerSignals);
+        BaseStatusSignal.refreshAll(cancoderSignals);
+        refreshDriveAlerts(BaseStatusSignal.isAllGood(driveSignals));
+        refreshSteerAlerts(BaseStatusSignal.isAllGood(steerSignals));
+        refreshEncoderAlerts(BaseStatusSignal.isAllGood(cancoderSignals));
     }
 
     @Override
@@ -353,6 +405,10 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.odometrySteerPositions = steerPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
         drivePositionQueue.clear();
         steerPositionQueue.clear();
+
+        refreshDriveAlerts(inputs.driveMotorConnected);
+        refreshSteerAlerts(inputs.steerMotorConnected);
+        refreshEncoderAlerts(inputs.encoderConnected);
     }
 
     @Override
@@ -415,5 +471,29 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void setSteerPID(double kP, double kI, double kD, double kS, double kV) {
         steerPIDConfig.withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKV(kV);
         tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerPIDConfig), steerPIDNotSetAlert);
+    }
+
+    private void refreshDriveAlerts(boolean connected) {
+        driveConnected = connected;
+        driveDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : driveAlerts) {
+            alert.push();
+        }
+    }
+
+    private void refreshSteerAlerts(boolean connected) {
+        steerConnected = connected;
+        steerDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : steerAlerts) {
+            alert.push();
+        }
+    }
+
+    private void refreshEncoderAlerts(boolean connected) {
+        encoderConnected = connected;
+        encoderDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : encoderAlerts) {
+            alert.push();
+        }
     }
 }

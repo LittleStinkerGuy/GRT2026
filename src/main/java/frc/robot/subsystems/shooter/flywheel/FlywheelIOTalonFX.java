@@ -31,6 +31,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.util.GatedAlert;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.PhoenixUtil;
@@ -57,14 +58,31 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     private static final String LEADER_ALERT_PREFIX = "Flywheel Leader Motor (ID " + ShooterConstants.Flywheel.UPPER_MOTOR_ID + "): ";
     private static final String FOLLOWER_ALERT_PREFIX = "Flywheel Follower Motor (ID " + ShooterConstants.Flywheel.SECOND_MOTOR_ID + "): ";
 
-    private final Alert failedToSetFrequencyAlert = new Alert(LEADER_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError);
-    private final Alert failedToConfigureLeaderAlert = new Alert(LEADER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
-    private final Alert failedToConfigureFollowerAlert = new Alert(FOLLOWER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError);
-    private final Alert failedToSetFollowerAlert = new Alert(FOLLOWER_ALERT_PREFIX + "Failed to set follower control", AlertType.kError);
+    private boolean leaderConnected = false;
+    private boolean followerConnected = false;
 
-    private final Alert didNotOptimizeCANAlert = new Alert(LEADER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning);
-    private final Alert pidNotSetAlert = new Alert(LEADER_ALERT_PREFIX + "PID was not saved", AlertType.kWarning);
-    private final Alert mmNotSetAlert = new Alert(LEADER_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning);
+    private final Alert leaderDisconnectedAlert = new Alert(LEADER_ALERT_PREFIX + "Disconnected", AlertType.kError);
+    private final Alert followerDisconnectedAlert = new Alert(FOLLOWER_ALERT_PREFIX + "Disconnected", AlertType.kError);
+
+    private final GatedAlert failedToSetFrequencyAlert = new GatedAlert(LEADER_ALERT_PREFIX + "Failed to set status signal frequency", AlertType.kError, () -> leaderConnected);
+    private final GatedAlert failedToConfigureLeaderAlert = new GatedAlert(LEADER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError, () -> leaderConnected);
+    private final GatedAlert failedToConfigureFollowerAlert = new GatedAlert(FOLLOWER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError, () -> followerConnected);
+    private final GatedAlert failedToSetFollowerAlert = new GatedAlert(FOLLOWER_ALERT_PREFIX + "Failed to set follower control", AlertType.kError, () -> followerConnected);
+
+    private final GatedAlert didNotOptimizeCANAlert = new GatedAlert(LEADER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning, () -> leaderConnected);
+    private final GatedAlert pidNotSetAlert = new GatedAlert(LEADER_ALERT_PREFIX + "PID was not saved", AlertType.kWarning, () -> leaderConnected);
+    private final GatedAlert mmNotSetAlert = new GatedAlert(LEADER_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning, () -> leaderConnected);
+
+    private final List<GatedAlert> leaderAlerts = List.of(
+        failedToSetFrequencyAlert,
+        failedToConfigureLeaderAlert,
+        didNotOptimizeCANAlert,
+        pidNotSetAlert,
+        mmNotSetAlert);
+
+    private final List<GatedAlert> followerAlerts = List.of(
+        failedToConfigureFollowerAlert,
+        failedToSetFollowerAlert);
 
     private final List<BaseStatusSignal> signals;
 
@@ -174,6 +192,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         tryUntilOk(5, () -> leader.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         tryUntilOk(5, () -> follower.optimizeBusUtilization(0, 1.0), didNotOptimizeCANAlert);
         PhoenixUtil.registerSignals(canivore.getCanType(), allSignals);
+
+        BaseStatusSignal.refreshAll(allSignals);
+        refreshLeaderAlerts(BaseStatusSignal.isAllGood(signals));
+        refreshFollowerAlerts(BaseStatusSignal.isAllGood(followerSignals));
     }
 
     @Override
@@ -204,6 +226,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         inputs.followerTorqueCurrent = followerTorqueCurrent.getValue();
         inputs.followerTemp = followerTemp.getValue();
         inputs.followerConnected = BaseStatusSignal.isAllGood(followerSignals);
+
+        refreshLeaderAlerts(inputs.connected);
+        refreshFollowerAlerts(inputs.followerConnected);
     }
 
     @Override
@@ -240,5 +265,21 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     @Override
     public void stop() {
         leader.stopMotor();
+    }
+
+    private void refreshLeaderAlerts(boolean connected) {
+        leaderConnected = connected;
+        leaderDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : leaderAlerts) {
+            alert.push();
+        }
+    }
+
+    private void refreshFollowerAlerts(boolean connected) {
+        followerConnected = connected;
+        followerDisconnectedAlert.set(!connected);
+        for (GatedAlert alert : followerAlerts) {
+            alert.push();
+        }
     }
 }
