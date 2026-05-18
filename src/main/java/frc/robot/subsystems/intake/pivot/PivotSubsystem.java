@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake.pivot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -12,6 +13,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.MutVoltage;
@@ -52,16 +54,39 @@ public class PivotSubsystem extends SubsystemBase {
 
     private final SysIdRoutine sysIdRoutine;
 
+    private static final double CANVAS_WIDTH_M = Units.inchesToMeters(26.5);
+    private static final double CANVAS_HEIGHT_M = Units.inchesToMeters(15);
+    private static final double PIVOT_ARM_LENGTH_M = Units.inchesToMeters(13.10);
+    private static final double WALL_HEIGHT_M = Units.inchesToMeters(12);
+    private static final double PIVOT_ROOT_X = Units.inchesToMeters(9);
+    private static final double PIVOT_ROOT_Y = Units.inchesToMeters(1.5);
+
     @AutoLogOutput(key = "Pivot/Mechanism2D")
-    private final LoggedMechanism2d mechanism = new LoggedMechanism2d(1.0, 1.0);
-    private final LoggedMechanismRoot2d mechanismRoot = mechanism.getRoot("Pivot", 0.4, 0.2);
+    private final LoggedMechanism2d mechanism = new LoggedMechanism2d(CANVAS_WIDTH_M, CANVAS_HEIGHT_M);
+    private final LoggedMechanismRoot2d mechanismRoot = mechanism.getRoot("Pivot", PIVOT_ROOT_X, PIVOT_ROOT_Y);
     private final LoggedMechanismLigament2d pivotMech =
         mechanismRoot.append(new LoggedMechanismLigament2d(
             "PivotArm",
-            0.5,
+            PIVOT_ARM_LENGTH_M,
             0,
             6.0,
             new Color8Bit(Color.kBlueViolet)));
+    private final LoggedMechanismRoot2d wallRoot =
+        mechanism.getRoot("WallRoot", PIVOT_ROOT_X, PIVOT_ROOT_Y);
+    @SuppressWarnings("unused")
+    private final LoggedMechanismLigament2d wallMech =
+        wallRoot.append(new LoggedMechanismLigament2d(
+            "Wall",
+            WALL_HEIGHT_M,
+            90.0,
+            6.0,
+            new Color8Bit(Color.kDarkRed)));
+
+    // Found empirically in Desmos by Daniel: https://www.desmos.com/calculator/hcsxnghm5o
+    static double getWallDistanceFromPivotRoot(double theta) {
+        double s = theta + 0.31666353127;
+        return 2.606810 * Math.sin(s) + 7.162190 * Math.cos(s) + 7.758382;
+    }
 
     public PivotSubsystem(PivotIO io) {
         this.io = io;
@@ -139,6 +164,9 @@ public class PivotSubsystem extends SubsystemBase {
         Logger.recordOutput("Pivot/atPositionSetpoint", atPositionSetpoint().orElse(false));
 
         pivotMech.setAngle(inputs.encoderAbsolutePosition.in(Degrees));
+        wallRoot.setPosition(
+            PIVOT_ROOT_X + Units.inchesToMeters(getWallDistanceFromPivotRoot(inputs.encoderAbsolutePosition.in(Radians))),
+            PIVOT_ROOT_Y);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -174,9 +202,9 @@ public class PivotSubsystem extends SubsystemBase {
 
     public Command jigglePivot() {
         Command jigglePivotCommand = Commands.sequence(
-            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_LOWER)),
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_OUT_POS)),
             Commands.waitSeconds(3),
-            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_UPPER)),
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_FORWARD_LIMIT)),
             Commands.waitSeconds(3)).repeatedly();
         jigglePivotCommand.addRequirements(this);
 
