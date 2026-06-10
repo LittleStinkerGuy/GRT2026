@@ -1,10 +1,12 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.Queue;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
@@ -21,8 +23,8 @@ public class GyroIOPigeon2 implements GyroIO {
     private final StatusSignal<Angle> yaw;
     private final StatusSignal<AngularVelocity> yawVelocity;
 
-    // private final Queue<Double> yawPositionQueue;
-    // private final Queue<Double> yawTimestampQueue;
+    private final Queue<Double> yawPositionQueue;
+    private final Queue<Double> yawTimestampQueue;
 
     private static final String PIGEON_ALERT_PREFIX = "Swerve Pigeon (ID " + SwerveConstants.PIGEON_ID + "): ";
 
@@ -46,8 +48,8 @@ public class GyroIOPigeon2 implements GyroIO {
         yawVelocity.setUpdateFrequency(120.0);
         pigeon.optimizeBusUtilization();
 
-        // yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-        // yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
+        yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+        yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
 
         refreshPigeonAlerts(BaseStatusSignal.refreshAll(yaw, yawVelocity).isOK());
     }
@@ -60,14 +62,14 @@ public class GyroIOPigeon2 implements GyroIO {
 
         refreshPigeonAlerts(inputs.connected);
 
-        // inputs.odometryYawTimestamps =
-        // yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-        // inputs.odometryYawPositions =
-        // yawPositionQueue.stream()
-        // .map((Double value) -> Rotation2d.fromDegrees(value))
-        // .toArray(Rotation2d[]::new);
-        // yawTimestampQueue.clear();
-        // yawPositionQueue.clear();
+        inputs.odometryYawTimestamps =
+            yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+        inputs.odometryYawPositions =
+            yawPositionQueue.stream()
+                .map((Double value) -> Rotation2d.fromDegrees(value))
+                .toArray(Rotation2d[]::new);
+        yawTimestampQueue.clear();
+        yawPositionQueue.clear();
     }
 
     private void refreshPigeonAlerts(boolean connected) {
