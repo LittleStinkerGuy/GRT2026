@@ -200,13 +200,6 @@ public class KrakenSwerveModule {
     }
 
     /**
-     * Publishes drive motor statistics to NetworkTables
-     */
-    public void publishDriveStats() {
-        driveMotor.publishStats();
-    }
-
-    /**
      * Updates drive current limits from NetworkTables if changed.
      * Call this periodically.
      */
@@ -225,13 +218,6 @@ public class KrakenSwerveModule {
 
     public double getSteerVelocityRPM() {
         return steerMotor.getVelocityRPM();
-    }
-
-    /**
-     * Publishes steer motor statistics to NetworkTables
-     */
-    public void publishSteerStats() {
-        // steerMotor.publishStats();
     }
 
     /**

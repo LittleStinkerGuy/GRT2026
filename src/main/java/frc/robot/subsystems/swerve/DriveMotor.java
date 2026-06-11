@@ -1,6 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import static frc.robot.Constants.LoggingConstants.SWERVE_TABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_CURRENT_LIMIT_ENABLE;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_GEAR_REDUCTION;
 import static frc.robot.Constants.SwerveDriveConstants.DRIVE_MAX_ACCELERATION;
@@ -15,15 +14,12 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.networktables.DoubleEntry;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
@@ -46,17 +42,6 @@ public class DriveMotor {
     // Target speed in rotations per second
     private double targetRotationsPerSec = 0;
 
-    // logging
-    private NetworkTableInstance ntInstance;
-    private NetworkTable swerveStatsTable;
-    private DoublePublisher veloErrorPublisher;
-    private DoublePublisher veloPublisher;
-    private DoublePublisher appliedVlotsPublisher;
-    private DoublePublisher supplyCurrentPublisher;
-    private DoublePublisher torqueCurrentPublisher;
-    private DoublePublisher targetRPSPublisher;
-    private DoublePublisher positionPublisher;
-
     // Tunable current limits via NetworkTables
     private DoubleEntry supplyCurrentLimitEntry;
     private DoubleEntry statorCurrentLimitEntry;
@@ -78,28 +63,16 @@ public class DriveMotor {
 
         // Configure CANcoder and Kraken
         configureMotor();
-        initNt(motorID);
+        initCurrentLimitTuning();
         initSignals();
     }
 
     /**
-     * initializes network table and entries
-     * 
-     * @param canId motor's CAN ID
+     * Initializes the NetworkTables entries used for live current-limit tuning.
      */
-    private void initNt(int canId) {
-        ntInstance = NetworkTableInstance.getDefault();
-        swerveStatsTable = ntInstance.getTable(SWERVE_TABLE);
-        positionPublisher = swerveStatsTable.getDoubleTopic(canId + "position").publish();
-        targetRPSPublisher = swerveStatsTable.getDoubleTopic(canId + "targetRPS").publish();
-        veloErrorPublisher = swerveStatsTable.getDoubleTopic(canId + "veloError").publish();
-        veloPublisher = swerveStatsTable.getDoubleTopic(canId + "velo").publish();
-        appliedVlotsPublisher = swerveStatsTable.getDoubleTopic(canId + "appliedVolts").publish();
-        supplyCurrentPublisher = swerveStatsTable.getDoubleTopic(canId + "supplyCurrent").publish();
-        torqueCurrentPublisher = swerveStatsTable.getDoubleTopic(canId + "torqueCurrent").publish();
-
+    private void initCurrentLimitTuning() {
         // Tunable current limits (shared across all drive motors)
-        NetworkTable tuningTable = ntInstance.getTable("SwerveTuning");
+        NetworkTable tuningTable = NetworkTableInstance.getDefault().getTable("SwerveTuning");
         supplyCurrentLimitEntry = tuningTable.getDoubleTopic("driveSupplyCurrentLimit").getEntry(DRIVE_SUPPLY_CURRENT_LIMIT);
         statorCurrentLimitEntry = tuningTable.getDoubleTopic("driveStatorCurrentLimit").getEntry(DRIVE_STATOR_CURRENT_LIMIT);
         supplyCurrentLimitEntry.set(DRIVE_SUPPLY_CURRENT_LIMIT);
@@ -334,22 +307,23 @@ public class DriveMotor {
     }
 
     /**
-     * Publishes drive motor statistics to NetworkTables
+     * Refreshes all cached status signals so the latest values are read.
+     * Required because the signals are read from cached objects (not the
+     * auto-refreshing device getters) and optimizeBusUtilization() was applied.
+     * Call once per loop before reading/logging any cached signal.
      */
-    public void publishStats() {
-        positionPublisher.set(getDistance());
-        targetRPSPublisher.set(targetRotationsPerSec);
-        veloErrorPublisher.set(0.0); // TODO: Calculate actual velocity error
-        veloPublisher.set(getVelocity());
-        appliedVlotsPublisher.set(appliedVoltsSignal.getValueAsDouble());
-        supplyCurrentPublisher.set(supplyCurrentSignal.getValueAsDouble());
-        torqueCurrentPublisher.set(torqueCurrentSignal.getValueAsDouble());
+    public void refreshSignals() {
+        BaseStatusSignal.refreshAll(
+            positionSignal, velocitySignal, appliedVoltsSignal,
+            supplyCurrentSignal, torqueCurrentSignal);
     }
 
     /**
-     * Logs drive motor statistics to data log
+     * Logs drive motor statistics to the data log (and NetworkTables via the
+     * AdvantageKit NT4Publisher).
      */
     public void logStats() {
+        refreshSignals();
         Logger.recordOutput("drive/" + motorId + "/position", getDistance());
         Logger.recordOutput("drive/" + motorId + "/veloError", targetRotationsPerSec - motor.getVelocity().getValueAsDouble());
         Logger.recordOutput("drive/" + motorId + "/velo", getVelocity());

@@ -12,47 +12,19 @@ import static frc.robot.Constants.SwerveSteerConstants.STEER_SUPPLY_CURRENT_LIMI
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableEvent;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.EnumSet;
 import org.littletonrobotics.junction.Logger;
 
 public class SteerMotor extends SubsystemBase {
-    // For NT
-
-    // test two
-    private NetworkTableInstance ntInstance;
-    private NetworkTable steerStatsTable;
-    private DoublePublisher encoderPositionPublisher;
-    private DoublePublisher motorPositionPublisher;
-    private DoublePublisher targetPositionPublisher;
-    private DoublePublisher motorTemperaturePublisher;
-    private DoublePublisher appliedVoltsPublisher;
-    private DoublePublisher supplyCurrentPublisher;
-    private DoublePublisher torqueCurrentPublisher;
-    private DoublePublisher positionErrorPublisher;
-    private DoublePublisher rotationPublisher;
-    private DoublePublisher positionControlPositionPublisher;
-    private DoublePublisher closedLoopReferencePublisher;
-    private DoublePublisher gurtMotorPos1;
-    private NetworkTableEntry motorNewPos;
-
     private double gurtMotorPos = 0.0;
     private double targetPos = 0.0;
     private int canID;
@@ -122,88 +94,13 @@ public class SteerMotor extends SubsystemBase {
     }
 
     public void configPID(double p, double i, double d, double s) {
-
         Slot0Configs slot0Configs = new Slot0Configs(); // used to store and update PID values
-        /*
-         * Think of P as how much we want it to correct, as an example imagine you are
-         * parking a car
-         */
-
         slot0Configs.kP = p;
-        /*
-         * Integral Control's job is to correct recurring errors over time by stacking
-         * past errors.
-         * It sums up previous errors, so it looks at how many errors you have had over
-         * time.
-         */
         slot0Configs.kI = i;
-
-        /*
-         * The Derivitive Controls job is to look at the Rate of Change (slope) of how
-         * fast the error is changing (def of derrivitive)
-         * If the error is chaning too fast, the kD will slow it down so we do not
-         * overshoot
-         */
         slot0Configs.kD = d;
-
-        /*
-         * Feedforward Control (kS, or kV in Phoenix 6) predicts how much power we need
-         * based only on how fast we want to go,
-         * instead of waiting for an error to happen first.
-         */
         slot0Configs.kS = s;
 
         motor.getConfigurator().apply(slot0Configs);
-    }
-
-    private void initNt(int canId) {
-        ntInstance = NetworkTableInstance.getDefault();
-        steerStatsTable = ntInstance.getTable("SwerveSteer");
-        motorNewPos = steerStatsTable.getEntry(canId + "motorPosThing");
-
-        // encoderPositionPublisher = steerStatsTable.getDoubleTopic(canId +
-        // "encoderPosition").publish();
-        motorPositionPublisher = steerStatsTable.getDoubleTopic(canId + "motorPosition").publish();
-        targetPositionPublisher = steerStatsTable.getDoubleTopic(canId + "targetPosition").publish();
-        // motorTemperaturePublisher = steerStatsTable.getDoubleTopic(canId +
-        // "motorTemperature").publish();
-        // appliedVoltsPublisher = steerStatsTable.getDoubleTopic(canId +
-        // "appliedVolts").publish();
-        // supplyCurrentPublisher = steerStatsTable.getDoubleTopic(canId +
-        // "supplyCurrent").publish();
-        // torqueCurrentPublisher = steerStatsTable.getDoubleTopic(canId +
-        // "torqueCurrent").publish();
-        // positionErrorPublisher = steerStatsTable.getDoubleTopic(canId +
-        // "positionError").publish();
-        rotationPublisher = steerStatsTable.getDoubleTopic(canId + "controllerTargetPosition").publish();
-        // closedLoopReferencePublisher = steerStatsTable.getDoubleTopic(canId +
-        // "targetMotorRotationPosition").publish();
-        gurtMotorPos1 = steerStatsTable.getDoubleTopic(canId + "motorPosThing").publish();
-        gurtMotorPos1.set(0.0);
-        positionControlPositionPublisher = steerStatsTable.getDoubleTopic(canId + "positionControlPosition").publish();
-        steerStatsTable.addListener(canId + "motorPosThing", EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-            (table, key, event) -> {
-                gurtMotorPos = event.valueData.value.getDouble();
-            });
-
-    }
-
-    public void publishStats() {
-
-        motorPositionPublisher.set(cancoder.getAbsolutePosition().getValueAsDouble());
-        targetPositionPublisher.set(motor.getClosedLoopReference().getValueAsDouble());
-
-        // encoderPositionPublisher.set(cancoder.getPosition().getValueAsDouble());
-        // targetPositionPublisher.set(rotorRotations); // Just show current position
-        // for now
-        rotationPublisher.set(controllerTargetRotations); // get position
-        // closedLoopReferencePublisher.set(motor.getClosedLoopReference().getValueAsDouble());
-        // // TODO: Calculate actual position error
-
-        // positionErrorPublisher.set(0.0); // TODO: Calculate actual position error
-
-        // positionControlPositionPublisher.set(positionRequest.Position);
-
     }
 
     public SteerMotor(int motorCAN, int encoderID, CANBus canivore) {
@@ -211,13 +108,15 @@ public class SteerMotor extends SubsystemBase {
         motor = new TalonFX(motorCAN, canivore);
         cancoder = new CANcoder(encoderID, canivore);
         configureMotor();
-        initNt(motorCAN);
     }
 
     public void logStats() {
         Logger.recordOutput("steer/" + motorID + "/position", motor.getPosition().getValueAsDouble());
         Logger.recordOutput("steer/" + motorID + "/velocityRPM", motor.getVelocity().getValueAsDouble() * STEER_GEAR_REDUCTION * 60.0);
         Logger.recordOutput("steer/" + motorID + "/targetPosition", gurtMotorPos);
+        Logger.recordOutput("steer/" + motorID + "/cancoderAbsolutePosition", cancoder.getAbsolutePosition().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/closedLoopReference", motor.getClosedLoopReference().getValueAsDouble());
+        Logger.recordOutput("steer/" + motorID + "/controllerTargetRotations", controllerTargetRotations);
         Logger.recordOutput("steer/" + motorID + "/appliedVolts", motor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("steer/" + motorID + "/supplyCurrent", motor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("steer/" + motorID + "/torqueCurrent", motor.getTorqueCurrent().getValueAsDouble());
@@ -274,7 +173,6 @@ public class SteerMotor extends SubsystemBase {
         // targetPos = targetWheelPosition;
         posTorqueCurrentFOCRequest.withPosition(gurtMotorPos);
         motor.setControl(posTorqueCurrentFOCRequest);
-        publishStats();
     }
 
     /**

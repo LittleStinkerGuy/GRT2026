@@ -1,7 +1,6 @@
 package frc.robot.subsystems.swerve;
 
 import static frc.robot.Constants.DebugConstants.*;
-import static frc.robot.Constants.LoggingConstants.*;
 import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
@@ -12,8 +11,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.studica.frc.AHRS.NavXComType;
-import com.studica.frc.AHRS;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,10 +19,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -60,21 +53,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private ChassisSpeeds previousSpeeds = new ChassisSpeeds();
     private double lastUpdateTime = 0.0;
 
-    // logging
-    private NetworkTableInstance ntInstance;
-    private NetworkTable swerveTable;
-
-    private StructArrayPublisher<SwerveModuleState> swerveStatesPublisher;
-    private StructArrayPublisher<SwerveModuleState> desiredStatesPublisher;
-
-    private StructPublisher<Pose2d> estimatedPosePublisher;
-    // private StructLogEntry<Pose2d> estimatedPoseLogEntry =
-    // StructLogEntry.create(
-    // DataLogManager.getLog(),
-    // "estimatedPose",
-    // Pose2d.struct
-    // );
-
     // NT Accel Config
     public double maxLinearAcceleration = MAX_LINEAR_ACCELERATION; // meters per second squared
     public double maxLinearDeceleration = MAX_LINEAR_DECELERATION; // meters per second squared
@@ -108,7 +86,6 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d());
 
         buildAuton();
-        initNt();
 
         if (DRIVE_DEBUG) {
             enableDriveDebug();
@@ -159,11 +136,6 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         // logging
-        // estimatedPoseLogEntry.append(estimatedPose, GRTUtil.getFpgaTime());
-        SmartDashboard.putNumber("Steer/Current RPM", frontLeftModule.getSteerVelocityRPM());
-        SmartDashboard.putNumber("Steer/Max RPM", currentCruiseVelocityRPM);
-
-        publishStats();
         logStats();
 
         // Update current limits from NetworkTables (only first module needed since they share NT entries)
@@ -230,8 +202,6 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.setDefaultNumber("SwerveAccel/maxLinearDecel", MAX_LINEAR_DECELERATION);
         SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularAccel", MAX_ANGULAR_ACCELERATION);
         SmartDashboard.setDefaultNumber("SwerveAccel/maxAngularDecel", MAX_ANGULAR_DECELERATION);
-
-        SmartDashboard.setDefaultBoolean("imu/brownOut", false);
     }
 
     private void updateAccelValues() {
@@ -535,54 +505,17 @@ public class SwerveSubsystem extends SubsystemBase {
         backRightModule.setSteerCruiseVelocity(velocity);
     }
 
-    private void initNt() {
-        ntInstance = NetworkTableInstance.getDefault();
-        swerveTable = ntInstance.getTable(SWERVE_TABLE);
-
-        swerveStatesPublisher = swerveTable.getStructArrayTopic(
-            "SwerveStates", SwerveModuleState.struct).publish();
-
-        desiredStatesPublisher = swerveTable.getStructArrayTopic(
-            "DesiredStates", SwerveModuleState.struct).publish();
-
-        estimatedPosePublisher = swerveTable.getStructTopic(
-            "estimatedPose",
-            Pose2d.struct).publish();
-    }
-
-    /**
-     * publishes swerve stats to NT
-     */
-    private void publishStats() {
-        estimatedPosePublisher.set(estimatedPose);
-
-        SmartDashboard.putBoolean("imu/brownOut", pidgey.getStickyFault_Undervoltage().getValue());
-
-        if (STATE_DEBUG || DRIVE_DEBUG || STEER_DEBUG) {
-            swerveStatesPublisher.set(getModuleStates());
-            desiredStatesPublisher.set(states);
-        }
-
-        if (DRIVE_DEBUG) {
-            frontLeftModule.publishDriveStats();
-            frontRightModule.publishDriveStats();
-            backLeftModule.publishDriveStats();
-            backRightModule.publishDriveStats();
-        }
-
-        if (STEER_DEBUG) {
-            frontLeftModule.publishSteerStats();
-            frontRightModule.publishSteerStats();
-            backLeftModule.publishSteerStats();
-            backRightModule.publishSteerStats();
-        }
-    }
-
     private void logStats() {
         // Subsystem-level
         Logger.recordOutput("swerve/estimatedPose", estimatedPose);
         Logger.recordOutput("swerve/gyroHeading", getGyroHeading().getDegrees());
         Logger.recordOutput("swerve/steerCruiseRPM", currentCruiseVelocityRPM);
+        Logger.recordOutput("swerve/steerCurrentRPM", frontLeftModule.getSteerVelocityRPM());
+        Logger.recordOutput("swerve/imuBrownOut", pidgey.getStickyFault_Undervoltage().getValue());
+
+        // Module states (actual + commanded)
+        Logger.recordOutput("swerve/SwerveStates", getModuleStates());
+        Logger.recordOutput("swerve/DesiredStates", states);
 
         // Chassis speeds
         ChassisSpeeds speeds = getRobotRelativeChassisSpeeds();
