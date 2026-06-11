@@ -325,6 +325,7 @@ public class DriveMotor {
     public void logStats() {
         refreshSignals();
         Logger.recordOutput("drive/" + motorId + "/position", getDistance());
+        Logger.recordOutput("drive/" + motorId + "/velo", motor.getVelocity().getValueAsDouble());
         Logger.recordOutput("drive/" + motorId + "/veloError", targetRotationsPerSec - motor.getVelocity().getValueAsDouble());
         Logger.recordOutput("drive/" + motorId + "/velo", getVelocity());
         Logger.recordOutput("drive/" + motorId + "/targetVelo", targetRotationsPerSec);
