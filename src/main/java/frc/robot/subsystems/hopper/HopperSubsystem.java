@@ -139,10 +139,12 @@ public class HopperSubsystem extends SubsystemBase {
     public void setHopperState(HopperIntake state) {
         switch (state) {
             case BALL_IN:
-                setVelocity(HopperConstants.TARGET_RPS);
+                // setVelocity(HopperConstants.TARGET_RPS);
+                setDutyCycle(1);
                 break;
             case BALL_OUT:
-                setVelocity(HopperConstants.TARGET_RPS.unaryMinus());
+                // setVelocity(HopperConstants.TARGET_RPS.unaryMinus());
+                setDutyCycle(-1);
                 break;
             default:
                 stop();
