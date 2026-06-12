@@ -339,8 +339,14 @@ public class RobotContainer {
             // RT = flywheel (analog speed control)
             // Stick press (L3/R3) = hood manual control
             flywheel.setDefaultCommand(Commands.run(() -> {
-                if (DriverStation.isJoystickConnected(1)) {
-                    flywheelManualVeloCommand.mut_replace((mechController.getRightTriggerAxis()) / 3, RotationsPerSecond);
+                if (!DriverStation.isJoystickConnected(1)) {
+                    flywheel.stop();
+                    return;
+                }
+                flywheelManualVeloCommand.mut_replace(mechController.getRightTriggerAxis() / 3, RotationsPerSecond);
+                // Commanding a closed-loop velocity of 0 makes the kS/kV feedforward
+                // fight around the setpoint and oscillate -- stop (neutral) instead.
+                if (!flywheelManualVeloCommand.isNear(RotationsPerSecond.of(0), 0)) {
                     flywheel.setVelocity(flywheelManualVeloCommand);
                 } else {
                     flywheel.stop();
