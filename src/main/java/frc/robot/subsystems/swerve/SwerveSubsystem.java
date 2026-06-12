@@ -5,7 +5,9 @@ import static frc.robot.Constants.SwerveConstants.*;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
 import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import org.littletonrobotics.junction.Logger;
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -19,6 +21,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,6 +48,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private Rotation2d driverHeadingOffset = new Rotation2d();
 
     private final Pigeon2 pidgey;
+    private StatusSignal<Angle> yawSignal;
+    private StatusSignal<Boolean> undervoltageFaultSignal;
     private final CANBus canivore;
     private Timer lockTimer;
     private double currentCruiseVelocityRPM = STEER_CRUISE_VELOCITY * STEER_GEAR_REDUCTION * 60.0;
@@ -71,6 +76,10 @@ public class SwerveSubsystem extends SubsystemBase {
         // initialize and reset the NavX gyro
         pidgey = new Pigeon2(SwerveConstants.PIGEON_ID, canivore);
         pidgey.reset();
+        yawSignal = pidgey.getYaw();
+        undervoltageFaultSignal = pidgey.getStickyFault_Undervoltage();
+        BaseStatusSignal.setUpdateFrequencyForAll(250.0, yawSignal);
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, undervoltageFaultSignal);
 
         frontLeftModule = new KrakenSwerveModule(FL_DRIVE, FL_STEER, FL_OFFSET, FL_ENCODER, canivore);
         frontRightModule = new KrakenSwerveModule(FR_DRIVE, FR_STEER, FR_OFFSET, FR_ENCODER, canivore);
@@ -103,6 +112,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // Refresh all cached status signals once per loop before anything reads
+        // them (odometry below, logging at the end).
+        frontLeftModule.refreshSignals();
+        frontRightModule.refreshSignals();
+        backLeftModule.refreshSignals();
+        backRightModule.refreshSignals();
+        BaseStatusSignal.refreshAll(yawSignal, undervoltageFaultSignal);
+
         // update the poseestimator with curent gyro reading
         estimatedPose = poseEstimator.update(
             getGyroHeading(),
@@ -402,7 +419,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Gets the gyro heading. */
     private Rotation2d getGyroHeading() {
-        return Rotation2d.fromDegrees(pidgey.getYaw().getValueAsDouble()); // Might need to flip depending on the robot setup
+        return Rotation2d.fromDegrees(yawSignal.getValueAsDouble()); // Might need to flip depending on the robot setup
     }
 
     /**
@@ -511,7 +528,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Logger.recordOutput("swerve/gyroHeading", getGyroHeading().getDegrees());
         Logger.recordOutput("swerve/steerCruiseRPM", currentCruiseVelocityRPM);
         Logger.recordOutput("swerve/steerCurrentRPM", frontLeftModule.getSteerVelocityRPM());
-        Logger.recordOutput("swerve/imuBrownOut", pidgey.getStickyFault_Undervoltage().getValue());
+        Logger.recordOutput("swerve/imuBrownOut", undervoltageFaultSignal.getValue());
 
         // Module states (actual + commanded)
         Logger.recordOutput("swerve/SwerveStates", getModuleStates());

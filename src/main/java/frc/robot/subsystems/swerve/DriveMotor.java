@@ -25,6 +25,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
 public class DriveMotor {
@@ -53,6 +54,7 @@ public class DriveMotor {
     private StatusSignal<Voltage> appliedVoltsSignal;
     private StatusSignal<Current> supplyCurrentSignal;
     private StatusSignal<Current> torqueCurrentSignal; // torqueCurrent is Pro
+    private StatusSignal<Temperature> deviceTempSignal;
 
     public DriveMotor(int motorID, CANBus canivore) {
         this.motorId = motorID;
@@ -88,10 +90,11 @@ public class DriveMotor {
         appliedVoltsSignal = motor.getMotorVoltage();
         torqueCurrentSignal = motor.getTorqueCurrent();
         supplyCurrentSignal = motor.getSupplyCurrent();
+        deviceTempSignal = motor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             250.0, positionSignal, velocitySignal,
-            appliedVoltsSignal, torqueCurrentSignal, supplyCurrentSignal);
+            appliedVoltsSignal, torqueCurrentSignal, supplyCurrentSignal, deviceTempSignal);
         motor.optimizeBusUtilization(0, 1.0);
     }
 
@@ -262,25 +265,25 @@ public class DriveMotor {
      * @return distance the drive wheel has traveled in meters
      */
     public double getDistance() {
-        return DRIVE_WHEEL_CIRCUMFERENCE_METERS / DRIVE_GEAR_REDUCTION * (motor.getPosition().getValueAsDouble());
+        return DRIVE_WHEEL_CIRCUMFERENCE_METERS / DRIVE_GEAR_REDUCTION * positionSignal.getValueAsDouble();
     }
 
     /**
      * Get swerve wheel's velocity in m/s
-     * 
+     *
      * @return swerve wheel's velocity in m/s
      */
     public double getVelocity() {
-        return motor.getVelocity().getValueAsDouble();
+        return velocitySignal.getValueAsDouble();
     }
 
     /**
      * Gets the tempature of the motor
-     * 
+     *
      * @return temperature of the motor in double
      */
     public double getTemperature() {
-        return motor.getDeviceTemp().getValueAsDouble();
+        return deviceTempSignal.getValueAsDouble();
     }
 
     /**
@@ -315,7 +318,7 @@ public class DriveMotor {
     public void refreshSignals() {
         BaseStatusSignal.refreshAll(
             positionSignal, velocitySignal, appliedVoltsSignal,
-            supplyCurrentSignal, torqueCurrentSignal);
+            supplyCurrentSignal, torqueCurrentSignal, deviceTempSignal);
     }
 
     /**
@@ -323,10 +326,8 @@ public class DriveMotor {
      * AdvantageKit NT4Publisher).
      */
     public void logStats() {
-        refreshSignals();
         Logger.recordOutput("drive/" + motorId + "/position", getDistance());
-        Logger.recordOutput("drive/" + motorId + "/velo", motor.getVelocity().getValueAsDouble());
-        Logger.recordOutput("drive/" + motorId + "/veloError", targetRotationsPerSec - motor.getVelocity().getValueAsDouble());
+        Logger.recordOutput("drive/" + motorId + "/veloError", targetRotationsPerSec - velocitySignal.getValueAsDouble());
         Logger.recordOutput("drive/" + motorId + "/velo", getVelocity());
         Logger.recordOutput("drive/" + motorId + "/targetVelo", targetRotationsPerSec);
         Logger.recordOutput("drive/" + motorId + "/appliedVolts", appliedVoltsSignal.getValueAsDouble());
