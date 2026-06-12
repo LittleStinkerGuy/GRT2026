@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
@@ -61,7 +60,6 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.util.LoggedCanivore;
-import frc.robot.util.PS5ControllerEmulator;
 import frc.robot.util.TracerSentinel;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.MutAngularVelocity;
@@ -87,7 +85,7 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
-    private CommandPS5Controller mechController;
+    private CommandXboxController mechController;
     private final LoggedCanivore swerveCan = new LoggedCanivore(CANType.SWERVE);
     private final LoggedCanivore mechCan = new LoggedCanivore(CANType.MECH);
 
@@ -266,9 +264,9 @@ public class RobotContainer {
         }
         if (Constants.MECH_ENABLED) {
             // ==================== INTAKE ROLLER ====================
-            // R1 (mech) = intake out, L1 (mech) = intake in (duty cycle control)
-            mechController.L1().whileTrue(roller.runRollerIn());
-            mechController.R1().whileTrue(roller.runRollerOut());
+            // RB (mech) = intake out, LB (mech) = intake in (duty cycle control)
+            mechController.leftBumper().whileTrue(roller.runRollerIn());
+            mechController.rightBumper().whileTrue(roller.runRollerOut());
             roller.setDefaultCommand(roller.stopRoller());
 
             // ==================== INTAKE PIVOT ====================
@@ -276,8 +274,8 @@ public class RobotContainer {
             mechController.povLeft().whileTrue(pivot.deployPivot());
             mechController.povRight().whileTrue(pivot.retractPivot());
 
-            // L2 (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
-            mechController.L2().whileTrue(Commands.run(() -> {
+            // LT (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
+            mechController.leftTrigger().whileTrue(Commands.run(() -> {
                 hopper.setDutyCycle(-1.0); // Max duty cycle for spindexer
                 tower.setDutyCycle(1.0); // Full duty cycle for tower
             }, hopper, tower));
@@ -301,8 +299,8 @@ public class RobotContainer {
              */
 
             // ==================== SHOOTING PRESETS ====================
-            // Square (mech) = smash-and-shoot preset (close-range)
-            mechController.square().whileTrue(
+            // X (mech) = smash-and-shoot preset (close-range)
+            mechController.x().whileTrue(
                 Commands.defer(
                     () -> new SmashShot(
                         flywheel,
@@ -338,11 +336,11 @@ public class RobotContainer {
             // joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
 
             // ==================== SHOOTER ====================
-            // R2 = flywheel (analog speed control)
-            // Left stick Y = hood manual control
+            // RT = flywheel (analog speed control)
+            // Stick press (L3/R3) = hood manual control
             flywheel.setDefaultCommand(Commands.run(() -> {
                 if (DriverStation.isJoystickConnected(1)) {
-                    flywheelManualVeloCommand.mut_replace((mechController.getR2Axis()) / 3, RotationsPerSecond);
+                    flywheelManualVeloCommand.mut_replace((mechController.getRightTriggerAxis()) / 3, RotationsPerSecond);
                     flywheel.setVelocity(flywheelManualVeloCommand);
                 } else {
                     flywheel.stop();
@@ -354,10 +352,10 @@ public class RobotContainer {
             }, tower));
 
             hood.setDefaultCommand(Commands.run(() -> {
-                if (mechController.L3().getAsBoolean()) {
+                if (mechController.leftStick().getAsBoolean()) {
                     desiredHoodSpeed = 0.15;
                     hood.setDutyCycle(0.15);
-                } else if (mechController.R3().getAsBoolean()) {
+                } else if (mechController.rightStick().getAsBoolean()) {
                     desiredHoodSpeed = -0.15;
                     hood.setDutyCycle(-0.15);
                 } else {
@@ -381,16 +379,16 @@ public class RobotContainer {
                 }
             }));
 
-            // Cross = passing shot — flywheel pinned to max (120 RPS)
-            mechController.cross().whileTrue(new CycleShot(
+            // A = passing shot — flywheel pinned to max (120 RPS)
+            mechController.a().whileTrue(new CycleShot(
                 flywheel,
                 hood,
                 tower,
                 hopper,
                 () -> cycleFlywheelVelo));
 
-            // Touchpad = tower shoot preset
-            mechController.triangle().whileTrue(new TowerShot(
+            // Y = tower shoot preset
+            mechController.y().whileTrue(new TowerShot(
                 flywheel,
                 hood,
                 tower,
@@ -414,9 +412,7 @@ public class RobotContainer {
     private void constructController() {
         driveController = new PS5DriveController();
         driveController.setDeadZone(0.035);
-        mechController = (Constants.CURRENT_MODE == Mode.REAL)
-            ? new CommandPS5Controller(1)
-            : new PS5ControllerEmulator(1);
+        mechController = new CommandXboxController(1);
     }
 
     /**
