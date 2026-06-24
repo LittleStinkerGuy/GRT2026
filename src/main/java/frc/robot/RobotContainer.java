@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
@@ -85,7 +85,7 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
-    private CommandXboxController mechController;
+    private CommandPS5Controller driveControllerReal;
     private final LoggedCanivore swerveCan = new LoggedCanivore(CANType.SWERVE);
     private final LoggedCanivore mechCan = new LoggedCanivore(CANType.MECH);
 
@@ -197,228 +197,52 @@ public class RobotContainer {
      */
 
     private void configureBindings() {
-        /*
-         * Driving -- One joystick controls translation, the other rotation. If the
-         * robot-relative button is held down,
-         * the robot is controlled along its own axes, otherwise controls apply to the
-         * field axes by default. If the
-         * swerve aim button is held down, the robot will rotate automatically to always
-         * face a target, and only
-         * translation will be manually controllable.
-         */
         if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
             swerveSubsystem.setDefaultCommand(
                 new RunCommand(() -> {
-                    // R2 (>= 90% pressed) = boost mode
-                    swerveSubsystem.setBoostMode(driveController.getRightTriggerAxis() > 0.9);
-
-                    // L1 (hold) = robot-relative drive; release returns to field-relative
-                    swerveSubsystem.setRobotRelative(driveController.getLeftBumper());
-
-                    // R1 = slow mode (30% speed), L2 = variable speed limit
-                    double speedLimit;
-                    if (driveController.getRightBumper()) {
-                        speedLimit = Constants.SwerveConstants.SLOW_MODE_SPEED_LIMIT;
-                    } else {
-                        double leftTrigger = driveController.getLeftTriggerAxis();
-                        speedLimit = 1.0 - leftTrigger;
-                    }
-                    swerveSubsystem.setDriveSpeedLimit(speedLimit);
-
+                    swerveSubsystem.setDriveSpeedLimit(1.0);
                     swerveSubsystem.setDrivePowers(
                         driveController.getForwardPower(),
                         driveController.getLeftPower(),
                         driveController.getRotatePower());
-                },
-                    swerveSubsystem));
-
-            // Create button = switch cameras
-            // driveController.create().onTrue(
-            // Commands.runOnce(() -> {
-            // if (isCamera1Active) {
-            // cameraServer.setSource(camera2);
-            // } else {
-            // cameraServer.setSource(camera1);
-            // }
-            // isCamera1Active = !isCamera1Active;
-            // }));
+                }, swerveSubsystem));
 
             /* Pressing the button resets the field axes to the current robot axes. */
             driveController.bindDriverHeadingReset(
                 () -> {
                     swerveSubsystem.resetDriverHeading();
-                },
-                swerveSubsystem);
-
-            // Triangle (drive) = auto-rotate to face the hub. Held-while-true; rotating
-            // the right stick past the deadband cancels it so the driver can override.
-            // Wrapped in Commands.defer so the target angle is recomputed at every press.
-            if (aimHelper != null) {
-                driveController.getController().triangle().whileTrue(
-                    Commands.defer(
-                        () -> aimHelper.createAimCommand(() -> false),
-                        java.util.Set.of(swerveSubsystem)));
-            }
-
-            driveController.getController().L2().whileTrue(hood.holdDownHood());
+                }, swerveSubsystem);
         }
         if (Constants.MECH_ENABLED) {
-            // ==================== INTAKE ROLLER ====================
-            // RB (mech) = intake out, LB (mech) = intake in (duty cycle control)
-            mechController.leftBumper().whileTrue(roller.runRollerIn());
-            mechController.rightBumper().whileTrue(roller.runRollerOut());
+            driveControllerReal.L2().whileTrue(roller.runRollerIn());
+            driveControllerReal.R2().whileTrue(roller.runRollerOut());
+
+            driveControllerReal.L1().toggleOnTrue(pivot.retractPivot());
+            driveControllerReal.R1().toggleOnTrue(pivot.deployPivot());
+
+            driveControllerReal.povDown().whileTrue(flywheel.setFlywheelManualSpeed(() -> -1.0));
+            driveControllerReal.povUp().whileTrue(flywheel.setFlywheelManualSpeed(() -> 1.0));
+
+            driveControllerReal.povLeft().whileTrue(hopper.runHopperOut());
+            driveControllerReal.povRight().whileTrue(hopper.runHopperIn());
+
             roller.setDefaultCommand(roller.stopRoller());
-
-            // ==================== INTAKE PIVOT ====================
-            // D-pad left = pivot down (timed), D-pad right = pivot up (timed)
-            mechController.povLeft().whileTrue(pivot.deployPivot());
-            mechController.povRight().whileTrue(pivot.retractPivot());
-
-            // LT (mech) = spin spindexer (hopper) at max RPM and tower at full duty cycle
-            mechController.leftTrigger().whileTrue(Commands.run(() -> {
-                hopper.setDutyCycle(-1.0); // Max duty cycle for spindexer
-                tower.setDutyCycle(1.0); // Full duty cycle for tower
-            }, hopper, tower));
             hopper.setDefaultCommand(hopper.stopHopper());
+            tower.setDefaultCommand(tower.stopTower());
 
-            // Square (drive) = emergency force intake in (pivot up + stop rollers) - hold to override
-            driveController.square()
-                .whileTrue(Commands.parallel(pivot.retractPivot(), roller.stopRoller()));
+            driveControllerReal.triangle().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
 
-            // ==================== INTAKE PIVOT ====================
-            // Right stick Y controls pivot manually
-            /*
-             * pivotIntake.setDefaultCommand(Commands.run(() -> {
-             * double pivotInput = -mechController.getRightY();
-             * if (Math.abs(pivotInput) > 0.1) {
-             * pivotIntake.setManualSpeed(pivotInput * 0.3);
-             * } else {
-             * pivotIntake.stop();
-             * }
-             * }, pivotIntake));
-             */
 
-            // ==================== SHOOTING PRESETS ====================
-            // X (mech) = smash-and-shoot preset (close-range)
-            mechController.x().whileTrue(
-                Commands.defer(
-                    () -> new SmashShot(
-                        flywheel,
-                        hood,
-                        tower,
-                        hopper,
-                        pivot),
-                    java.util.Set.of(
-                        flywheel,
-                        hood,
-                        hopper,
-                        tower,
-                        pivot)));
-
-            // ==================== INTERPOLATION TABLE CALIBRATION ====================
-            // D-pad up/down: bump flywheel RPM offset (5 RPS per press)
-            // Triangle/Circle: bump hood angle offset (0.005 rotations per press)
-            // Options: log current (distance, rpm, angle) to riolog
-            // Share: reset both offsets to zero
-            // mechController.povUp().onTrue(CalibrationCommands.rpmUp(learner));
-            // mechController.povDown().onTrue(CalibrationCommands.rpmDown(learner));
-            // mechController.triangle().onTrue(CalibrationCommands.hoodUp(learner));
-            // mechController.circle().onTrue(CalibrationCommands.hoodDown(learner));
-            // mechController.create().onTrue(CalibrationCommands.resetOffsets(learner));
-            // if (aimSubsystem != null) {
-            // mechController.options().onTrue(CalibrationCommands.logPoint(learner, aimSubsystem));
-            // }
-
-            // Joystick movement cancels it
-            // Trigger joystickMoved = new Trigger(() -> Math.abs(driveController.getForwardPower()) > 0.1 ||
-            // Math.abs(driveController.getLeftPower()) > 0.1 ||
-            // Math.abs(driveController.getRotatePower()) > 0.1);
-            // joystickMoved.onTrue(Commands.runOnce(() -> manualShooterCmd.cancel()));
-
-            // ==================== SHOOTER ====================
-            // RT = flywheel (analog speed control)
-            // Stick press (L3/R3) = hood manual control
-            flywheel.setDefaultCommand(Commands.run(() -> {
-                if (!DriverStation.isJoystickConnected(1)) {
-                    flywheel.stop();
-                    return;
-                }
-                flywheelManualVeloCommand.mut_replace(mechController.getRightTriggerAxis() / 3, RotationsPerSecond);
-                // Commanding a closed-loop velocity of 0 makes the kS/kV feedforward
-                // fight around the setpoint and oscillate -- stop (neutral) instead.
-                if (!flywheelManualVeloCommand.isNear(RotationsPerSecond.of(0), 0)) {
-                    flywheel.setVelocity(flywheelManualVeloCommand);
-                } else {
-                    flywheel.stop();
-                }
-            }, flywheel));
-
-            tower.setDefaultCommand(Commands.run(() -> {
-                tower.stop(); // Stop tower by default
-            }, tower));
-
-            hood.setDefaultCommand(Commands.run(() -> {
-                if (mechController.leftStick().getAsBoolean()) {
-                    desiredHoodSpeed = 0.15;
-                    hood.setDutyCycle(0.15);
-                } else if (mechController.rightStick().getAsBoolean()) {
-                    desiredHoodSpeed = -0.15;
-                    hood.setDutyCycle(-0.15);
-                } else {
-                    if (desiredHoodSpeed != 0) {
-                        desiredHoodSpeed = 0;
-                        hood.stop();
-
-                    }
-                }
-            }, hood));
-
-            mechController.povUp().onTrue(Commands.runOnce(() -> {
-                if (Flywheel.FLYWHEEL_MAX_SPEED.gt(RotationsPerSecond.of(cycleFlywheelVelo))) {
-                    cycleFlywheelVelo += 5;
-                }
-            }));
-
-            mechController.povDown().onTrue(Commands.runOnce(() -> {
-                if (cycleFlywheelVelo > 0) {
-                    cycleFlywheelVelo -= 5;
-                }
-            }));
-
-            // A = passing shot — flywheel pinned to max (120 RPS)
-            mechController.a().whileTrue(new CycleShot(
-                flywheel,
-                hood,
-                tower,
-                hopper,
-                () -> cycleFlywheelVelo));
-
-            // Y = tower shoot preset
-            mechController.y().whileTrue(new TowerShot(
-                flywheel,
-                hood,
-                tower,
-                hopper,
-                pivot));
-
-            // Swerve-dependent drive controller commands
-            if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
-                // Options button = reset pose to starting position (in front of red hub)
-                driveController.options()
-                    .onTrue(Commands.runOnce(() -> swerveSubsystem.resetToStartingPosition(), swerveSubsystem));
-            }
         }
-
     }
 
     /**
-     * Constructs the drive controller based on the name of the controller at port
-     * 0
+     * Constructs the drive controller based on the name of the controller at port 0
      */
     private void constructController() {
         driveController = new PS5DriveController();
+        driveControllerReal = driveController.getController();
         driveController.setDeadZone(0.035);
-        mechController = new CommandXboxController(1);
     }
 
     /**
