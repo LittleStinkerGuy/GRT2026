@@ -9,6 +9,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -126,6 +128,9 @@ public class RobotContainer {
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.CAMERA_CONFIG_11);
 
+    private final Alert driveControllerDisconnectedAlert = new Alert("Drive Controller Disconnected", AlertType.kWarning);
+    private final Alert mechControllerDisconnectedAlert = new Alert("Mech Controller Disconnected", AlertType.kWarning);
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -181,6 +186,12 @@ public class RobotContainer {
         NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivot, roller));
         NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivot, roller));
         NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hood, tower, hopper, pivot));
+    }
+
+    /** Update controller-connection alerts. Call from {@link Robot#robotPeriodic()}. */
+    public void updateAlerts() {
+        driveControllerDisconnectedAlert.set(!DriverStation.isJoystickConnected(0));
+        mechControllerDisconnectedAlert.set(!DriverStation.isJoystickConnected(mechController.getHID().getPort()));
     }
 
     /**
@@ -387,7 +398,7 @@ public class RobotContainer {
                 hood,
                 tower,
                 hopper,
-                () -> cycleFlywheelVelo));
+                cycleFlywheelOffsetGetter));
 
             // Touchpad = tower shoot preset
             mechController.triangle().whileTrue(new TowerShot(

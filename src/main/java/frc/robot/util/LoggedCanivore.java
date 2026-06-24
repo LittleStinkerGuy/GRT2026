@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.CANBus;
 import frc.robot.Constants.CANType;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.littletonrobotics.junction.Logger;
 
@@ -14,7 +13,7 @@ public class LoggedCanivore extends CANBus {
     private final String logPrefix;
 
     private final Thread thread;
-    private volatile Optional<CANBusStatus> canivoreStatus = Optional.empty();
+    private volatile CANBusStatus canivoreStatus;
 
     public LoggedCanivore(CANType canType) {
         super(canType.busName());
@@ -24,15 +23,16 @@ public class LoggedCanivore extends CANBus {
         }
 
         this.canType = canType;
-        this.logPrefix = "CANBus/" + canType.busName();
+        this.logPrefix = "LoggedCanivore/" + canType.busName();
+        this.canivoreStatus = getStatus();
 
         thread =
             new Thread(
                 () -> {
                     while (true) {
-                        canivoreStatus = Optional.of(getStatus());
+                        canivoreStatus = getStatus();
                         try {
-                            Thread.sleep(400);
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -49,21 +49,18 @@ public class LoggedCanivore extends CANBus {
         return canType;
     }
 
-    public Optional<CANBusStatus> getCANBusStatus() {
+    public CANBusStatus getBusStatus() {
         return canivoreStatus;
     }
 
     private void updateDashboard() {
-        Optional<CANBusStatus> status = getCANBusStatus();
-        if (status.isPresent()) {
-            var currentStatus = status.get();
-            Logger.recordOutput(logPrefix + "/Status", currentStatus.Status.getName());
-            Logger.recordOutput(logPrefix + "/BusUtilization", currentStatus.BusUtilization);
-            Logger.recordOutput(logPrefix + "/BusOffCount", currentStatus.BusOffCount);
-            Logger.recordOutput(logPrefix + "/TxFullCount", currentStatus.TxFullCount);
-            Logger.recordOutput(logPrefix + "/REC", currentStatus.REC);
-            Logger.recordOutput(logPrefix + "/TEC", currentStatus.TEC);
-        }
+        var currentStatus = getBusStatus();
+        Logger.recordOutput(logPrefix + "/Status", currentStatus.Status.getName());
+        Logger.recordOutput(logPrefix + "/BusUtilization", currentStatus.BusUtilization);
+        Logger.recordOutput(logPrefix + "/BusOffCount", currentStatus.BusOffCount);
+        Logger.recordOutput(logPrefix + "/TxFullCount", currentStatus.TxFullCount);
+        Logger.recordOutput(logPrefix + "/REC", currentStatus.REC);
+        Logger.recordOutput(logPrefix + "/TEC", currentStatus.TEC);
     }
 
     public static void updateCanivoreStatuses() {
