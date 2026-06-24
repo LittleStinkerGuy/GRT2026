@@ -182,6 +182,22 @@ public class HoodSubsystem extends SubsystemBase {
         return this.run(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT));
     }
 
+    public Command jiggleHood() {
+        // Jiggle within the middle 50% of the hood's travel range.
+        Angle range = ShooterConstants.Hood.UPPER_ANGLE_LIMIT.minus(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
+        Angle lowPos = ShooterConstants.Hood.LOWER_ANGLE_LIMIT.plus(range.times(0.25));
+        Angle highPos = ShooterConstants.Hood.LOWER_ANGLE_LIMIT.plus(range.times(0.75));
+
+        Command jiggleHoodCommand = Commands.sequence(
+            this.runOnce(() -> setPosition(highPos)),
+            Commands.waitSeconds(0.5),
+            this.runOnce(() -> setPosition(lowPos)),
+            Commands.waitSeconds(0.5)).repeatedly();
+        jiggleHoodCommand.addRequirements(this);
+
+        return jiggleHoodCommand;
+    }
+
     public Command stopHood() {
         return this.runOnce(this::stop);
     }
