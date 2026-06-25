@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake.roller;
 
-import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -50,11 +49,11 @@ public class RollerIOTalonFXSim extends RollerIOTalonFX {
     public void updateInputs(RollerIOInputs inputs) {
         motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        sim.setInputVoltage(motorSimState.getMotorVoltageMeasure().in(Volts));
+        sim.setInputVoltage(motorSimState.getMotorVoltage());
         sim.update(LOOP_PERIOD_SECONDS);
 
-        motorSimState.setRawRotorPosition(sim.getAngularPosition());
-        motorSimState.setRotorVelocity(sim.getAngularVelocity());
+        motorSimState.setRawRotorPosition(sim.getAngularPositionRotations());
+        motorSimState.setRotorVelocity(sim.getAngularVelocityRPM() / 60.0);
 
         super.updateInputs(inputs);
     }

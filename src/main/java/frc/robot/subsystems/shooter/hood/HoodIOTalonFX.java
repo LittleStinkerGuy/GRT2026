@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter.hood;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import java.util.List;
@@ -114,13 +113,12 @@ public class HoodIOTalonFX implements HoodIO {
         CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
         tryUntilOk(5, () -> cancoder.getConfigurator().refresh(cancoderConfig), cancoderConfigRefreshAlert);
 
-        double midRotation = (ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations)
-            + ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations)) / 2.0;
+        double midRotation = (ShooterConstants.Hood.UPPER_ANGLE_LIMIT_ROT
+            + ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT) / 2.0;
         double discontinuityRotation = ((midRotation + 0.5) % 1.0 + 1.0) % 1.0;
-        Angle discontinuityPoint = Rotations.of(discontinuityRotation);
         cancoderConfig.withMagnetSensor(cancoderConfig.MagnetSensor
             .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-            .withAbsoluteSensorDiscontinuityPoint(discontinuityPoint));
+            .withAbsoluteSensorDiscontinuityPoint(discontinuityRotation));
         tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig), cancoderConfigAlert);
 
         absolutePosition = cancoder.getAbsolutePosition(false);
@@ -148,16 +146,16 @@ public class HoodIOTalonFX implements HoodIO {
         config.withSlot0(pidConfig);
 
         config.withCurrentLimits(new CurrentLimitsConfigs()
-            .withStatorCurrentLimit(ShooterConstants.Hood.STATOR_CURRENT_LIMIT)
+            .withStatorCurrentLimit(ShooterConstants.Hood.STATOR_CURRENT_LIMIT_AMPS)
             .withStatorCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE)
-            .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT)
+            .withSupplyCurrentLimit(ShooterConstants.Hood.SUPPLY_CURRENT_LIMIT_AMPS)
             .withSupplyCurrentLimitEnable(ShooterConstants.Hood.CURRENT_LIMIT_ENABLE));
 
         config.withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs()
             .withForwardSoftLimitEnable(true)
-            .withForwardSoftLimitThreshold(ShooterConstants.Hood.UPPER_ANGLE_LIMIT)
+            .withForwardSoftLimitThreshold(ShooterConstants.Hood.UPPER_ANGLE_LIMIT_ROT)
             .withReverseSoftLimitEnable(true)
-            .withReverseSoftLimitThreshold(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
+            .withReverseSoftLimitThreshold(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT));
 
         // Preserve sign-flip from the original implementation: encoder counts go
         // opposite the desired mechanism convention, so invert via the
@@ -217,18 +215,18 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void updateInputs(HoodIOInputs inputs) {
-        inputs.position = position.getValue();
-        inputs.velocity = velocity.getValue();
-        inputs.acceleration = accel.getValue();
-        inputs.appliedVoltage = appliedVoltage.getValue();
-        inputs.supplyCurrent = supplyCurrent.getValue();
-        inputs.statorCurrent = statorCurrent.getValue();
-        inputs.torqueCurrent = torqueCurrent.getValue();
-        inputs.temp = temp.getValue();
+        inputs.positionRot = position.getValueAsDouble();
+        inputs.velocityRPS = velocity.getValueAsDouble();
+        inputs.accelerationRPSPerSec = accel.getValueAsDouble();
+        inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+        inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
+        inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+        inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
+        inputs.tempC = temp.getValueAsDouble();
         inputs.tempFault = tempFault.getValue();
         inputs.motorConnected = BaseStatusSignal.isAllGood(motorSignals);
 
-        inputs.encoderAbsolutePosition = absolutePosition.getValue();
+        inputs.encoderAbsolutePositionRot = absolutePosition.getValueAsDouble();
         inputs.encoderHealth = PhoenixUtil.toEncoderHealth(magnetHealth.getValue());
         inputs.encoderConnected = BaseStatusSignal.isAllGood(cancoderSignals);
 
@@ -253,13 +251,13 @@ public class HoodIOTalonFX implements HoodIO {
     }
 
     @Override
-    public void setVoltageOut(Voltage voltsOut) {
-        motor.setControl(voltageControl.withOutput(voltsOut));
+    public void setVoltageOut(double volts) {
+        motor.setControl(voltageControl.withOutput(volts));
     }
 
     @Override
-    public void setPositionOut(Angle desiredAngle) {
-        motor.setControl(positionControl.withPosition(desiredAngle));
+    public void setPositionOut(double positionRot) {
+        motor.setControl(positionControl.withPosition(positionRot));
     }
 
     @Override

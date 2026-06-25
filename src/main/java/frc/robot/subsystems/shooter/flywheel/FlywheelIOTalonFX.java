@@ -20,13 +20,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -88,7 +85,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<AngularAcceleration> accel;
     private final StatusSignal<Voltage> appliedVoltage;
     private final StatusSignal<Current> supplyCurrent;
     private final StatusSignal<Current> statorCurrent;
@@ -129,9 +125,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         config.withSlot0(pidConfig);
 
         mmConfigs = new MotionMagicConfigs()
-            .withMotionMagicAcceleration(ShooterConstants.Flywheel.MM_ACCEL)
-            .withMotionMagicCruiseVelocity(ShooterConstants.Flywheel.MM_MAX_VELO)
-            .withMotionMagicJerk(ShooterConstants.Flywheel.MM_JERK);
+            .withMotionMagicAcceleration(ShooterConstants.Flywheel.MM_ACCEL_RPS2)
+            .withMotionMagicCruiseVelocity(ShooterConstants.Flywheel.MM_MAX_VELO_RPS)
+            .withMotionMagicJerk(ShooterConstants.Flywheel.MM_JERK_RPS3);
         config.withMotionMagic(mmConfigs);
 
         tryUntilOk(5, () -> leader.getConfigurator().apply(config), failedToConfigureLeaderAlert);
@@ -145,7 +141,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
         position = leader.getPosition(false);
         velocity = leader.getVelocity(false);
-        accel = leader.getAcceleration(false);
         appliedVoltage = leader.getMotorVoltage(false);
         supplyCurrent = leader.getSupplyCurrent(false);
         statorCurrent = leader.getStatorCurrent(false);
@@ -166,7 +161,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         signals = List.of(
             position,
             velocity,
-            accel,
             appliedVoltage,
             supplyCurrent,
             statorCurrent,
@@ -205,14 +199,13 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     @Override
     public void updateInputs(FlywheelIOInputs inputs) {
-        inputs.position = position.getValue();
-        inputs.velocity = velocity.getValue();
-        inputs.acceleration = accel.getValue();
-        inputs.appliedVoltage = appliedVoltage.getValue();
-        inputs.supplyCurrent = supplyCurrent.getValue();
-        inputs.statorCurrent = statorCurrent.getValue();
-        inputs.torqueCurrent = torqueCurrent.getValue();
-        inputs.temp = temp.getValue();
+        inputs.positionRot = position.getValueAsDouble();
+        inputs.velocityRPS = velocity.getValueAsDouble();
+        inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+        inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
+        inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+        inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
+        inputs.tempC = temp.getValueAsDouble();
         inputs.tempFault = tempFault.getValue();
         inputs.connected = BaseStatusSignal.isAllGood(signals);
         inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
@@ -220,11 +213,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         inputs.closedLoopSetpoint = closedLoopReference.getValue();
         inputs.closedLoopOutput = closedLoopOutput.getValue();
 
-        inputs.followerAppliedVoltage = followerAppliedVoltage.getValue();
-        inputs.followerSupplyCurrent = followerSupplyCurrent.getValue();
-        inputs.followerStatorCurrent = followerStatorCurrent.getValue();
-        inputs.followerTorqueCurrent = followerTorqueCurrent.getValue();
-        inputs.followerTemp = followerTemp.getValue();
+        inputs.followerAppliedVoltage = followerAppliedVoltage.getValueAsDouble();
+        inputs.followerSupplyCurrentAmps = followerSupplyCurrent.getValueAsDouble();
+        inputs.followerStatorCurrentAmps = followerStatorCurrent.getValueAsDouble();
+        inputs.followerTorqueCurrentAmps = followerTorqueCurrent.getValueAsDouble();
+        inputs.followerTempC = followerTemp.getValueAsDouble();
         inputs.followerConnected = BaseStatusSignal.isAllGood(followerSignals);
 
         refreshLeaderAlerts(inputs.connected);
@@ -239,10 +232,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     }
 
     @Override
-    public void updateMotionMagicConfig(AngularAcceleration acceleration, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {
-        mmConfigs.withMotionMagicAcceleration(acceleration)
-            .withMotionMagicCruiseVelocity(velo)
-            .withMotionMagicJerk(jerk);
+    public void updateMotionMagicConfig(double accelRPS2, double veloRPS, double jerkRPS3) {
+        mmConfigs.withMotionMagicAcceleration(accelRPS2)
+            .withMotionMagicCruiseVelocity(veloRPS)
+            .withMotionMagicJerk(jerkRPS3);
         tryUntilOk(5, () -> leader.getConfigurator().apply(mmConfigs), mmNotSetAlert);
         tryUntilOk(5, () -> follower.getConfigurator().apply(mmConfigs), mmNotSetAlert);
     }
@@ -253,13 +246,13 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     }
 
     @Override
-    public void setVoltageOut(Voltage voltsOut) {
-        leader.setControl(voltageControl.withOutput(voltsOut));
+    public void setVoltageOut(double volts) {
+        leader.setControl(voltageControl.withOutput(volts));
     }
 
     @Override
-    public void setVelocityOut(AngularVelocity velocityOut) {
-        leader.setControl(velocityControl.withVelocity(velocityOut));
+    public void setVelocityOut(double velocityRPS) {
+        leader.setControl(velocityControl.withVelocity(velocityRPS));
     }
 
     @Override

@@ -1,14 +1,10 @@
 package frc.robot.subsystems.intake.pivot;
 
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.IntakeConstants;
@@ -28,10 +24,10 @@ public class PivotIOTalonFXSim extends PivotIOTalonFX {
     private final SingleJointedArmSim sim = new SingleJointedArmSim(
         gearbox,
         IntakeConstants.GEAR_RATIO,
-        IntakeConstants.PIVOT_MOMENT_OF_INERTIA.in(KilogramSquareMeters),
-        IntakeConstants.PIVOT_COM_LENGTH.in(Meters),
-        IntakeConstants.PIVOT_REVERSE_LIMIT.in(Radians),
-        IntakeConstants.PIVOT_FORWARD_LIMIT.in(Radians),
+        IntakeConstants.PIVOT_MOMENT_OF_INERTIA_KG_M2,
+        IntakeConstants.PIVOT_COM_LENGTH_M,
+        Units.rotationsToRadians(IntakeConstants.PIVOT_REVERSE_LIMIT_ROT),
+        Units.rotationsToRadians(IntakeConstants.PIVOT_FORWARD_LIMIT_ROT),
         true,
         0.0);
 
@@ -54,14 +50,17 @@ public class PivotIOTalonFXSim extends PivotIOTalonFX {
     public void updateInputs(PivotIOInputs inputs) {
         motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        sim.setInputVoltage(motorSimState.getMotorVoltageMeasure().in(Volts));
+        sim.setInputVoltage(motorSimState.getMotorVoltage());
         sim.update(LOOP_PERIOD_SECONDS);
 
-        cancoderSimState.setRawPosition(Radians.of(sim.getAngleRads()));
-        cancoderSimState.setVelocity(RadiansPerSecond.of(sim.getVelocityRadPerSec()));
+        double mechanismRotations = Units.radiansToRotations(sim.getAngleRads());
+        double mechanismRPS = Units.radiansToRotations(sim.getVelocityRadPerSec());
 
-        motorSimState.setRawRotorPosition(Radians.of(sim.getAngleRads() * IntakeConstants.GEAR_RATIO));
-        motorSimState.setRotorVelocity(RadiansPerSecond.of(sim.getVelocityRadPerSec() * IntakeConstants.GEAR_RATIO));
+        cancoderSimState.setRawPosition(mechanismRotations);
+        cancoderSimState.setVelocity(mechanismRPS);
+
+        motorSimState.setRawRotorPosition(mechanismRotations * IntakeConstants.GEAR_RATIO);
+        motorSimState.setRotorVelocity(mechanismRPS * IntakeConstants.GEAR_RATIO);
 
         super.updateInputs(inputs);
     }

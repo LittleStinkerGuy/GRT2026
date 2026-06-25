@@ -1,8 +1,5 @@
 package frc.robot.subsystems.shooter.flywheel;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -15,9 +12,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,24 +37,19 @@ public class FlywheelSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private final LoggedTunableNumber motionMagicAccel =
-        new LoggedTunableNumber("Flywheel/motionMagicAccel_rotPerSec2",
-            ShooterConstants.Flywheel.MM_ACCEL.in(RotationsPerSecondPerSecond));
+        new LoggedTunableNumber("Flywheel/motionMagicAccel_rotPerSec2", ShooterConstants.Flywheel.MM_ACCEL_RPS2);
     private final LoggedTunableNumber motionMagicVelo =
-        new LoggedTunableNumber("Flywheel/motionMagicVelocity_rotPerSec",
-            ShooterConstants.Flywheel.MM_MAX_VELO.in(RotationsPerSecond));
+        new LoggedTunableNumber("Flywheel/motionMagicVelocity_rotPerSec", ShooterConstants.Flywheel.MM_MAX_VELO_RPS);
     private final LoggedTunableNumber motionMagicJerk =
-        new LoggedTunableNumber("Flywheel/motionMagicJerk_rotPerSec3",
-            ShooterConstants.Flywheel.MM_JERK.in(RotationsPerSecondPerSecond.per(Second)));
+        new LoggedTunableNumber("Flywheel/motionMagicJerk_rotPerSec3", ShooterConstants.Flywheel.MM_JERK_RPS3);
 
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Flywheel",
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
-    private final MutAngularVelocity commandedVelocitySetpoint = RotationsPerSecond.mutable(0.0);
-
-    private final MutAngularVelocity veloCommand = RotationsPerSecond.mutable(0.0);
+    private double commandedVoltageSetpoint = 0.0;
+    private double commandedVelocitySetpoint = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -99,18 +88,20 @@ public class FlywheelSubsystem extends SubsystemBase {
         setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
-    public void setVoltage(Voltage volts) {
-        commandedVoltageSetpoint.mut_replace(
-            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
-            Volts);
+    public void setVoltage(double volts) {
+        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
         io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
     }
 
-    public void setVelocity(AngularVelocity velo) {
-        io.setVelocityOut(velo);
-        commandedVelocitySetpoint.mut_replace(velo);
-        setpointTracker.updateSetpoint(commandedVelocitySetpoint.in(RotationsPerSecond), MotorControlMode.Velocity);
+    private void setVoltage(Voltage volts) {
+        setVoltage(volts.in(Volts));
+    }
+
+    public void setVelocity(double velocityRPS) {
+        io.setVelocityOut(velocityRPS);
+        commandedVelocitySetpoint = velocityRPS;
+        setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -122,11 +113,11 @@ public class FlywheelSubsystem extends SubsystemBase {
         if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
             return Optional.empty();
         }
-        return Optional.of(commandedVelocitySetpoint.isNear(inputs.velocity, ShooterConstants.Flywheel.VELOCITY_TOLERANCE));
+        return Optional.of(Math.abs(commandedVelocitySetpoint - inputs.velocityRPS) <= ShooterConstants.Flywheel.VELOCITY_TOLERANCE_RPS);
     }
 
-    public AngularVelocity getVelocity() {
-        return inputs.velocity;
+    public double getVelocity() {
+        return inputs.velocityRPS;
     }
 
     @Override
@@ -141,7 +132,7 @@ public class FlywheelSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Flywheel/atVelocitySetpoint", atSetpoint().orElse(false));
 
-        mechanism.setPosition(inputs.position);
+        mechanism.setPosition(inputs.positionRot);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -150,10 +141,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
-            values -> io.updateMotionMagicConfig(
-                RotationsPerSecondPerSecond.of(values[0]),
-                RotationsPerSecond.of(values[1]),
-                RotationsPerSecondPerSecond.of(values[2]).per(Second)),
+            values -> io.updateMotionMagicConfig(values[0], values[1], values[2]),
             motionMagicAccel, motionMagicVelo, motionMagicJerk);
 
         LoggedTracer.record("Flywheel");
@@ -171,10 +159,8 @@ public class FlywheelSubsystem extends SubsystemBase {
     }
 
     public Command rampToVelocity(DoubleSupplier rpsSupplier) {
-        return this.run(() -> {
-            veloCommand.mut_replace(rpsSupplier.getAsDouble(), RotationsPerSecond);
-            setVelocity(veloCommand);
-        }).finallyDo(this::stop);
+        return this.run(() -> setVelocity(rpsSupplier.getAsDouble()))
+            .finallyDo(this::stop);
     }
 
     public Command stopFlywheel() {

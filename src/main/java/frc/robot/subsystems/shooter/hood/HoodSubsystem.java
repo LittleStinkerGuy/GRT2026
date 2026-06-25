@@ -1,7 +1,5 @@
 package frc.robot.subsystems.shooter.hood;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -15,9 +13,6 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
@@ -49,8 +44,8 @@ public class HoodSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Position);
-    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
-    private final MutAngle commandedPositionSetpoint = Rotations.mutable(0.0);
+    private double commandedVoltageSetpoint = 0.0;
+    private double commandedPositionSetpointRot = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -96,24 +91,24 @@ public class HoodSubsystem extends SubsystemBase {
         setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
-    public void setVoltage(Voltage volts) {
-        commandedVoltageSetpoint.mut_replace(
-            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
-            Volts);
+    public void setVoltage(double volts) {
+        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
         io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
     }
 
-    public void setPosition(Angle position) {
-        commandedPositionSetpoint.mut_replace(
-            MathUtil.clamp(
-                position.in(Rotations),
-                ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations),
-                ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations)),
-            Rotations);
+    private void setVoltage(Voltage volts) {
+        setVoltage(volts.in(Volts));
+    }
 
-        io.setPositionOut(commandedPositionSetpoint);
-        setpointTracker.updateSetpoint(commandedPositionSetpoint.in(Rotations), MotorControlMode.Position);
+    public void setPosition(double positionRot) {
+        commandedPositionSetpointRot = MathUtil.clamp(
+            positionRot,
+            ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT,
+            ShooterConstants.Hood.UPPER_ANGLE_LIMIT_ROT);
+
+        io.setPositionOut(commandedPositionSetpointRot);
+        setpointTracker.updateSetpoint(commandedPositionSetpointRot, MotorControlMode.Position);
     }
 
     public void stop() {
@@ -125,11 +120,12 @@ public class HoodSubsystem extends SubsystemBase {
         if (setpointTracker.getControlMode() != MotorControlMode.Position) {
             return Optional.empty();
         }
-        return Optional.of(commandedPositionSetpoint.isNear(inputs.position, ShooterConstants.Hood.ANGLE_TOLERANCE));
+        return Optional.of(
+            Math.abs(commandedPositionSetpointRot - inputs.positionRot) <= ShooterConstants.Hood.ANGLE_TOLERANCE_ROT);
     }
 
-    public Angle getPosition() {
-        return inputs.position;
+    public double getPosition() {
+        return inputs.positionRot;
     }
 
     @Override
@@ -144,7 +140,7 @@ public class HoodSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Hood/atPositionSetpoint", atPositionSetpoint().orElse(false));
 
-        hoodMech.setAngle(inputs.position.in(Degrees));
+        hoodMech.setAngle(inputs.positionRot * 360.0);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -166,23 +162,23 @@ public class HoodSubsystem extends SubsystemBase {
             .finallyDo(this::stop);
     }
 
-    public Command goToPosition(Angle position) {
-        return this.runOnce(() -> setPosition(position));
+    public Command goToPosition(double positionRot) {
+        return this.runOnce(() -> setPosition(positionRot));
     }
 
-    public Command holdPosition(Angle position) {
+    public Command holdPosition(double positionRot) {
         return this.startEnd(
-            () -> setPosition(position),
+            () -> setPosition(positionRot),
             this::stop);
     }
 
     public Command hideHood() {
-        return this.runOnce(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT))
+        return this.runOnce(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT))
             .andThen(Commands.waitUntil(() -> atPositionSetpoint().orElse(false)));
     }
 
     public Command holdDownHood() {
-        return this.run(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
+        return this.run(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT));
     }
 
     public Command stopHood() {

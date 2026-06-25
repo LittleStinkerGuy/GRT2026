@@ -17,13 +17,10 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -73,7 +70,6 @@ public class HopperIOTalonFX implements HopperIO {
     private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<AngularAcceleration> accel;
     private final StatusSignal<Voltage> appliedVoltage;
     private final StatusSignal<Current> supplyCurrent;
     private final StatusSignal<Current> statorCurrent;
@@ -98,7 +94,7 @@ public class HopperIOTalonFX implements HopperIO {
         config.withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(HopperConstants.STATOR_CURRENT_LIMIT_ENABLE)
-                .withStatorCurrentLimit(HopperConstants.STATOR_CURRENT_LIMIT));
+                .withStatorCurrentLimit(HopperConstants.STATOR_CURRENT_LIMIT_AMPS));
 
         config.withFeedback(
             new FeedbackConfigs().withSensorToMechanismRatio(HopperConstants.GEAR_REDUCTION));
@@ -114,16 +110,15 @@ public class HopperIOTalonFX implements HopperIO {
         config.withSlot0(pidConfig);
 
         mmConfigs = new MotionMagicConfigs()
-            .withMotionMagicAcceleration(HopperConstants.MM_ACCEL)
-            .withMotionMagicCruiseVelocity(HopperConstants.MM_MAX_VELO)
-            .withMotionMagicJerk(HopperConstants.MM_JERK);
+            .withMotionMagicAcceleration(HopperConstants.MM_ACCEL_RPS2)
+            .withMotionMagicCruiseVelocity(HopperConstants.MM_MAX_VELO_RPS)
+            .withMotionMagicJerk(HopperConstants.MM_JERK_RPS3);
         config.withMotionMagic(mmConfigs);
 
         tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotorAlert);
 
         position = motor.getPosition(false);
         velocity = motor.getVelocity(false);
-        accel = motor.getAcceleration(false);
         appliedVoltage = motor.getMotorVoltage(false);
         supplyCurrent = motor.getSupplyCurrent(false);
         statorCurrent = motor.getStatorCurrent(false);
@@ -138,7 +133,6 @@ public class HopperIOTalonFX implements HopperIO {
         signals = List.of(
             position,
             velocity,
-            accel,
             appliedVoltage,
             supplyCurrent,
             statorCurrent,
@@ -165,14 +159,13 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void updateInputs(HopperIOInputs inputs) {
-        inputs.position = position.getValue();
-        inputs.velocity = velocity.getValue();
-        inputs.acceleration = accel.getValue();
-        inputs.appliedVoltage = appliedVoltage.getValue();
-        inputs.supplyCurrent = supplyCurrent.getValue();
-        inputs.statorCurrent = statorCurrent.getValue();
-        inputs.torqueCurrent = torqueCurrent.getValue();
-        inputs.temp = temp.getValue();
+        inputs.positionRot = position.getValueAsDouble();
+        inputs.velocityRPS = velocity.getValueAsDouble();
+        inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+        inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
+        inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+        inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
+        inputs.tempC = temp.getValueAsDouble();
         inputs.tempFault = tempFault.getValue();
         inputs.connected = BaseStatusSignal.isAllGood(signals);
         inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
@@ -189,10 +182,10 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
-    public void updateMotionMagicConfig(AngularAcceleration acceleration, AngularVelocity velo, Velocity<AngularAccelerationUnit> jerk) {
-        mmConfigs.withMotionMagicAcceleration(acceleration)
-            .withMotionMagicCruiseVelocity(velo)
-            .withMotionMagicJerk(jerk);
+    public void updateMotionMagicConfig(double accelRPS2, double veloRPS, double jerkRPS3) {
+        mmConfigs.withMotionMagicAcceleration(accelRPS2)
+            .withMotionMagicCruiseVelocity(veloRPS)
+            .withMotionMagicJerk(jerkRPS3);
         tryUntilOk(5, () -> motor.getConfigurator().apply(mmConfigs), mmNotSetAlert);
     }
 
@@ -202,13 +195,13 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
-    public void setVoltageOut(Voltage voltsOut) {
-        motor.setControl(voltageControl.withOutput(voltsOut));
+    public void setVoltageOut(double volts) {
+        motor.setControl(voltageControl.withOutput(volts));
     }
 
     @Override
-    public void setVelocityOut(AngularVelocity velocityOut) {
-        motor.setControl(velocityControl.withVelocity(velocityOut));
+    public void setVelocityOut(double velocityOutRPS) {
+        motor.setControl(velocityControl.withVelocity(velocityOutRPS));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter.tower;
 
-import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -50,11 +49,11 @@ public class TowerIOTalonFXSim extends TowerIOTalonFX {
     public void updateInputs(TowerIOInputs inputs) {
         motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        sim.setInputVoltage(motorSimState.getMotorVoltageMeasure().in(Volts));
+        sim.setInputVoltage(motorSimState.getMotorVoltage());
         sim.update(LOOP_PERIOD_SECONDS);
 
-        motorSimState.setRawRotorPosition(sim.getAngularPosition().times(TowerConstants.GEAR_REDUCTION));
-        motorSimState.setRotorVelocity(sim.getAngularVelocity().times(TowerConstants.GEAR_REDUCTION));
+        motorSimState.setRawRotorPosition(sim.getAngularPositionRotations() * TowerConstants.GEAR_REDUCTION);
+        motorSimState.setRotorVelocity((sim.getAngularVelocityRPM() / 60.0) * TowerConstants.GEAR_REDUCTION);
 
         super.updateInputs(inputs);
     }

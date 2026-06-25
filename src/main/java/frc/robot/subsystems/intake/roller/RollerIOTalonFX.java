@@ -16,7 +16,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ControlModeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -66,7 +65,6 @@ public class RollerIOTalonFX implements RollerIO {
     private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<AngularAcceleration> accel;
     private final StatusSignal<Voltage> appliedVoltage;
     private final StatusSignal<Current> supplyCurrent;
     private final StatusSignal<Current> statorCurrent;
@@ -91,7 +89,7 @@ public class RollerIOTalonFX implements RollerIO {
         config.withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withStatorCurrentLimitEnable(true)
-                .withStatorCurrentLimit(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT));
+                .withStatorCurrentLimit(IntakeConstants.ROLLER_STATOR_CURRENT_LIMIT_AMPS));
 
         // Velocity control PID (Slot 0)
         pidConfig = new Slot0Configs()
@@ -107,7 +105,6 @@ public class RollerIOTalonFX implements RollerIO {
 
         position = motor.getPosition(false);
         velocity = motor.getVelocity(false);
-        accel = motor.getAcceleration(false);
         appliedVoltage = motor.getMotorVoltage(false);
         supplyCurrent = motor.getSupplyCurrent(false);
         statorCurrent = motor.getStatorCurrent(false);
@@ -122,7 +119,6 @@ public class RollerIOTalonFX implements RollerIO {
         signals = List.of(
             position,
             velocity,
-            accel,
             appliedVoltage,
             supplyCurrent,
             statorCurrent,
@@ -149,14 +145,13 @@ public class RollerIOTalonFX implements RollerIO {
 
     @Override
     public void updateInputs(RollerIOInputs inputs) {
-        inputs.position = position.getValue();
-        inputs.velocity = velocity.getValue();
-        inputs.acceleration = accel.getValue();
-        inputs.appliedVoltage = appliedVoltage.getValue();
-        inputs.supplyCurrent = supplyCurrent.getValue();
-        inputs.statorCurrent = statorCurrent.getValue();
-        inputs.torqueCurrent = torqueCurrent.getValue();
-        inputs.temp = temp.getValue();
+        inputs.positionRot = position.getValueAsDouble();
+        inputs.velocityRPS = velocity.getValueAsDouble();
+        inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+        inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
+        inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+        inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
+        inputs.tempC = temp.getValueAsDouble();
         inputs.tempFault = tempFault.getValue();
         inputs.connected = BaseStatusSignal.isAllGood(signals);
         inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
@@ -178,13 +173,13 @@ public class RollerIOTalonFX implements RollerIO {
     }
 
     @Override
-    public void setVoltageOut(Voltage voltsOut) {
-        motor.setControl(voltageControl.withOutput(voltsOut));
+    public void setVoltageOut(double volts) {
+        motor.setControl(voltageControl.withOutput(volts));
     }
 
     @Override
-    public void setVelocityOut(AngularVelocity velocityOut) {
-        motor.setControl(velocityControl.withVelocity(velocityOut));
+    public void setVelocityOut(double velocityOutRPS) {
+        motor.setControl(velocityControl.withVelocity(velocityOutRPS));
     }
 
     @Override

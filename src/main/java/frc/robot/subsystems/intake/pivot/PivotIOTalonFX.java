@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake.pivot;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.List;
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -24,7 +23,6 @@ import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -91,7 +89,6 @@ public class PivotIOTalonFX implements PivotIO {
     private final List<BaseStatusSignal> motorSignals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<AngularAcceleration> accel;
     private final StatusSignal<Voltage> appliedVoltage;
     private final StatusSignal<Current> supplyCurrent;
     private final StatusSignal<Current> statorCurrent;
@@ -115,13 +112,12 @@ public class PivotIOTalonFX implements PivotIO {
         CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
         tryUntilOk(5, () -> cancoder.getConfigurator().refresh(cancoderConfig), cancoderConfigRefreshAlert);
 
-        double midRotation = (IntakeConstants.PIVOT_FORWARD_LIMIT.in(Rotations)
-            + IntakeConstants.PIVOT_REVERSE_LIMIT.in(Rotations)) / 2.0;
+        double midRotation = (IntakeConstants.PIVOT_FORWARD_LIMIT_ROT
+            + IntakeConstants.PIVOT_REVERSE_LIMIT_ROT) / 2.0;
         double discontinuityRotation = ((midRotation + 0.5) % 1.0 + 1.0) % 1.0;
-        Angle discontinuityPoint = Rotations.of(discontinuityRotation);
         cancoderConfig.withMagnetSensor(cancoderConfig.MagnetSensor
             .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-            .withAbsoluteSensorDiscontinuityPoint(discontinuityPoint));
+            .withAbsoluteSensorDiscontinuityPoint(discontinuityRotation));
         tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig), cancoderConfigAlert);
 
         absolutePosition = cancoder.getAbsolutePosition(false);
@@ -164,22 +160,21 @@ public class PivotIOTalonFX implements PivotIO {
         // StatorCurrent Limits
         config.withCurrentLimits(
             new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT)
+                .withStatorCurrentLimit(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_AMPS)
                 .withStatorCurrentLimitEnable(IntakeConstants.PIVOT_STATOR_CURRENT_LIMIT_ENABLE));
 
         // Software Limits
         config.withSoftwareLimitSwitch(
             new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitEnable(true)
-                .withForwardSoftLimitThreshold(IntakeConstants.PIVOT_FORWARD_LIMIT)
+                .withForwardSoftLimitThreshold(IntakeConstants.PIVOT_FORWARD_LIMIT_ROT)
                 .withReverseSoftLimitEnable(true)
-                .withReverseSoftLimitThreshold(IntakeConstants.PIVOT_REVERSE_LIMIT));
+                .withReverseSoftLimitThreshold(IntakeConstants.PIVOT_REVERSE_LIMIT_ROT));
 
         tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotorAlert);
 
         position = motor.getPosition(false);
         velocity = motor.getVelocity(false);
-        accel = motor.getAcceleration(false);
         appliedVoltage = motor.getMotorVoltage(false);
         supplyCurrent = motor.getSupplyCurrent(false);
         statorCurrent = motor.getStatorCurrent(false);
@@ -193,7 +188,6 @@ public class PivotIOTalonFX implements PivotIO {
         motorSignals = List.of(
             position,
             velocity,
-            accel,
             appliedVoltage,
             supplyCurrent,
             statorCurrent,
@@ -220,18 +214,17 @@ public class PivotIOTalonFX implements PivotIO {
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
-        inputs.position = position.getValue();
-        inputs.velocity = velocity.getValue();
-        inputs.acceleration = accel.getValue();
-        inputs.appliedVoltage = appliedVoltage.getValue();
-        inputs.supplyCurrent = supplyCurrent.getValue();
-        inputs.statorCurrent = statorCurrent.getValue();
-        inputs.torqueCurrent = torqueCurrent.getValue();
-        inputs.temp = temp.getValue();
+        inputs.positionRot = position.getValueAsDouble();
+        inputs.velocityRPS = velocity.getValueAsDouble();
+        inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+        inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
+        inputs.statorCurrentAmps = statorCurrent.getValueAsDouble();
+        inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
+        inputs.tempC = temp.getValueAsDouble();
         inputs.tempFault = tempFault.getValue();
         inputs.motorConnected = BaseStatusSignal.isAllGood(motorSignals);
 
-        inputs.encoderAbsolutePosition = absolutePosition.getValue();
+        inputs.encoderAbsolutePositionRot = absolutePosition.getValueAsDouble();
         inputs.encoderHealth = PhoenixUtil.toEncoderHealth(magnetHealth.getValue());
         inputs.encoderConnected = BaseStatusSignal.isAllGood(cancoderSignals);
 
@@ -261,13 +254,13 @@ public class PivotIOTalonFX implements PivotIO {
     }
 
     @Override
-    public void setVoltageOut(Voltage voltsOut) {
-        motor.setControl(voltageControl.withOutput(voltsOut));
+    public void setVoltageOut(double volts) {
+        motor.setControl(voltageControl.withOutput(volts));
     }
 
     @Override
-    public void setPositionOut(Angle desiredAngle) {
-        motor.setControl(positionControl.withPosition(desiredAngle));
+    public void setPositionOut(double positionRot) {
+        motor.setControl(positionControl.withPosition(positionRot));
     }
 
     @Override

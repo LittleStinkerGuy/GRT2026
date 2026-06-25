@@ -1,15 +1,10 @@
 package frc.robot.subsystems.shooter.hood;
 
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.ShooterConstants;
@@ -29,12 +24,12 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
     private final SingleJointedArmSim sim = new SingleJointedArmSim(
         gearbox,
         ShooterConstants.Hood.GEAR_RATIO,
-        ShooterConstants.Hood.MOMENT_OF_INERTIA.in(KilogramSquareMeters),
-        ShooterConstants.Hood.COM_LENGTH.in(Meters),
-        ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Radians),
-        ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Radians),
+        ShooterConstants.Hood.MOMENT_OF_INERTIA_KG_M2,
+        ShooterConstants.Hood.COM_LENGTH_M,
+        Units.rotationsToRadians(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT),
+        Units.rotationsToRadians(ShooterConstants.Hood.UPPER_ANGLE_LIMIT_ROT),
         false,
-        ShooterConstants.Hood.INIT_ANGLE.in(Radians));
+        Units.rotationsToRadians(ShooterConstants.Hood.INIT_ANGLE_ROT));
 
     public HoodIOTalonFXSim(LoggedCanivore canivore) {
         super(canivore);
@@ -58,14 +53,17 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
     public void updateInputs(HoodIOInputs inputs) {
         motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        sim.setInputVoltage(motorSimState.getMotorVoltageMeasure().in(Volts));
+        sim.setInputVoltage(motorSimState.getMotorVoltage());
         sim.update(LOOP_PERIOD_SECONDS);
 
-        cancoderSimState.setRawPosition(Radians.of(sim.getAngleRads()));
-        cancoderSimState.setVelocity(RadiansPerSecond.of(sim.getVelocityRadPerSec()));
+        double mechanismRotations = Units.radiansToRotations(sim.getAngleRads());
+        double mechanismVelocityRPS = Units.radiansToRotations(sim.getVelocityRadPerSec());
 
-        motorSimState.setRawRotorPosition(Radians.of(sim.getAngleRads() * ShooterConstants.Hood.GEAR_RATIO));
-        motorSimState.setRotorVelocity(RadiansPerSecond.of(sim.getVelocityRadPerSec() * ShooterConstants.Hood.GEAR_RATIO));
+        cancoderSimState.setRawPosition(mechanismRotations);
+        cancoderSimState.setVelocity(mechanismVelocityRPS);
+
+        motorSimState.setRawRotorPosition(mechanismRotations * ShooterConstants.Hood.GEAR_RATIO);
+        motorSimState.setRotorVelocity(mechanismVelocityRPS * ShooterConstants.Hood.GEAR_RATIO);
 
         super.updateInputs(inputs);
     }

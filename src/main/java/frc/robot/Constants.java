@@ -5,31 +5,10 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.InchesPerSecond;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Pound;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularMomentumUnit;
-import edu.wpi.first.units.LinearMomentumUnit;
-import edu.wpi.first.units.MomentOfInertiaUnit;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -45,19 +24,9 @@ import edu.wpi.first.wpilibj.RobotBase;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    @SuppressWarnings("checkstyle:constantname")
-    public static final LinearMomentumUnit PoundInchesPerSec =
-        LinearMomentumUnit.combine(Pound, InchesPerSecond);
-
-    // (lb · in/s) · in -> angular momentum (lb·in²/s)
-    @SuppressWarnings("checkstyle:constantname")
-    public static final AngularMomentumUnit PoundInchesSquaredPerSec =
-        AngularMomentumUnit.combine(PoundInchesPerSec, Inches);
-
-    // (lb·in²/s) / (rad/s) -> moment of inertia (lb·in², since rad is dimensionless)
-    @SuppressWarnings("checkstyle:constantname")
-    public static final MomentOfInertiaUnit PoundInchesSquared =
-        MomentOfInertiaUnit.combine(PoundInchesSquaredPerSec, RadiansPerSecond);
+    // Moment-of-inertia conversion factor: 1 lb·in² = (kg/lb)·(m/in)² kg·m².
+    public static final double LB_IN2_TO_KG_M2 =
+        Units.lbsToKilograms(1.0) * Units.inchesToMeters(1.0) * Units.inchesToMeters(1.0);
 
     // ==================== GLOBAL ====================
     public enum Mode {
@@ -109,11 +78,10 @@ public final class Constants {
         // Physical Measurements (
         public static final double DRIVE_WHEEL_RADIUS_METERS = 0.051; // meters
         public static final double DRIVE_WHEEL_CIRCUMFERENCE_METERS = 2.0 * Math.PI * DRIVE_WHEEL_RADIUS_METERS; // meters
-        public static final Distance DRIVE_WHEEL_CIRCUMFERENCE = Meters.of(DRIVE_WHEEL_CIRCUMFERENCE_METERS);
         public static final double DRIVE_GEAR_REDUCTION = 8.25; // L2 gearing
 
         // Measured max drive speed
-        public static final double TRUE_MAX_DRIVE_SPEED = 3.87; // put robot in the air and mesure from nt
+        public static final double TRUE_MAX_DRIVE_SPEED = 3.87; // put robot in the air and measure from nt
 
         // MotionMagic parameters for drive motors (tested values)
         public static final double DRIVE_MAX_VELOCITY_RPS = 100.0; // 90
@@ -244,7 +212,7 @@ public final class Constants {
         public static final double TARGET_BPS = 4.0; // frequency
         public static final double WHEEL_RADIUS = 1.0; // distance
         public static final double BALL_DIAMETER = 6.0; // distance
-        public static final AngularVelocity TARGET_VELO = RotationsPerSecond.of(30); // TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
+        public static final double TARGET_VELO_RPS = 30.0; // TARGET_BPS * BALL_DIAMETER / WHEEL_RADIUS;
 
         // Velocity control PID (SysID Derived - Voltage)
         public static final double kP = 0.00625;
@@ -257,16 +225,16 @@ public final class Constants {
         public static final double SIM_P = 0.00625;
         public static final double SIM_V = 0.388;
 
-        public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(7.58);
+        public static final double VELOCITY_TOLERANCE_RPS = 7.58;
 
         // motion magic
-        public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(1000);
-        public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(100);
-        public static final Velocity<AngularAccelerationUnit> MM_JERK = RotationsPerSecondPerSecond.of(100).per(Second);
+        public static final double MM_ACCEL_RPS2 = 1000.0;
+        public static final double MM_MAX_VELO_RPS = 100.0;
+        public static final double MM_JERK_RPS3 = 100.0;
 
         // Current limits
-        public static final Current SUPPLY_CURRENT_LIMIT = Amps.of(80);
-        public static final Current STATOR_CURRENT_LIMIT = Amps.of(120.0);
+        public static final double SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
+        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
         // Motor config
@@ -297,15 +265,14 @@ public final class Constants {
             public static final double SIM_KV = 0.0;
 
             // Motion Magic
-            public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(100);
-            public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(500);
-            public static final Velocity<AngularAccelerationUnit> MM_JERK =
-                RotationsPerSecondPerSecond.of(150).per(Second);
+            public static final double MM_ACCEL_RPS2 = 100.0;
+            public static final double MM_MAX_VELO_RPS = 500.0;
+            public static final double MM_JERK_RPS3 = 150.0;
 
             // Velocity tolerance for "at speed" check
-            public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(2.0);
+            public static final double VELOCITY_TOLERANCE_RPS = 2.0;
 
-            public static final AngularVelocity FLYWHEEL_MAX_SPEED = RotationsPerSecond.of(120.0);
+            public static final double FLYWHEEL_MAX_SPEED_RPS = 120.0;
         }
 
         // ---- Hood ----
@@ -326,21 +293,21 @@ public final class Constants {
             public static final double SIM_D = 2.0;
 
             // Plant model (matches Intake pivot until Hood CAD numbers exist)
-            public static final MomentOfInertia MOMENT_OF_INERTIA = PoundInchesSquared.of(598.456909);
-            public static final Distance COM_LENGTH = Inches.of(Math.hypot(0.121549, 9.035458));
+            public static final double MOMENT_OF_INERTIA_KG_M2 = 598.456909 * LB_IN2_TO_KG_M2;
+            public static final double COM_LENGTH_M = Units.inchesToMeters(Math.hypot(0.121549, 9.035458));
 
             // Angle limits (rotations)
-            public static final Angle UPPER_ANGLE_LIMIT = Rotations.of(0.1);
-            public static final Angle LOWER_ANGLE_LIMIT = Rotations.of(0.0);
-            public static final Angle INIT_ANGLE = UPPER_ANGLE_LIMIT;
+            public static final double UPPER_ANGLE_LIMIT_ROT = 0.1;
+            public static final double LOWER_ANGLE_LIMIT_ROT = 0.0;
+            public static final double INIT_ANGLE_ROT = UPPER_ANGLE_LIMIT_ROT;
             public static final double MAGNET_OFFSET = -0.05688;
 
             // Current limits
-            public static final Current STATOR_CURRENT_LIMIT = Amps.of(50.0);
-            public static final Current SUPPLY_CURRENT_LIMIT = Amps.of(40.0);
+            public static final double STATOR_CURRENT_LIMIT_AMPS = 50.0;
+            public static final double SUPPLY_CURRENT_LIMIT_AMPS = 40.0;
             public static final boolean CURRENT_LIMIT_ENABLE = true;
 
-            public static final Angle ANGLE_TOLERANCE = Rotations.of(0.01);
+            public static final double ANGLE_TOLERANCE_ROT = 0.01;
         }
     }
 
@@ -349,10 +316,10 @@ public final class Constants {
     public static class IntakeConstants {
         // Roller Motor
         public static final int ROLLER_CAN_ID = 14;
-        public static final AngularVelocity ROLLER_IN_SPEED = RotationsPerSecond.of(-85);
-        public static final AngularVelocity ROLLER_OUT_SPEED = RotationsPerSecond.of(85);
-        public static final Current ROLLER_CURRENT_LIMIT = Amps.of(120.0);
-        public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(120.0);
+        public static final double ROLLER_IN_SPEED_RPS = -85.0;
+        public static final double ROLLER_OUT_SPEED_RPS = 85.0;
+        public static final double ROLLER_CURRENT_LIMIT_AMPS = 120.0;
+        public static final double ROLLER_STATOR_CURRENT_LIMIT_AMPS = 120.0;
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
         public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
@@ -372,7 +339,7 @@ public final class Constants {
         public static final int PIVOT_MOTOR_ID = 12;
         public static final int PIVOT_CANCODER_ID = 13;
         public static final double MANUAL_PIVOT_SPEED = 1;
-        public static final Current PIVOT_STATOR_CURRENT_LIMIT = Amps.of(40.0);
+        public static final double PIVOT_STATOR_CURRENT_LIMIT_AMPS = 40.0;
         public static final boolean PIVOT_STATOR_CURRENT_LIMIT_ENABLE = true;
 
         // Pivot PID
@@ -389,19 +356,20 @@ public final class Constants {
         public static final double PIVOT_SIM_G = 0.73;
 
         public static final double GEAR_RATIO = 20.0;
-        public static final MomentOfInertia PIVOT_MOMENT_OF_INERTIA = PoundInchesSquared.of(598.456909); // Onshape
-        public static final Distance PIVOT_COM_LENGTH = Inches.of(Math.hypot(0.121549, 9.035458)); // Onshape COM offset (x, y) from pivot
+        public static final double PIVOT_MOMENT_OF_INERTIA_KG_M2 = 598.456909 * LB_IN2_TO_KG_M2; // Onshape
+        public static final double PIVOT_COM_LENGTH_M =
+            Units.inchesToMeters(Math.hypot(0.121549, 9.035458)); // Onshape COM offset (x, y) from pivot
 
         // Pivot Positions (in encoder rotations)
-        public static final Angle PIVOT_FORWARD_LIMIT = Rotations.of(0.3568);
-        public static final Angle PIVOT_REVERSE_LIMIT = Rotations.of(0.000);
+        public static final double PIVOT_FORWARD_LIMIT_ROT = 0.3568;
+        public static final double PIVOT_REVERSE_LIMIT_ROT = 0.000;
 
-        public static final Angle PIVOT_OUT_POS = Rotations.of(0.0);
-        public static final Angle PIVOT_IN_POS = Rotations.of(0.33);
-        public static final Angle PIVOT_MID_UPPER = Rotations.of(0.175);
-        public static final Angle PIVOT_MID_LOWER = Rotations.of(0.091);
+        public static final double PIVOT_OUT_POS_ROT = 0.0;
+        public static final double PIVOT_IN_POS_ROT = 0.33;
+        public static final double PIVOT_MID_UPPER_ROT = 0.175;
+        public static final double PIVOT_MID_LOWER_ROT = 0.091;
 
-        public static final Angle PIVOT_POSITION_TOLERANCE = Degrees.of(5);
+        public static final double PIVOT_POSITION_TOLERANCE_ROT = 5.0 / 360.0;
 
         // Pivot Duty Cycle
         public static final double PIVOT_UP_DUTY_CYCLE = 0.3;
@@ -426,7 +394,7 @@ public final class Constants {
         public static final double kS = 0.0;
         public static final double kV = 0.464;
         public static final double kA = 0.0127;
-        public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(6.47);
+        public static final double VELOCITY_TOLERANCE_RPS = 6.47;
 
         // Sim-only PID gains (no friction / different plant — match the dashboard defaults).
         public static final double SIM_KP = 0.8;
@@ -437,18 +405,18 @@ public final class Constants {
         public static final double SIM_KA = 0.0;
 
         // Motion Magic Constants
-        public static final AngularAcceleration MM_ACCEL = RotationsPerSecondPerSecond.of(100);
-        public static final AngularVelocity MM_MAX_VELO = RotationsPerSecond.of(100);
-        public static final Velocity<AngularAccelerationUnit> MM_JERK = RotationsPerSecondPerSecond.of(100).per(Second);
+        public static final double MM_ACCEL_RPS2 = 100.0;
+        public static final double MM_MAX_VELO_RPS = 100.0;
+        public static final double MM_JERK_RPS3 = 100.0;
 
         // balls stuff
         public static final double TARGET_BPS = 4.0; // frequency
         public static final double GEAR_REDUCTION = 4.0; // dummy value -Tony 3.3.26
-        public static final AngularVelocity TARGET_RPS = RotationsPerSecond.of(TARGET_BPS / 4); // divided by 4 cuz 4 vains on spinner
+        public static final double TARGET_RPS = TARGET_BPS / 4.0; // divided by 4 cuz 4 vains on spinner
 
         // Current limits
-        public static final Current SUPPLY_CURRENT_LIMIT = Amps.of(80);
-        public static final Current STATOR_CURRENT_LIMIT = Amps.of(120);
+        public static final double SUPPLY_CURRENT_LIMIT_AMPS = 80.0;
+        public static final double STATOR_CURRENT_LIMIT_AMPS = 120.0;
         public static final boolean STATOR_CURRENT_LIMIT_ENABLE = false;
 
         // Voltage and ramping
@@ -487,10 +455,10 @@ public final class Constants {
     // ==================== SMASH AND SHOOT ==================== thing
     public static class SmashAndShootConstants {
         // Hood position (rotations) - between 0.06 and 0.169
-        public static final Angle HOOD_POSITION = Rotations.of(0.014);
+        public static final double HOOD_POSITION_ROT = 0.014;
 
         // Flywheel speed (RPS)
-        public static final AngularVelocity FLYWHEEL_VELO = RotationsPerSecond.of(40.0);
+        public static final double FLYWHEEL_VELO_RPS = 40.0;
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 1;
@@ -506,10 +474,10 @@ public final class Constants {
     // ==================== CYCLE SHOOTER ====================
     public static class CycleShooterConstants {
         // Hood position (rotations)
-        public static final Angle HOOD_POSITION = Rotations.of(0.096);
+        public static final double HOOD_POSITION_ROT = 0.096;
 
         // Flywheel speed (RPS)
-        public static final AngularVelocity FLYWHEEL_VELO = RotationsPerSecond.of(60.0);
+        public static final double FLYWHEEL_VELO_RPS = 60.0;
 
         // Tower duty cycle
         public static final double TOWER_DUTY_CYCLE = 1;
@@ -525,10 +493,10 @@ public final class Constants {
     // ==================== TOWER SHOOT ====================
     public static class TowerShootConstants {
         // Hood position (rotations) - placeholder, tune on robot
-        public static final Angle HOOD_POSITION = Rotations.of(0.05);
+        public static final double HOOD_POSITION_ROT = 0.05;
 
         // Flywheel speed (RPS) - placeholder, tune on robot
-        public static final AngularVelocity FLYWHEEL_VELO = RotationsPerSecond.of(49.0);
+        public static final double FLYWHEEL_VELO_RPS = 49.0;
     }
 
     public static class DebugConstants {

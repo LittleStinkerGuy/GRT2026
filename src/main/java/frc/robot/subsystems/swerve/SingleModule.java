@@ -1,21 +1,10 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PIDConstants;
@@ -39,10 +28,10 @@ public class SingleModule {
 
     private SimpleMotorFeedforward driveFeedforwardModel;
 
-    private MutVoltage commandedDriveFeedforward = Volts.mutable(0.0);
-    private MutAngularVelocity commandedDriveVelocity = RotationsPerSecond.mutable(0.0);
+    private double commandedDriveFeedforwardVolts = 0.0;
+    private double commandedDriveVelocityRPS = 0.0;
 
-    private MutAngle commandedSteerPosition = Rotations.mutable(0.0);
+    private double commandedSteerPositionRot = 0.0;
 
 
     public SingleModule(ModuleIO io) {
@@ -71,38 +60,36 @@ public class SingleModule {
     }
 
     public void setModuleState(SwerveModuleState state) {
-        Rotation2d currentAngle = Rotation2d.fromRadians(inputs.encoderAbsolutePosition.in(Radians));
+        Rotation2d currentAngle = Rotation2d.fromRotations(inputs.encoderAbsolutePositionRot);
         state.optimize(currentAngle);
         state.cosineScale(currentAngle);
 
-        double idealDriveVelocityRadPerSec = state.speedMetersPerSecond / SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS;
+        double idealDriveVelocityRPS = state.speedMetersPerSecond / SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS;
 
-        commandedSteerPosition.mut_replace(state.angle.getRadians(), Radians);
-        commandedDriveVelocity.mut_replace(idealDriveVelocityRadPerSec, RadiansPerSecond);
-        commandedDriveFeedforward.mut_replace(
-            driveFeedforwardModel.calculate(idealDriveVelocityRadPerSec / (2 * Math.PI)), Volts);
+        commandedSteerPositionRot = state.angle.getRotations();
+        commandedDriveVelocityRPS = idealDriveVelocityRPS;
+        commandedDriveFeedforwardVolts = driveFeedforwardModel.calculate(idealDriveVelocityRPS);
 
-        io.setDriveVelocity(commandedDriveVelocity, commandedDriveFeedforward);
-        io.setSteerPosition(commandedSteerPosition);
+        io.setDriveVelocity(commandedDriveVelocityRPS, commandedDriveFeedforwardVolts);
+        io.setSteerPosition(commandedSteerPositionRot);
     }
 
     public SwerveModuleState getModuleState() {
         return new SwerveModuleState(
-            inputs.driveVelocity.in(RadiansPerSecond) * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS,
+            inputs.driveVelocityRPS * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS,
             getAbsoluteAngle());
     }
 
     public Rotation2d getAbsoluteAngle() {
-        return Rotation2d.fromRadians(inputs.encoderAbsolutePosition.in(Radians));
+        return Rotation2d.fromRotations(inputs.encoderAbsolutePositionRot);
     }
 
-    public AngularVelocity getDriveAngVelocity() {
-        return inputs.driveVelocity;
+    public double getDriveAngVelocityRPS() {
+        return inputs.driveVelocityRPS;
     }
 
-    public LinearVelocity getDriveLinVelocity() {
-        return MetersPerSecond.of(
-            inputs.driveVelocity.in(RadiansPerSecond) * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS);
+    public double getDriveLinVelocityMPS() {
+        return inputs.driveVelocityRPS * SwerveDriveConstants.DRIVE_WHEEL_CIRCUMFERENCE_METERS;
     }
 
     public void periodic() {

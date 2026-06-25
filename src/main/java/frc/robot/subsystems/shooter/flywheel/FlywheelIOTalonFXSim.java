@@ -1,7 +1,5 @@
 package frc.robot.subsystems.shooter.flywheel;
 
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -48,11 +46,11 @@ public class FlywheelIOTalonFXSim extends FlywheelIOTalonFX {
     public void updateInputs(FlywheelIOInputs inputs) {
         leaderSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        sim.setInputVoltage(leaderSimState.getMotorVoltageMeasure().in(Volts));
+        sim.setInputVoltage(leaderSimState.getMotorVoltage());
         sim.update(LOOP_PERIOD_SECONDS);
 
-        leaderSimState.setRawRotorPosition(sim.getAngularPosition().times(ShooterConstants.Flywheel.GEAR_RATIO));
-        leaderSimState.setRotorVelocity(sim.getAngularVelocity().times(ShooterConstants.Flywheel.GEAR_RATIO));
+        leaderSimState.setRawRotorPosition(sim.getAngularPositionRotations() * ShooterConstants.Flywheel.GEAR_RATIO);
+        leaderSimState.setRotorVelocity((sim.getAngularVelocityRPM() / 60.0) * ShooterConstants.Flywheel.GEAR_RATIO);
 
         super.updateInputs(inputs);
     }

@@ -1,9 +1,5 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
@@ -14,9 +10,6 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
@@ -44,22 +37,19 @@ public class HopperSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private final LoggedTunableNumber motionMagicAccel =
-        new LoggedTunableNumber("Hopper/motionMagicAccel_rotPerSec2",
-            HopperConstants.MM_ACCEL.in(RotationsPerSecondPerSecond));
+        new LoggedTunableNumber("Hopper/motionMagicAccel_rotPerSec2", HopperConstants.MM_ACCEL_RPS2);
     private final LoggedTunableNumber motionMagicVelo =
-        new LoggedTunableNumber("Hopper/motionMagicVelocity_rotPerSec",
-            HopperConstants.MM_MAX_VELO.in(RotationsPerSecond));
+        new LoggedTunableNumber("Hopper/motionMagicVelocity_rotPerSec", HopperConstants.MM_MAX_VELO_RPS);
     private final LoggedTunableNumber motionMagicJerk =
-        new LoggedTunableNumber("Hopper/motionMagicJerk_rotPerSec3",
-            HopperConstants.MM_JERK.in(RotationsPerSecondPerSecond.per(Second)));
+        new LoggedTunableNumber("Hopper/motionMagicJerk_rotPerSec3", HopperConstants.MM_JERK_RPS3);
 
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Hopper",
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
-    private final MutAngularVelocity commandedVelocitySetpoint = RotationsPerSecond.mutable(0.0);
+    private double commandedVoltageSetpoint = 0.0;
+    private double commandedVelocitySetpointRPS = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -110,18 +100,20 @@ public class HopperSubsystem extends SubsystemBase {
         setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
-    public void setVoltage(Voltage volts) {
-        commandedVoltageSetpoint.mut_replace(
-            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
-            Volts);
+    public void setVoltage(double volts) {
+        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
         io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
     }
 
-    public void setVelocity(AngularVelocity velo) {
-        io.setVelocityOut(velo);
-        commandedVelocitySetpoint.mut_replace(velo);
-        setpointTracker.updateSetpoint(commandedVelocitySetpoint.in(RotationsPerSecond), MotorControlMode.Velocity);
+    private void setVoltage(Voltage volts) {
+        setVoltage(volts.in(Volts));
+    }
+
+    public void setVelocity(double velocityRPS) {
+        io.setVelocityOut(velocityRPS);
+        commandedVelocitySetpointRPS = velocityRPS;
+        setpointTracker.updateSetpoint(commandedVelocitySetpointRPS, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -133,7 +125,7 @@ public class HopperSubsystem extends SubsystemBase {
         if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
             return Optional.empty();
         }
-        return Optional.of(commandedVelocitySetpoint.isNear(inputs.velocity, HopperConstants.VELOCITY_TOLERANCE));
+        return Optional.of(Math.abs(commandedVelocitySetpointRPS - inputs.velocityRPS) <= HopperConstants.VELOCITY_TOLERANCE_RPS);
     }
 
     public void setHopperState(HopperIntake state) {
@@ -142,7 +134,7 @@ public class HopperSubsystem extends SubsystemBase {
                 setVelocity(HopperConstants.TARGET_RPS);
                 break;
             case BALL_OUT:
-                setVelocity(HopperConstants.TARGET_RPS.unaryMinus());
+                setVelocity(-HopperConstants.TARGET_RPS);
                 break;
             default:
                 stop();
@@ -162,7 +154,7 @@ public class HopperSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
 
-        double spinnerDeg = inputs.position.in(Degrees);
+        double spinnerDeg = inputs.positionRot * 360.0;
         for (int i = 0; i < HOPPER_VANES; i++) {
             vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
         }
@@ -174,10 +166,7 @@ public class HopperSubsystem extends SubsystemBase {
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
-            values -> io.updateMotionMagicConfig(
-                RotationsPerSecondPerSecond.of(values[0]),
-                RotationsPerSecond.of(values[1]),
-                RotationsPerSecondPerSecond.of(values[2]).per(Second)),
+            values -> io.updateMotionMagicConfig(values[0], values[1], values[2]),
             motionMagicAccel, motionMagicVelo, motionMagicJerk);
 
         LoggedTracer.record("Hopper");

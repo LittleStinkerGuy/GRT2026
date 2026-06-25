@@ -41,16 +41,16 @@ public class AutonShooterSequence extends Command {
     @Override
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
-        flywheel.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO);
-        hood.setPosition(SmashAndShootConstants.HOOD_POSITION);
-        pivot.setPosition(IntakeConstants.PIVOT_IN_POS);
+        flywheel.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO_RPS);
+        hood.setPosition(SmashAndShootConstants.HOOD_POSITION_ROT);
+        pivot.setPosition(IntakeConstants.PIVOT_IN_POS_ROT);
     }
 
     @Override
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets
-        flywheel.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO);
-        hood.setPosition(SmashAndShootConstants.HOOD_POSITION);
+        flywheel.setVelocity(SmashAndShootConstants.FLYWHEEL_VELO_RPS);
+        hood.setPosition(SmashAndShootConstants.HOOD_POSITION_ROT);
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
@@ -60,7 +60,7 @@ public class AutonShooterSequence extends Command {
             tower.stop();
             hopper.stop();
         }
-        pivot.setPosition(IntakeConstants.PIVOT_IN_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_IN_POS_ROT);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class AutonShooterSequence extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.stop();
-        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
+        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT);
         tower.stop();
         hopper.stop();
     }

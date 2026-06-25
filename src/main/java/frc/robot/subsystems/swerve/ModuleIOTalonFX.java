@@ -1,6 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import java.util.List;
 import java.util.Queue;
@@ -365,14 +364,14 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     @Override
     public void updateInputs(ModuleIOInputs inputs) {
-        inputs.drivePosition = drivePosition.getValue();
-        inputs.driveVelocity = driveVelocity.getValue();
-        inputs.driveAcceleration = driveAcceleration.getValue();
-        inputs.driveAppliedVoltage = driveAppliedVoltage.getValue();
-        inputs.driveSupplyCurrent = driveSupplyCurrent.getValue();
-        inputs.driveTorqueCurrent = driveTorqueCurrent.getValue();
-        inputs.driveStatorCurrent = driveStatorCurrent.getValue();
-        inputs.driveTemp = driveTemp.getValue();
+        inputs.drivePositionRot = drivePosition.getValueAsDouble();
+        inputs.driveVelocityRPS = driveVelocity.getValueAsDouble();
+        inputs.driveAccelerationRPS2 = driveAcceleration.getValueAsDouble();
+        inputs.driveAppliedVolts = driveAppliedVoltage.getValueAsDouble();
+        inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
+        inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
+        inputs.driveStatorCurrentAmps = driveStatorCurrent.getValueAsDouble();
+        inputs.driveTempC = driveTemp.getValueAsDouble();
         inputs.driveTempFault = driveTempFault.getValue();
         inputs.driveMotorConnected = BaseStatusSignal.isAllGood(driveSignals);
 
@@ -381,14 +380,14 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.driveClosedLoopSetpoint = driveClosedLoopSetpoint.getValue();
         inputs.driveClosedLoopOutput = driveClosedLoopOutput.getValue();
 
-        inputs.steerPosition = steerPosition.getValue();
-        inputs.steerVelocity = steerVelocity.getValue();
-        inputs.steerAcceleration = steerAcceleration.getValue();
-        inputs.steerAppliedVoltage = steerAppliedVoltage.getValue();
-        inputs.steerSupplyCurrent = steerSupplyCurrent.getValue();
-        inputs.steerTorqueCurrent = steerTorqueCurrent.getValue();
-        inputs.steerStatorCurrent = steerStatorCurrent.getValue();
-        inputs.steerTemp = steerTemp.getValue();
+        inputs.steerPositionRot = steerPosition.getValueAsDouble();
+        inputs.steerVelocityRPS = steerVelocity.getValueAsDouble();
+        inputs.steerAccelerationRPS2 = steerAcceleration.getValueAsDouble();
+        inputs.steerAppliedVolts = steerAppliedVoltage.getValueAsDouble();
+        inputs.steerSupplyCurrentAmps = steerSupplyCurrent.getValueAsDouble();
+        inputs.steerTorqueCurrentAmps = steerTorqueCurrent.getValueAsDouble();
+        inputs.steerStatorCurrentAmps = steerStatorCurrent.getValueAsDouble();
+        inputs.steerTempC = steerTemp.getValueAsDouble();
         inputs.steerTempFault = steerTempFault.getValue();
         inputs.steerMotorConnected = BaseStatusSignal.isAllGood(steerSignals);
 
@@ -397,7 +396,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         inputs.steerClosedLoopSetpoint = steerClosedLoopSetpoint.getValue();
         inputs.steerClosedLoopOutput = steerClosedLoopOutput.getValue();
 
-        inputs.encoderAbsolutePosition = cancoderAbsolutePosition.getValue();
+        inputs.encoderAbsolutePositionRot = cancoderAbsolutePosition.getValueAsDouble();
         inputs.encoderHealth = PhoenixUtil.toEncoderHealth(cancoderHealth.getValue());
         inputs.encoderConnected = BaseStatusSignal.isAllGood(cancoderSignals);
 
@@ -427,28 +426,28 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     @Override
-    public void setDriveVelocity(AngularVelocity velocity, Voltage feedforward) {
-        driveMotor.setControl(velocityControl.withVelocity(velocity).withFeedForward(feedforward));
+    public void setDriveVelocity(double velocityRPS, double feedforwardVolts) {
+        driveMotor.setControl(velocityControl.withVelocity(velocityRPS).withFeedForward(feedforwardVolts));
     }
 
     @Override
-    public void setDriveVelocity(AngularVelocity velocity) {
-        setDriveVelocity(velocity, Volts.of(0.0));
+    public void setDriveVelocity(double velocityRPS) {
+        setDriveVelocity(velocityRPS, 0.0);
     }
 
     @Override
-    public void setDriveVoltage(Voltage voltage) {
-        driveMotor.setControl(voltageControl.withOutput(voltage));
+    public void setDriveVoltage(double volts) {
+        driveMotor.setControl(voltageControl.withOutput(volts));
     }
 
     @Override
-    public void setSteerPosition(Angle rotation) {
-        steerMotor.setControl(positionControl.withPosition(rotation));
+    public void setSteerPosition(double positionRot) {
+        steerMotor.setControl(positionControl.withPosition(positionRot));
     }
 
     @Override
-    public void setSteerVoltage(Voltage voltage) {
-        steerMotor.setControl(voltageControl.withOutput(voltage));
+    public void setSteerVoltage(double volts) {
+        steerMotor.setControl(voltageControl.withOutput(volts));
     }
 
     @Override

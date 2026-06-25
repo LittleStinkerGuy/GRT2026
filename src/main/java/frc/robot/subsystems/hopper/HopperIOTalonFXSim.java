@@ -1,6 +1,5 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -50,11 +49,11 @@ public class HopperIOTalonFXSim extends HopperIOTalonFX {
     public void updateInputs(HopperIOInputs inputs) {
         motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
-        sim.setInputVoltage(motorSimState.getMotorVoltageMeasure().in(Volts));
+        sim.setInputVoltage(motorSimState.getMotorVoltage());
         sim.update(LOOP_PERIOD_SECONDS);
 
-        motorSimState.setRawRotorPosition(sim.getAngularPosition().times(HopperConstants.GEAR_REDUCTION));
-        motorSimState.setRotorVelocity(sim.getAngularVelocity().times(HopperConstants.GEAR_REDUCTION));
+        motorSimState.setRawRotorPosition(sim.getAngularPositionRotations() * HopperConstants.GEAR_REDUCTION);
+        motorSimState.setRotorVelocity((sim.getAngularVelocityRPM() / 60.0) * HopperConstants.GEAR_REDUCTION);
 
         super.updateInputs(inputs);
     }

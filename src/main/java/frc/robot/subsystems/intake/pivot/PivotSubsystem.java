@@ -1,8 +1,5 @@
 package frc.robot.subsystems.intake.pivot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
@@ -14,9 +11,6 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
@@ -49,8 +43,8 @@ public class PivotSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Position);
-    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
-    private final MutAngle commandedPositionSetpoint = Rotations.mutable(0.0);
+    private double commandedVoltageSetpoint = 0.0;
+    private double commandedPositionSetpointRot = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -120,23 +114,23 @@ public class PivotSubsystem extends SubsystemBase {
         setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
-    public void setVoltage(Voltage volts) {
-        commandedVoltageSetpoint.mut_replace(
-            MathUtil.clamp(volts.in(Volts), -12, 12),
-            Volts);
+    public void setVoltage(double volts) {
+        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
         io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
     }
 
-    public void setPosition(Angle position) {
-        commandedPositionSetpoint.mut_replace(
-            MathUtil.clamp(
-                position.in(Rotations),
-                IntakeConstants.PIVOT_REVERSE_LIMIT.in(Rotations),
-                IntakeConstants.PIVOT_FORWARD_LIMIT.in(Rotations)),
-            Rotations);
-        io.setPositionOut(commandedPositionSetpoint);
-        setpointTracker.updateSetpoint(commandedPositionSetpoint.in(Rotations), MotorControlMode.Position);
+    private void setVoltage(Voltage volts) {
+        setVoltage(volts.in(Volts));
+    }
+
+    public void setPosition(double positionRot) {
+        commandedPositionSetpointRot = MathUtil.clamp(
+            positionRot,
+            IntakeConstants.PIVOT_REVERSE_LIMIT_ROT,
+            IntakeConstants.PIVOT_FORWARD_LIMIT_ROT);
+        io.setPositionOut(commandedPositionSetpointRot);
+        setpointTracker.updateSetpoint(commandedPositionSetpointRot, MotorControlMode.Position);
     }
 
     public void stop() {
@@ -148,7 +142,8 @@ public class PivotSubsystem extends SubsystemBase {
         if (setpointTracker.getControlMode() != MotorControlMode.Position) {
             return Optional.empty();
         }
-        return Optional.of(commandedPositionSetpoint.isNear(inputs.position, IntakeConstants.PIVOT_POSITION_TOLERANCE));
+        return Optional.of(
+            Math.abs(commandedPositionSetpointRot - inputs.positionRot) <= IntakeConstants.PIVOT_POSITION_TOLERANCE_ROT);
     }
 
     @Override
@@ -163,9 +158,10 @@ public class PivotSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Pivot/atPositionSetpoint", atPositionSetpoint().orElse(false));
 
-        pivotMech.setAngle(inputs.encoderAbsolutePosition.in(Degrees));
+        pivotMech.setAngle(inputs.encoderAbsolutePositionRot * 360.0);
         wallRoot.setPosition(
-            PIVOT_ROOT_X + Units.inchesToMeters(getWallDistanceFromPivotRoot(inputs.encoderAbsolutePosition.in(Radians))),
+            PIVOT_ROOT_X + Units.inchesToMeters(getWallDistanceFromPivotRoot(
+                Units.rotationsToRadians(inputs.encoderAbsolutePositionRot))),
             PIVOT_ROOT_Y);
 
         LoggedTunableNumber.ifChanged(
@@ -190,21 +186,21 @@ public class PivotSubsystem extends SubsystemBase {
 
     public Command deployPivot() {
         return this.runOnce(() -> {
-            setPosition(IntakeConstants.PIVOT_OUT_POS);
+            setPosition(IntakeConstants.PIVOT_OUT_POS_ROT);
         });
     }
 
     public Command retractPivot() {
         return this.runOnce(() -> {
-            setPosition(IntakeConstants.PIVOT_IN_POS);
+            setPosition(IntakeConstants.PIVOT_IN_POS_ROT);
         });
     }
 
     public Command jigglePivot() {
         Command jigglePivotCommand = Commands.sequence(
-            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_OUT_POS)),
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_OUT_POS_ROT)),
             Commands.waitSeconds(3),
-            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_FORWARD_LIMIT)),
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_FORWARD_LIMIT_ROT)),
             Commands.waitSeconds(3)).repeatedly();
         jigglePivotCommand.addRequirements(this);
 
@@ -213,8 +209,8 @@ public class PivotSubsystem extends SubsystemBase {
 
     public Command holdPivotOut() {
         return this.startEnd(
-            () -> setPosition(IntakeConstants.PIVOT_OUT_POS),
-            () -> setPosition(IntakeConstants.PIVOT_IN_POS));
+            () -> setPosition(IntakeConstants.PIVOT_OUT_POS_ROT),
+            () -> setPosition(IntakeConstants.PIVOT_IN_POS_ROT));
     }
 
     public Command stopPivot() {

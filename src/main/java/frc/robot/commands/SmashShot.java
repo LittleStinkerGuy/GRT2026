@@ -25,7 +25,7 @@ public class SmashShot extends ManualShooterSequence {
             tower,
             hopper,
             pivot,
-            SmashAndShootConstants.HOOD_POSITION,
-            SmashAndShootConstants.FLYWHEEL_VELO);
+            SmashAndShootConstants.HOOD_POSITION_ROT,
+            SmashAndShootConstants.FLYWHEEL_VELO_RPS);
     }
 }

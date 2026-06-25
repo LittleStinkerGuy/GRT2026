@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
@@ -25,13 +23,13 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
 public class ManualShooterSequence extends Command {
 
     private final FlywheelSubsystem flywheel;
-    private final frc.robot.subsystems.shooter.hood.HoodSubsystem hood;
+    private final HoodSubsystem hood;
     private final TowerSubsystem tower;
     private final HopperSubsystem hopper;
     private final PivotSubsystem pivot;
 
-    private final Angle hoodPosition;
-    private final AngularVelocity flywheelVelo;
+    private final double hoodPositionRot;
+    private final double flywheelVeloRPS;
 
     private final Timer pivotTimer = new Timer();
     private boolean pivotIsIn = true;
@@ -43,15 +41,15 @@ public class ManualShooterSequence extends Command {
         TowerSubsystem tower,
         HopperSubsystem hopper,
         PivotSubsystem pivot,
-        Angle hoodPosition,
-        AngularVelocity flywheelVelo) {
+        double hoodPositionRot,
+        double flywheelVeloRPS) {
         this.flywheel = flywheel;
         this.hood = hood;
         this.tower = tower;
         this.hopper = hopper;
         this.pivot = pivot;
-        this.hoodPosition = hoodPosition;
-        this.flywheelVelo = flywheelVelo;
+        this.hoodPositionRot = hoodPositionRot;
+        this.flywheelVeloRPS = flywheelVeloRPS;
 
         addRequirements(flywheel, hood, tower, hopper, pivot);
     }
@@ -59,20 +57,20 @@ public class ManualShooterSequence extends Command {
     @Override
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
-        flywheel.setVelocity(flywheelVelo);
-        hood.setPosition(hoodPosition);
+        flywheel.setVelocity(flywheelVeloRPS);
+        hood.setPosition(hoodPositionRot);
         // Start with pivot out, wait the initial-delay before first toggle
         pivotIsIn = false;
         initialDelayDone = false;
-        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS_ROT);
         pivotTimer.restart();
     }
 
     @Override
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets (with live operator offsets)
-        flywheel.setVelocity(flywheelVelo);
-        hood.setPosition(hoodPosition);
+        flywheel.setVelocity(flywheelVeloRPS);
+        hood.setPosition(hoodPositionRot);
 
         if (!initialDelayDone) {
             if (pivotTimer.hasElapsed(SmashAndShootConstants.INITIAL_DELAY_SECONDS)) {
@@ -84,7 +82,7 @@ public class ManualShooterSequence extends Command {
             pivotIsIn = !pivotIsIn;
             pivotTimer.restart();
         }
-        pivot.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_UPPER : IntakeConstants.PIVOT_MID_LOWER);
+        pivot.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_UPPER_ROT : IntakeConstants.PIVOT_MID_LOWER_ROT);
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
@@ -104,9 +102,9 @@ public class ManualShooterSequence extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.stop();
-        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
+        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT);
         tower.stop();
         hopper.stop();
-        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
+        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS_ROT);
     }
 }

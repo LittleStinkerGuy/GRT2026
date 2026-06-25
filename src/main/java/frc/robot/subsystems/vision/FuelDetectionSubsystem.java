@@ -1,14 +1,6 @@
 package frc.robot.subsystems.vision;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Value;
-
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,13 +35,13 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         double yawDegrees,
         double pitchDegrees,
         double area,
-        Optional<Distance> distanceMeters) {}
+        Optional<Double> distanceM) {}
 
     private final PhotonCamera camera;
     private int pipelineIndex;
-    private final Distance cameraHeight;
-    private final Distance targetHeight;
-    private final Angle cameraPitch;
+    private final double cameraHeightM;
+    private final double targetHeightM;
+    private final double cameraPitchRad;
 
     private final String dashboardPrefix;
 
@@ -58,20 +50,20 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     private List<Detection> latestDetections = List.of();
     private Optional<Detection> bestDetection = Optional.empty();
 
-    private final Deque<Distance> distanceWindow = new ArrayDeque<>();
-    private Distance distanceWindowSum = Meters.of(0.0);
+    private final Deque<Double> distanceWindow = new ArrayDeque<>();
+    private double distanceWindowSumM = 0.0;
 
-    private final Deque<Distance> minDistanceWindow = new ArrayDeque<>();
-    private Distance minDistanceWindowSum = Meters.of(0.0);
+    private final Deque<Double> minDistanceWindow = new ArrayDeque<>();
+    private double minDistanceWindowSumM = 0.0;
 
-    private final Deque<Distance> maxDistanceWindow = new ArrayDeque<>();
-    private Distance maxDistanceWindowSum = Meters.of(0.0);
+    private final Deque<Double> maxDistanceWindow = new ArrayDeque<>();
+    private double maxDistanceWindowSumM = 0.0;
 
-    private Optional<Distance> filteredDistance = Optional.empty();
-    private Optional<Distance> filteredMinDistance = Optional.empty();
-    private Optional<Distance> filteredMaxDistance = Optional.empty();
-    private Optional<Time> latestTimestamp = Optional.empty();
-    private Optional<Time> startDecayTime = Optional.empty();
+    private Optional<Double> filteredDistanceM = Optional.empty();
+    private Optional<Double> filteredMinDistanceM = Optional.empty();
+    private Optional<Double> filteredMaxDistanceM = Optional.empty();
+    private Optional<Double> latestTimestampSec = Optional.empty();
+    private Optional<Double> startDecayTimeSec = Optional.empty();
 
     private enum DistanceSampleType {
         BEST,
@@ -81,7 +73,7 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
     /**
      * Creates the subsystem with a custom configuration.
-     * 
+     *
      * @param config user supplied configuration
      */
     public FuelDetectionSubsystem(FuelDetectionConfig config) {
@@ -89,9 +81,9 @@ public class FuelDetectionSubsystem extends SubsystemBase {
 
         camera = new PhotonCamera(config.cameraName());
         pipelineIndex = config.pipelineIndex();
-        cameraHeight = config.cameraHeight();
-        targetHeight = config.targetHeight();
-        cameraPitch = config.cameraPitch();
+        cameraHeightM = config.cameraHeightM();
+        targetHeightM = config.targetHeightM();
+        cameraPitchRad = config.cameraPitchRad();
         dashboardPrefix = "FuelDetection/" + config.cameraName() + "/";
         camera.setPipelineIndex(pipelineIndex);
     }
@@ -99,16 +91,16 @@ public class FuelDetectionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        Time timeNow = Seconds.of(Timer.getFPGATimestamp());
+        double timeNowSec = Timer.getFPGATimestamp();
 
         if (results.isEmpty()) {
-            applyDecayToFilteredValues(timeNow);
+            applyDecayToFilteredValues(timeNowSec);
             publishTelemetry();
             return;
         }
 
         for (PhotonPipelineResult result : results) {
-            handleResult(result, timeNow);
+            handleResult(result, timeNowSec);
         }
         publishTelemetry();
     }
@@ -158,7 +150,7 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         return getClosestDistance().isPresent();
     }
 
-    private void handleResult(PhotonPipelineResult result, Time robotTimestamp) {
+    private void handleResult(PhotonPipelineResult result, double robotTimestampSec) {
         List<Detection> processed = new ArrayList<>();
 
         if (result.hasTargets()) {
@@ -170,145 +162,140 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         latestDetections = List.copyOf(processed);
         if (processed.isEmpty()) {
             bestDetection = Optional.empty();
-            applyDecayToFilteredValues(robotTimestamp);
+            applyDecayToFilteredValues(robotTimestampSec);
         } else {
             bestDetection = processed.stream()
                 .max(Comparator.comparingDouble(Detection::area));
-            Optional<Distance> minDistance = findDistanceExtreme(processed, true);
-            Optional<Distance> maxDistance = findDistanceExtreme(processed, false);
+            Optional<Double> minDistance = findDistanceExtreme(processed, true);
+            Optional<Double> maxDistance = findDistanceExtreme(processed, false);
             bestDetection.ifPresentOrElse(
                 detection -> {
-                    recordDetectionForSmoothing(detection, minDistance, maxDistance, robotTimestamp);
+                    recordDetectionForSmoothing(detection, minDistance, maxDistance, robotTimestampSec);
                     detectionConsumer.accept(detection);
                 },
-                () -> applyDecayToFilteredValues(robotTimestamp));
+                () -> applyDecayToFilteredValues(robotTimestampSec));
         }
     }
 
     private Detection createDetection(double timestampSeconds, PhotonTrackedTarget target) {
-        Optional<Distance> distanceMeters = Optional.empty();
+        Optional<Double> distanceM = Optional.empty();
         double calculatedMeters = PhotonUtils.calculateDistanceToTargetMeters(
-            cameraHeight.in(Meters),
-            targetHeight.in(Meters),
-            cameraPitch.in(Radians),
+            cameraHeightM,
+            targetHeightM,
+            cameraPitchRad,
             Units.degreesToRadians(target.getPitch()));
         if (Double.isFinite(calculatedMeters)) {
-            distanceMeters = Optional.of(Meters.of(calculatedMeters));
+            distanceM = Optional.of(calculatedMeters);
         }
         return new Detection(
             timestampSeconds,
             target.getYaw(),
             target.getPitch(),
             target.getArea(),
-            distanceMeters);
+            distanceM);
     }
 
     private void recordDetectionForSmoothing(
         Detection detection,
-        Optional<Distance> minDistance,
-        Optional<Distance> maxDistance,
-        Time robotTimestamp) {
-        detection.distanceMeters().ifPresent(detectionDistance -> updateSmoothedDistance(DistanceSampleType.BEST, detectionDistance));
-        minDistance.ifPresent(distance -> updateSmoothedDistance(DistanceSampleType.MIN, distance));
-        maxDistance.ifPresent(distance -> updateSmoothedDistance(DistanceSampleType.MAX, distance));
-        latestTimestamp = Optional.of(Seconds.of(detection.timestampSeconds()));
-        startDecayTime = Optional.of(robotTimestamp.plus(VisionConstants.FUEL_DECAY_HOLD_TIME_SECONDS));
+        Optional<Double> minDistanceM,
+        Optional<Double> maxDistanceM,
+        double robotTimestampSec) {
+        detection.distanceM().ifPresent(detectionDistance -> updateSmoothedDistance(DistanceSampleType.BEST, detectionDistance));
+        minDistanceM.ifPresent(distance -> updateSmoothedDistance(DistanceSampleType.MIN, distance));
+        maxDistanceM.ifPresent(distance -> updateSmoothedDistance(DistanceSampleType.MAX, distance));
+        latestTimestampSec = Optional.of(detection.timestampSeconds());
+        startDecayTimeSec = Optional.of(robotTimestampSec + VisionConstants.FUEL_DECAY_HOLD_TIME_SEC);
     }
 
-    private void applyDecayToFilteredValues(Time timeNow) {
-        if (startDecayTime.isEmpty()) {
+    private void applyDecayToFilteredValues(double timeNowSec) {
+        if (startDecayTimeSec.isEmpty()) {
             resetFilteredState();
             return;
         }
-        Time decayStartTime = startDecayTime.get();
-        if (timeNow.lte(decayStartTime)) {
+        double decayStartTimeSec = startDecayTimeSec.get();
+        if (timeNowSec <= decayStartTimeSec) {
             return;
         }
 
-        Time elapsed = timeNow.minus(decayStartTime);
-        double decayProgress = Math.min(elapsed.div(VisionConstants.FUEL_DECAY_TIME_SECONDS).in(Value), 1.0);
+        double elapsedSec = timeNowSec - decayStartTimeSec;
+        double decayProgress = Math.min(elapsedSec / VisionConstants.FUEL_DECAY_TIME_SEC, 1.0);
         double scale = Math.max(0.0, 1.0 - decayProgress);
 
-        filteredDistance = filteredDistance.map(
-            distance -> Meters.of(distance.in(Meters) * scale));
-        filteredMinDistance = filteredMinDistance.map(
-            distance -> Meters.of(distance.in(Meters) * scale));
-        filteredMaxDistance = filteredMaxDistance.map(
-            distance -> Meters.of(distance.in(Meters) * scale));
+        filteredDistanceM = filteredDistanceM.map(distance -> distance * scale);
+        filteredMinDistanceM = filteredMinDistanceM.map(distance -> distance * scale);
+        filteredMaxDistanceM = filteredMaxDistanceM.map(distance -> distance * scale);
 
         if (decayProgress >= 1.0) {
             resetFilteredState();
-            startDecayTime = Optional.empty();
+            startDecayTimeSec = Optional.empty();
         }
     }
 
     private void resetFilteredState() {
-        filteredDistance = Optional.empty();
-        filteredMinDistance = Optional.empty();
-        filteredMaxDistance = Optional.empty();
-        latestTimestamp = Optional.empty();
+        filteredDistanceM = Optional.empty();
+        filteredMinDistanceM = Optional.empty();
+        filteredMaxDistanceM = Optional.empty();
+        latestTimestampSec = Optional.empty();
         distanceWindow.clear();
-        distanceWindowSum = Meters.of(0.0);
+        distanceWindowSumM = 0.0;
         minDistanceWindow.clear();
-        minDistanceWindowSum = Meters.of(0.0);
+        minDistanceWindowSumM = 0.0;
         maxDistanceWindow.clear();
-        maxDistanceWindowSum = Meters.of(0.0);
+        maxDistanceWindowSumM = 0.0;
     }
 
-    private Distance appendSample(Deque<Distance> window, Distance value, Distance currentSum) {
-        window.addLast(value);
-        double sumMeters = currentSum.in(Meters) + value.in(Meters);
+    private double appendSample(Deque<Double> window, double valueM, double currentSumM) {
+        window.addLast(valueM);
+        double sumMeters = currentSumM + valueM;
         if (window.size() > VisionConstants.FUEL_SMOOTHING_WINDOW_SIZE) {
-            sumMeters -= window.removeFirst().in(Meters);
+            sumMeters -= window.removeFirst();
         }
-        return Meters.of(sumMeters);
+        return sumMeters;
     }
 
-    private void updateSmoothedDistance(DistanceSampleType sampleType, Distance distance) {
+    private void updateSmoothedDistance(DistanceSampleType sampleType, double distanceM) {
         switch (sampleType) {
             case BEST -> {
-                distanceWindowSum = appendSample(distanceWindow, distance, distanceWindowSum);
-                double averageMeters = distanceWindowSum.in(Meters) / distanceWindow.size();
-                filteredDistance = Optional.of(Meters.of(averageMeters));
+                distanceWindowSumM = appendSample(distanceWindow, distanceM, distanceWindowSumM);
+                double averageMeters = distanceWindowSumM / distanceWindow.size();
+                filteredDistanceM = Optional.of(averageMeters);
             }
             case MIN -> {
-                minDistanceWindowSum = appendSample(minDistanceWindow, distance, minDistanceWindowSum);
-                double averageMeters = minDistanceWindowSum.in(Meters) / minDistanceWindow.size();
-                filteredMinDistance = Optional.of(Meters.of(averageMeters));
+                minDistanceWindowSumM = appendSample(minDistanceWindow, distanceM, minDistanceWindowSumM);
+                double averageMeters = minDistanceWindowSumM / minDistanceWindow.size();
+                filteredMinDistanceM = Optional.of(averageMeters);
             }
             case MAX -> {
-                maxDistanceWindowSum = appendSample(maxDistanceWindow, distance, maxDistanceWindowSum);
-                double averageMeters = maxDistanceWindowSum.in(Meters) / maxDistanceWindow.size();
-                filteredMaxDistance = Optional.of(Meters.of(averageMeters));
+                maxDistanceWindowSumM = appendSample(maxDistanceWindow, distanceM, maxDistanceWindowSumM);
+                double averageMeters = maxDistanceWindowSumM / maxDistanceWindow.size();
+                filteredMaxDistanceM = Optional.of(averageMeters);
             }
             default -> {
             }
         }
     }
 
-    private Optional<Distance> findDistanceExtreme(List<Detection> detections, boolean findMin) {
-        Distance bestDistance = null;
+    private Optional<Double> findDistanceExtreme(List<Detection> detections, boolean findMin) {
+        Double bestDistanceM = null;
         for (Detection detection : detections) {
-            Optional<Distance> distance = detection.distanceMeters();
+            Optional<Double> distance = detection.distanceM();
             if (distance.isEmpty()) {
                 continue;
             }
-            Distance candidate = distance.get();
-            if (bestDistance == null) {
-                bestDistance = candidate;
+            double candidateM = distance.get();
+            if (bestDistanceM == null) {
+                bestDistanceM = candidateM;
                 continue;
             }
-            double candidateMeters = candidate.in(Meters);
-            double bestMeters = bestDistance.in(Meters);
-            if (findMin ? candidateMeters < bestMeters : candidateMeters > bestMeters) {
-                bestDistance = candidate;
+            if (findMin ? candidateM < bestDistanceM : candidateM > bestDistanceM) {
+                bestDistanceM = candidateM;
             }
         }
-        return Optional.ofNullable(bestDistance);
+        return Optional.ofNullable(bestDistanceM);
     }
 
-    public Optional<Distance> getClosestDistance() {
-        return filteredMinDistance;
+    public Optional<Double> getClosestDistance() {
+        return filteredMinDistanceM;
     }
 
     private void publishTelemetry() {
@@ -321,23 +308,22 @@ public class FuelDetectionSubsystem extends SubsystemBase {
         SmartDashboard.putNumberArray(key("pitchSamples"), pitchSamples);
 
         double[] distanceSamples = latestDetections.stream()
-            .map(Detection::distanceMeters)
+            .map(Detection::distanceM)
             .filter(Optional::isPresent)
-            .map(Optional::get)
-            .mapToDouble(distance -> distance.in(Meters))
+            .mapToDouble(Optional::get)
             .toArray();
         SmartDashboard.putNumberArray(key("distanceSamples"), distanceSamples);
 
         SmartDashboard.putNumber(key("bestYawDeg"), bestDetection.orElse(EMPTY_DETECTION).yawDegrees());
         SmartDashboard.putNumber(key("bestPitchDeg"), bestDetection.orElse(EMPTY_DETECTION).pitchDegrees());
         SmartDashboard.putNumber(key("bestDistanceMeters"),
-            filteredDistance.orElse(Meters.of(Double.NaN)).in(Meters));
+            filteredDistanceM.orElse(Double.NaN));
         SmartDashboard.putNumber(key("minDistanceMeters"),
-            filteredMinDistance.orElse(Meters.of(Double.NaN)).in(Meters));
+            filteredMinDistanceM.orElse(Double.NaN));
         SmartDashboard.putNumber(key("maxDistanceMeters"),
-            filteredMaxDistance.orElse(Meters.of(Double.NaN)).in(Meters));
+            filteredMaxDistanceM.orElse(Double.NaN));
         SmartDashboard.putNumber(key("timestampSeconds"),
-            latestTimestamp.orElse(Seconds.of(Double.NaN)).in(Seconds));
+            latestTimestampSec.orElse(Double.NaN));
     }
 
     private String key(String suffix) {
@@ -350,23 +336,20 @@ public class FuelDetectionSubsystem extends SubsystemBase {
      */
     public static record FuelDetectionConfig(
         String cameraName,
-        Distance cameraHeight,
-        Distance targetHeight,
-        Angle cameraPitch,
+        double cameraHeightM,
+        double targetHeightM,
+        double cameraPitchRad,
         int pipelineIndex) {
         public FuelDetectionConfig {
             Objects.requireNonNull(cameraName, "cameraName is required");
-            Objects.requireNonNull(cameraHeight, "cameraHeight is required");
-            Objects.requireNonNull(targetHeight, "targetHeight is required");
-            Objects.requireNonNull(cameraPitch, "cameraPitch is required");
-            if (!Double.isFinite(cameraHeight.in(Meters))) {
-                throw new IllegalArgumentException("cameraHeight must be finite");
+            if (!Double.isFinite(cameraHeightM)) {
+                throw new IllegalArgumentException("cameraHeightM must be finite");
             }
-            if (!Double.isFinite(targetHeight.in(Meters))) {
-                throw new IllegalArgumentException("targetHeight must be finite");
+            if (!Double.isFinite(targetHeightM)) {
+                throw new IllegalArgumentException("targetHeightM must be finite");
             }
-            if (!Double.isFinite(cameraPitch.in(Radians))) {
-                throw new IllegalArgumentException("cameraPitch must be finite");
+            if (!Double.isFinite(cameraPitchRad)) {
+                throw new IllegalArgumentException("cameraPitchRad must be finite");
             }
         }
 
@@ -375,50 +358,50 @@ public class FuelDetectionSubsystem extends SubsystemBase {
          */
         public static FuelDetectionConfig defaultConfig(
             String cameraName,
-            Distance cameraHeight,
-            Distance targetHeight,
-            Angle cameraPitch) {
+            double cameraHeightM,
+            double targetHeightM,
+            double cameraPitchRad) {
             return new FuelDetectionConfig(
                 cameraName,
-                cameraHeight,
-                targetHeight,
-                cameraPitch,
+                cameraHeightM,
+                targetHeightM,
+                cameraPitchRad,
                 0);
         }
 
-        public FuelDetectionConfig withCameraHeight(Distance newCameraHeight) {
+        public FuelDetectionConfig withCameraHeight(double newCameraHeightM) {
             return new FuelDetectionConfig(
                 cameraName,
-                newCameraHeight,
-                targetHeight,
-                cameraPitch,
+                newCameraHeightM,
+                targetHeightM,
+                cameraPitchRad,
                 pipelineIndex);
         }
 
-        public FuelDetectionConfig withTargetHeight(Distance newTargetHeight) {
+        public FuelDetectionConfig withTargetHeight(double newTargetHeightM) {
             return new FuelDetectionConfig(
                 cameraName,
-                cameraHeight,
-                newTargetHeight,
-                cameraPitch,
+                cameraHeightM,
+                newTargetHeightM,
+                cameraPitchRad,
                 pipelineIndex);
         }
 
-        public FuelDetectionConfig withCameraPitch(Angle newCameraPitch) {
+        public FuelDetectionConfig withCameraPitch(double newCameraPitchRad) {
             return new FuelDetectionConfig(
                 cameraName,
-                cameraHeight,
-                targetHeight,
-                newCameraPitch,
+                cameraHeightM,
+                targetHeightM,
+                newCameraPitchRad,
                 pipelineIndex);
         }
 
         public FuelDetectionConfig withPipelineIndex(int newPipelineIndex) {
             return new FuelDetectionConfig(
                 cameraName,
-                cameraHeight,
-                targetHeight,
-                cameraPitch,
+                cameraHeightM,
+                targetHeightM,
+                cameraPitchRad,
                 newPipelineIndex);
         }
     }

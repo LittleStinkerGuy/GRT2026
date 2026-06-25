@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake.roller;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import java.util.Optional;
@@ -9,9 +8,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,19 +33,17 @@ public class RollerSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kA;
 
     private final LoggedTunableNumber inSpeed =
-        new LoggedTunableNumber("Roller/InSpeed_rps", IntakeConstants.ROLLER_IN_SPEED.abs(RotationsPerSecond));
+        new LoggedTunableNumber("Roller/InSpeed_rps", Math.abs(IntakeConstants.ROLLER_IN_SPEED_RPS));
     private final LoggedTunableNumber outSpeed =
-        new LoggedTunableNumber("Roller/OutSpeed_rps", IntakeConstants.ROLLER_OUT_SPEED.abs(RotationsPerSecond));
+        new LoggedTunableNumber("Roller/OutSpeed_rps", Math.abs(IntakeConstants.ROLLER_OUT_SPEED_RPS));
 
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Roller",
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
-    private final MutAngularVelocity commandedVelocitySetpoint = RotationsPerSecond.mutable(0.0);
-
-    private final MutAngularVelocity veloCommand = RotationsPerSecond.mutable(0.0);
+    private double commandedVoltageSetpoint = 0.0;
+    private double commandedVelocitySetpoint = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -88,18 +82,20 @@ public class RollerSubsystem extends SubsystemBase {
         setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
     }
 
-    public void setVoltage(Voltage volts) {
-        commandedVoltageSetpoint.mut_replace(
-            MathUtil.clamp(volts.in(Volts), -12.0, 12.0),
-            Volts);
+    public void setVoltage(double volts) {
+        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
         io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint.in(Volts), MotorControlMode.Voltage);
+        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
     }
 
-    public void setVelocity(AngularVelocity velo) {
-        io.setVelocityOut(velo);
-        commandedVelocitySetpoint.mut_replace(velo);
-        setpointTracker.updateSetpoint(commandedVelocitySetpoint.in(RotationsPerSecond), MotorControlMode.Velocity);
+    private void setVoltage(Voltage volts) {
+        setVoltage(volts.in(Volts));
+    }
+
+    public void setVelocity(double velocityRPS) {
+        io.setVelocityOut(velocityRPS);
+        commandedVelocitySetpoint = velocityRPS;
+        setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -111,7 +107,7 @@ public class RollerSubsystem extends SubsystemBase {
         if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
             return Optional.empty();
         }
-        return Optional.of(commandedVelocitySetpoint.isNear(inputs.velocity, RotationsPerSecond.of(5)));
+        return Optional.of(Math.abs(commandedVelocitySetpoint - inputs.velocityRPS) <= 5.0);
     }
 
     @Override
@@ -126,7 +122,7 @@ public class RollerSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Roller/atVelocitySetpoint", atSetpoint().orElse(false));
 
-        mechanism.setPosition(inputs.position);
+        mechanism.setPosition(inputs.positionRot);
 
         LoggedTunableNumber.ifChanged(
             hashCode(),
@@ -149,23 +145,13 @@ public class RollerSubsystem extends SubsystemBase {
 
     public Command runRollerIn() {
         return this.runEnd(
-            () -> {
-                veloCommand.mut_replace(
-                    Math.abs(inSpeed.get()),
-                    RotationsPerSecond);
-                setVelocity(veloCommand);
-            },
+            () -> setVelocity(Math.abs(inSpeed.get())),
             this::stop);
     }
 
     public Command runRollerOut() {
         return this.runEnd(
-            () -> {
-                veloCommand.mut_replace(
-                    -Math.abs(outSpeed.get()),
-                    RotationsPerSecond);
-                setVelocity(veloCommand);
-            },
+            () -> setVelocity(-Math.abs(outSpeed.get())),
             this::stop);
     }
 

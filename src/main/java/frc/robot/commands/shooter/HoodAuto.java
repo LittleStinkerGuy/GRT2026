@@ -1,6 +1,5 @@
 package frc.robot.commands.shooter;
 
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -29,33 +28,33 @@ public class HoodAuto extends Command {
 
     @Override
     public void execute() {
-        double angle;
+        double angleRot;
 
         if (redTeam) {
             if (poseSub.get().getX() > AlignConstants.RED_WALL_X) {
-                angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
+                angleRot = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_HUB_TRANS));
             } else {
                 if (poseSub.get().getY() > AlignConstants.HUB_Y) {
-                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_TOP));
+                    angleRot = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_TOP));
                 } else {
-                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_BOTTOM));
+                    angleRot = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.RED_AIM_BOTTOM));
                 }
             }
 
         } else {
             if (poseSub.get().getX() < AlignConstants.BLUE_WALL_X) {
-                angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
+                angleRot = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_HUB_TRANS));
             } else {
                 if (poseSub.get().getY() > AlignConstants.HUB_Y) {
-                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_TOP));
+                    angleRot = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_TOP));
                 } else {
-                    angle = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_BOTTOM));
+                    angleRot = tableThing.getAngle(poseSub.get().getTranslation().getDistance(AlignConstants.BLUE_AIM_BOTTOM));
                 }
             }
         }
 
-        System.out.println("hood angle: " + angle);
-        hood.setPosition(Rotations.of(angle));
+        System.out.println("hood angle: " + angleRot);
+        hood.setPosition(angleRot);
 
     }
 

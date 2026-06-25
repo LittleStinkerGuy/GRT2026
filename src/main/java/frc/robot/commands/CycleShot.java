@@ -8,8 +8,6 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -28,19 +26,19 @@ public class CycleShot extends Command {
     private final TowerSubsystem tower;
     private final HopperSubsystem hopper;
 
-    private final DoubleSupplier flywheelVelo;
+    private final DoubleSupplier flywheelVeloRPS;
 
     public CycleShot(
         FlywheelSubsystem flywheel,
         HoodSubsystem hood,
         TowerSubsystem tower,
         HopperSubsystem hopper,
-        DoubleSupplier flyWheelVeloSupplier) {
+        DoubleSupplier flyWheelVeloRPSSupplier) {
         this.flywheel = flywheel;
         this.hood = hood;
         this.tower = tower;
         this.hopper = hopper;
-        this.flywheelVelo = flyWheelVeloSupplier;
+        this.flywheelVeloRPS = flyWheelVeloRPSSupplier;
 
         addRequirements(flywheel, hood, tower, hopper);
     }
@@ -48,15 +46,15 @@ public class CycleShot extends Command {
     @Override
     public void initialize() {
         // Start ramping FlywheelSubsystem and moving hood to position
-        flywheel.setVelocity(RotationsPerSecond.of(flywheelVelo.getAsDouble()));
-        hood.setPosition(CycleShooterConstants.HOOD_POSITION);
+        flywheel.setVelocity(flywheelVeloRPS.getAsDouble());
+        hood.setPosition(CycleShooterConstants.HOOD_POSITION_ROT);
     }
 
     @Override
     public void execute() {
         // Keep commanding FlywheelSubsystem and hood targets (with live operator offsets)
-        flywheel.setVelocity(RotationsPerSecond.of(flywheelVelo.getAsDouble()));
-        hood.setPosition(CycleShooterConstants.HOOD_POSITION);
+        flywheel.setVelocity(flywheelVeloRPS.getAsDouble());
+        hood.setPosition(CycleShooterConstants.HOOD_POSITION_ROT);
 
         // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
         if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
@@ -76,7 +74,7 @@ public class CycleShot extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.stop();
-        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
+        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT);
         tower.stop();
         hopper.stop();
     }
