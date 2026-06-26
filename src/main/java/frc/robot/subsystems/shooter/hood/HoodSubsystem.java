@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.ShooterConstants.Hood;
 import frc.robot.util.ComponentStatus.MotorControlMode;
 import frc.robot.util.LoggedSetpointTracker;
 import frc.robot.util.LoggedTracer;
@@ -105,8 +105,8 @@ public class HoodSubsystem extends SubsystemBase {
     public void setPosition(double positionRot) {
         commandedPositionSetpointRot = MathUtil.clamp(
             positionRot,
-            ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT,
-            ShooterConstants.Hood.UPPER_ANGLE_LIMIT_ROT);
+            Hood.LOWER_ANGLE_LIMIT_ROT,
+            Hood.UPPER_ANGLE_LIMIT_ROT);
 
         io.setPositionOut(commandedPositionSetpointRot);
         setpointTracker.updateSetpoint(commandedPositionSetpointRot, MotorControlMode.Position);
@@ -122,7 +122,7 @@ public class HoodSubsystem extends SubsystemBase {
             return Optional.empty();
         }
         return Optional.of(
-            Math.abs(commandedPositionSetpointRot - inputs.positionRot) <= ShooterConstants.Hood.ANGLE_TOLERANCE_ROT);
+            Math.abs(commandedPositionSetpointRot - inputs.positionRot) <= Hood.ANGLE_TOLERANCE_ROT);
     }
 
     public double getPosition() {
@@ -174,19 +174,19 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public Command hideHood() {
-        return this.runOnce(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT))
+        return this.runOnce(() -> setPosition(Hood.LOWER_ANGLE_LIMIT_ROT))
             .andThen(Commands.waitUntil(() -> atPositionSetpoint().orElse(false)));
     }
 
     public Command holdDownHood() {
-        return this.run(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT_ROT));
+        return this.run(() -> setPosition(Hood.LOWER_ANGLE_LIMIT_ROT));
     }
 
     public Command jiggleHood() {
         // Jiggle within the middle 50% of the hood's travel range.
-        Angle range = ShooterConstants.Hood.UPPER_ANGLE_LIMIT.minus(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
-        Angle lowPos = ShooterConstants.Hood.LOWER_ANGLE_LIMIT.plus(range.times(0.25));
-        Angle highPos = ShooterConstants.Hood.LOWER_ANGLE_LIMIT.plus(range.times(0.75));
+        double range = Hood.UPPER_ANGLE_LIMIT_ROT - Hood.LOWER_ANGLE_LIMIT_ROT;
+        double lowPos = Hood.LOWER_ANGLE_LIMIT_ROT + range * 0.25;
+        double highPos = Hood.LOWER_ANGLE_LIMIT_ROT + range * 0.25;
 
         Command jiggleHoodCommand = Commands.sequence(
             this.runOnce(() -> setPosition(highPos)),

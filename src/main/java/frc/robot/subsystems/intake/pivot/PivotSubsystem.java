@@ -199,9 +199,9 @@ public class PivotSubsystem extends SubsystemBase {
     public Command jigglePivot() {
         Command jigglePivotCommand = Commands.sequence(
             this.runOnce(() -> setPosition(IntakeConstants.PIVOT_OUT_POS_ROT)),
-            Commands.waitSeconds(3),
+            Commands.waitSeconds(0.5),
             this.runOnce(() -> setPosition(IntakeConstants.PIVOT_FORWARD_LIMIT_ROT)),
-            Commands.waitSeconds(3)).repeatedly();
+            Commands.waitSeconds(0.5)).repeatedly();
         jigglePivotCommand.addRequirements(this);
 
         return jigglePivotCommand;
