@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
@@ -154,7 +155,7 @@ public class HopperSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
 
-        double spinnerDeg = inputs.positionRot * 360.0;
+        double spinnerDeg = Units.rotationsToDegrees(inputs.positionRot);
         for (int i = 0; i < HOPPER_VANES; i++) {
             vaneLigaments[i].setAngle(spinnerDeg + i * (360.0 / HOPPER_VANES));
         }

@@ -122,7 +122,6 @@ public class RobotContainer {
     private UsbCamera driverCam;
 
     private double desiredHoodSpeed = 0;
-    private double flywheelManualVeloCommand = 0.0;
     // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
     // VisionConstants.CAMERA_CONFIG_11);
 
@@ -351,7 +350,7 @@ public class RobotContainer {
             // Left stick Y = hood manual control
             flywheel.setDefaultCommand(Commands.run(() -> {
                 if (DriverStation.isJoystickConnected(1)) {
-                    flywheelManualVeloCommand = (mechController.getR2Axis()) / 3;
+                    double flywheelManualVeloCommand = (mechController.getR2Axis()) / 3;
                     flywheel.setVelocity(flywheelManualVeloCommand);
                 } else {
                     flywheel.stop();
@@ -396,7 +395,7 @@ public class RobotContainer {
                 hood,
                 tower,
                 hopper,
-                cycleFlywheelOffsetGetter));
+                () -> cycleFlywheelVelo));
 
             // Touchpad = tower shoot preset
             mechController.triangle().whileTrue(new TowerShot(

@@ -158,7 +158,7 @@ public class PivotSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Pivot/atPositionSetpoint", atPositionSetpoint().orElse(false));
 
-        pivotMech.setAngle(inputs.encoderAbsolutePositionRot * 360.0);
+        pivotMech.setAngle(Units.rotationsToDegrees(inputs.encoderAbsolutePositionRot));
         wallRoot.setPosition(
             PIVOT_ROOT_X + Units.inchesToMeters(getWallDistanceFromPivotRoot(
                 Units.rotationsToRadians(inputs.encoderAbsolutePositionRot))),

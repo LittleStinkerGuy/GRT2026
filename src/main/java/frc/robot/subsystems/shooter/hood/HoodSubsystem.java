@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
@@ -140,7 +141,7 @@ public class HoodSubsystem extends SubsystemBase {
         setpointTracker.logAll();
         Logger.recordOutput("Hood/atPositionSetpoint", atPositionSetpoint().orElse(false));
 
-        hoodMech.setAngle(inputs.positionRot * 360.0);
+        hoodMech.setAngle(Units.rotationsToDegrees(inputs.positionRot));
 
         LoggedTunableNumber.ifChanged(
             hashCode(),

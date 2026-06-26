@@ -3,6 +3,7 @@ package frc.robot.util;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
@@ -54,6 +55,6 @@ public class RollerMechanism2D {
     }
 
     public void setPosition(double positionRot) {
-        spike.setAngle(positionRot * 360.0);
+        spike.setAngle(Units.rotationsToDegrees(positionRot));
     }
 }
