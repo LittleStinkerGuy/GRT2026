@@ -74,18 +74,6 @@ public class PivotIOTalonFX implements PivotIO {
     private final GatedAlert didNotOptimizeCancoderCANAlert = new GatedAlert(CANCODER_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning, () -> encoderConnected);
     private final GatedAlert pidNotSetAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning, () -> motorConnected);
 
-    private final List<GatedAlert> motorAlerts = List.of(
-        failedToSetMotorSignalFrequencyAlert,
-        failedToConfigureMotorAlert,
-        didNotOptimizeMotorCANAlert,
-        pidNotSetAlert);
-
-    private final List<GatedAlert> encoderAlerts = List.of(
-        cancoderConfigRefreshAlert,
-        cancoderConfigAlert,
-        failedToSetCancoderSignalFrequencyAlert,
-        didNotOptimizeCancoderCANAlert);
-
     private final List<BaseStatusSignal> motorSignals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
@@ -271,16 +259,10 @@ public class PivotIOTalonFX implements PivotIO {
     private void refreshMotorAlerts(boolean connected) {
         motorConnected = connected;
         motorDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : motorAlerts) {
-            alert.push();
-        }
     }
 
     private void refreshEncoderAlerts(boolean connected) {
         encoderConnected = connected;
         encoderDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : encoderAlerts) {
-            alert.push();
-        }
     }
 }

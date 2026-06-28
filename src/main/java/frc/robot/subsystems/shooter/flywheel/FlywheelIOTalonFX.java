@@ -70,17 +70,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     private final GatedAlert pidNotSetAlert = new GatedAlert(LEADER_ALERT_PREFIX + "PID was not saved", AlertType.kWarning, () -> leaderConnected);
     private final GatedAlert mmNotSetAlert = new GatedAlert(LEADER_ALERT_PREFIX + "Motion Magic configs were not saved", AlertType.kWarning, () -> leaderConnected);
 
-    private final List<GatedAlert> leaderAlerts = List.of(
-        failedToSetFrequencyAlert,
-        failedToConfigureLeaderAlert,
-        didNotOptimizeCANAlert,
-        pidNotSetAlert,
-        mmNotSetAlert);
-
-    private final List<GatedAlert> followerAlerts = List.of(
-        failedToConfigureFollowerAlert,
-        failedToSetFollowerAlert);
-
     private final List<BaseStatusSignal> signals;
 
     private final StatusSignal<Angle> position;
@@ -263,16 +252,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     private void refreshLeaderAlerts(boolean connected) {
         leaderConnected = connected;
         leaderDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : leaderAlerts) {
-            alert.push();
-        }
     }
 
     private void refreshFollowerAlerts(boolean connected) {
         followerConnected = connected;
         followerDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : followerAlerts) {
-            alert.push();
-        }
     }
 }

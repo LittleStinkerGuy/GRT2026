@@ -75,6 +75,5 @@ public class GyroIOPigeon2 implements GyroIO {
     private void refreshPigeonAlerts(boolean connected) {
         pigeonConnected = connected;
         pigeonDisconnectedAlert.set(!connected);
-        failedToConfigureAlert.push();
     }
 }

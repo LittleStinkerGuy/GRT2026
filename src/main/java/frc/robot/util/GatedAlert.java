@@ -1,6 +1,7 @@
 package frc.robot.util;
 
 import edu.wpi.first.wpilibj.Alert;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -14,18 +15,22 @@ import java.util.function.BooleanSupplier;
  * reopening the gate restores any still-valid alerts.
  *
  * <p>
- * The owner must call {@link #push()} when the gate state changes, since the gate is
- * polled, not observed. In practice this means the gate should only be flipped by the same
- * code that calls {@link #push()} immediately afterward — otherwise alerts can lag by a
- * frame (or stay stuck across a missed flip).
+ * Every instance self-registers, and {@link #pushAll()} re-evaluates every gate. Call it once
+ * per loop (see {@code Robot.robotPeriodic}) so gates are polled automatically — a gate flip
+ * then takes effect within one loop and a missed flip can never get stuck. {@link #push()}
+ * remains available for callers that want a same-loop update after flipping a gate, but it is
+ * no longer required for correctness.
  */
 public class GatedAlert extends Alert {
+    private static final CopyOnWriteArrayList<GatedAlert> registry = new CopyOnWriteArrayList<>();
+
     private final BooleanSupplier gate;
     private boolean actualValue = false;
 
     public GatedAlert(String message, AlertType type, BooleanSupplier gate) {
         super(message, type);
         this.gate = gate;
+        registry.add(this);
     }
 
     @Override
@@ -37,5 +42,10 @@ public class GatedAlert extends Alert {
     /** Re-evaluate against the current gate state without changing the underlying raised state. */
     public void push() {
         super.set(actualValue && gate.getAsBoolean());
+    }
+
+    /** Re-evaluate every {@link GatedAlert}'s gate. Call once per loop. */
+    public static void pushAll() {
+        registry.forEach(GatedAlert::push);
     }
 }

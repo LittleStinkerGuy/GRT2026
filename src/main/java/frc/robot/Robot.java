@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBehavior;
 import com.ctre.phoenix6.SignalLogger;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import frc.robot.util.GatedAlert;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
@@ -104,6 +105,8 @@ public class Robot extends LoggedRobot {
         LoggedTracer.record("Commands");
         LoggedCanivore.updateCanivoreStatuses();
         LoggedTracer.record("Canivore");
+        GatedAlert.pushAll();
+        LoggedTracer.record("Alerts");
     }
 
     /** This function is called once each time the robot enters Disabled mode. */

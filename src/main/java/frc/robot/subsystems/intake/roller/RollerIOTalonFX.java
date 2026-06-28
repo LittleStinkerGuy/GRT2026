@@ -56,12 +56,6 @@ public class RollerIOTalonFX implements RollerIO {
     private final GatedAlert didNotOptimizeCANAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "Didn't optimize CAN", AlertType.kWarning, () -> motorConnected);
     private final GatedAlert pidNotSetAlert = new GatedAlert(MOTOR_ALERT_PREFIX + "PID was not saved", AlertType.kWarning, () -> motorConnected);
 
-    private final List<GatedAlert> motorAlerts = List.of(
-        failedToSetFrequencyAlert,
-        failedToConfigureMotorAlert,
-        didNotOptimizeCANAlert,
-        pidNotSetAlert);
-
     private final List<BaseStatusSignal> signals;
     private final StatusSignal<Angle> position;
     private final StatusSignal<AngularVelocity> velocity;
@@ -190,8 +184,5 @@ public class RollerIOTalonFX implements RollerIO {
     private void refreshMotorAlerts(boolean connected) {
         motorConnected = connected;
         motorDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : motorAlerts) {
-            alert.push();
-        }
     }
 }

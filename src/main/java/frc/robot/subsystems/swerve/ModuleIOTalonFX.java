@@ -122,10 +122,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final Alert failedToSetOdometrySignalFrequencyAlert;
     private final Alert didNotOptimizeCanBusesAlert;
 
-    private final List<GatedAlert> driveAlerts;
-    private final List<GatedAlert> steerAlerts;
-    private final List<GatedAlert> encoderAlerts;
-
     public ModuleIOTalonFX(SwerveModule module, int driveMotorID, int steerMotorID, int cancoderID, LoggedCanivore canivore, PIDConstants drivePID, PIDConstants steerPID) {
         this.module = module;
         this.defaultDrivePID = drivePID;
@@ -191,19 +187,6 @@ public class ModuleIOTalonFX implements ModuleIO {
         didNotOptimizeCanBusesAlert = new Alert(
             modulePrefix + "Failed to optimize CAN",
             AlertType.kWarning);
-
-        driveAlerts = List.of(
-            failedToConfigureDrive,
-            failedToSetDriveFrequencyAlert,
-            drivePIDNotSetAlert);
-        steerAlerts = List.of(
-            failedToConfigureSteer,
-            failedToSetSteerFrequencyAlert,
-            steerPIDNotSetAlert);
-        encoderAlerts = List.of(
-            cancoderConfigRefreshAlert,
-            cancoderConfigAlert,
-            failedToSetCancoderSignalFrequencyAlert);
 
         driveMotor = new TalonFX(driveMotorID, canivore);
         steerMotor = new TalonFX(steerMotorID, canivore);
@@ -475,24 +458,15 @@ public class ModuleIOTalonFX implements ModuleIO {
     private void refreshDriveAlerts(boolean connected) {
         driveConnected = connected;
         driveDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : driveAlerts) {
-            alert.push();
-        }
     }
 
     private void refreshSteerAlerts(boolean connected) {
         steerConnected = connected;
         steerDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : steerAlerts) {
-            alert.push();
-        }
     }
 
     private void refreshEncoderAlerts(boolean connected) {
         encoderConnected = connected;
         encoderDisconnectedAlert.set(!connected);
-        for (GatedAlert alert : encoderAlerts) {
-            alert.push();
-        }
     }
 }
