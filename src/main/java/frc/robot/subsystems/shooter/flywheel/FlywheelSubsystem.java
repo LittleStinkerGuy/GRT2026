@@ -43,6 +43,10 @@ public class FlywheelSubsystem extends SubsystemBase {
     private final LoggedTunableNumber motionMagicJerk =
         new LoggedTunableNumber("Flywheel/motionMagicJerk_rotPerSec3", ShooterConstants.Flywheel.MM_JERK_RPS3);
 
+    private final LoggedTunableNumber.Watcher pidWatcher;
+    private final LoggedTunableNumber.Watcher motionMagicWatcher =
+        LoggedTunableNumber.watch(motionMagicAccel, motionMagicVelo, motionMagicJerk);
+
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Flywheel",
         MotorControlMode.DutyCycle,
@@ -67,6 +71,7 @@ public class FlywheelSubsystem extends SubsystemBase {
         kS = new LoggedTunableNumber("Flywheel/kS", pid.kS());
         kV = new LoggedTunableNumber("Flywheel/kV", pid.kV());
         kA = new LoggedTunableNumber("Flywheel/kA", pid.kA());
+        pidWatcher = LoggedTunableNumber.watch(kP, kI, kD, kS, kV, kA);
 
         io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
 
@@ -134,15 +139,11 @@ public class FlywheelSubsystem extends SubsystemBase {
 
         mechanism.setPosition(inputs.positionRot);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
-            kP, kI, kD, kS, kV, kA);
+        pidWatcher.ifChanged(
+            () -> io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get()));
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updateMotionMagicConfig(values[0], values[1], values[2]),
-            motionMagicAccel, motionMagicVelo, motionMagicJerk);
+        motionMagicWatcher.ifChanged(
+            () -> io.updateMotionMagicConfig(motionMagicAccel.get(), motionMagicVelo.get(), motionMagicJerk.get()));
 
         LoggedTracer.record("Flywheel");
     }

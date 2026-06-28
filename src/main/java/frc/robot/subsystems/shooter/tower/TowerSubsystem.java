@@ -40,6 +40,10 @@ public class TowerSubsystem extends SubsystemBase {
     private final LoggedTunableNumber motionMagicJerk =
         new LoggedTunableNumber("Tower/motionMagicJerk_rotPerSec3", TowerConstants.MM_JERK_RPS3);
 
+    private final LoggedTunableNumber.Watcher pidWatcher;
+    private final LoggedTunableNumber.Watcher motionMagicWatcher =
+        LoggedTunableNumber.watch(motionMagicAccel, motionMagicVelo, motionMagicJerk);
+
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Tower",
         MotorControlMode.DutyCycle,
@@ -64,6 +68,7 @@ public class TowerSubsystem extends SubsystemBase {
         kS = new LoggedTunableNumber("Tower/kS", pid.kS());
         kV = new LoggedTunableNumber("Tower/kV", pid.kV());
         kA = new LoggedTunableNumber("Tower/kA", pid.kA());
+        pidWatcher = LoggedTunableNumber.watch(kP, kI, kD, kS, kV, kA);
 
         io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
 
@@ -144,15 +149,11 @@ public class TowerSubsystem extends SubsystemBase {
 
         mechanism.setPosition(inputs.positionRot);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
-            kP, kI, kD, kS, kV, kA);
+        pidWatcher.ifChanged(
+            () -> io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get()));
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updateMotionMagicConfig(values[0], values[1], values[2]),
-            motionMagicAccel, motionMagicVelo, motionMagicJerk);
+        motionMagicWatcher.ifChanged(
+            () -> io.updateMotionMagicConfig(motionMagicAccel.get(), motionMagicVelo.get(), motionMagicJerk.get()));
 
         LoggedTracer.record("Tower");
     }

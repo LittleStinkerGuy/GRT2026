@@ -26,6 +26,10 @@ public class SingleModule {
     private final LoggedTunableNumber steerKS;
     private final LoggedTunableNumber steerKV;
 
+    private final LoggedTunableNumber.Watcher drivePIDWatcher;
+    private final LoggedTunableNumber.Watcher driveFeedforwardWatcher;
+    private final LoggedTunableNumber.Watcher steerPIDWatcher;
+
     private SimpleMotorFeedforward driveFeedforwardModel;
 
     private double commandedDriveFeedforwardVolts = 0.0;
@@ -54,6 +58,10 @@ public class SingleModule {
         steerKD = new LoggedTunableNumber(tableKey + "/Steer/kD", steerPID.kD());
         steerKS = new LoggedTunableNumber(tableKey + "/Steer/kS", steerPID.kS());
         steerKV = new LoggedTunableNumber(tableKey + "/Steer/kV", steerPID.kV());
+
+        drivePIDWatcher = LoggedTunableNumber.watch(driveKP, driveKI, driveKD);
+        driveFeedforwardWatcher = LoggedTunableNumber.watch(driveKS, driveKV);
+        steerPIDWatcher = LoggedTunableNumber.watch(steerKP, steerKI, steerKD, steerKS, steerKV);
 
         io.setDrivePID(driveKP.get(), driveKI.get(), driveKD.get());
         io.setSteerPID(steerKP.get(), steerKI.get(), steerKD.get(), steerKS.get(), steerKV.get());
@@ -96,20 +104,14 @@ public class SingleModule {
         io.updateInputs(inputs);
         Logger.processInputs("Swerve/" + io.getModule().toKey(), inputs);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.setDrivePID(values[0], values[1], values[2]),
-            driveKP, driveKI, driveKD);
+        drivePIDWatcher.ifChanged(
+            () -> io.setDrivePID(driveKP.get(), driveKI.get(), driveKD.get()));
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> driveFeedforwardModel = new SimpleMotorFeedforward(values[0], values[1]),
-            driveKS, driveKV);
+        driveFeedforwardWatcher.ifChanged(
+            () -> driveFeedforwardModel = new SimpleMotorFeedforward(driveKS.get(), driveKV.get()));
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.setSteerPID(values[0], values[1], values[2], values[3], values[4]),
-            steerKP, steerKI, steerKD, steerKS, steerKV);
+        steerPIDWatcher.ifChanged(
+            () -> io.setSteerPID(steerKP.get(), steerKI.get(), steerKD.get(), steerKS.get(), steerKV.get()));
     }
 
 }

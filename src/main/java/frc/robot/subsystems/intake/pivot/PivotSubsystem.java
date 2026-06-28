@@ -38,6 +38,8 @@ public class PivotSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kV;
     private final LoggedTunableNumber kA;
 
+    private final LoggedTunableNumber.Watcher pidWatcher;
+
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Pivot",
         MotorControlMode.DutyCycle,
@@ -93,6 +95,7 @@ public class PivotSubsystem extends SubsystemBase {
         kG = new LoggedTunableNumber("Pivot/kG", pid.kG());
         kV = new LoggedTunableNumber("Pivot/kV", pid.kV());
         kA = new LoggedTunableNumber("Pivot/kA", pid.kA());
+        pidWatcher = LoggedTunableNumber.watch(kP, kI, kD, kS, kG, kV, kA);
 
         io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kG.get(), kV.get(), kA.get());
 
@@ -164,10 +167,8 @@ public class PivotSubsystem extends SubsystemBase {
                 Units.rotationsToRadians(inputs.encoderAbsolutePositionRot))),
             PIVOT_ROOT_Y);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5], values[6]),
-            kP, kI, kD, kS, kG, kV, kA);
+        pidWatcher.ifChanged(
+            () -> io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kG.get(), kV.get(), kA.get()));
 
         LoggedTracer.record("Pivot");
     }

@@ -37,6 +37,8 @@ public class RollerSubsystem extends SubsystemBase {
     private final LoggedTunableNumber outSpeed =
         new LoggedTunableNumber("Roller/OutSpeed_rps", Math.abs(IntakeConstants.ROLLER_OUT_SPEED_RPS));
 
+    private final LoggedTunableNumber.Watcher pidWatcher;
+
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Roller",
         MotorControlMode.DutyCycle,
@@ -61,6 +63,7 @@ public class RollerSubsystem extends SubsystemBase {
         kS = new LoggedTunableNumber("Roller/kS", pid.kS());
         kV = new LoggedTunableNumber("Roller/kV", pid.kV());
         kA = new LoggedTunableNumber("Roller/kA", pid.kA());
+        pidWatcher = LoggedTunableNumber.watch(kP, kI, kD, kS, kV, kA);
 
         io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
 
@@ -124,10 +127,8 @@ public class RollerSubsystem extends SubsystemBase {
 
         mechanism.setPosition(inputs.positionRot);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
-            kP, kI, kD, kS, kV, kA);
+        pidWatcher.ifChanged(
+            () -> io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get()));
 
         LoggedTracer.record("Roller");
     }

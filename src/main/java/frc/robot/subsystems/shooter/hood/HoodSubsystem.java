@@ -40,6 +40,8 @@ public class HoodSubsystem extends SubsystemBase {
     private final LoggedTunableNumber kV;
     private final LoggedTunableNumber kA;
 
+    private final LoggedTunableNumber.Watcher pidWatcher;
+
     private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
         "Hood",
         MotorControlMode.DutyCycle,
@@ -71,6 +73,7 @@ public class HoodSubsystem extends SubsystemBase {
         kS = new LoggedTunableNumber("Hood/kS", pid.kS());
         kV = new LoggedTunableNumber("Hood/kV", pid.kV());
         kA = new LoggedTunableNumber("Hood/kA", pid.kA());
+        pidWatcher = LoggedTunableNumber.watch(kP, kI, kD, kS, kV, kA);
 
         io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get());
 
@@ -143,10 +146,8 @@ public class HoodSubsystem extends SubsystemBase {
 
         hoodMech.setAngle(Units.rotationsToDegrees(inputs.positionRot));
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(),
-            values -> io.updatePID(values[0], values[1], values[2], values[3], values[4], values[5]),
-            kP, kI, kD, kS, kV, kA);
+        pidWatcher.ifChanged(
+            () -> io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get()));
 
         LoggedTracer.record("Hood");
     }

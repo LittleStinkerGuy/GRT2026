@@ -1,15 +1,9 @@
 // Copyright (c) 2025 FRC 6328
 // http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
 
 package frc.robot.util;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -18,7 +12,7 @@ import frc.robot.Constants;
 /**
  * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
  * value not in dashboard.
- * Taken from team 6328 Mechanical Advantage's 2025 codebase
+ * Adapted from team 6328 Mechanical Advantage's 2025 codebase
  */
 public class LoggedTunableNumber implements DoubleSupplier {
     private static final String TABLE_KEY = "/Tuning";
@@ -27,7 +21,6 @@ public class LoggedTunableNumber implements DoubleSupplier {
     private boolean hasDefault = false;
     private double defaultValue;
     private LoggedNetworkNumber dashboardNumber;
-    private Map<Integer, Double> lastHasChangedValues = new HashMap<>();
 
     /**
      * Create a new LoggedTunableNumber
@@ -77,47 +70,56 @@ public class LoggedTunableNumber implements DoubleSupplier {
         }
     }
 
-    /**
-     * Checks whether the number has changed since our last check
-     *
-     * @param id Unique identifier for the caller to avoid conflicts when shared between multiple
-     *        objects. Recommended approach is to pass the result of "hashCode()"
-     * @return True if the number has changed since the last time this method was called, false
-     *         otherwise.
-     */
-    public boolean hasChanged(int id) {
-        double currentValue = get();
-        Double lastValue = lastHasChangedValues.get(id);
-        if (lastValue == null || currentValue != lastValue) {
-            lastHasChangedValues.put(id, currentValue);
-            return true;
-        }
-
-        return false;
+    public Watcher watcher() {
+        return new Watcher(this);
     }
 
-    /**
-     * Runs action if any of the tunableNumbers have changed
-     *
-     * @param id Unique identifier for the caller to avoid conflicts when shared between multiple *
-     *        objects. Recommended approach is to pass the result of "hashCode()"
-     * @param action Callback to run when any of the tunable numbers have changed. Access tunable
-     *        numbers in order inputted in method
-     * @param tunableNumbers All tunable numbers to check
-     */
-    public static void ifChanged(
-        int id, Consumer<double[]> action, LoggedTunableNumber... tunableNumbers) {
-        if (!Constants.TUNING_MODE) {
-            return;
-        }
-        if (Arrays.stream(tunableNumbers).anyMatch(tunableNumber -> tunableNumber.hasChanged(id))) {
-            action.accept(Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
-        }
+    public static Watcher watch(LoggedTunableNumber... tunableNumbers) {
+        return new Watcher(tunableNumbers);
     }
 
-    /** Runs action if any of the tunableNumbers have changed */
-    public static void ifChanged(int id, Runnable action, LoggedTunableNumber... tunableNumbers) {
-        ifChanged(id, values -> action.run(), tunableNumbers);
+    public static final class Watcher {
+        private final LoggedTunableNumber[] numbers;
+        private final double[] last;
+
+        private Watcher(LoggedTunableNumber... numbers) {
+            this.numbers = numbers;
+            this.last = new double[numbers.length];
+
+            for (int i = 0; i < numbers.length; i++) {
+                last[i] = numbers[i].get();
+            }
+        }
+
+        public boolean changed() {
+            boolean changed = false;
+            for (int i = 0; i < numbers.length; i++) {
+                double current = numbers[i].get();
+                if (current != last[i]) {
+                    changed = true;
+                    last[i] = current;
+                }
+            }
+            return changed;
+        }
+
+        public void ifChanged(Consumer<double[]> action) {
+            if (!Constants.TUNING_MODE) {
+                return;
+            }
+            if (changed()) {
+                action.accept(Arrays.stream(numbers).mapToDouble(LoggedTunableNumber::get).toArray());
+            }
+        }
+
+        public void ifChanged(Runnable action) {
+            if (!Constants.TUNING_MODE) {
+                return;
+            }
+            if (changed()) {
+                action.run();
+            }
+        }
     }
 
     @Override
