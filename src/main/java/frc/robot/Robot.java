@@ -99,12 +99,16 @@ public class Robot extends LoggedRobot {
         robotContainer.updateAlerts();
 
         LoggedTracer.reset();
+
         PhoenixUtil.refreshAllStatusSignals();
         LoggedTracer.record("PhoenixRefresh");
+
         CommandScheduler.getInstance().run();
         LoggedTracer.record("Commands");
+
         LoggedCanivore.updateCanivoreStatuses();
         LoggedTracer.record("Canivore");
+
         GatedAlert.pushAll();
         LoggedTracer.record("Alerts");
     }
