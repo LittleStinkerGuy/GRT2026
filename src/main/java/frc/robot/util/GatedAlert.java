@@ -22,7 +22,7 @@ import java.util.function.BooleanSupplier;
  * no longer required for correctness.
  */
 public class GatedAlert extends Alert {
-    private static final CopyOnWriteArrayList<GatedAlert> registry = new CopyOnWriteArrayList<>();
+    private static CopyOnWriteArrayList<GatedAlert> registry = new CopyOnWriteArrayList<>();
 
     private final BooleanSupplier gate;
     private boolean actualValue = false;
