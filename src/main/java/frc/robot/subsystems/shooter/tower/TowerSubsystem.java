@@ -2,7 +2,6 @@ package frc.robot.subsystems.shooter.tower;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -49,8 +48,6 @@ public class TowerSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private double commandedVoltageSetpoint = 0.0;
-    private double commandedVelocitySetpointRPS = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -91,9 +88,9 @@ public class TowerSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double volts) {
-        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
-        io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
+        double clampedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+        io.setVoltageOut(clampedVolts);
+        setpointTracker.updateSetpoint(clampedVolts, MotorControlMode.Voltage);
     }
 
     private void setVoltage(Voltage volts) {
@@ -102,8 +99,7 @@ public class TowerSubsystem extends SubsystemBase {
 
     public void setVelocity(double velocityRPS) {
         io.setVelocityOut(velocityRPS);
-        commandedVelocitySetpointRPS = velocityRPS;
-        setpointTracker.updateSetpoint(commandedVelocitySetpointRPS, MotorControlMode.Velocity);
+        setpointTracker.updateSetpoint(velocityRPS, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -111,11 +107,9 @@ public class TowerSubsystem extends SubsystemBase {
         setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
-    public Optional<Boolean> atSetpoint() {
-        if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
-            return Optional.empty();
-        }
-        return Optional.of(Math.abs(commandedVelocitySetpointRPS - inputs.velocityRPS) <= TowerConstants.VELOCITY_TOLERANCE_RPS);
+    public boolean atSetpoint() {
+        return setpointTracker.atSetpoint(
+            MotorControlMode.Velocity, inputs.velocityRPS, TowerConstants.VELOCITY_TOLERANCE_RPS);
     }
 
     public void setTower(TowerIntake state) {
@@ -145,7 +139,7 @@ public class TowerSubsystem extends SubsystemBase {
         }
 
         setpointTracker.logAll();
-        Logger.recordOutput("Tower/atVelocitySetpoint", atSetpoint().orElse(false));
+        Logger.recordOutput("Tower/atVelocitySetpoint", atSetpoint());
 
         mechanism.setPosition(inputs.positionRot);
 

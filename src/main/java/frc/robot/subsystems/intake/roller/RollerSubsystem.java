@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake.roller;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -44,8 +43,6 @@ public class RollerSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private double commandedVoltageSetpoint = 0.0;
-    private double commandedVelocitySetpoint = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -86,9 +83,9 @@ public class RollerSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double volts) {
-        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
-        io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
+        double clampedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+        io.setVoltageOut(clampedVolts);
+        setpointTracker.updateSetpoint(clampedVolts, MotorControlMode.Voltage);
     }
 
     private void setVoltage(Voltage volts) {
@@ -97,8 +94,7 @@ public class RollerSubsystem extends SubsystemBase {
 
     public void setVelocity(double velocityRPS) {
         io.setVelocityOut(velocityRPS);
-        commandedVelocitySetpoint = velocityRPS;
-        setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity);
+        setpointTracker.updateSetpoint(velocityRPS, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -106,11 +102,9 @@ public class RollerSubsystem extends SubsystemBase {
         setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
-    public Optional<Boolean> atSetpoint() {
-        if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
-            return Optional.empty();
-        }
-        return Optional.of(Math.abs(commandedVelocitySetpoint - inputs.velocityRPS) <= 5.0);
+    public boolean atSetpoint() {
+        return setpointTracker.atSetpoint(
+            MotorControlMode.Velocity, inputs.velocityRPS, IntakeConstants.ROLLER_VELOCITY_TOLERANCE_RPS);
     }
 
     @Override
@@ -123,7 +117,7 @@ public class RollerSubsystem extends SubsystemBase {
         }
 
         setpointTracker.logAll();
-        Logger.recordOutput("Roller/atVelocitySetpoint", atSetpoint().orElse(false));
+        Logger.recordOutput("Roller/atVelocitySetpoint", atSetpoint());
 
         mechanism.setPosition(inputs.positionRot);
 

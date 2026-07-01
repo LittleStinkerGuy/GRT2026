@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.hood;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -47,8 +46,6 @@ public class HoodSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Position);
-    private double commandedVoltageSetpoint = 0.0;
-    private double commandedPositionSetpointRot = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -96,9 +93,9 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double volts) {
-        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
-        io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
+        double clampedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+        io.setVoltageOut(clampedVolts);
+        setpointTracker.updateSetpoint(clampedVolts, MotorControlMode.Voltage);
     }
 
     private void setVoltage(Voltage volts) {
@@ -106,13 +103,13 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setPosition(double positionRot) {
-        commandedPositionSetpointRot = MathUtil.clamp(
+        double clampedPositionRot = MathUtil.clamp(
             positionRot,
             Hood.LOWER_ANGLE_LIMIT_ROT,
             Hood.UPPER_ANGLE_LIMIT_ROT);
 
-        io.setPositionOut(commandedPositionSetpointRot);
-        setpointTracker.updateSetpoint(commandedPositionSetpointRot, MotorControlMode.Position);
+        io.setPositionOut(clampedPositionRot);
+        setpointTracker.updateSetpoint(clampedPositionRot, MotorControlMode.Position);
     }
 
     public void stop() {
@@ -120,12 +117,9 @@ public class HoodSubsystem extends SubsystemBase {
         setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
-    public Optional<Boolean> atPositionSetpoint() {
-        if (setpointTracker.getControlMode() != MotorControlMode.Position) {
-            return Optional.empty();
-        }
-        return Optional.of(
-            Math.abs(commandedPositionSetpointRot - inputs.positionRot) <= Hood.ANGLE_TOLERANCE_ROT);
+    public boolean atPositionSetpoint() {
+        return setpointTracker.atSetpoint(
+            MotorControlMode.Position, inputs.positionRot, Hood.ANGLE_TOLERANCE_ROT);
     }
 
     public double getPosition() {
@@ -142,7 +136,7 @@ public class HoodSubsystem extends SubsystemBase {
         }
 
         setpointTracker.logAll();
-        Logger.recordOutput("Hood/atPositionSetpoint", atPositionSetpoint().orElse(false));
+        Logger.recordOutput("Hood/atPositionSetpoint", atPositionSetpoint());
 
         hoodMech.setAngle(Units.rotationsToDegrees(inputs.positionRot));
 
@@ -176,7 +170,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     public Command hideHood() {
         return this.runOnce(() -> setPosition(Hood.LOWER_ANGLE_LIMIT_ROT))
-            .andThen(Commands.waitUntil(() -> atPositionSetpoint().orElse(false)));
+            .andThen(Commands.waitUntil(this::atPositionSetpoint));
     }
 
     public Command holdDownHood() {

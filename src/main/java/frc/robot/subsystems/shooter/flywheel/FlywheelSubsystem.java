@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.flywheel;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -52,8 +51,6 @@ public class FlywheelSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private double commandedVoltageSetpoint = 0.0;
-    private double commandedVelocitySetpoint = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -94,9 +91,9 @@ public class FlywheelSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double volts) {
-        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
-        io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
+        double clampedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+        io.setVoltageOut(clampedVolts);
+        setpointTracker.updateSetpoint(clampedVolts, MotorControlMode.Voltage);
     }
 
     private void setVoltage(Voltage volts) {
@@ -105,8 +102,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
     public void setVelocity(double velocityRPS) {
         io.setVelocityOut(velocityRPS);
-        commandedVelocitySetpoint = velocityRPS;
-        setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity);
+        setpointTracker.updateSetpoint(velocityRPS, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -114,11 +110,9 @@ public class FlywheelSubsystem extends SubsystemBase {
         setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
-    public Optional<Boolean> atSetpoint() {
-        if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
-            return Optional.empty();
-        }
-        return Optional.of(Math.abs(commandedVelocitySetpoint - inputs.velocityRPS) <= ShooterConstants.Flywheel.VELOCITY_TOLERANCE_RPS);
+    public boolean atSetpoint() {
+        return setpointTracker.atSetpoint(
+            MotorControlMode.Velocity, inputs.velocityRPS, ShooterConstants.Flywheel.VELOCITY_TOLERANCE_RPS);
     }
 
     public double getVelocity() {
@@ -135,7 +129,7 @@ public class FlywheelSubsystem extends SubsystemBase {
         }
 
         setpointTracker.logAll();
-        Logger.recordOutput("Flywheel/atVelocitySetpoint", atSetpoint().orElse(false));
+        Logger.recordOutput("Flywheel/atVelocitySetpoint", atSetpoint());
 
         mechanism.setPosition(inputs.positionRot);
 

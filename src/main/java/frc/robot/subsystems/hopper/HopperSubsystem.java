@@ -2,7 +2,6 @@ package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -53,8 +52,6 @@ public class HopperSubsystem extends SubsystemBase {
         MotorControlMode.DutyCycle,
         MotorControlMode.Voltage,
         MotorControlMode.Velocity);
-    private double commandedVoltageSetpoint = 0.0;
-    private double commandedVelocitySetpointRPS = 0.0;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -107,9 +104,9 @@ public class HopperSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double volts) {
-        commandedVoltageSetpoint = MathUtil.clamp(volts, -12.0, 12.0);
-        io.setVoltageOut(commandedVoltageSetpoint);
-        setpointTracker.updateSetpoint(commandedVoltageSetpoint, MotorControlMode.Voltage);
+        double clampedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+        io.setVoltageOut(clampedVolts);
+        setpointTracker.updateSetpoint(clampedVolts, MotorControlMode.Voltage);
     }
 
     private void setVoltage(Voltage volts) {
@@ -118,8 +115,7 @@ public class HopperSubsystem extends SubsystemBase {
 
     public void setVelocity(double velocityRPS) {
         io.setVelocityOut(velocityRPS);
-        commandedVelocitySetpointRPS = velocityRPS;
-        setpointTracker.updateSetpoint(commandedVelocitySetpointRPS, MotorControlMode.Velocity);
+        setpointTracker.updateSetpoint(velocityRPS, MotorControlMode.Velocity);
     }
 
     public void stop() {
@@ -127,11 +123,9 @@ public class HopperSubsystem extends SubsystemBase {
         setpointTracker.setControlMode(MotorControlMode.Disabled);
     }
 
-    public Optional<Boolean> atSetpoint() {
-        if (setpointTracker.getControlMode() != MotorControlMode.Velocity) {
-            return Optional.empty();
-        }
-        return Optional.of(Math.abs(commandedVelocitySetpointRPS - inputs.velocityRPS) <= HopperConstants.VELOCITY_TOLERANCE_RPS);
+    public boolean atSetpoint() {
+        return setpointTracker.atSetpoint(
+            MotorControlMode.Velocity, inputs.velocityRPS, HopperConstants.VELOCITY_TOLERANCE_RPS);
     }
 
     public void setHopperState(HopperIntake state) {
@@ -158,7 +152,7 @@ public class HopperSubsystem extends SubsystemBase {
         }
 
         setpointTracker.logAll();
-        Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint().orElse(false));
+        Logger.recordOutput("Hopper/atVelocitySetpoint", atSetpoint());
 
         double spinnerDeg = Units.rotationsToDegrees(inputs.positionRot);
         for (int i = 0; i < HOPPER_VANES; i++) {
