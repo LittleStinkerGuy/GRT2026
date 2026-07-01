@@ -30,10 +30,16 @@ public class LoggedSetpointTracker {
         return (mode == MotorControlMode.Disabled || mode == MotorControlMode.Follower);
     }
 
-    private void requireRegistered(MotorControlMode mode) {
-        if (!setpoints.containsKey(mode)) {
+    private void requireRegistered(MotorControlMode mode, boolean allowStaticMode) {
+        if (isStaticControlMode(mode) && allowStaticMode) {
+            return;
+        } else if (!setpoints.containsKey(mode)) {
             throw new IllegalStateException(mode + " is not a registered setpoint mode for " + logPath);
         }
+    }
+
+    private void requireRegistered(MotorControlMode mode) {
+        requireRegistered(mode, false);
     }
 
     public MotorControlMode getControlMode() {
@@ -41,6 +47,7 @@ public class LoggedSetpointTracker {
     }
 
     public void setControlMode(MotorControlMode controlMode) {
+        requireRegistered(controlMode, true);
         currentControlMode = controlMode;
     }
 
@@ -50,6 +57,7 @@ public class LoggedSetpointTracker {
     }
 
     public boolean atSetpoint(MotorControlMode controlMode, double curState, double tolerance) {
+        requireRegistered(controlMode, true);
         if (controlMode != getControlMode() || isStaticControlMode(controlMode)) {
             return false;
         }
