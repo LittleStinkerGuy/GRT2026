@@ -20,10 +20,14 @@ public class LoggedSetpointTracker {
     }
 
     public void registerControlMode(MotorControlMode mode) {
-        if (mode == MotorControlMode.Disabled || mode == MotorControlMode.Follower) {
+        if (isStaticControlMode(mode)) {
             throw new IllegalArgumentException("Cannot track a setpoint for " + mode);
         }
         setpoints.put(mode, 0.0);
+    }
+
+    public boolean isStaticControlMode(MotorControlMode mode) {
+        return (mode == MotorControlMode.Disabled || mode == MotorControlMode.Follower);
     }
 
     private void requireRegistered(MotorControlMode mode) {
@@ -43,6 +47,13 @@ public class LoggedSetpointTracker {
     public double getSetpoint(MotorControlMode mode) {
         requireRegistered(mode);
         return setpoints.get(mode);
+    }
+
+    public boolean atSetpoint(MotorControlMode controlMode, double curState, double tolerance) {
+        if (controlMode != getControlMode() || isStaticControlMode(controlMode)) {
+            return false;
+        }
+        return Math.abs(curState - getSetpoint(controlMode)) <= tolerance;
     }
 
     public void updateSetpoint(double setpoint, MotorControlMode mode, boolean setControlMode) {
