@@ -10,7 +10,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 
 public class RollerMechanism2D {
-    // Coarse polygon on the RIO to keep AdvantageKit serialization cheap; full detail in sim.
+    // Coarse polygon on the RIO and full detail in sim.
     private static final int ROLLER_SIDES = Constants.CURRENT_MODE == Mode.REAL ? 3 : 20;
     private static final double ROLLER_RADIUS = 0.4;
 
