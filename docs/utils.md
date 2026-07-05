@@ -119,7 +119,7 @@ It rejects `CANType.RIO` in the constructor since the native RIO bus isn't a CAN
 - Reading CAN bus status is relatively slow so doing it off-thread is good
 - Logs the metrics that will allow us to debug CAN
 - The static registry means callers never have to hold references just to log them.
-- Used by `PhoenixUtil.registerSignals()` to group status signals
+- Provides the `CANType` that `PhoenixUtil.registerSignals()` groups status signals by
 
 **Downsides.**
 
@@ -184,7 +184,7 @@ public void periodic() {
 **What it is.** Builds a `LoggedMechanism2d` that draws a spinning roller so a rotating wheel's position is visible in
 AdvantageScope/Glass.
 
-**How it's used.** A subsystem will construct one then call `setPosition(rotations)` to spins the wheel in periodic. In
+**How it's used.** A subsystem will construct one then call `setPosition(rotations)` to spin the wheel in periodic. In
 real robot code, the wheel is rendered as a triangle to save network table, RIO bandwidth, and serialization, but in sim
 it is a 20 sided polygon.
 
@@ -324,7 +324,7 @@ public void setVelocity(double velocityRPS) {
 
 **Upsides.**
 
-- One vendor-neutral enum set means swapping motor controllers or running sim doesn't effect every subsystem only the
+- One vendor-neutral enum set means swapping motor controllers or running sim doesn't affect every subsystem only the
   mapping in `PhoenixUtil` changes.
 - Less terms than phoenix specific enums so it is easy to log and use a switch on.
 
@@ -344,7 +344,7 @@ suppress cascading alerts (e.g. silence a motor's config-failure alerts while th
 underlying raised state is preserved, so reopening the gate restores any still-valid alert.
 
 **How it's used.** The IO layer wires every config/setup alert to a connection flag. Every instance self-registers in a
-static registry, and the `pushAll()` method re-evaluates every gate in `RobotPeriodic` automatically.
+static registry, and the `pushAll()` method re-evaluates every gate in `robotPeriodic()` automatically.
 
 ```java
 // FlywheelIOTalonFX.java
@@ -365,7 +365,7 @@ public void robotPeriodic() {
 
 **Upsides.**
 
-- A disconnected motor produces one "disconnected" alert instead of a many downstream "couldn't configure / couldn't set
+- A disconnected motor produces one "disconnected" alert instead of many downstream "couldn't configure / couldn't set
   follower" alerts.
 - It's drop-in because it `extends Alert`, so it works anywhere an `Alert` is expected, including
   `PhoenixUtil.tryUntilOk(..., alert)`.
