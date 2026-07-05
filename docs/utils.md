@@ -1,8 +1,8 @@
-# `frc.robot.util` — Utility Reference
+# Utility Reference
 
-This document walks through every class in [`src/main/java/frc/robot/util`](../src/main/java/frc/robot/util). Each entry
-gives a plain-language description, a real usage snippet pulled from the subsystems that consume it, and the trade-offs
-(upsides / downsides) of the design.
+This document walks through every util class I developed while rewriting the 2026 GRT robot code. Each doc has a
+description, usage snippets pulled from the subsystems that use it, the reasons I created it and I had claude generate
+potential downsides.
 
 The utilities fall into a few loose buckets:
 
@@ -16,32 +16,40 @@ The utilities fall into a few loose buckets:
 
 ## `LoggedTracer`
 
-**What it is.** A tiny static stopwatch for measuring how long chunks of the main loop take. You call `reset()` once at
-the top of the loop, then `record("epochName")` after each phase; each `record` logs the milliseconds elapsed since the
-previous `reset`/`record` under `LoggedTracer/<epochName>MS` and rolls the clock forward. Borrowed from FRC 6328
-(Mechanical Advantage).
+**What it is.** A tool for measuring how long chunks of the main loop take. You call `reset()` once at the top of the
+robot periodic, then `record("epochName")` after each phase; each `record` logs the milliseconds since the previous
+`reset`/`record`. Borrowed from Mechanical Advantage (Team 6328).
 
-**How it's used.** `Robot.robotPeriodic()` brackets the expensive phases of the loop, and each subsystem closes its own
-`periodic()` with a `record` call so its cost shows up as its own epoch:
+**How it's used.** After each function ran in the robot periodic and at the end of each subsystem periodic, you attached
+a `LoggedTracer.record("epochName")` call which tracks the time between the last record call and when this was called.
+By adding a tracer call after running the command scheduler, you can find the time it takes to run commands. This is
+because the command scheduler runs subsystem periodics first, which have their own tracer calls, and then the commands.
 
 ```java
 // Robot.java
-LoggedTracer.reset();
-PhoenixUtil.refreshAllStatusSignals();
-LoggedTracer.record("PhoenixRefresh");
-// ... command scheduler runs ...
-LoggedTracer.record("Commands");
-LoggedCanivore.updateCanivoreStatuses();
-LoggedTracer.record("Canivore");
+@Override
+public void robotPeriodic() {
+    LoggedTracer.reset();
 
-// FlywheelSubsystem.periodic() — last line
-LoggedTracer.record("Flywheel");
+    PhoenixUtil.refreshAllStatusSignals();
+    LoggedTracer.record("PhoenixRefresh");
+
+    CommandScheduler.getInstance().run();
+    LoggedTracer.record("Commands");
+}
+
+// FlywheelSubsystem.java
+@Override
+public void periodic() {
+    // other periodic content
+    LoggedTracer.record("Flywheel");
+}
 ```
 
 **Upsides.**
 
-- Effectively free to add — one line per measurement point, no objects to thread around.
-- Output lands straight in AdvantageScope, so loop-overrun regressions are easy to spot.
+- Effectively free to add - one line per measurement point and no objects created.
+- Easy to track sources of loop overruns and compute.
 
 **Downsides.**
 
@@ -55,9 +63,8 @@ LoggedTracer.record("Flywheel");
 
 ## `TracerSentinel`
 
-**What it is.** An otherwise-empty `SubsystemBase` whose only job is to call `LoggedTracer.record("SchedulerStart")`
-from its `periodic()`. Because the `CommandScheduler` runs subsystem `periodic()` methods in registration order,
-constructing this **first** makes it run first — capturing the scheduler's own pre-subsystem overhead as the
+**What it is.** A `SubsystemBase` whose only job is to call `LoggedTracer.record("SchedulerStart")` from its
+`periodic()`. Constructing this first makes it run first, capturing the scheduler's pre-subsystem overhead as the
 `SchedulerStartMS` epoch.
 
 **How it's used.** Declared as the first subsystem field in `RobotContainer` so it registers before anything else:
@@ -69,8 +76,8 @@ private final TracerSentinel tracerSentinel = new TracerSentinel();
 
 **Upsides.**
 
-- Turns "scheduler glue cost" into a measurable, named epoch with zero changes to the scheduler.
-- Self-documenting: the class exists only to mark a point in time.
+- Allows us to measure scheduler overhead and not factor that into an unrelated subsystem.
+- One line in code
 
 **Downsides.**
 
@@ -83,8 +90,8 @@ private final TracerSentinel tracerSentinel = new TracerSentinel();
 ## `LoggedCanivore`
 
 **What it is.** A `CANBus` subclass that polls a CANivore's health (`CANBusStatus`) on a background daemon thread every
-500 ms and exposes it for logging. A static registry tracks every instance so one call logs them all. Idea borrowed from
-FRC 6328.
+500 ms and exposes it for logging. A static registry tracks every instance so one call logs them all. Idea borrowed and
+modified from Mechanical Advantage (Team 6328).
 
 **How it's used.** One instance per physical bus is created in `RobotContainer`, passed down into the IO layers that
 need the bus, and flushed to the log once per loop from `Robot`:
@@ -99,16 +106,20 @@ public FlywheelIOTalonFX(LoggedCanivore canivore) { ... }
 PhoenixUtil.registerSignals(canivore.getCanType(), allSignals);
 
 // Robot.java — once per loop, log every bus's utilization / error counts
-LoggedCanivore.updateCanivoreStatuses();
+@Override
+public void robotPeriodic() {
+    LoggedCanivore.updateCanivoreStatuses();
+}
 ```
 
 It rejects `CANType.RIO` in the constructor since the native RIO bus isn't a CANivore.
 
 **Upsides.**
 
-- Reading CAN bus status is relatively slow; doing it off-thread keeps it out of the 20 ms loop.
-- Logs the metrics that actually predict CAN trouble — `BusUtilization`, `BusOffCount`, `TxFullCount`, `REC`/`TEC`.
+- Reading CAN bus status is relatively slow so doing it off-thread is good
+- Logs the metrics that will allow us to debug CAN
 - The static registry means callers never have to hold references just to log them.
+- Used by `PhoenixUtil.registerSignals()` to group status signals
 
 **Downsides.**
 
@@ -123,63 +134,73 @@ It rejects `CANType.RIO` in the constructor since the native RIO bus isn't a CAN
 
 ## `LoggedSetpointTracker`
 
-**What it is.** A per-mechanism bookkeeper that remembers the last commanded setpoint **per control mode** (velocity,
-position, voltage, …) plus which mode is currently active, and logs them with mode-appropriate unit suffixes (`_rps`,
-`_rot`, `_v`, `_amps`). Modes are registered up front; `Disabled`/`Follower` are rejected because they have no setpoint.
+**What it is.** A per-subsystem helper that remembers the last commanded setpoint per control mode (velocity, position,
+voltage, e.g.) plus which mode is currently active, and logs them. When logging, only the active mode's setpoint is
+logged as its real value, all other modes log `0.0`. It also exposes an `atSetpoint()` utility to check if subsystem is
+at its closed loop setpoint.
 
-**How it's used.** A subsystem owns one, updates it whenever it issues a command, and dumps it all in `periodic()`:
+**How it's used.** A subsystem initiates one, updates it whenever it issues a command, and logs it in `periodic()`:
 
 ```java
 // FlywheelSubsystem.java
 private final LoggedSetpointTracker setpointTracker = new LoggedSetpointTracker(
     "Flywheel/Setpoints", MotorControlMode.DutyCycle, MotorControlMode.Voltage, MotorControlMode.Velocity);
 
-setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity); // also sets active mode
-setpointTracker.setControlMode(MotorControlMode.Disabled);                            // on stop
-setpointTracker.logAll();                                                             // in periodic()
-```
+public void setVelocity(double velocityRPS) {
+    setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity);
+}
 
-When logging, only the _active_ mode's setpoint is emitted as its real value; inactive modes log `0.0`, so a graph never
-shows a stale velocity target while the mechanism is actually holding position.
+public void stop() {
+    setpointTracker.setControlMode(MotorControlMode.Disabled);
+}
+
+public boolean atSetpoint() {
+    return setpointTracker.atSetpoint(
+        MotorControlMode.Velocity, inputs.velocityRPS, ShooterConstants.Flywheel.VELOCITY_TOLERANCE_RPS);
+}
+
+@Override
+public void periodic() {
+    setpointTracker.logAll();
+}
+```
 
 **Upsides.**
 
-- Centralizes "what did we last ask for, and in what mode" — no scattering of ad-hoc logging strings across the
-  subsystem.
+- Centralizes logging and tracking setpoints
 - Unit suffixes make the AdvantageScope keys self-describing.
-- Zeroing inactive modes prevents misleading stale-setpoint traces.
+- Zeroing inactive modes is done by default and prevents misleading stale-setpoint traces.
 
 **Downsides.**
 
 - Setpoints are all `double` — no compile-time unit safety, so it's on the caller to pass the right units for the mode.
 - `requireRegistered` throws at runtime if you log/update an unregistered mode; mistakes surface as crashes rather than
-  compile errors.
-- One tracker only models one active mode at a time; a mechanism blending modes wouldn't fit.
+  compile errors. (throwing an error _should_ be okay during robot runtime but needs testing)
 
 ---
 
 ## `RollerMechanism2D`
 
-**What it is.** Builds a `LoggedMechanism2d` that draws a spinning roller — a radial "spike" ligament with a polygon of
-edge ligaments forming the rim — so a rotating wheel's position is visible in AdvantageScope/Glass.
-`setPosition(rotations)` spins the spike.
+**What it is.** Builds a `LoggedMechanism2d` that draws a spinning roller so a rotating wheel's position is visible in
+AdvantageScope/Glass.
 
-**How it's used.** A subsystem with a roller-like mechanism owns one and feeds it the measured position each loop:
+**How it's used.** A subsystem will construct one then call `setPosition(rotations)` to spins the wheel in periodic. In
+real robot code, the wheel is rendered as a triangle to save network table, RIO bandwidth, and serialization, but in sim
+it is a 20 sided polygon.
 
 ```java
 // FlywheelSubsystem.java
-private final RollerMechanism2D mechanism = new RollerMechanism2D(0.4);
-...
-mechanism.setPosition(inputs.positionRot); // in periodic()
-```
+private final RollerMechanism2D mechanism = new RollerMechanism2D(0.4); // radius = 0.4
 
-(Also used by `RollerSubsystem` and `TowerSubsystem`.) The polygon is intentionally coarse on the real robot
-(`ROLLER_SIDES == 3` when `CURRENT_MODE == REAL`, 20 in sim) to keep AdvantageKit serialization cheap on the RIO.
+@Override
+public void periodic() {
+    mechanism.setPosition(inputs.positionRot);
+}
+```
 
 **Upsides.**
 
 - Gives otherwise-invisible spinning mechanisms a real visual on the dashboard.
-- The REAL-vs-sim side count is a thoughtful perf trade — detail where you can afford it.
 - Several constructors (colors, radius, defaults) make it a one-liner at call sites.
 
 **Downsides.**
@@ -193,13 +214,12 @@ mechanism.setPosition(inputs.positionRot); // in periodic()
 
 ## `LoggedTunableNumber`
 
-**What it is.** A `double` value that comes from the dashboard (NetworkTables `/Tuning/...`) when
-`Constants.TUNING_MODE` is on, and falls back to a hard-coded default otherwise. Implements `DoubleSupplier`. A nested
-`Watcher` lets you run code only when one of a group of tunables changes — the backbone of live PID tuning. Adapted from
-FRC 6328.
+**What it is.** Refined tune this yo. It takes a `double` value that comes from the dashboard (NetworkTables
+`/Tuning/...`) when `Constants.TUNING_MODE` is on, and uses a hard-coded constant in matches. The `Watcher` class lets
+you run code only when one of a group of tunables changes useful for live PID tuning. Adapted from FRC 6328.
 
 **How it's used.** Subsystems expose their gains as tunables, group them in a `Watcher`, and re-push to hardware only on
-change:
+change. Individual values can also be fetched with `.get()`
 
 ```java
 // FlywheelSubsystem.java
@@ -207,27 +227,22 @@ private final LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", pi
 // ... kI, kD, kS, kV, kA ...
 private final LoggedTunableNumber.Watcher pidWatcher = LoggedTunableNumber.watch(kP, kI, kD, kS, kV, kA);
 
-private final LoggedTunableNumber.Watcher motionMagicWatcher =
-    LoggedTunableNumber.watch(motionMagicAccel, motionMagicVelo, motionMagicJerk);
-
-// periodic():
-pidWatcher.ifChanged(values -> io.setPID(...));        // values[] = each tunable, in order
-motionMagicWatcher.ifChanged(() -> io.setMotionMagic(...));
+@Override
+public void periodic() {
+    pidWatcher.ifChanged(
+        () -> io.updatePID(kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get()));
+}
 ```
-
-`ifChanged` is a no-op outside `TUNING_MODE`, so production builds never pay for the comparison or the reconfigure.
 
 **Upsides.**
 
-- Single source of truth for a constant: live-tunable in the pit, baked-in default in a match.
-- The `Watcher` makes "reconfigure hardware only when a gain actually moved" trivial and cheap — important because
-  applying configs to a TalonFX is expensive.
-- `ifChanged(Consumer<double[]>)` hands you all the current values in registration order, so the callback doesn't have
-  to re-read each tunable.
+- Single source of truth for a constant which is live-tunable in the shop and fixed in a match.
+- The `Watcher` makes retuning configurations trivial.
 
 **Downsides.**
 
-- A tunable with no default returns `0.0` from `get()` — forget `initDefault` and you silently get zero gains.
+- A tunable with no default returns `0.0` from `get()` — don't put it in the constructor and forget `initDefault` and
+  you silently get zero gains.
 - Change detection is exact `!=` on doubles; fine for dashboard-entered values, but not something to rely on for
   computed inputs.
 - `Watcher.last` is seeded at construction. If the dashboard value differs from the default at startup, the first
@@ -238,37 +253,40 @@ motionMagicWatcher.ifChanged(() -> io.setMotionMagic(...));
 
 ## `PhoenixUtil`
 
-**What it is.** A grab-bag of static helpers for CTRE Phoenix 6, from FRC 6328:
+**What it is.** Helpers for CTRE Phoenix 6;
 
-- `tryUntilOk(maxAttempts, command [, alert])` — retry a config call until it returns `OK`, optionally raising an
-  `Alert` on final failure.
-- `registerSignals(canType, ...)` / `refreshAllStatusSignals()` — collect every status signal, keyed by bus, and refresh
-  them all in one synchronized batch per loop.
-- `toMotorControlMode(...)` / `toEncoderHealth(...)` — map Phoenix's hardware-specific enums onto the hardware-agnostic
+- `tryUntilOk()` — retry a config call until it returns `OK`, optionally raising an `Alert` on final failure.
+- `registerSignals()` / `refreshAllStatusSignals()` — collect every status signal on a canivore and refresh them all in
+  one batch per loop.
+- `toMotorControlMode()` / `toEncoderHealth()` — map Phoenix's hardware-specific enums onto the hardware-agnostic
   [`ComponentStatus`](#componentstatus) enums.
 
 **How it's used.** The IO layer leans on it heavily — retried config, batched refresh, enum mapping:
 
 ```java
-import static frc.robot.util.PhoenixUtil.tryUntilOk;
+// FlywheelIOTalonFX.java
+public FlywheelIOTalonFX(LoggedCanivore canivore) {
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config), failedToConfigureMotorAlert);
+    PhoenixUtil.registerSignals(canivore.getCanType(), allSignals);
+}
+@Override
+public void updateInputs(FlywheelIOInputs inputs) {
+    inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
+}
 
-tryUntilOk(5, () -> leader.getConfigurator().apply(config), failedToConfigureLeaderAlert);
-tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0, allSignals), failedToSetFrequencyAlert);
-PhoenixUtil.registerSignals(canivore.getCanType(), allSignals);
-inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
-
-// Robot.java — one batched refresh of every registered signal, every loop
-PhoenixUtil.refreshAllStatusSignals();
+// Robot.java
+@Override
+public void robotPeriodic() {
+    PhoenixUtil.refreshAllStatusSignals();
+}
 ```
 
 **Upsides.**
 
-- `tryUntilOk` turns flaky CAN config (common at boot) into a retry-with-alert one-liner — and it composes directly with
-  [`GatedAlert`](#gatedalert).
-- Batching all signals into one `refreshAll` per bus is the right call for loop timing: one synchronized CAN round-trip
-  instead of N.
-- The enum mappers decouple subsystem logic from Phoenix's sprawling `ControlModeValue` / `MagnetHealthValue` enums, so
-  the rest of the code speaks a small, stable vocabulary.
+- `tryUntilOk` replaces logic that we currently use with a one liner and works with [`GatedAlert`](#gatedalert)
+- Batching all signals into one `refreshAll` per bus decreases code execution by a lot of time
+- The enum mappers simplify Phoenix's huge `ControlModeValue` / `MagnetHealthValue` enums, so the rest of the code can
+  work with simple, hardware agnostic enums.
 
 **Downsides.**
 
@@ -286,26 +304,29 @@ PhoenixUtil.refreshAllStatusSignals();
 
 **What it is.** A namespace holding two hardware-agnostic enums: `MotorControlMode` (`Disabled`, `Follower`,
 `DutyCycle`, `Voltage`, `TorqueCurrent`, `Position`, `Velocity`) and `EncoderHealth` (`Good`, `Marginal`, `Bad`,
-`Unknown`). These are the vocabulary the rest of the robot uses instead of vendor enums.
+`Unknown`). These are used by the rest of the robot instead of vendor specific enums.
 
-**How it's used.** It's the common currency between [`PhoenixUtil`](#phoenixutil) (which produces these from Phoenix
-enums), [`LoggedSetpointTracker`](#loggedsetpointtracker) (which keys setpoints by `MotorControlMode`), and the
-IO/subsystem layers:
+**How it's used.** Used to log hardware status and implement logic.
 
 ```java
-// in an IO layer
-inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
-inputs.encoderHealth = PhoenixUtil.toEncoderHealth(magnetHealth.getValue());
+// FlywheelIOTalonFX.java
+@Override
+public void updateInputs(FlywheelIOInputs inputs) {
+    inputs.controlMode = PhoenixUtil.toMotorControlMode(controlMode.getValue());
+    inputs.encoderHealth = PhoenixUtil.toEncoderHealth(magnetHealth.getValue());
+}
 
-// in a subsystem
-setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
+// FlywheelSubsystem.java
+public void setVelocity(double velocityRPS) {
+    setpointTracker.updateSetpoint(commandedVelocitySetpoint, MotorControlMode.Velocity);
+}
 ```
 
 **Upsides.**
 
-- One vendor-neutral enum set means swapping motor controllers (or running sim) doesn't ripple through every subsystem —
-  only the mapping in `PhoenixUtil` changes.
-- Small and stable: easy to log, switch on, and reason about.
+- One vendor-neutral enum set means swapping motor controllers or running sim doesn't effect every subsystem only the
+  mapping in `PhoenixUtil` changes.
+- Less terms than phoenix specific enums so it is easy to log and use a switch on.
 
 **Downsides.**
 
@@ -318,14 +339,12 @@ setpointTracker.updateSetpoint(speed, MotorControlMode.DutyCycle);
 
 ## `GatedAlert`
 
-**What it is.** A drop-in `Alert` subclass that only actually raises while a `BooleanSupplier` "gate" is open. Use it to
-suppress cascading noise — e.g. silence a motor's config-failure alerts while the motor itself is disconnected (no point
-yelling about config when it's just unplugged). The underlying raised state is preserved, so reopening the gate restores
-any still-valid alert. Every instance self-registers, and the static `pushAll()` re-evaluates every gate; `Robot` calls
-it once per loop so gates are polled automatically.
+**What it is.** A drop-in `Alert` subclass that only actually raises while a `BooleanSupplier` "gate" is open. Used to
+suppress cascading alerts (e.g. silence a motor's config-failure alerts while the motor itself is disconnected). The
+underlying raised state is preserved, so reopening the gate restores any still-valid alert.
 
-**How it's used.** The IO layer wires every config/setup alert to a connection flag and just keeps that flag current —
-no manual re-pushing, because `Robot.robotPeriodic` re-evaluates all gates each loop:
+**How it's used.** The IO layer wires every config/setup alert to a connection flag. Every instance self-registers in a
+static registry, and the `pushAll()` method re-evaluates every gate in `RobotPeriodic` automatically.
 
 ```java
 // FlywheelIOTalonFX.java
@@ -333,28 +352,26 @@ private boolean leaderConnected = false;
 private final GatedAlert failedToConfigureLeaderAlert =
     new GatedAlert(LEADER_ALERT_PREFIX + "Failed to configure motor", AlertType.kError, () -> leaderConnected);
 
-// keeping the gate field current is enough; pushAll() picks it up next loop:
-private void refreshLeaderAlerts(boolean connected) {
-    leaderConnected = connected;
-    leaderDisconnectedAlert.set(!connected);
+public FlywheelIOTalonFX(LoggedCanivore canivore) {
+  tryUntilOk(5, () -> leader.getConfigurator().apply(config), failedToConfigureLeaderAlert);
 }
 
-// composes with tryUntilOk, which calls alert.set(...) on failure:
-tryUntilOk(5, () -> leader.getConfigurator().apply(config), failedToConfigureLeaderAlert);
-
-// Robot.robotPeriodic() — re-evaluates every gate once per loop:
-GatedAlert.pushAll();
+// Robot.java
+@Override
+public void robotPeriodic() {
+    GatedAlert.pushAll();
+}
 ```
 
 **Upsides.**
 
-- Kills alert spam: a disconnected motor produces _one_ "disconnected" alert instead of a dozen downstream "couldn't
-  configure / couldn't set follower" alerts.
-- Truly drop-in — it `extends Alert`, so it works anywhere an `Alert` is expected, including
+- A disconnected motor produces one "disconnected" alert instead of a many downstream "couldn't configure / couldn't set
+  follower" alerts.
+- It's drop-in because it `extends Alert`, so it works anywhere an `Alert` is expected, including
   `PhoenixUtil.tryUntilOk(..., alert)`.
-- Preserving the underlying state means a transient gate close doesn't lose a real alert.
-- Gates are **polled automatically** via `pushAll()` once per loop, so a flip takes effect within one loop and a missed
-  flip can't get stuck — callers only have to keep the gate field current.
+- Preserving the underlying state means the gate closing won't lose the alert status.
+- Gates are polled automatically via `pushAll()` once per loop, so a flip takes effect within one loop and a missed flip
+  can't get stuck and callers only have to keep the gate field current.
 
 **Downsides.**
 
