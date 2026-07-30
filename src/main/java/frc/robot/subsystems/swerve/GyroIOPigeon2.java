@@ -9,6 +9,9 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants.SwerveConstants;
@@ -21,7 +24,17 @@ public class GyroIOPigeon2 implements GyroIO {
     private final Pigeon2 pigeon;
 
     private final StatusSignal<Angle> yaw;
+    private final StatusSignal<Angle> pitch;
+    private final StatusSignal<Angle> roll;
+
     private final StatusSignal<AngularVelocity> yawVelocity;
+    private final StatusSignal<AngularVelocity> pitchVelocity;
+    private final StatusSignal<AngularVelocity> rollVelocity;
+
+    private final StatusSignal<Time> upTime;
+    private final StatusSignal<Voltage> supplyVoltage;
+
+    private final StatusSignal<Temperature> temperature;
 
     private final Queue<Double> yawPositionQueue;
     private final Queue<Double> yawTimestampQueue;
@@ -39,26 +52,50 @@ public class GyroIOPigeon2 implements GyroIO {
         pigeon.getConfigurator().setYaw(0.0);
 
         yaw = pigeon.getYaw();
+        pitch = pigeon.getPitch();
+        roll = pigeon.getRoll();
+
         yawVelocity = pigeon.getAngularVelocityZWorld();
+        pitchVelocity = pigeon.getAngularVelocityYWorld();
+        rollVelocity = pigeon.getAngularVelocityXWorld();
+
+        upTime = pigeon.getUpTime();
+        supplyVoltage = pigeon.getSupplyVoltage();
+
+        temperature = pigeon.getTemperature();
 
         // FD allows bus to go at 250 Hz
         double yawUpdateFrequency = canivore.isNetworkFD() ? 250 : 100;
         yaw.setUpdateFrequency(yawUpdateFrequency);
 
-        yawVelocity.setUpdateFrequency(120.0);
+        BaseStatusSignal.setUpdateFrequencyForAll(120.0, pitch, roll, yawVelocity, rollVelocity, pitchVelocity);
+        BaseStatusSignal.setUpdateFrequencyForAll(4.0, upTime, supplyVoltage, temperature);
         pigeon.optimizeBusUtilization();
 
         yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
         yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
 
-        refreshPigeonAlerts(BaseStatusSignal.refreshAll(yaw, yawVelocity).isOK());
+        refreshPigeonAlerts(BaseStatusSignal.refreshAll(
+            yaw, yawVelocity, pitch, roll, rollVelocity, pitchVelocity, upTime, supplyVoltage, temperature).isOK());
     }
 
     @Override
     public void updateInputs(GyroIOInputs inputs) {
-        inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+        inputs.connected = BaseStatusSignal.refreshAll(
+            yaw, yawVelocity, pitch, roll, rollVelocity, pitchVelocity, upTime, supplyVoltage, temperature)
+            .equals(StatusCode.OK);
+        inputs.tempC = temperature.getValueAsDouble();
+
         inputs.yawPositionDeg = yaw.getValueAsDouble();
+        inputs.pitchPositionDeg = pitch.getValueAsDouble();
+        inputs.rollPositionDeg = roll.getValueAsDouble();
+
         inputs.yawVelocityDegPerSec = yawVelocity.getValueAsDouble();
+        inputs.pitchVelocityDegPerSec = pitchVelocity.getValueAsDouble();
+        inputs.rollVelocityDegPerSec = rollVelocity.getValueAsDouble();
+
+        inputs.upTimeSec = upTime.getValueAsDouble();
+        inputs.supplyVoltage = supplyVoltage.getValueAsDouble();
 
         refreshPigeonAlerts(inputs.connected);
 
