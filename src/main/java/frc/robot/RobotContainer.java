@@ -349,8 +349,16 @@ public class RobotContainer {
             // R2 = flywheel (analog speed control)
             // Left stick Y = hood manual control
             flywheel.setDefaultCommand(Commands.run(() -> {
-                if (DriverStation.isJoystickConnected(1)) {
-                    double flywheelManualVeloCommand = (mechController.getR2Axis()) / 3;
+                if (!DriverStation.isJoystickConnected(1)) {
+                    flywheel.stop();
+                    return;
+                }
+
+                // R2 rests at -1 and reads 1 fully pressed, so shift it into [0, 2/3]
+                double flywheelManualVeloCommand = (mechController.getR2Axis() + 1) / 3;
+
+                // Closed loop holding 0 fights the flywheel, so stop it outright instead
+                if (Math.abs(flywheelManualVeloCommand) > 1e-6) {
                     flywheel.setVelocity(flywheelManualVeloCommand);
                 } else {
                     flywheel.stop();
