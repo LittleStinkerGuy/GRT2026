@@ -16,10 +16,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
 import frc.robot.commands.AutonShooterSequence;
+import frc.robot.commands.CycleShot;
+import frc.robot.commands.SmashShot;
+import frc.robot.commands.TowerShot;
 import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
 import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
@@ -174,11 +178,15 @@ public class RobotContainer {
                 }, swerveSubsystem);
         }
         if (Constants.MECH_ENABLED) {
-            driveControllerReal.L2().whileTrue(roller.runRollerIn());
+            driveControllerReal.R1().whileTrue(new CycleShot(flywheel, hood, tower, hopper, cycleFlywheelOffsetGetter));
             driveControllerReal.R2().whileTrue(roller.runRollerOut());
 
-            driveControllerReal.L1().toggleOnTrue(pivot.retractPivot());
-            driveControllerReal.R1().toggleOnTrue(pivot.deployPivot());
+            driveControllerReal.L1().toggleOnTrue(pivot.togglePivot());
+            driveControllerReal.L2().whileTrue(roller.runRollerIn());
+
+            driveControllerReal.triangle().toggleOnTrue(new SmashShot(flywheel, hood, tower, hopper, pivot));
+            driveControllerReal.circle().toggleOnTrue(new TowerShot(flywheel, hood, tower, hopper, pivot));
+
 
             driveControllerReal.povDown().whileTrue(flywheel.setFlywheelManualSpeed(() -> -1.0));
             driveControllerReal.povUp().whileTrue(flywheel.setFlywheelManualSpeed(() -> 1.0));
@@ -190,7 +198,7 @@ public class RobotContainer {
             hopper.setDefaultCommand(hopper.stopHopper());
             tower.setDefaultCommand(tower.stopTower());
 
-            driveControllerReal.triangle().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
+            driveControllerReal.square().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
 
 
         }

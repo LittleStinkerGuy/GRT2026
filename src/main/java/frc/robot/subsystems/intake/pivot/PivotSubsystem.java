@@ -51,6 +51,7 @@ public class PivotSubsystem extends SubsystemBase {
         MotorControlMode.Position);
     private final MutVoltage commandedVoltageSetpoint = Volts.mutable(0.0);
     private final MutAngle commandedPositionSetpoint = Rotations.mutable(0.0);
+    private boolean intakeDeployed = false;
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -190,13 +191,27 @@ public class PivotSubsystem extends SubsystemBase {
 
     public Command deployPivot() {
         return this.runOnce(() -> {
+            intakeDeployed = true;
             setPosition(IntakeConstants.PIVOT_OUT_POS);
         });
     }
 
     public Command retractPivot() {
         return this.runOnce(() -> {
+            intakeDeployed = false;
             setPosition(IntakeConstants.PIVOT_IN_POS);
+        });
+    }
+
+    public Command togglePivot(){
+        return this.runOnce(() -> {
+            if (intakeDeployed){
+                intakeDeployed = false;
+                setPosition(IntakeConstants.PIVOT_IN_POS);
+            } else {
+                intakeDeployed = true;
+                setPosition(IntakeConstants.PIVOT_OUT_POS);
+            }
         });
     }
 
