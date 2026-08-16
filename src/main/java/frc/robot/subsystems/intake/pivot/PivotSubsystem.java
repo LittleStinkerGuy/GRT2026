@@ -203,16 +203,8 @@ public class PivotSubsystem extends SubsystemBase {
         });
     }
 
-    public Command togglePivot(){
-        return this.runOnce(() -> {
-            if (intakeDeployed){
-                intakeDeployed = false;
-                setPosition(IntakeConstants.PIVOT_IN_POS);
-            } else {
-                intakeDeployed = true;
-                setPosition(IntakeConstants.PIVOT_OUT_POS);
-            }
-        });
+    public Command togglePivot() {
+        return Commands.either(retractPivot(), deployPivot(), () -> intakeDeployed);
     }
 
     public Command jigglePivot() {
