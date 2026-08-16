@@ -1,7 +1,10 @@
 package frc.robot.subsystems.swerve;
 
+import static frc.robot.Constants.DebugConstants.*;
+import static frc.robot.Constants.SwerveConstants.*;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
+import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
 import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
@@ -10,7 +13,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,46 +26,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.Constants.DebugConstants.DRIVE_DEBUG;
-import static frc.robot.Constants.DebugConstants.STEER_DEBUG;
 import frc.robot.Constants.SwerveConstants;
-import static frc.robot.Constants.SwerveConstants.AUTO_ROTATION_D;
-import static frc.robot.Constants.SwerveConstants.AUTO_ROTATION_I;
-import static frc.robot.Constants.SwerveConstants.AUTO_ROTATION_P;
-import static frc.robot.Constants.SwerveConstants.AUTO_TRANSLATION_D;
-import static frc.robot.Constants.SwerveConstants.AUTO_TRANSLATION_I;
-import static frc.robot.Constants.SwerveConstants.AUTO_TRANSLATION_P;
-import static frc.robot.Constants.SwerveConstants.BL_DRIVE;
-import static frc.robot.Constants.SwerveConstants.BL_ENCODER;
-import static frc.robot.Constants.SwerveConstants.BL_OFFSET;
-import static frc.robot.Constants.SwerveConstants.BL_POS;
-import static frc.robot.Constants.SwerveConstants.BL_STEER;
-import static frc.robot.Constants.SwerveConstants.BR_DRIVE;
-import static frc.robot.Constants.SwerveConstants.BR_ENCODER;
-import static frc.robot.Constants.SwerveConstants.BR_OFFSET;
-import static frc.robot.Constants.SwerveConstants.BR_POS;
-import static frc.robot.Constants.SwerveConstants.BR_STEER;
-import static frc.robot.Constants.SwerveConstants.FL_DRIVE;
-import static frc.robot.Constants.SwerveConstants.FL_ENCODER;
-import static frc.robot.Constants.SwerveConstants.FL_OFFSET;
-import static frc.robot.Constants.SwerveConstants.FL_POS;
-import static frc.robot.Constants.SwerveConstants.FL_STEER;
-import static frc.robot.Constants.SwerveConstants.FR_DRIVE;
-import static frc.robot.Constants.SwerveConstants.FR_ENCODER;
-import static frc.robot.Constants.SwerveConstants.FR_OFFSET;
-import static frc.robot.Constants.SwerveConstants.FR_POS;
-import static frc.robot.Constants.SwerveConstants.FR_STEER;
-import static frc.robot.Constants.SwerveConstants.MAX_ANGULAR_ACCELERATION;
-import static frc.robot.Constants.SwerveConstants.MAX_ANGULAR_DECELERATION;
-import static frc.robot.Constants.SwerveConstants.MAX_LINEAR_ACCELERATION;
-import static frc.robot.Constants.SwerveConstants.MAX_LINEAR_DECELERATION;
-import static frc.robot.Constants.SwerveConstants.MAX_OMEGA;
-import static frc.robot.Constants.SwerveConstants.MAX_VEL;
-import static frc.robot.Constants.SwerveConstants.ROTATION_D;
-import static frc.robot.Constants.SwerveConstants.ROTATION_I;
-import static frc.robot.Constants.SwerveConstants.ROTATION_P;
-import static frc.robot.Constants.SwerveSteerConstants.STEER_CRUISE_VELOCITY;
-import static frc.robot.Constants.SwerveSteerConstants.STEER_GEAR_REDUCTION;
+import frc.robot.subsystems.vision.TimestampedVisionUpdate;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -382,6 +346,13 @@ public class SwerveSubsystem extends SubsystemBase {
         frontRightModule.setDesiredState(new SwerveModuleState(0.0, new Rotation2d(-Math.PI / 4.0)));
         backLeftModule.setDesiredState(new SwerveModuleState(0.0, new Rotation2d(-Math.PI / 4.0)));
         backRightModule.setDesiredState(new SwerveModuleState(0.0, new Rotation2d(Math.PI / 4.0)));
+    }
+
+    public void addVisionMeasurements(TimestampedVisionUpdate update) {
+        poseEstimator.addVisionMeasurement(
+            update.pose(),
+            update.timestamp(),
+            update.stdDevs());
     }
 
     /**
