@@ -5,11 +5,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.util.PixelFormat;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
-import frc.robot.Constants.Mode;
-import frc.robot.Constants.ShooterConstants.Flywheel;
 import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
@@ -58,8 +51,6 @@ import frc.robot.subsystems.shooter.tower.TowerIOTalonFXSim;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.swerve.AimSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.TracerSentinel;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -110,20 +101,8 @@ public class RobotContainer {
             ? new AimToHubCommand(swerveSubsystem, fmsSubsystem)
             : null;
 
-    // private final FuelDetectionSubsystem fuelDetectionSubsystem = new FuelDetectionSubsystem(VisionConstants.FUEL_DETECTION_CONFIG);
-
-    private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-        VisionConstants.CAMERA_CONFIG_1);
-    private final VisionSubsystem visionSubsystem2 = new VisionSubsystem(
-        VisionConstants.CAMERA_CONFIG_2);
-    private final VisionSubsystem visionSubsystem3 = new VisionSubsystem(
-        VisionConstants.CAMERA_CONFIG_3);
-    private UsbCamera driverCam;
-
     private double desiredHoodSpeed = 0;
     private final MutAngularVelocity flywheelManualVeloCommand = RotationsPerSecond.mutable(0.0);
-    // private final VisionSubsystem visionSubsystem1 = new VisionSubsystem(
-    // VisionConstants.CAMERA_CONFIG_11);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -156,23 +135,9 @@ public class RobotContainer {
                 hood = new HoodSubsystem(new HoodIO() {});
                 break;
         }
-        visionStuff();
         constructController();
         configureBindings();
         configureAutoChooser();
-
-        if (Constants.CURRENT_MODE == Mode.REAL) {
-            // Driver cam — publishes to NT at /CameraPublisher/Driver Cam/streams
-            driverCam = CameraServer.startAutomaticCapture("Driver Cam", 0);
-            driverCam.setVideoMode(PixelFormat.kMJPEG, 640, 480, 30);
-
-            // Throttle what actually streams to the dashboard (the source-side FPS
-            // is just a hint — Arducams often ignore it). These caps are authoritative.
-            MjpegServer driverCamServer = (MjpegServer) CameraServer.getServer("serve_Driver Cam");
-            driverCamServer.setResolution(320, 240);
-            driverCamServer.setFPS(20);
-            driverCamServer.setCompression(50); // 0 = worst, 100 = best; lower = less bandwidth
-        }
 
         SmartDashboard.putData("Field", field);
         NamedCommands.registerCommand("deployIntake", pivot.deployPivot());
@@ -301,21 +266,5 @@ public class RobotContainer {
     }
     // return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hoodSubsystem, hopper, tower, pivotIntake);
     // }
-
-    // vision shit
-    public void visionStuff() {
-        visionSubsystem1.setInterface(swerveSubsystem::addVisionMeasurements);
-        visionSubsystem2.setInterface(swerveSubsystem::addVisionMeasurements);
-        visionSubsystem3.setInterface(swerveSubsystem::addVisionMeasurements);
-
-        // CommandScheduler.getInstance().schedule(
-        // new GetCameraDisplacement(visionSubsystem1,
-        // new Transform3d(
-        // Units.inchesToMeters(0),
-        // Units.inchesToMeters(-43 - 15),
-        // Units.inchesToMeters(44.25),
-        // new Rotation3d(0, 0, Math.PI / 2))));
-
-    }
 
 }

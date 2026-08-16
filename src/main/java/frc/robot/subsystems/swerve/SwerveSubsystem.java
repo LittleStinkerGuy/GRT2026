@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.subsystems.vision.TimestampedVisionUpdate;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -346,13 +345,6 @@ public class SwerveSubsystem extends SubsystemBase {
         frontRightModule.setDesiredState(new SwerveModuleState(0.0, new Rotation2d(-Math.PI / 4.0)));
         backLeftModule.setDesiredState(new SwerveModuleState(0.0, new Rotation2d(-Math.PI / 4.0)));
         backRightModule.setDesiredState(new SwerveModuleState(0.0, new Rotation2d(Math.PI / 4.0)));
-    }
-
-    public void addVisionMeasurements(TimestampedVisionUpdate update) {
-        poseEstimator.addVisionMeasurement(
-            update.pose(),
-            update.timestamp(),
-            update.stdDevs());
     }
 
     /**
