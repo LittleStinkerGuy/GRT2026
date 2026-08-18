@@ -354,7 +354,7 @@ public final class Constants {
         public static final Current ROLLER_CURRENT_LIMIT = Amps.of(120.0);
         public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(120.0);
         public static final double ROLLER_OPEN_LOOP_RAMP = 0.0;
-        public static final InvertedValue ROLLER_INVERTED = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue ROLLER_INVERTED = InvertedValue.Clockwise_Positive;
 
         // Roller Position control PID (SysID Derived - Voltage)
         public static final double ROLLER_P = 0.0930;
