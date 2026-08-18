@@ -170,11 +170,15 @@ public class FlywheelSubsystem extends SubsystemBase {
         return this.run(() -> setDutyCycle(speedSupplier.getAsDouble())).finallyDo(this::stop);
     }
 
-    public Command rampToVelocity(DoubleSupplier rpsSupplier) {
+    public Command setFlywheelVelocity(DoubleSupplier rpsSupplier) {
         return this.run(() -> {
             veloCommand.mut_replace(rpsSupplier.getAsDouble(), RotationsPerSecond);
             setVelocity(veloCommand);
         }).finallyDo(this::stop);
+    }
+
+    public Command setFlywheelVelocity(AngularVelocity velo) {
+        return setFlywheelVelocity(() -> velo.in(RotationsPerSecond));
     }
 
     public Command stopFlywheel() {

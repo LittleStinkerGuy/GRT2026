@@ -218,6 +218,18 @@ public class PivotSubsystem extends SubsystemBase {
         return jigglePivotCommand;
     }
 
+    public Command cyclePivotMid(double initialDelaySeconds, double toggleIntervalSeconds) {
+        return Commands.sequence(
+            this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_LOWER)),
+            Commands.waitSeconds(initialDelaySeconds),
+            Commands.sequence(
+                this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_UPPER)),
+                Commands.waitSeconds(toggleIntervalSeconds),
+                this.runOnce(() -> setPosition(IntakeConstants.PIVOT_MID_LOWER)),
+                Commands.waitSeconds(toggleIntervalSeconds)).repeatedly())
+            .finallyDo(() -> setPosition(IntakeConstants.PIVOT_OUT_POS));
+    }
+
     public Command holdPivotOut() {
         return this.startEnd(
             () -> setPosition(IntakeConstants.PIVOT_OUT_POS),

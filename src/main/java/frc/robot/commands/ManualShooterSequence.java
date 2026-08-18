@@ -2,10 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShooterConstants;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotSubsystem;
@@ -19,23 +16,10 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
  * sequence can be reused for different shot types (smash, cycle, etc.). Pivot
  * timing comes from SmashAndShootConstants.
  *
- * The shooterLearner offsets are applied on every loop, so live tuning via the
- * dashboard or operator buttons takes effect mid-shot.
+ * Runs until interrupted; each subsystem's own command stops it and returns it to
+ * its resting position on the way out.
  */
-public class ManualShooterSequence extends Command {
-
-    private final FlywheelSubsystem flywheel;
-    private final frc.robot.subsystems.shooter.hood.HoodSubsystem hood;
-    private final TowerSubsystem tower;
-    private final HopperSubsystem hopper;
-    private final PivotSubsystem pivot;
-
-    private final Angle hoodPosition;
-    private final AngularVelocity flywheelVelo;
-
-    private final Timer pivotTimer = new Timer();
-    private boolean pivotIsIn = true;
-    private boolean initialDelayDone = false;
+public class ManualShooterSequence extends ParallelCommandGroup {
 
     public ManualShooterSequence(
         FlywheelSubsystem flywheel,
@@ -45,68 +29,13 @@ public class ManualShooterSequence extends Command {
         PivotSubsystem pivot,
         Angle hoodPosition,
         AngularVelocity flywheelVelo) {
-        this.flywheel = flywheel;
-        this.hood = hood;
-        this.tower = tower;
-        this.hopper = hopper;
-        this.pivot = pivot;
-        this.hoodPosition = hoodPosition;
-        this.flywheelVelo = flywheelVelo;
-
-        addRequirements(flywheel, hood, tower, hopper, pivot);
-    }
-
-    @Override
-    public void initialize() {
-        // Start ramping FlywheelSubsystem and moving hood to position
-        flywheel.setVelocity(flywheelVelo);
-        hood.setPosition(hoodPosition);
-        // Start with pivot out, wait the initial-delay before first toggle
-        pivotIsIn = false;
-        initialDelayDone = false;
-        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
-        pivotTimer.restart();
-    }
-
-    @Override
-    public void execute() {
-        // Keep commanding FlywheelSubsystem and hood targets (with live operator offsets)
-        flywheel.setVelocity(flywheelVelo);
-        hood.setPosition(hoodPosition);
-
-        if (!initialDelayDone) {
-            if (pivotTimer.hasElapsed(SmashAndShootConstants.INITIAL_DELAY_SECONDS)) {
-                initialDelayDone = true;
-                pivotIsIn = true;
-                pivotTimer.restart();
-            }
-        } else if (pivotTimer.hasElapsed(SmashAndShootConstants.TOGGLE_INTERVAL_SECONDS)) {
-            pivotIsIn = !pivotIsIn;
-            pivotTimer.restart();
-        }
-        pivot.setPosition(pivotIsIn ? IntakeConstants.PIVOT_MID_UPPER : IntakeConstants.PIVOT_MID_LOWER);
-
-        // Only feed balls when FlywheelSubsystem is at speed AND hood is at position
-        if (/* fly.wantedVel() && hd.wantedAngl() */ true) {
-            tower.setDutyCycle(SmashAndShootConstants.TOWER_DUTY_CYCLE);
-            hopper.setDutyCycle(SmashAndShootConstants.INDEXER_DUTY_CYCLE);
-        } else {
-            tower.stop();
-            hopper.setDutyCycle(0);
-        }
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        flywheel.stop();
-        hood.setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT);
-        tower.stop();
-        hopper.stop();
-        pivot.setPosition(IntakeConstants.PIVOT_OUT_POS);
+        super(
+            flywheel.setFlywheelVelocity(flywheelVelo),
+            hood.holdPositionThenHide(hoodPosition),
+            tower.runTowerDutyCycle(SmashAndShootConstants.TOWER_DUTY_CYCLE),
+            hopper.runHopperDutyCycle(SmashAndShootConstants.INDEXER_DUTY_CYCLE),
+            pivot.cyclePivotMid(
+                SmashAndShootConstants.INITIAL_DELAY_SECONDS,
+                SmashAndShootConstants.TOGGLE_INTERVAL_SECONDS));
     }
 }
