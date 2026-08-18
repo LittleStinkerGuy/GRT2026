@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,13 +15,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
-import frc.robot.commands.AutonShooterSequence;
 import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
 import frc.robot.commands.TowerShot;
-import frc.robot.commands.allign.AimToHubCommand;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
-import frc.robot.commands.intake.PivotAndRollerIntakeCommand;
 import frc.robot.controllers.PS5DriveController;
 import frc.robot.subsystems.fms.FieldManagementSubsystem;
 import frc.robot.subsystems.hopper.HopperIO;
@@ -49,7 +45,6 @@ import frc.robot.subsystems.shooter.tower.TowerIO;
 import frc.robot.subsystems.shooter.tower.TowerIOTalonFX;
 import frc.robot.subsystems.shooter.tower.TowerIOTalonFXSim;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
-import frc.robot.subsystems.swerve.AimSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.TracerSentinel;
@@ -83,7 +78,6 @@ public class RobotContainer {
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
     private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
-    private final Field2d field = new Field2d();
 
     private final PivotSubsystem pivot;
     private final RollerSubsystem roller;
@@ -91,15 +85,6 @@ public class RobotContainer {
     private final TowerSubsystem tower;
     private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hood;
-    @SuppressWarnings("unused")
-    private final AimSubsystem aimSubsystem =
-        (Constants.SWERVE_ENABLED && swerveSubsystem != null)
-            ? new AimSubsystem(swerveSubsystem, fmsSubsystem)
-            : null;
-    private final AimToHubCommand aimHelper =
-        (Constants.SWERVE_ENABLED && swerveSubsystem != null)
-            ? new AimToHubCommand(swerveSubsystem, fmsSubsystem)
-            : null;
 
     private double desiredHoodSpeed = 0;
     private final MutAngularVelocity flywheelManualVeloCommand = RotationsPerSecond.mutable(0.0);
@@ -138,13 +123,6 @@ public class RobotContainer {
         constructController();
         configureBindings();
         configureAutoChooser();
-
-        SmartDashboard.putData("Field", field);
-        NamedCommands.registerCommand("deployIntake", pivot.deployPivot());
-        NamedCommands.registerCommand("runRollers", roller.runRollerIn());
-        NamedCommands.registerCommand("pivotAndRollerIntake", new PivotAndRollerIntakeCommand(pivot, roller));
-        NamedCommands.registerCommand("pivotdownandrunrollers", new PivotAndRollerIntakeCommand(pivot, roller));
-        NamedCommands.registerCommand("shootSequence", new AutonShooterSequence(flywheel, hood, tower, hopper, pivot));
     }
 
     /**
@@ -201,8 +179,6 @@ public class RobotContainer {
             tower.setDefaultCommand(tower.stopTower());
 
             driveControllerReal.square().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
-
-
         }
     }
 
