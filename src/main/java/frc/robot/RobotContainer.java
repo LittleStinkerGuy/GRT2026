@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -123,6 +123,8 @@ public class RobotContainer {
         constructController();
         configureBindings();
         configureAutoChooser();
+
+        driveControllerReal.setRumble(RumbleType.kBothRumble, 1);
     }
 
     /**
