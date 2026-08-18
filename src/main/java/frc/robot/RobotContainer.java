@@ -123,8 +123,6 @@ public class RobotContainer {
         constructController();
         configureBindings();
         configureAutoChooser();
-
-        driveControllerReal.setRumble(RumbleType.kBothRumble, 1);
     }
 
     /**
