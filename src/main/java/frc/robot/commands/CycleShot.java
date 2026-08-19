@@ -7,6 +7,8 @@ import frc.robot.subsystems.hopper.HopperSubsystem;
 import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -21,10 +23,12 @@ public class CycleShot extends ParallelCommandGroup {
         HoodSubsystem hood,
         TowerSubsystem tower,
         HopperSubsystem hopper,
-        DoubleSupplier flyWheelVeloSupplier) {
+        DoubleSupplier flyWheelVeloSupplier,
+        DoubleSupplier hoodPosSupplier) {
         super(
-            flywheel.setFlywheelVelocity(flyWheelVeloSupplier),
-            hood.holdPositionThenHide(CycleShooterConstants.HOOD_POSITION),
+
+            flywheel.setFlywheelVelocity(() -> (CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond))),
+            hood.holdPositionThenHide(() -> (CycleShooterConstants.HOOD_POSITION.in(Rotations))),
             tower.runTowerDutyCycle(SmashAndShootConstants.TOWER_DUTY_CYCLE),
             hopper.runHopperDutyCycle(SmashAndShootConstants.INDEXER_DUTY_CYCLE));
     }

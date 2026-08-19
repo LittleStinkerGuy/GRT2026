@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
 import frc.robot.Constants.CycleShooterConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
 import frc.robot.commands.TowerShot;
@@ -156,7 +157,7 @@ public class RobotContainer {
                 }, swerveSubsystem);
         }
         if (Constants.MECH_ENABLED) {
-            driveControllerReal.R1().whileTrue(new CycleShot(flywheel, hood, tower, hopper, cycleFlywheelOffsetGetter));
+            driveControllerReal.R1().whileTrue(new CycleShot(flywheel, hood, tower, hopper, () -> cycleFlywheelVelo, () -> cycleHoodPos));
             driveControllerReal.R2().whileTrue(roller.runRollerOut());
 
             driveControllerReal.L1().toggleOnTrue(pivot.togglePivot());
@@ -165,12 +166,27 @@ public class RobotContainer {
             driveControllerReal.triangle().toggleOnTrue(new SmashShot(flywheel, hood, tower, hopper, pivot));
             driveControllerReal.circle().toggleOnTrue(new TowerShot(flywheel, hood, tower, hopper, pivot));
 
+            driveControllerReal.povUp().onTrue(Commands.runOnce(() -> {
+                if (cycleFlywheelVelo + 5 <= ShooterConstants.Flywheel.FLYWHEEL_MAX_SPEED.in(RotationsPerSecond)) {
+                    cycleFlywheelVelo += 5;
+                }
+            }));
+            driveControllerReal.povDown().onTrue(Commands.runOnce(() -> {
+                if (cycleFlywheelVelo - 5 >= 0) {
+                    cycleFlywheelVelo -= 5;
+                }
+            }));
 
-            driveControllerReal.povDown().whileTrue(flywheel.setFlywheelManualSpeed(() -> -1.0));
-            driveControllerReal.povUp().whileTrue(flywheel.setFlywheelManualSpeed(() -> 1.0));
-
-            driveControllerReal.povLeft().whileTrue(hopper.runHopperOut());
-            driveControllerReal.povRight().whileTrue(hopper.runHopperIn());
+            driveControllerReal.povLeft().onTrue(Commands.runOnce(() -> {
+                if (cycleHoodPos - 0.01 >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations)) {
+                    cycleFlywheelVelo -= 0.01;
+                }
+            }));
+            driveControllerReal.povRight().onTrue(Commands.runOnce(() -> {
+                if (cycleHoodPos + 0.01 <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations)) {
+                    cycleFlywheelVelo += 0.01;
+                }
+            }));
 
             roller.setDefaultCommand(roller.stopRoller());
             hopper.setDefaultCommand(hopper.stopHopper());

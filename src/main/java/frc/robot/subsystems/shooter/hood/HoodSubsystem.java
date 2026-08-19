@@ -182,6 +182,12 @@ public class HoodSubsystem extends SubsystemBase {
             () -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
     }
 
+    public Command holdPositionThenHide(DoubleSupplier position) {
+        return this.startEnd(
+            () -> setPosition(Rotations.of(position.getAsDouble())),
+            () -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
+    }
+
     public Command hideHood() {
         return this.runOnce(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT))
             .andThen(Commands.waitUntil(() -> atPositionSetpoint().orElse(false)));
