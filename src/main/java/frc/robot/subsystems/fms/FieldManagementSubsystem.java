@@ -48,7 +48,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private BooleanPublisher isFmsAttachedPublisher;
     private BooleanPublisher redWonAutonPublisher;
     private BooleanPublisher autonWinnerPublishedPublisher;
-    private DoublePublisher veloOffsetPublisher;
 
     private String periodInfo = "";
     private double timeUntilNextPhase = 0.0;

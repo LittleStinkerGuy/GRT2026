@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -51,8 +52,6 @@ import frc.robot.util.LoggedCanivore;
 import frc.robot.util.TracerSentinel;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -84,6 +83,9 @@ public class RobotContainer {
     private final TowerSubsystem tower;
     private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hood;
+
+    private static final double CYCLE_FLYWHEEL_VELO_STEP_RPS = 5.0; // rotations per second
+    private static final double CYCLE_HOOD_POS_STEP_ROT = 0.01; // rotations
 
     private double cycleHoodPos = CycleShooterConstants.HOOD_POSITION.in(Rotations);
     private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond);
@@ -166,27 +168,16 @@ public class RobotContainer {
             driveControllerReal.triangle().toggleOnTrue(new SmashShot(flywheel, hood, tower, hopper, pivot));
             driveControllerReal.circle().toggleOnTrue(new TowerShot(flywheel, hood, tower, hopper, pivot));
 
-            driveControllerReal.povUp().onTrue(Commands.runOnce(() -> {
-                if (cycleFlywheelVelo + 5 <= ShooterConstants.Flywheel.FLYWHEEL_MAX_SPEED.in(RotationsPerSecond)) {
-                    cycleFlywheelVelo += 5;
-                }
-            }));
-            driveControllerReal.povDown().onTrue(Commands.runOnce(() -> {
-                if (cycleFlywheelVelo - 5 >= 0) {
-                    cycleFlywheelVelo -= 5;
-                }
-            }));
+            publishCycleTuning();
+            driveControllerReal.povUp().onTrue(
+                Commands.runOnce(() -> adjustCycleFlywheelVelo(CYCLE_FLYWHEEL_VELO_STEP_RPS)));
+            driveControllerReal.povDown().onTrue(
+                Commands.runOnce(() -> adjustCycleFlywheelVelo(-CYCLE_FLYWHEEL_VELO_STEP_RPS)));
 
-            driveControllerReal.povLeft().onTrue(Commands.runOnce(() -> {
-                if (cycleHoodPos - 0.01 >= ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations)) {
-                    cycleFlywheelVelo -= 0.01;
-                }
-            }));
-            driveControllerReal.povRight().onTrue(Commands.runOnce(() -> {
-                if (cycleHoodPos + 0.01 <= ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations)) {
-                    cycleFlywheelVelo += 0.01;
-                }
-            }));
+            driveControllerReal.povRight().onTrue(
+                Commands.runOnce(() -> adjustCycleHoodPos(CYCLE_HOOD_POS_STEP_ROT)));
+            driveControllerReal.povLeft().onTrue(
+                Commands.runOnce(() -> adjustCycleHoodPos(-CYCLE_HOOD_POS_STEP_ROT)));
 
             roller.setDefaultCommand(roller.stopRoller());
             hopper.setDefaultCommand(hopper.stopHopper());
@@ -194,6 +185,28 @@ public class RobotContainer {
 
             driveControllerReal.square().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
         }
+    }
+
+    private void adjustCycleFlywheelVelo(double deltaRotationsPerSecond) {
+        cycleFlywheelVelo = MathUtil.clamp(
+            cycleFlywheelVelo + deltaRotationsPerSecond,
+            0.0,
+            ShooterConstants.Flywheel.FLYWHEEL_MAX_SPEED.in(RotationsPerSecond));
+        publishCycleTuning();
+    }
+
+    private void adjustCycleHoodPos(double deltaRotations) {
+        cycleHoodPos = MathUtil.clamp(
+            cycleHoodPos + deltaRotations,
+            ShooterConstants.Hood.LOWER_ANGLE_LIMIT.in(Rotations),
+            ShooterConstants.Hood.UPPER_ANGLE_LIMIT.in(Rotations));
+        publishCycleTuning();
+    }
+
+    /** Publishes the live cycle-shot setpoints so the operator can see what they are tuning. */
+    private void publishCycleTuning() {
+        SmartDashboard.putNumber("CycleShot/FlywheelVeloRPS", cycleFlywheelVelo);
+        SmartDashboard.putNumber("CycleShot/HoodPosRotations", cycleHoodPos);
     }
 
     /**

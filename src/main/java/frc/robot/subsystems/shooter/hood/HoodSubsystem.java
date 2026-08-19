@@ -183,9 +183,10 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public Command holdPositionThenHide(DoubleSupplier position) {
-        return this.startEnd(
-            () -> setPosition(Rotations.of(position.getAsDouble())),
-            () -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
+        // run(), not startEnd(), so the supplier is re-sampled every loop and the hood
+        // tracks live adjustments while the command is held.
+        return this.run(() -> setPosition(Rotations.of(position.getAsDouble())))
+            .finallyDo(() -> setPosition(ShooterConstants.Hood.LOWER_ANGLE_LIMIT));
     }
 
     public Command hideHood() {
