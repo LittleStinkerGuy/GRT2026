@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
@@ -21,7 +20,7 @@ import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
 import frc.robot.commands.TowerShot;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
-import frc.robot.controllers.PS5DriveController;
+import frc.robot.controllers.XboxDriveController;
 import frc.robot.subsystems.fms.FieldManagementSubsystem;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOTalonFX;
@@ -69,8 +68,8 @@ public class RobotContainer {
     private final TracerSentinel tracerSentinel = new TracerSentinel();
 
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-    private PS5DriveController driveController;
-    private CommandPS5Controller driveControllerReal;
+    private XboxDriveController driveController;
+    private CommandXboxController driveControllerReal;
     private final LoggedCanivore swerveCan = new LoggedCanivore(CANType.SWERVE);
     private final LoggedCanivore mechCan = new LoggedCanivore(CANType.MECH);
 
@@ -159,14 +158,14 @@ public class RobotContainer {
                 }, swerveSubsystem);
         }
         if (Constants.MECH_ENABLED) {
-            driveControllerReal.R1().whileTrue(new CycleShot(flywheel, hood, tower, hopper, () -> cycleFlywheelVelo, () -> cycleHoodPos));
-            driveControllerReal.R2().whileTrue(roller.runRollerOut());
+            driveControllerReal.rightBumper().whileTrue(new CycleShot(flywheel, hood, tower, hopper, () -> cycleFlywheelVelo, () -> cycleHoodPos));
+            driveControllerReal.rightTrigger().whileTrue(roller.runRollerOut());
 
-            driveControllerReal.L1().toggleOnTrue(pivot.togglePivot());
-            driveControllerReal.L2().whileTrue(roller.runRollerIn());
+            driveControllerReal.leftBumper().toggleOnTrue(pivot.togglePivot());
+            driveControllerReal.leftTrigger().whileTrue(roller.runRollerIn());
 
-            driveControllerReal.triangle().toggleOnTrue(new SmashShot(flywheel, hood, tower, hopper, pivot));
-            driveControllerReal.circle().toggleOnTrue(new TowerShot(flywheel, hood, tower, hopper, pivot));
+            driveControllerReal.y().toggleOnTrue(new SmashShot(flywheel, hood, tower, hopper, pivot));
+            driveControllerReal.a().toggleOnTrue(new TowerShot(flywheel, hood, tower, hopper, pivot));
 
             publishCycleTuning();
             driveControllerReal.povUp().onTrue(
@@ -183,7 +182,7 @@ public class RobotContainer {
             hopper.setDefaultCommand(hopper.stopHopper());
             tower.setDefaultCommand(tower.stopTower());
 
-            driveControllerReal.square().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
+            driveControllerReal.b().toggleOnTrue(Commands.parallel(pivot.jigglePivot(), hood.jiggleHood()));
         }
     }
 
@@ -213,7 +212,7 @@ public class RobotContainer {
      * Constructs the drive controller based on the name of the controller at port 0
      */
     private void constructController() {
-        driveController = new PS5DriveController();
+        driveController = new XboxDriveController();
         driveControllerReal = driveController.getController();
         driveController.setDeadZone(0.035);
     }
