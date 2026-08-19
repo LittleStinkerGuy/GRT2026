@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -51,6 +49,7 @@ import frc.robot.util.LoggedCanivore;
 import frc.robot.util.TracerSentinel;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -66,8 +65,6 @@ public class RobotContainer {
     // Captures pre-subsystem scheduler overhead
     @SuppressWarnings("unused")
     private final TracerSentinel tracerSentinel = new TracerSentinel();
-
-    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private XboxDriveController driveController;
     private CommandXboxController driveControllerReal;
     private final LoggedCanivore swerveCan = new LoggedCanivore(CANType.SWERVE);
@@ -204,8 +201,8 @@ public class RobotContainer {
 
     /** Publishes the live cycle-shot setpoints so the operator can see what they are tuning. */
     private void publishCycleTuning() {
-        SmartDashboard.putNumber("CycleShot/FlywheelVeloRPS", cycleFlywheelVelo);
-        SmartDashboard.putNumber("CycleShot/HoodPosRotations", cycleHoodPos);
+        Logger.recordOutput("CycleShot/FlywheelVeloRPS", cycleFlywheelVelo);
+        Logger.recordOutput("CycleShot/HoodPosRotations", cycleHoodPos);
     }
 
     /**
@@ -220,12 +217,7 @@ public class RobotContainer {
     /**
      * Config the autonomous command chooser
      */
-    private void configureAutoChooser() {
-        // Add auton here
-        autoChooser.setDefaultOption("Do Nothing", null);
-
-        SmartDashboard.putData("Auto Selector", autoChooser);
-    }
+    private void configureAutoChooser() {}
 
     public Command getAutonomousCommand() {
         return new ShootAndLeaveAuton(swerveSubsystem, flywheel, hood, hopper, tower, pivot, roller);
