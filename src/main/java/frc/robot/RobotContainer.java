@@ -5,10 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.CANType;
@@ -18,7 +16,6 @@ import frc.robot.commands.CycleShot;
 import frc.robot.commands.SmashShot;
 import frc.robot.commands.TowerShot;
 import frc.robot.commands.auton.ShootAndLeaveAuton;
-import frc.robot.controllers.XboxDriveController;
 import frc.robot.subsystems.fms.FieldManagementSubsystem;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOTalonFX;
@@ -65,7 +62,6 @@ public class RobotContainer {
     // Captures pre-subsystem scheduler overhead
     @SuppressWarnings("unused")
     private final TracerSentinel tracerSentinel = new TracerSentinel();
-    private XboxDriveController driveController;
     private CommandXboxController driveControllerReal;
     private final LoggedCanivore swerveCan = new LoggedCanivore(CANType.SWERVE);
     private final LoggedCanivore mechCan = new LoggedCanivore(CANType.MECH);
@@ -138,22 +134,6 @@ public class RobotContainer {
      */
 
     private void configureBindings() {
-        if (Constants.SWERVE_ENABLED && swerveSubsystem != null) {
-            swerveSubsystem.setDefaultCommand(
-                new RunCommand(() -> {
-                    swerveSubsystem.setDriveSpeedLimit(1.0);
-                    swerveSubsystem.setDrivePowers(
-                        driveController.getForwardPower(),
-                        driveController.getLeftPower(),
-                        driveController.getRotatePower());
-                }, swerveSubsystem));
-
-            /* Pressing the button resets the field axes to the current robot axes. */
-            driveController.bindDriverHeadingReset(
-                () -> {
-                    swerveSubsystem.resetDriverHeading();
-                }, swerveSubsystem);
-        }
         if (Constants.MECH_ENABLED) {
             driveControllerReal.rightBumper().whileTrue(new CycleShot(flywheel, hood, tower, hopper, () -> cycleFlywheelVelo, () -> cycleHoodPos));
             driveControllerReal.rightTrigger().whileTrue(roller.runRollerOut());
@@ -209,9 +189,7 @@ public class RobotContainer {
      * Constructs the drive controller based on the name of the controller at port 0
      */
     private void constructController() {
-        driveController = new XboxDriveController();
-        driveControllerReal = driveController.getController();
-        driveController.setDeadZone(0.035);
+        driveControllerReal = new CommandXboxController(0);
     }
 
     /**
