@@ -130,7 +130,7 @@ public class RobotContainer {
      * created via the
      * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
      * an arbitrary
-     * predicate, or via the named f`actories in {@link
+     * predicate, or via the named factories in {@link
      * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
      * {@link
      * CommandXboxController
@@ -207,7 +207,7 @@ public class RobotContainer {
         // return new ToDepotAndShoot(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("90degturn");
 
-        // rehturn new PathPlannerAuto("swerve90");
+        // return new PathPlannerAuto("swerve90");
 
         // return new CNeutralIntakeTOWERAuton(flywheel, hoodSubsystem, tower, hopper, pivotIntake, intakeSubsystem, learner);
         // return new PathPlannerAuto("auton2");
