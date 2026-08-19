@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Optional;
-import java.util.function.DoubleSupplier;
 
 /** The subsystem that manages everything field related. */
 public class FieldManagementSubsystem extends SubsystemBase {
@@ -54,17 +53,13 @@ public class FieldManagementSubsystem extends SubsystemBase {
     private String periodInfo = "";
     private double timeUntilNextPhase = 0.0;
 
-    private DoubleSupplier veloOffsetSupplier;
-
     /**
      * Initializes subsystem to handle information related to the Field Management System (such as our alliance color).
      */
-    public FieldManagementSubsystem(DoubleSupplier veloOffsetSupplier) {
+    public FieldManagementSubsystem() {
         isRed = false;
         connectedToFMS = false;
         matchStatus = MatchStatus.NOT_STARTED;
-
-        this.veloOffsetSupplier = veloOffsetSupplier;
 
         initNetworkTable();
     }
@@ -87,7 +82,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
         currentShiftPublisher = fmsNtTable.getIntegerTopic("CurrentShift").publish();
         redWonAutonPublisher = fmsNtTable.getBooleanTopic("DidRedWinAuton").publish();
         autonWinnerPublishedPublisher = fmsNtTable.getBooleanTopic("AutonWinnerPublished").publish();
-        veloOffsetPublisher = fmsNtTable.getDoubleTopic("veloOffset").publish();
     }
 
     private void updateNetworkTables() {
@@ -107,7 +101,6 @@ public class FieldManagementSubsystem extends SubsystemBase {
         Optional<Boolean> redWonAutonLocal = didRedWinAuton();
         redWonAutonPublisher.set(redWonAutonLocal.orElse(false));
         autonWinnerPublishedPublisher.set(redWonAutonLocal.isPresent());
-        veloOffsetPublisher.set(veloOffsetSupplier.getAsDouble());
     }
 
     private Optional<Boolean> didRedWinAuton() {

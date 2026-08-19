@@ -48,6 +48,7 @@ import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.LoggedCanivore;
 import frc.robot.util.TracerSentinel;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import java.util.function.DoubleSupplier;
@@ -67,9 +68,6 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final TracerSentinel tracerSentinel = new TracerSentinel();
 
-    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond);
-    private DoubleSupplier cycleFlywheelOffsetGetter = () -> (cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond));
-
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private PS5DriveController driveController;
     private CommandPS5Controller driveControllerReal;
@@ -77,7 +75,7 @@ public class RobotContainer {
     private final LoggedCanivore mechCan = new LoggedCanivore(CANType.MECH);
 
     private SwerveSubsystem swerveSubsystem = Constants.SWERVE_ENABLED ? new SwerveSubsystem(swerveCan) : null;
-    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem(cycleFlywheelOffsetGetter);
+    private final FieldManagementSubsystem fmsSubsystem = new FieldManagementSubsystem();
 
     private final PivotSubsystem pivot;
     private final RollerSubsystem roller;
@@ -86,8 +84,8 @@ public class RobotContainer {
     private final FlywheelSubsystem flywheel;
     private final HoodSubsystem hood;
 
-    private double desiredHoodSpeed = 0;
-    private final MutAngularVelocity flywheelManualVeloCommand = RotationsPerSecond.mutable(0.0);
+    private double cycleHoodPos = CycleShooterConstants.HOOD_POSITION.in(Rotations);
+    private double cycleFlywheelVelo = CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
