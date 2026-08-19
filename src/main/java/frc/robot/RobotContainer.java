@@ -181,8 +181,8 @@ public class RobotContainer {
 
     /** Publishes the live cycle-shot setpoints so the operator can see what they are tuning. */
     private void publishCycleTuning() {
-        Logger.recordOutput("CycleShot/FlywheelVeloRPS", cycleFlywheelVelo);
-        Logger.recordOutput("CycleShot/HoodPosRotations", cycleHoodPos);
+        Logger.recordOutput("CycleShot/FlywheelVeloRPS", cycleFlywheelVelo - CycleShooterConstants.FLYWHEEL_VELO.in(RotationsPerSecond));
+        Logger.recordOutput("CycleShot/HoodPosRotations", cycleHoodPos - CycleShooterConstants.HOOD_POSITION.in(Rotations));
     }
 
     /**
