@@ -331,7 +331,6 @@ public final class Constants {
             // Angle limits (rotations)
             public static final Angle UPPER_ANGLE_LIMIT = Rotations.of(0.1);
             public static final Angle LOWER_ANGLE_LIMIT = Rotations.of(0.0);
-            public static final Angle INIT_ANGLE = UPPER_ANGLE_LIMIT;
             public static final double MAGNET_OFFSET = -0.05688;
 
             // Current limits
