@@ -304,7 +304,6 @@ public final class Constants {
 
             // Velocity tolerance for "at speed" check
             public static final AngularVelocity VELOCITY_TOLERANCE = RotationsPerSecond.of(2.0);
-
             public static final AngularVelocity FLYWHEEL_MAX_SPEED = RotationsPerSecond.of(120.0);
         }
 
