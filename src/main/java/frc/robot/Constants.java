@@ -329,7 +329,7 @@ public final class Constants {
             public static final Distance COM_LENGTH = Inches.of(Math.hypot(0.121549, 9.035458));
 
             // Angle limits (rotations)
-            public static final Angle UPPER_ANGLE_LIMIT = Rotations.of(0.1);
+            public static final Angle UPPER_ANGLE_LIMIT = Rotations.of(0.075);
             public static final Angle LOWER_ANGLE_LIMIT = Rotations.of(0.0);
             public static final double MAGNET_OFFSET = -0.05688;
 
