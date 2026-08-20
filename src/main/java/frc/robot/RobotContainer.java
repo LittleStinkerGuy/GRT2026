@@ -135,7 +135,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         if (Constants.MECH_ENABLED) {
-            driveControllerReal.rightBumper().whileTrue(new CycleShot(flywheel, hood, tower, hopper, () -> cycleFlywheelVelo, () -> cycleHoodPos));
+            driveControllerReal.rightBumper().whileTrue(new CycleShot(flywheel, hood, tower, hopper, pivot, () -> cycleFlywheelVelo, () -> cycleHoodPos));
             driveControllerReal.rightTrigger().whileTrue(roller.runRollerOut());
 
             driveControllerReal.leftBumper().toggleOnTrue(pivot.togglePivot());
