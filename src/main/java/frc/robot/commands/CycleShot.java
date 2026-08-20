@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Constants.SmashAndShootConstants;
 import frc.robot.subsystems.hopper.HopperSubsystem;
+import frc.robot.subsystems.intake.pivot.PivotSubsystem;
 import frc.robot.subsystems.shooter.hood.HoodSubsystem;
 import frc.robot.subsystems.shooter.tower.TowerSubsystem;
 import frc.robot.subsystems.shooter.flywheel.FlywheelSubsystem;
@@ -20,12 +21,16 @@ public class CycleShot extends ParallelCommandGroup {
         HoodSubsystem hood,
         TowerSubsystem tower,
         HopperSubsystem hopper,
+        PivotSubsystem pivot,
         DoubleSupplier flyWheelVeloSupplier,
         DoubleSupplier hoodPosSupplier) {
         super(
             flywheel.setFlywheelVelocity(flyWheelVeloSupplier),
             hood.holdPositionThenHide(hoodPosSupplier),
             tower.runTowerDutyCycle(SmashAndShootConstants.TOWER_DUTY_CYCLE),
-            hopper.runHopperDutyCycle(SmashAndShootConstants.INDEXER_DUTY_CYCLE));
+            hopper.runHopperDutyCycle(SmashAndShootConstants.INDEXER_DUTY_CYCLE),
+            pivot.cyclePivotMid(
+                SmashAndShootConstants.INITIAL_DELAY_SECONDS,
+                SmashAndShootConstants.TOGGLE_INTERVAL_SECONDS));
     }
 }
